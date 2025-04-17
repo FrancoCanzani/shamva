@@ -8,7 +8,7 @@ import redirectRoutes from "./routes/redirect";
 const app = new Hono<Env>();
 
 app.get("/api/some", async (c) => {
-  c.text("some");
+  return c.text("some");
 });
 
 app.post(

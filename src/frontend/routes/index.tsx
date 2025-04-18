@@ -28,7 +28,6 @@ function Index() {
     });
     if (!response.ok) {
       console.error("Form submission failed", await response.json());
-      // Add proper error handling here
       return;
     }
     const result = await response.json();
@@ -79,7 +78,6 @@ function Index() {
               className="w-full bg-transparent p-0 outline-none focus:ring-0 border-none h-full flex-1 min-w-0"
             />
           </div>
-          {/* Add error message display here if needed */}
         </div>
 
         <Button type="submit" className="mt-2">

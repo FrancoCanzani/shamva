@@ -1,0 +1,21 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "my-hono-app",
+  "main": "./src/api/index.ts",
+  "compatibility_date": "2025-04-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true,
+  },
+  "assets": {
+    // the platform assumes that any navigation request (requests which include a Sec-Fetch-Mode: navigate header) are intended for static assets and will serve up index.html whenever a matching static asset match cannot be found. For non-navigation requests (such as requests for data) that don't match a static asset, Cloudflare will invoke the Worker script
+    "not_found_handling": "single-page-application",
+  },
+  "upload_source_maps": true,
+  "kv_namespaces": [
+    {
+      "binding": "LINKS",
+      "id": "0dc40affc7d647e89163d55f581d484b",
+    },
+  ],
+}

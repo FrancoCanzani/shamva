@@ -10,10 +10,10 @@ export default defineConfig({
     TanStackRouterVite({
       target: "react",
       autoCodeSplitting: true,
-      routesDirectory: path.resolve(__dirname, "./src/react-app/routes"),
+      routesDirectory: path.resolve(__dirname, "./src/frontend/routes"),
       generatedRouteTree: path.resolve(
         __dirname,
-        "./src/react-app/routeTree.gen.ts",
+        "./src/frontend/routeTree.gen.ts",
       ),
     }),
     react(),

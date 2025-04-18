@@ -1,4 +1,5 @@
 {
+  "extends": "./tsconfig.json", // to inherit from root
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "target": "ES2020",
@@ -22,5 +23,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src/react-app"]
+  "include": ["src/react-app"] // This tells TS this config applies to files here
 }

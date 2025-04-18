@@ -7,12 +7,12 @@ import redirectRoutes from "./routes/redirect";
 
 const app = new Hono<Env>();
 
-app.get("/api/some", async (c) => {
-  return c.text("some");
+app.get("/api/test", async (c) => {
+  return c.text("test api route");
 });
 
 app.post(
-  "/api/link/new",
+  "/api/shorten",
   validator("json", (value, c) => {
     const parsed = LinkSchema.safeParse(value);
     if (!parsed.success) {

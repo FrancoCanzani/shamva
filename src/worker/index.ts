@@ -40,6 +40,12 @@ app.post(
 
     const slug = body.slug || generateRandomSlug();
 
+    const exists = await c.env.LINKS.get(slug);
+
+    if (exists) {
+      return c.json({ error: "Slug is already on use" }, 500);
+    }
+
     try {
       await c.env.LINKS.put(slug, JSON.stringify(dataToStore));
       return c.json({ success: true, slug: slug, url: dataToStore.url }, 201);

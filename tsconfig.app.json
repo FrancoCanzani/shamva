@@ -23,5 +23,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src/react-app"] // This tells TS this config applies to files here
+  "include": ["src/frontend"] // This tells TS this config applies to files here
 }

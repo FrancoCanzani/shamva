@@ -1,14 +1,17 @@
 import { Hono } from "hono";
 import { validator } from "hono/validator";
-import type { Env } from "../../bindings";
+import type { EnvBindings } from "../../bindings";
 import { LinkSchema } from "../lib/schema";
 import { generateRandomSlug } from "../lib/utils";
+import { createSupabaseClient } from "./lib/supabase/client";
 import redirectRoutes from "./routes/redirect";
 
-const app = new Hono<Env>();
+const app = new Hono<{ Bindings: EnvBindings }>();
 
-app.get("/api/test", async (c) => {
-  return c.text("test api route");
+app.get("/api/test", (c) => {
+  console.log(c.req);
+
+  return c.text("test");
 });
 
 app.post(
@@ -27,17 +30,6 @@ app.post(
   async (c) => {
     const body = c.req.valid("json");
 
-    const dataToStore = {
-      url: body.url,
-      created_at: new Date().toISOString(),
-      click_count: 0,
-      user_id: "franco",
-      expires_at: null,
-      last_accessed_at: null,
-      tags: body.tags ?? [],
-      is_active: true,
-    };
-
     const slug = body.slug || generateRandomSlug();
 
     const exists = await c.env.LINKS.get(slug);
@@ -46,8 +38,28 @@ app.post(
       return c.json({ error: "Slug is already on use" }, 500);
     }
 
+    const dataToStore = {
+      url: body.url,
+      slug: slug,
+      created_at: new Date().toISOString(),
+      click_count: 0,
+      user_id: "7c5d55b2-94ff-4066-8ad5-a465ee842969",
+      expires_at: null,
+      last_accessed_at: null,
+      tags: body.tags ?? [],
+      is_active: true,
+    };
+
+    const supabase = createSupabaseClient(c.env);
+
     try {
       await c.env.LINKS.put(slug, JSON.stringify(dataToStore));
+      const { error } = await supabase
+        .from("links")
+        .insert(dataToStore)
+        .select();
+
+      console.log(error);
       return c.json({ success: true, slug: slug, url: dataToStore.url }, 201);
     } catch (e) {
       console.error("KV Put Error:", e);

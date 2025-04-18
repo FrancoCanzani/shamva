@@ -1,11 +1,11 @@
 import { Hono } from "hono";
-import type { Env } from "../../../bindings";
+import type { EnvBindings } from "../../../bindings";
 
-const redirectRoutes = new Hono<Env>();
+const redirectRoutes = new Hono<{ Bindings: EnvBindings }>();
 
 redirectRoutes.get("/:slug", async (c) => {
   const slug = c.req.param("slug");
-
+  console.log(c.req);
   const dataString = await c.env.LINKS.get(slug);
 
   if (!dataString) {

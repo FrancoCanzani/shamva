@@ -1,9 +1,7 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import React, { useState } from "react";
+import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "../../components/ui/button";
-import { Input } from "../../components/ui/input";
-import { Label } from "../../components/ui/label";
 import { useAuth } from "../../lib/context/auth-context";
 import { supabase } from "../../lib/supabase";
 
@@ -12,32 +10,32 @@ export const Route = createFileRoute("/auth/login")({
 });
 
 function LoginComponent() {
-  const navigate = useNavigate({ from: Route.fullPath });
   const { isLoading: authLoading } = useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleGitHubLogin = async () => {
     setLoading(true);
     setError(null);
     try {
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      const { error: signInError } = await supabase.auth.signInWithOAuth({
+        provider: "github",
       });
+
       if (signInError) throw signInError;
-      toast.success("Logged in successfully!");
-      navigate({ to: "/" });
     } catch (error) {
       if (error instanceof Error) {
-        console.error("Login Error:", error);
-        setError(error.message || "Failed to log in.");
-        toast.error(error.message || "Failed to log in.");
+        console.error("GitHub Login Error:", error);
+        const errorMessage =
+          error.message || "Failed to initiate GitHub login.";
+        setError(errorMessage);
+        toast.error(errorMessage);
+      } else {
+        console.error("GitHub Login Error:", error);
+        const errorMessage = "An unknown error occurred.";
+        setError(errorMessage);
+        toast.error(errorMessage);
       }
-    } finally {
       setLoading(false);
     }
   };
@@ -49,40 +47,19 @@ function LoginComponent() {
   return (
     <div className="max-w-md mx-auto py-8 px-4">
       <h1 className="text-2xl font-bold text-center mb-6">Login</h1>
-      <form onSubmit={handleLogin} className="space-y-4">
-        <div className="space-y-1.5">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            placeholder="you@example.com"
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="password">Password</Label>
-          <Input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            placeholder="••••••••"
-          />
-        </div>
-        {error && <p className="text-sm text-destructive">{error}</p>}
-        <Button type="submit" disabled={loading} className="w-full">
-          {loading ? "Logging in..." : "Login"}
+      <div className="space-y-4">
+        {error && (
+          <p className="text-sm text-destructive text-center">{error}</p>
+        )}
+        <Button
+          onClick={handleGitHubLogin}
+          disabled={loading}
+          className="w-full"
+          variant="outline"
+        >
+          {loading ? "Redirecting to GitHub..." : "Login with GitHub"}
         </Button>
-        <p className="text-center text-sm text-muted-foreground">
-          Don't have an account?{" "}
-          <a href="/signup" className="text-primary hover:underline">
-            Sign Up
-          </a>
-        </p>
-      </form>
+      </div>
     </div>
   );
 }

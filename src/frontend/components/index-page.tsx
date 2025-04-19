@@ -4,6 +4,7 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { useAuth } from "../lib/context/auth-context";
+import { supabase } from "../lib/supabase";
 import { cn } from "../lib/utils";
 
 export default function IndexPage() {
@@ -11,6 +12,8 @@ export default function IndexPage() {
   const [slugInput, setSlugInput] = useState("");
 
   const { user, isLoading, signOut } = useAuth();
+
+  console.log(user);
 
   const name =
     user &&
@@ -96,15 +99,26 @@ export default function IndexPage() {
           <Button type="submit" className="mt-2">
             Create Link
           </Button>
-          <Button
-            onClick={async () => {
-              const res = await fetch("/api/test");
-              console.log(await res.text());
-            }}
-            className="mt-2"
-          >
-            Test
-          </Button>
+          {user && (
+            <Button
+              type="button"
+              onClick={async () => {
+                const { data, error: sessionError } =
+                  await supabase.auth.getSession();
+
+                if (!data || sessionError) return;
+                const res = await fetch("/api/test", {
+                  headers: {
+                    Authorization: `Bearer ${data?.session?.access_token}`,
+                  },
+                });
+                console.log(await res.text());
+              }}
+              className="mt-2"
+            >
+              Test
+            </Button>
+          )}
         </form>
       </div>
     </div>

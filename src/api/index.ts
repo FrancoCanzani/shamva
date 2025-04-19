@@ -3,14 +3,15 @@ import { validator } from "hono/validator";
 import type { EnvBindings } from "../../bindings";
 import { LinkSchema } from "../lib/schema";
 import { generateRandomSlug } from "../lib/utils";
+import { authMiddleware } from "./lib/middleware/auth-middleware";
 import { createSupabaseClient } from "./lib/supabase/client";
 import redirectRoutes from "./routes/redirect";
 
 const app = new Hono<{ Bindings: EnvBindings }>();
 
-app.get("/api/test", (c) => {
-  console.log(c.req);
+app.use("/api/*", authMiddleware);
 
+app.get("/api/test", (c) => {
   return c.text("test");
 });
 

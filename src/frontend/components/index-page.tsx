@@ -1,5 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { toast } from "sonner";
+import { useDebounceCallback } from "usehooks-ts";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -10,10 +12,10 @@ import { cn } from "../lib/utils";
 export default function IndexPage() {
   const [urlInput, setUrlInput] = useState("");
   const [slugInput, setSlugInput] = useState("");
+  const [slugExists, setSlugExists] = useState(false);
+  const [isCheckingSlug, setIsCheckingSlug] = useState(false);
 
   const { user, isLoading, signOut } = useAuth();
-
-  console.log(user);
 
   const name =
     user &&
@@ -25,10 +27,13 @@ export default function IndexPage() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const response = await fetch("/api/shorten", {
+    const { data } = await supabase.auth.getSession();
+
+    const response = await fetch("/shorten", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${data?.session?.access_token}`,
       },
       body: JSON.stringify({
         url: urlInput.trim(),
@@ -44,6 +49,31 @@ export default function IndexPage() {
     setUrlInput("");
     setSlugInput("");
   };
+
+  const handleCheckSlugAvailability = async (value: string) => {
+    setIsCheckingSlug(true);
+    try {
+      const res = await fetch(`/slug/exists?slug=${value}`);
+
+      if (!res.ok) {
+        return;
+      }
+
+      const { exists } = await res.json();
+
+      setSlugExists(exists);
+      console.log(exists);
+    } catch {
+      toast.error("There was an error checking slug availability");
+    } finally {
+      setIsCheckingSlug(false);
+    }
+  };
+
+  const debouncedSlugCheck = useDebounceCallback(
+    handleCheckSlugAvailability,
+    700,
+  );
 
   return (
     <div className="w-full mx-auto gap-6 flex flex-col p-4">
@@ -75,22 +105,39 @@ export default function IndexPage() {
           </div>
 
           <div className="gap-1.5 flex-col flex">
-            <Label htmlFor="slug">Custom Slug (Optional)</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="slug">Custom Slug (Optional)</Label>
+              {slugExists && !isCheckingSlug && (
+                <span className="text-xs text-red-500">{`${slugInput} is already in use`}</span>
+              )}
+            </div>
             <div
               className={cn(
-                "flex h-9 w-full items-center rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 dark:bg-input/30",
+                "flex h-9 w-full items-center rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 dark:bg-input/30",
                 "focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px]",
+                {
+                  "focus-within::border-red-500 focus-within:ring-red-500/50 focus-within:border-red-500":
+                    slugExists,
+                },
               )}
             >
               <span className="text-muted-foreground select-none shrink-0">
                 blinks.sh/
               </span>
               <input
+                min={3}
                 id="slug"
                 placeholder="your-custom-slug"
                 name="slug"
                 value={slugInput}
-                onChange={(e) => setSlugInput(e.target.value)}
+                onChange={(e) => {
+                  setSlugInput(e.target.value);
+                  if (e.target.value && e.target.value.length >= 3) {
+                    debouncedSlugCheck(e.target.value);
+                  } else {
+                    setSlugExists(false);
+                  }
+                }}
                 className="w-full bg-transparent p-0 outline-none focus:ring-0 border-none h-full flex-1 min-w-0"
               />
             </div>

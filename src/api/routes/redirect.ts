@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import type { EnvBindings } from "../../../bindings";
+import { saveAnalytics } from "../services/save-analytics";
 
 const redirectRoutes = new Hono<{ Bindings: EnvBindings }>();
 
@@ -23,6 +24,7 @@ redirectRoutes.get("/:slug", async (c) => {
   data.click_count = (data.click_count || 0) + 1;
 
   c.executionCtx.waitUntil(c.env.LINKS.put(slug, JSON.stringify(data)));
+  c.executionCtx.waitUntil(saveAnalytics(c));
 
   if (!data.url) {
     console.error(`Missing url for slug "${slug}":`, data);

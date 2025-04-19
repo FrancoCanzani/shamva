@@ -15,8 +15,27 @@ app.get("/api/test", (c) => {
   return c.text("test");
 });
 
+app.get("/slug/exists", async (c) => {
+  const slug = c.req.query("slug");
+
+  console.log(slug);
+
+  if (!slug) {
+    return c.json({ error: "Slug to check was not provided" }, 400);
+  }
+  const exists = await c.env.LINKS.get(slug);
+
+  console.log(exists);
+
+  if (exists) {
+    return c.json({ exists: true });
+  }
+
+  return c.json({ exists: false });
+});
+
 app.post(
-  "/api/shorten",
+  "/shorten",
   validator("json", (value, c) => {
     const parsed = LinkSchema.safeParse(value);
     if (!parsed.success) {
@@ -46,7 +65,6 @@ app.post(
       click_count: 0,
       user_id: "7c5d55b2-94ff-4066-8ad5-a465ee842969",
       expires_at: null,
-      last_accessed_at: null,
       tags: body.tags ?? [],
       is_active: true,
     };

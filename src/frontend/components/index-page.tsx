@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useDebounceCallback } from "usehooks-ts";
 import { Button } from "../components/ui/button";
@@ -9,11 +9,20 @@ import { useAuth } from "../lib/context/auth-context";
 import { supabase } from "../lib/supabase";
 import { cn } from "../lib/utils";
 
+interface SlugExistsResponse {
+  exists: boolean;
+}
+
+interface LinkData {
+  name: string;
+}
+
 export default function IndexPage() {
   const [urlInput, setUrlInput] = useState("");
   const [slugInput, setSlugInput] = useState("");
   const [slugExists, setSlugExists] = useState(false);
   const [isCheckingSlug, setIsCheckingSlug] = useState(false);
+  const [links, setLinks] = useState<LinkData[]>([]);
 
   const { user, isLoading, signOut } = useAuth();
 
@@ -53,13 +62,15 @@ export default function IndexPage() {
   const handleCheckSlugAvailability = async (value: string) => {
     setIsCheckingSlug(true);
     try {
-      const res = await fetch(`/slug/exists?slug=${value}`);
+      const res = await fetch(`/slug/exists?slug=${encodeURIComponent(value)}`);
 
       if (!res.ok) {
         return;
       }
 
-      const { exists } = await res.json();
+      const data = (await res.json()) as SlugExistsResponse;
+
+      const exists = data.exists;
 
       setSlugExists(exists);
       console.log(exists);
@@ -75,10 +86,44 @@ export default function IndexPage() {
     700,
   );
 
+  const fetchLinks = async () => {
+    const { data } = await supabase.auth.getSession();
+    try {
+      const res = await fetch("/api/links", {
+        headers: {
+          Authorization: `Bearer ${data?.session?.access_token}`,
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch links");
+      }
+
+      interface LinksResponse {
+        links: {
+          keys: { name: string }[];
+          list_complete: boolean;
+          cacheStatus: string | null;
+        };
+      }
+
+      const result: LinksResponse = await res.json();
+
+      setLinks(result.links.keys || []);
+    } catch (error) {
+      console.error("Error fetching links:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchLinks();
+  }, []);
+
   return (
     <div className="w-full mx-auto gap-6 flex flex-col p-4">
       <header className="w-full flex items-center justify-between space-x-2">
         {!isLoading && user ? name : <Link to="/auth/login">Login</Link>}
+        <Link to="/dashboard/links">Dashboard</Link>
         <Button variant={"outline"} size={"sm"} onClick={signOut}>
           Sign Out
         </Button>
@@ -146,27 +191,22 @@ export default function IndexPage() {
           <Button type="submit" className="mt-2">
             Create Link
           </Button>
-          {user && (
-            <Button
-              type="button"
-              onClick={async () => {
-                const { data, error: sessionError } =
-                  await supabase.auth.getSession();
-
-                if (!data || sessionError) return;
-                const res = await fetch("/api/test", {
-                  headers: {
-                    Authorization: `Bearer ${data?.session?.access_token}`,
-                  },
-                });
-                console.log(await res.text());
-              }}
-              className="mt-2"
-            >
-              Test
-            </Button>
-          )}
         </form>
+        <div className="mt-8">
+          <h2 className="text-xl font-bold">Your Links</h2>
+          <ul className="mt-4 space-y-2">
+            {links.map((link, index) => (
+              <li key={index} className="border p-2 rounded-md">
+                <p>
+                  <a
+                    target="_blank"
+                    href={`http://localhost:8787/${link.name}`}
+                  >{`http://localhost:8787/${link.name}`}</a>
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   );

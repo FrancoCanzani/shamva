@@ -1,62 +1,14 @@
 import { Button } from "@/frontend/components/ui/button";
-import { supabase } from "@/frontend/lib/supabase";
-import { ApiLinksResponse, Link as LinkType } from "@/frontend/lib/types";
+import { fetchLinks } from "@/frontend/lib/loaders/links";
+import { Link as LinkType } from "@/frontend/lib/types";
 import { copyToClipboard, formatLinkDate } from "@/frontend/lib/utils";
 import { CopyIcon } from "@radix-ui/react-icons";
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { format, parseISO } from "date-fns";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/dashboard/links")({
-  loader: async ({ abortController }) => {
-    const {
-      data: { session },
-      error: sessionError,
-    } = await supabase.auth.getSession();
-
-    if (sessionError) {
-      throw new Error("Failed to get authentication session");
-    }
-
-    if (!session?.access_token) {
-      throw redirect({
-        to: "/auth/login",
-        search: {
-          redirect: Route.fullPath,
-        },
-        throw: true,
-      });
-    }
-
-    const token = session.access_token;
-
-    try {
-      const response = await fetch("/api/links", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        signal: abortController?.signal,
-      });
-
-      if (!response.ok) {
-        let errorBody = null;
-        try {
-          errorBody = await response.json();
-        } catch (_) {}
-        throw new Error(`Failed to fetch links: ${response.statusText}`);
-      }
-
-      const data = (await response.json()) as ApiLinksResponse;
-      return data.links;
-    } catch (error: any) {
-      if (error.name === "AbortError") {
-        return [];
-      }
-      throw error;
-    }
-  },
-
+export const Route = createFileRoute("/dashboard/links/")({
+  loader: ({ abortController }) => fetchLinks({ abortController }),
   pendingComponent: LoadingLinksComponent,
   errorComponent: ErrorLoadingLinksComponent,
   component: LinksComponent,
@@ -90,8 +42,9 @@ function LinksComponent() {
           {links.map((link: LinkType) => (
             <li key={link.id}>
               <Link
-                to={`/dashboard/links/${link.slug}`}
-                className="flex justify-between items-center rounded hover:bg-neutral-50 p-3 hover:shadow-2xs transition-shadow duration-300"
+                to="/dashboard/links/$slug"
+                params={{ slug: link.slug }}
+                className="flex justify-between items-center gap-4 rounded hover:bg-muted p-3 transition-colors duration-150 group"
               >
                 <div>
                   <div className="flex items-center justify-start space-x-1.5">

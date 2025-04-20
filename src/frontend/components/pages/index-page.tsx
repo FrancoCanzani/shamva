@@ -1,13 +1,13 @@
+import { useAuth } from "@/frontend/lib/context/auth-context";
+import { supabase } from "@/frontend/lib/supabase";
+import { cn } from "@/frontend/lib/utils";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useDebounceCallback } from "usehooks-ts";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
-import { useAuth } from "../lib/context/auth-context";
-import { supabase } from "../lib/supabase";
-import { cn } from "../lib/utils";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 
 interface SlugExistsResponse {
   exists: boolean;

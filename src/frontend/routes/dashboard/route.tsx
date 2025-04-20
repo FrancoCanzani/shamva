@@ -1,6 +1,5 @@
 import { AppSidebar } from "@/frontend/components/app-sidebar";
 import NotFoundPage from "@/frontend/components/pages/not-found-page";
-import { SidebarProvider } from "@/frontend/components/ui/sidebar";
 import { useAuth } from "@/frontend/lib/context/auth-context";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
@@ -16,11 +15,11 @@ function DashboardLayout() {
   if (!isLoading && !user) redirect({ to: "/auth/login", throw: true });
 
   return (
-    <SidebarProvider>
+    <div className="flex h-screen w-full min-w-0 overflow-hidden">
       <AppSidebar />
-      <main className="flex-1">
+      <main className="flex flex-1 flex-col overflow-auto">
         <Outlet />
       </main>
-    </SidebarProvider>
+    </div>
   );
 }

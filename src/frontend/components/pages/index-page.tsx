@@ -2,7 +2,7 @@ import { useAuth } from "@/frontend/lib/context/auth-context";
 import { supabase } from "@/frontend/lib/supabase";
 import { cn } from "@/frontend/lib/utils";
 import { Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { useDebounceCallback } from "usehooks-ts";
 import { Button } from "../ui/button";
@@ -13,16 +13,11 @@ interface SlugExistsResponse {
   exists: boolean;
 }
 
-interface LinkData {
-  name: string;
-}
-
 export default function IndexPage() {
   const [urlInput, setUrlInput] = useState("");
   const [slugInput, setSlugInput] = useState("");
   const [slugExists, setSlugExists] = useState(false);
   const [isCheckingSlug, setIsCheckingSlug] = useState(false);
-  const [links, setLinks] = useState<LinkData[]>([]);
 
   const { user, isLoading, signOut } = useAuth();
 
@@ -85,39 +80,6 @@ export default function IndexPage() {
     handleCheckSlugAvailability,
     700,
   );
-
-  const fetchLinks = async () => {
-    const { data } = await supabase.auth.getSession();
-    try {
-      const res = await fetch("/api/links", {
-        headers: {
-          Authorization: `Bearer ${data?.session?.access_token}`,
-        },
-      });
-
-      if (!res.ok) {
-        throw new Error("Failed to fetch links");
-      }
-
-      interface LinksResponse {
-        links: {
-          keys: { name: string }[];
-          list_complete: boolean;
-          cacheStatus: string | null;
-        };
-      }
-
-      const result: LinksResponse = await res.json();
-
-      setLinks(result.links.keys || []);
-    } catch (error) {
-      console.error("Error fetching links:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchLinks();
-  }, []);
 
   return (
     <div className="w-full mx-auto gap-6 flex flex-col p-4">
@@ -192,21 +154,6 @@ export default function IndexPage() {
             Create Link
           </Button>
         </form>
-        <div className="mt-8">
-          <h2 className="text-xl font-bold">Your Links</h2>
-          <ul className="mt-4 space-y-2">
-            {links.map((link, index) => (
-              <li key={index} className="border p-2 rounded-md">
-                <p>
-                  <a
-                    target="_blank"
-                    href={`http://localhost:8787/${link.name}`}
-                  >{`http://localhost:8787/${link.name}`}</a>
-                </p>
-              </li>
-            ))}
-          </ul>
-        </div>
       </div>
     </div>
   );

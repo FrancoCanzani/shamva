@@ -5,8 +5,12 @@ import { LinkSchema } from "../../lib/schema";
 import { generateRandomSlug } from "../../lib/utils";
 import { authMiddleware } from "../lib/middleware/auth-middleware";
 import { createSupabaseClient } from "../lib/supabase/client";
+import { ApiVariables } from "../lib/types";
 
-const apiRoutes = new Hono<{ Bindings: EnvBindings }>();
+const apiRoutes = new Hono<{
+  Bindings: EnvBindings;
+  Variables: ApiVariables;
+}>();
 
 apiRoutes.use("/api/*", authMiddleware);
 
@@ -15,13 +19,33 @@ apiRoutes.get("/api/test", (c) => {
 });
 
 apiRoutes.get("/api/links", async (c) => {
-  const links = await c.env.LINKS.list();
+  const userId = c.get("userId");
 
-  if (!links) {
-    return c.json({ error: "Slug to check was not provided" }, 400);
+  if (!userId) {
+    console.warn("User ID unexpectedly missing in /api/links handler.");
+    return c.json({ error: "Unauthorized" }, 401);
   }
 
-  return c.json({ links });
+  const supabase = createSupabaseClient(c.env);
+
+  try {
+    const { data, error } = await supabase
+      .from("links")
+      .select("*")
+      .eq("user_id", userId);
+
+    if (error) {
+      console.error("Supabase error fetching links:", error.message);
+      return c.json({ error: "Failed to retrieve links from database" }, 500);
+    }
+
+    const linksData = data ?? [];
+
+    return c.json({ links: linksData });
+  } catch (err) {
+    console.error("Unexpected error in /api/links route:", err);
+    return c.json({ error: "Internal server error" }, 500);
+  }
 });
 
 apiRoutes.get("/slug/exists", async (c) => {

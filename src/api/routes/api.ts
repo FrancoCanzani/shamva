@@ -129,7 +129,20 @@ apiRoutes.get("/api/analytics", async (c) => {
   try {
     const { data, error } = await supabase
       .from("link_analytics")
-      .select("*")
+      .select(
+        `
+        slug,
+        created_at,
+        user_agent,
+        country_code,
+        continent_code,
+        city,
+        links (
+          url,
+          click_count
+        )
+      `,
+      )
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
 

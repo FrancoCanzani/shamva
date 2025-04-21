@@ -51,14 +51,10 @@ apiRoutes.get("/api/links", async (c) => {
 apiRoutes.get("/slug/exists", async (c) => {
   const slug = c.req.query("slug");
 
-  console.log(slug);
-
   if (!slug) {
     return c.json({ error: "Slug to check was not provided" }, 400);
   }
   const exists = await c.env.LINKS.get(slug);
-
-  console.log(exists);
 
   if (exists) {
     return c.json({ exists: true });
@@ -119,5 +115,37 @@ apiRoutes.post(
     }
   },
 );
+
+apiRoutes.get("/api/analytics", async (c) => {
+  const userId = c.get("userId");
+
+  if (!userId) {
+    console.warn("User ID unexpectedly missing in /api/analytics handler.");
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  const supabase = createSupabaseClient(c.env);
+
+  try {
+    const { data, error } = await supabase
+      .from("link_analytics")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Supabase error fetching analytics:", error.message);
+      return c.json(
+        { error: "Failed to retrieve analytics from database" },
+        500,
+      );
+    }
+
+    return c.json({ analytics: data });
+  } catch (err) {
+    console.error("Unexpected error in /api/analytics route:", err);
+    return c.json({ error: "Internal server error" }, 500);
+  }
+});
 
 export default apiRoutes;

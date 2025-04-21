@@ -1,7 +1,6 @@
 import { Context } from "hono";
 import { createSupabaseClient } from "../lib/supabase/client";
 
-// we need to hard test this as if it doesnt run we wont have analytics nor errors
 export async function saveAnalytics(c: Context) {
   const supabase = createSupabaseClient(c.env);
 
@@ -9,6 +8,20 @@ export async function saveAnalytics(c: Context) {
   const pathname = url.pathname;
 
   const slug = pathname.split("/")[1];
+
+  const { data: linksData, error: linksError } = await supabase
+    .from("links")
+    .select("user_id")
+    .eq("slug", slug)
+    .single();
+
+  let userId;
+
+  if (!linksData || linksError) {
+    userId = null;
+  } else {
+    userId = linksData.user_id;
+  }
 
   const clickData = {
     request_url: c.req.url,
@@ -30,11 +43,14 @@ export async function saveAnalytics(c: Context) {
     is_eu_country: c.req.raw.cf?.isEUCountry === "1",
     client_accept_encoding: c.req.raw.cf?.clientAcceptEncoding,
     http_protocol: c.req.raw.cf?.httpProtocol,
-    // cache_status will be handled later if possible
-    // user_id: ... (extract from cookie if authenticated)
+    user_id: userId,
   };
 
-  const { error } = await supabase.from("link_analytics").insert([clickData]);
+  const { data, error } = await supabase
+    .from("link_analytics")
+    .insert([clickData]);
+
+  console.log(data);
 
   if (error) {
     console.error("Error inserting click data:", error);

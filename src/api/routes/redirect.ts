@@ -8,7 +8,6 @@ redirectRoutes.get("/:slug", async (c) => {
   const slug = c.req.param("slug");
   console.log("Slug requested:", slug);
 
-  // Retrieve the slug data from the KV store
   const dataString = await c.env.LINKS.get(slug);
 
   if (!dataString) {
@@ -19,23 +18,37 @@ redirectRoutes.get("/:slug", async (c) => {
   let data;
 
   try {
-    // Parse the data from the KV store
     data = JSON.parse(dataString);
   } catch (e) {
     console.error(`Failed to parse KV data for slug "${slug}":`, dataString, e);
     return c.text("Internal Server Error: Invalid data format", 500);
   }
 
-  // Increment the click count
+  console.log("Incrementing click count...");
   data.click_count = (data.click_count || 0) + 1;
 
-  // Update the KV store with the new click count
-  c.executionCtx.waitUntil(c.env.LINKS.put(slug, JSON.stringify(data)));
+  console.log("Scheduling KV store update...");
+  c.executionCtx?.waitUntil(
+    c.env.LINKS.put(slug, JSON.stringify(data))
+      .then(() => {
+        console.log("KV store update completed.");
+      })
+      .catch((err) => {
+        console.error("KV store update failed:", err);
+      }),
+  );
 
-  // Save analytics data asynchronously
-  c.executionCtx.waitUntil(saveAnalytics(c));
+  console.log("Scheduling analytics save...");
+  c.executionCtx?.waitUntil(
+    saveAnalytics(c)
+      .then(() => {
+        console.log("Analytics save completed.");
+      })
+      .catch((err) => {
+        console.error("Analytics save failed:", err);
+      }),
+  );
 
-  // Ensure the URL exists in the data
   if (!data.url) {
     console.error(`Missing URL for slug "${slug}":`, data);
     return c.text("Internal Server Error: Missing redirect URL", 500);

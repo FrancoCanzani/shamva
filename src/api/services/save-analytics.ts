@@ -1,7 +1,7 @@
 import { Context } from "hono";
 import { createSupabaseClient } from "../lib/supabase/client";
 
-export async function saveAnalytics(c: Context) {
+export async function saveLog(c: Context) {
   const supabase = createSupabaseClient(c.env);
 
   const url = new URL(c.req.url);

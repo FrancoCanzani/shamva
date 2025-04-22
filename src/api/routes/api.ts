@@ -1,8 +1,6 @@
 import { Hono } from "hono";
-import { validator } from "hono/validator";
+import { nanoid } from "nanoid";
 import type { EnvBindings } from "../../../bindings";
-import { LinkSchema } from "../../lib/schema";
-import { generateRandomSlug } from "../../lib/utils";
 import { authMiddleware } from "../lib/middleware/auth-middleware";
 import { createSupabaseClient } from "../lib/supabase/client";
 import { ApiVariables } from "../lib/types";
@@ -12,153 +10,136 @@ const apiRoutes = new Hono<{
   Variables: ApiVariables;
 }>();
 
+const DEFAULT_CHECK_INTERVAL_MS = 60 * 1000;
+
 apiRoutes.use("/api/*", authMiddleware);
 
 apiRoutes.get("/api/test", (c) => {
   return c.text("test");
 });
 
-apiRoutes.get("/api/links", async (c) => {
-  const userId = c.get("userId");
-
-  if (!userId) {
-    console.warn("User ID unexpectedly missing in /api/links handler.");
-    return c.json({ error: "Unauthorized" }, 401);
-  }
-
-  const supabase = createSupabaseClient(c.env);
-
+apiRoutes.post("/api/monitors", async (c) => {
+  let url, method, headers, body;
   try {
-    const { data, error } = await supabase
-      .from("links")
-      .select("*")
-      .eq("user_id", userId);
-
-    if (error) {
-      console.error("Supabase error fetching links:", error.message);
-      return c.json({ error: "Failed to retrieve links from database" }, 500);
+    ({ url, method, headers, body } = await c.req.json());
+    if (
+      !url ||
+      typeof url !== "string" ||
+      !method ||
+      typeof method !== "string"
+    ) {
+      throw new Error("Invalid input data: URL and Method are required.");
     }
-
-    const linksData = data ?? [];
-
-    return c.json({ links: linksData });
   } catch (err) {
-    console.error("Unexpected error in /api/links route:", err);
-    return c.json({ error: "Internal server error" }, 500);
-  }
-});
-
-apiRoutes.get("/slug/exists", async (c) => {
-  const slug = c.req.query("slug");
-
-  if (!slug) {
-    return c.json({ error: "Slug to check was not provided" }, 400);
-  }
-  const exists = await c.env.LINKS.get(slug);
-
-  if (exists) {
-    return c.json({ exists: true });
+    console.error("Error parsing request body or invalid data:", err);
+    return c.json(
+      { error: "Invalid request body", details: err || String(err) },
+      400,
+    );
   }
 
-  return c.json({ exists: false });
-});
-
-apiRoutes.post(
-  "/shorten",
-  validator("json", (value, c) => {
-    const parsed = LinkSchema.safeParse(value);
-    if (!parsed.success) {
-      return c.json(
-        { error: "Validation failed", issues: parsed.error.flatten() },
-        400,
-      );
-    }
-    return parsed.data;
-  }),
-
-  async (c) => {
-    const body = c.req.valid("json");
-
-    const slug = body.slug || generateRandomSlug();
-
-    const exists = await c.env.LINKS.get(slug);
-
-    if (exists) {
-      return c.json({ error: "Slug is already on use" }, 500);
-    }
-
-    const dataToStore = {
-      url: body.url,
-      slug: slug,
-      created_at: new Date().toISOString(),
-      click_count: 0,
-      user_id: "7c5d55b2-94ff-4066-8ad5-a465ee842969",
-      expires_at: null,
-      tags: body.tags ?? [],
-      is_active: true,
-    };
-
-    const supabase = createSupabaseClient(c.env);
-
-    try {
-      await c.env.LINKS.put(slug, JSON.stringify(dataToStore));
-      const { error } = await supabase
-        .from("links")
-        .insert(dataToStore)
-        .select();
-
-      console.log(error);
-      return c.json({ success: true, slug: slug, url: dataToStore.url }, 201);
-    } catch (e) {
-      console.error("KV Put Error:", e);
-      return c.json({ error: "Failed to create link" }, 500);
-    }
-  },
-);
-
-apiRoutes.get("/api/analytics", async (c) => {
   const userId = c.get("userId");
-
-  if (!userId) {
-    console.warn("User ID unexpectedly missing in /api/analytics handler.");
-    return c.json({ error: "Unauthorized" }, 401);
-  }
-
-  const supabase = createSupabaseClient(c.env);
+  const hostname = new URL(url).hostname;
+  const doName = `${userId}-${hostname}-${nanoid(8)}`;
+  const doId = c.env.CHECKER_DURABLE_OBJECT.idFromName(doName);
+  const stub = c.env.CHECKER_DURABLE_OBJECT.get(doId);
 
   try {
-    const { data, error } = await supabase
-      .from("link_analytics")
-      .select(
-        `
-        slug,
-        created_at,
-        user_agent,
-        country_code,
-        continent_code,
-        city,
-        links (
-          url,
-          click_count
-        )
-      `,
-      )
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false });
+    const { data: monitorData, error: insertError } =
+      await createSupabaseClient(c.env)
+        .from("monitors")
+        .insert([
+          {
+            url: url,
+            method: method,
+            headers: headers ?? {},
+            body: body,
+            user_id: userId,
+            do_id: doId.toString(),
+          },
+        ])
+        .select()
+        .single();
 
-    if (error) {
-      console.error("Supabase error fetching analytics:", error.message);
-      return c.json(
-        { error: "Failed to retrieve analytics from database" },
-        500,
+    if (insertError) {
+      console.error("Supabase insert error:", insertError);
+      throw new Error(
+        `Failed to create monitor record: ${insertError.message}`,
       );
     }
 
-    return c.json({ analytics: data });
-  } catch (err) {
-    console.error("Unexpected error in /api/analytics route:", err);
-    return c.json({ error: "Internal server error" }, 500);
+    if (!monitorData) {
+      throw new Error("Failed to create monitor record: No data returned.");
+    }
+
+    await stub.initialize({
+      urlToCheck: url,
+      monitorId: monitorData.id,
+      userId: userId,
+      intervalMs: monitorData.interval_ms || DEFAULT_CHECK_INTERVAL_MS,
+    });
+
+    return c.json({ data: monitorData });
+  } catch (error) {
+    console.error("Error during monitor creation or DO initialization:", error);
+    return c.json(
+      {
+        error: "Failed to create monitor",
+        details: error instanceof Error ? error.message : String(error),
+      },
+      500,
+    );
   }
+});
+
+apiRoutes.get("/api/check", async (c) => {
+  const urlToCheck = c.req.query("url");
+
+  if (!urlToCheck) {
+    return c.json({ error: "Provide a url to check" }, 400);
+  }
+
+  try {
+    const id = c.env.CHECKER_DURABLE_OBJECT.idFromName("checker");
+    const stub = c.env.CHECKER_DURABLE_OBJECT.get(id);
+
+    const response = await stub.fetch(new Request(urlToCheck));
+
+    const data = await response.json();
+
+    return c.json({ data });
+  } catch (error) {
+    console.error("Error checking URL:", error);
+    return c.json(
+      {
+        error: "Failed to check URL",
+        details: error instanceof Error ? error.message : String(error),
+      },
+      500,
+    );
+  }
+});
+
+apiRoutes.get("/api/logs", async (c) => {
+  const userId = c.get("userId");
+
+  const supabase = createSupabaseClient(c.env);
+
+  const { data: logs, error } = await supabase
+    .from("logs")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", {
+      ascending: true,
+    })
+    .limit(50);
+
+  if (error) {
+    return c.json({ error: "Error fetching logs from db" });
+  }
+
+  console.log(logs);
+  return c.json({ logs });
 });
 
 export default apiRoutes;

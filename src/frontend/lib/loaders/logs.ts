@@ -1,8 +1,7 @@
 import { redirect } from "@tanstack/react-router";
 import { supabase } from "../supabase";
-import { ApiAnalyticsResponse } from "../types";
 
-export async function fetchAnalytics({
+export async function fetchLogs({
   abortController,
 }: {
   abortController: AbortController;
@@ -27,7 +26,7 @@ export async function fetchAnalytics({
   const token = session.access_token;
 
   try {
-    const response = await fetch("/api/analytics", {
+    const response = await fetch("/api/logs", {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -48,8 +47,8 @@ export async function fetchAnalytics({
       throw new Error(`Failed to fetch analytics`);
     }
 
-    const data = (await response.json()) as ApiAnalyticsResponse;
-    return data.analytics ?? [];
+    const data = await response.json();
+    return data ?? [];
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") {
       console.log("Analytics fetch aborted.");

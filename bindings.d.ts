@@ -7,4 +7,5 @@ export interface EnvBindings {
   SUPABASE_ANON_KEY: string;
   NAME: string;
   DATABASE_URL: string;
+  CHECKER_DURABLE_OBJECT: DurableObjectNamespace<CheckerDurableObject>;
 }

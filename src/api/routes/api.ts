@@ -138,7 +138,6 @@ apiRoutes.get("/api/logs", async (c) => {
     return c.json({ error: "Error fetching logs from db" });
   }
 
-  console.log(logs);
   return c.json({ logs });
 });
 

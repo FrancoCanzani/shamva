@@ -15,7 +15,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard/route'
 import { Route as IndexImport } from './routes/index'
 import { Route as AuthLoginImport } from './routes/auth/login'
 import { Route as DashboardMonitorsIndexImport } from './routes/dashboard/monitors/index'
-import { Route as DashboardLogsIndexImport } from './rou./routes/dashboard/logs/index
+import { Route as DashboardLogsIndexImport } from './routes/dashboard/logs/index'
 import { Route as DashboardMonitorsSlugIndexImport } from './routes/dashboard/monitors/$slug/index'
 
 // Create/Update Routes

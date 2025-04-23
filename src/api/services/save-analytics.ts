@@ -50,8 +50,6 @@ export async function saveLog(c: Context) {
     .from("link_analytics")
     .insert([clickData]);
 
-  console.log(data);
-
   if (error) {
     console.error("Error inserting click data:", error);
   }

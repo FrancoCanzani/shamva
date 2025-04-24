@@ -1,11 +1,12 @@
 import { redirect } from "@tanstack/react-router";
 import { supabase } from "../supabase";
+import { ApiResponse, Log } from "../types";
 
 export async function fetchLogs({
   abortController,
 }: {
   abortController: AbortController;
-}) {
+}): Promise<Log[]> {
   const {
     data: { session },
     error: sessionError,
@@ -43,15 +44,21 @@ export async function fetchLogs({
     }
 
     if (!response.ok) {
-      console.error("Failed to fetch analytics");
-      throw new Error(`Failed to fetch analytics`);
+      console.error("Failed to fetch logs");
+      throw new Error(`Failed to fetch logs`);
     }
 
-    const data = await response.json();
-    return data ?? [];
+    const result: ApiResponse<Log[]> = await response.json();
+
+    if (!result.success || !result.data) {
+      console.error("API Error:", result.error, result.details);
+      throw new Error(result.error || "Failed to fetch logs");
+    }
+
+    return result.data || [];
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") {
-      console.log("Analytics fetch aborted.");
+      console.log("Logs fetch aborted.");
       return [];
     }
 
@@ -64,12 +71,12 @@ export async function fetchLogs({
       throw error;
     }
 
-    console.error("Error fetching analytics:", error);
+    console.error("Error fetching logs:", error);
 
     if (error instanceof Error) {
-      throw new Error(`Failed to load analytics data: ${error.message}`);
+      throw new Error(`Failed to load logs data: ${error.message}`);
     }
 
-    throw new Error("An unknown error occurred while fetching analytics data.");
+    throw new Error("An unknown error occurred while fetching logs data.");
   }
 }

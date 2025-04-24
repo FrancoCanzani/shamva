@@ -189,3 +189,64 @@ Steps:
 - Chrome DevTools / Lighthouse
 - Puppeteer / Playwright (for automation)
 - Analytics tools like Web Vitals or SpeedCurve
+
+-----
+
+# DO Flowchart
+
+[Start]
+  |
+  |---[DO Creation (New Website)]-----------------------------|
+  |   |                                                       |
+  |   [Attempt to Create DOs for Website (e.g., 6 Regions)]   |
+  |   |                                                       |
+  |   [Success?]--------------------------------------------- |
+  |   | Yes: Store Config in KV, Log Success in Supabase      |
+  |   |       -> Proceed to DO Checking                      |
+  |   | No: Error (e.g., Cloudflare Limit, Namespace Issue)   |
+  |   |                                                       |
+  |   [Retry Creation (Up to 3 Times, 5s Delay)]------------- |
+  |   |                                                       |
+  |   [Retry Success?]--------------------------------------- |
+  |   | Yes: Store Config, Log Success -> DO Checking         |
+  |   | No: Log Error in Supabase                            |
+  |   |       Notify Provider (Email/Slack: "DO Creation Failed") |
+  |   |       Notify User ("Setup Failed, Contact Support")   |
+  |   |       -> Stop Creation Process                      |
+  |                                                           |
+  |---[DO Checking (Ongoing Monitoring)]-----------------------|
+  |   |                                                       |
+  |   [Worker Triggers DO Check (e.g., Every 30s)]            |
+  |   |                                                       |
+  |   [Check Success?]--------------------------------------- |
+  |   | Yes: Log Result to Supabase (Status: Up/Down)         |
+  |   |       -> Continue Next Check                         |
+  |   | No: Error (e.g., Website Down, Network Issue, DO Inactive) |
+  |   |                                                       |
+  |   [Error Type?]------------------------------------------ |
+  |   | Website Down: Retry Check (2 Times, 10s Delay)        |
+  |   |   [Retry Success?]----------------------------------- |
+  |   |   | Yes: Log Result -> Continue                      |
+  |   |   | No: Log Error (Website Down) in Supabase         |
+  |   |   |     Notify User ("Website Down for X Minutes")   |
+  |   |   |     -> Continue Next Check                      |
+  |   | Other (e.g., DO Inactive, Cloudflare Limit):         |
+  |   |   Retry Check (3 Times, 5s Delay)                    |
+  |   |   [Retry Success?]----------------------------------- |
+  |   |   | Yes: Log Result -> Continue                      |
+  |   |   | No: Log Error in Supabase (e.g., "DO Inactive")   |
+  |   |   |     Notify Provider ("DO Check Failed")          |
+  |   |   |     -> Continue Next Check                      |
+  |                                                           |
+  |---[Cron Job Monitoring (Every 5 Minutes)]------------------|
+  |   |                                                       |
+  |   [Query Supabase: Recent Logs for Active Websites]       |
+  |   |                                                       |
+  |   [Logs Found Within Interval (e.g., 60s for 30s Checks)?]|
+  |   | Yes: DOs Active -> Continue Monitoring                |
+  |   | No: Log Error in Supabase ("No Recent Checks")         |
+  |   |     Notify Provider ("DOs Potentially Inactive")      |
+  |   |     Attempt Reinvoke DOs (Send Test Request)          |
+  |   |     -> Continue Monitoring                           |
+  |                                                           |
+  [End]

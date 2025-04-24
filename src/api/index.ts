@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { EnvBindings } from "../../bindings";
-import { CheckerDurableObject } from "./lib/classes";
+import { CheckerDurableObject } from "./lib/durable-objects";
 import apiRoutes from "./routes/api";
 
 export { CheckerDurableObject };

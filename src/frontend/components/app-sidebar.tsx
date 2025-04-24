@@ -13,8 +13,8 @@ import { Button } from "./ui/button";
 export function AppSidebar() {
   const navItems = [
     {
-      href: "/dashboard/links",
-      label: "Links",
+      href: "/dashboard/monitors",
+      label: "Monitors",
       icon: <LinkIcon className="w-5 h-5" />,
     },
     {
@@ -23,7 +23,7 @@ export function AppSidebar() {
       icon: <FolderIcon className="w-5 h-5" />,
     },
     {
-      href: "/dashboard/analytics",
+      href: "/dashboard/logs",
       label: "Analytics",
       icon: <ChartBarIcon className="w-5 h-5" />,
     },

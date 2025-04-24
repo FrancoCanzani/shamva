@@ -11,19 +11,24 @@ import {
 } from "@/frontend/components/ui/select";
 import { Textarea } from "@/frontend/components/ui/textarea";
 import { useAuth } from "@/frontend/lib/context/auth-context";
+import {
+  ApiResponse,
+  CreateMonitorRequest,
+  Monitor,
+} from "@/frontend/lib/types";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 
-const monitorSchema = z.object({
+const monitorFormSchema = z.object({
   url: z.string().url("Please enter a valid URL"),
   headers: z.string().optional(),
   method: z.enum(["GET", "POST", "HEAD"]),
   body: z.string().optional(),
 });
 
-type MonitorFormData = z.infer<typeof monitorSchema>;
+type MonitorFormData = z.infer<typeof monitorFormSchema>;
 
 export const Route = createFileRoute("/dashboard/monitors/")({
   component: MonitorsComponent,
@@ -62,24 +67,31 @@ function MonitorsComponent() {
     setErrors({});
 
     try {
-      const validatedData = monitorSchema.parse(formData);
-      let headers = {};
-      let body = null;
+      const validatedForm = monitorFormSchema.parse(formData);
+
+      let parsedHeaders: Record<string, string> = {};
+      let parsedBody = null;
 
       try {
-        headers = validatedData.headers
-          ? JSON.parse(validatedData.headers)
-          : {};
-        if (validatedData.method === "POST" && validatedData.body) {
-          body = JSON.parse(validatedData.body);
+        if (validatedForm.headers && validatedForm.headers.trim()) {
+          parsedHeaders = JSON.parse(validatedForm.headers);
+        }
+
+        if (
+          validatedForm.method === "POST" &&
+          validatedForm.body &&
+          validatedForm.body.trim()
+        ) {
+          parsedBody = JSON.parse(validatedForm.body);
         }
       } catch {
         setErrors({
-          ...(validatedData.headers && {
+          ...(validatedForm.headers && {
             headers: "Invalid JSON format in headers",
           }),
-          ...(validatedData.body && { body: "Invalid JSON format in body" }),
+          ...(validatedForm.body && { body: "Invalid JSON format in body" }),
         });
+        setIsSubmitting(false);
         return;
       }
 
@@ -87,27 +99,33 @@ function MonitorsComponent() {
         throw new Error("No authentication token found");
       }
 
+      const monitorRequest: CreateMonitorRequest = {
+        url: validatedForm.url,
+        method: validatedForm.method,
+        headers: parsedHeaders,
+        body: parsedBody,
+      };
+
       const response = await fetch("/api/monitors", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({
-          url: validatedData.url,
-          headers,
-          method: validatedData.method,
-          body,
-        }),
+        body: JSON.stringify(monitorRequest),
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(`Failed to create monitor: ${error}`);
-      }
+      const result: ApiResponse<Monitor> = await response.json();
 
-      toast.success("Monitor created successfully");
-      setFormData({ url: "", headers: "{}", method: "GET", body: "" });
+      if (result.success && result.data) {
+        toast.success("Monitor created successfully");
+        setFormData({ url: "", headers: "", method: "GET", body: "" });
+      } else {
+        toast.error(result.error || "Failed to create monitor");
+        if (result.details) {
+          console.error("Error details:", result.details);
+        }
+      }
     } catch (error) {
       if (error instanceof z.ZodError) {
         const newErrors: Record<string, string> = {};

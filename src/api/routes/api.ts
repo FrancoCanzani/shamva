@@ -16,17 +16,6 @@ apiRoutes.get("/api/test", (c) => {
   return c.text("test");
 });
 
-type JsonValue =
-  | string
-  | number
-  | boolean
-  | null
-  | JsonObject
-  | Array<JsonValue>;
-interface JsonObject {
-  [key: string]: JsonValue;
-}
-
 apiRoutes.use("/api/*", authMiddleware);
 
 apiRoutes.get("/api/test", (c) => {
@@ -34,10 +23,7 @@ apiRoutes.get("/api/test", (c) => {
 });
 
 apiRoutes.post("/api/monitors", async (c) => {
-  let url: string,
-    method: string,
-    headers: JsonObject | undefined,
-    body: JsonValue | undefined;
+  let url: string, method: string, headers, body;
 
   try {
     const jsonData = await c.req.json();
@@ -121,6 +107,7 @@ apiRoutes.post("/api/monitors", async (c) => {
       monitorId: monitorData.id,
       userId: userId,
       intervalMs: monitorData.interval_ms ?? 60000,
+      method: method,
     };
 
     const response = await doStub.fetch(
@@ -132,19 +119,9 @@ apiRoutes.post("/api/monitors", async (c) => {
     );
 
     if (!response.ok) {
-      let errorDetails = `DO returned status ${response.status}`;
-      try {
-        const errorBody = await response.text();
-        errorDetails += `: ${errorBody}`;
-      } catch {
-        /* Ignore error reading body */
-      }
+      const errorDetails = `DO returned status ${response.status}`;
       throw new Error(`Failed to initialize Durable Object. ${errorDetails}`);
     }
-
-    console.log(
-      `Successfully initialized DO ${doId.toString()} for monitor ${monitorData.id}`,
-    );
 
     return c.json({
       data: monitorData,
@@ -160,7 +137,7 @@ apiRoutes.post("/api/monitors", async (c) => {
     return c.json(
       {
         data: monitorData,
-        success: false, // Indicate overall operation failure
+        success: false,
         error: "Failed to initialize checker",
         details: `Monitor record created (ID: ${monitorData?.id}), but failed to start the background checker: ${String(error)}`,
       },
@@ -189,11 +166,11 @@ apiRoutes.get("/api/check", async (c) => {
     const ok = response.ok;
     const headers = Object.fromEntries(response.headers.entries());
 
-    let bodyContent: JsonValue | null = null;
+    let bodyContent = null;
 
     try {
       if (response.headers.get("content-type")?.includes("application/json")) {
-        bodyContent = (await response.json()) as JsonValue;
+        bodyContent = await response.json();
       } else {
         const textContent = await response.text();
         bodyContent = { _rawContent: textContent.slice(0, 10000) };

@@ -24,7 +24,7 @@ export function AppSidebar() {
     },
     {
       href: "/dashboard/logs",
-      label: "Analytics",
+      label: "Logs",
       icon: <ChartBarIcon className="w-5 h-5" />,
     },
     {

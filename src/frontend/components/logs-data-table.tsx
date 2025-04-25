@@ -12,8 +12,8 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { format, parseISO } from "date-fns";
-import { CheckCircle, XCircle } from "lucide-react";
 import * as React from "react";
+import { cn } from "../lib/utils";
 import { Button } from "./ui/button";
 import {
   Table,
@@ -24,7 +24,73 @@ import {
   TableRow,
 } from "./ui/table";
 
+const getStatusColor = (status: number | unknown): string => {
+  if (typeof status !== "number") {
+    return "bg-gray-200 dark:bg-gray-700";
+  }
+  if (status >= 200 && status < 300) {
+    return "bg-gray-200 dark:bg-gray-700";
+  } else if (status >= 300 && status < 400) {
+    return "bg-blue-200 dark:bg-blue-300";
+  } else if (status >= 400 && status < 500) {
+    return "bg-yellow-200 dark:bg-yellow-300";
+  } else if (status >= 500) {
+    return "bg-red-200 dark:bg-red-300";
+  }
+  return "bg-gray-200 dark:bg-gray-700";
+};
+
+const getStatusTextColor = (status: number | unknown): string => {
+  if (typeof status !== "number") {
+    return "text-gray-700 dark:text-gray-300";
+  }
+  if (status >= 200 && status < 300) {
+    return "text-green-700 dark:text-green-200";
+  } else if (status >= 300 && status < 400) {
+    return "text-blue-700 dark:text-blue-200";
+  } else if (status >= 400 && status < 500) {
+    return "text-yellow-800 dark:text-yellow-200";
+  } else if (status >= 500) {
+    return "text-red-700 dark:text-red-200";
+  }
+  return "text-gray-700 dark:text-gray-300";
+};
+
+const getStatusRowClass = (status: number | unknown): string => {
+  if (typeof status !== "number") {
+    return "";
+  }
+  if (status >= 200 && status < 300) {
+    return "";
+  } else if (status >= 300 && status < 400) {
+    return "bg-blue-50 dark:bg-blue-900/20 hover:!bg-blue-100/80 dark:hover:!bg-blue-800/40";
+  } else if (status >= 400 && status < 500) {
+    return "bg-yellow-50 dark:bg-yellow-900/20 hover:!bg-yellow-100/80 dark:hover:!bg-yellow-800/40";
+  } else if (status >= 500) {
+    return "bg-red-50 dark:bg-red-900/20 hover:!bg-red-100/80 dark:hover:!bg-red-800/40";
+  }
+  return "";
+};
+
 export const columns: ColumnDef<Log>[] = [
+  {
+    id: "status-indicator",
+    enableSorting: false,
+    enableHiding: false,
+    cell: ({ row }) => {
+      const status = row.original.status;
+      return (
+        <div className="flex items-center justify-center">
+          <div
+            className={cn("w-3 h-3", getStatusColor(status))}
+            title={`Status: ${status}`}
+          />
+        </div>
+      );
+    },
+    size: 20,
+    minSize: 20,
+  },
   {
     accessorKey: "created_at",
     header: ({ column }) => (
@@ -40,7 +106,7 @@ export const columns: ColumnDef<Log>[] = [
       try {
         const date = parseISO(dateString);
         return (
-          <span className="whitespace-nowrap font-mono text-sm">
+          <span className="whitespace-nowrap text-muted-foreground geist-mono text-sm">
             {format(date, "LLL dd, y HH:mm:ss")}
           </span>
         );
@@ -52,9 +118,18 @@ export const columns: ColumnDef<Log>[] = [
         );
       }
     },
+    size: 200,
+    minSize: 200,
     sortingFn: "datetime",
-    enableHiding: false,
-    size: 180,
+  },
+  {
+    accessorKey: "method",
+    header: "Method",
+    cell: ({ row }) => {
+      const method = row.getValue("method") as string;
+      return <span className="text-sm">{method}</span>;
+    },
+    size: 80,
   },
   {
     accessorKey: "url",
@@ -62,18 +137,12 @@ export const columns: ColumnDef<Log>[] = [
     cell: ({ row }) => {
       const url = row.getValue("url") as string;
       return (
-        <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-600 dark:text-blue-400 hover:underline text-sm truncate block max-w-[300px]"
-          title={url}
-        >
+        <span className="text-sm font-medium" title={url}>
           {url}
-        </a>
+        </span>
       );
     },
-    size: 320,
+    size: 250,
   },
   {
     accessorKey: "status",
@@ -87,23 +156,20 @@ export const columns: ColumnDef<Log>[] = [
     ),
     cell: ({ row }) => {
       const status = row.getValue("status") as number;
-
-      return <span className="font-mono text-xs">{status}</span>;
-    },
-    size: 80,
-  },
-  {
-    accessorKey: "ok",
-    header: "OK",
-    cell: ({ row }) => {
-      const ok = row.getValue("ok") as boolean;
-      return ok ? (
-        <CheckCircle className="h-4 w-4 text-green-600" />
-      ) : (
-        <XCircle className="h-4 w-4 text-red-600" />
+      return (
+        <span
+          className={cn(
+            "geist-mono text-sm font-medium",
+            getStatusTextColor(status),
+          )}
+        >
+          {status}
+        </span>
       );
     },
+    enableResizing: false,
     size: 60,
+    minSize: 60,
   },
   {
     accessorKey: "latency",
@@ -112,44 +178,38 @@ export const columns: ColumnDef<Log>[] = [
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         className="px-1 justify-start text-left -ml-1 h-auto py-1"
       >
-        Latency (ms)
+        Latency
       </button>
     ),
     cell: ({ row }) => {
       const latency = row.getValue("latency") as number;
       return latency >= 0 ? (
-        <span className="font-mono text-sm">{latency.toFixed(2)}</span>
+        <span className="geist-mono text-sm">{`${latency}ms`}</span>
       ) : (
-        <span className="text-muted-foreground text-sm italic">N/A</span>
+        <span className="text-muted-foreground text-sm">N/A</span>
       );
     },
     size: 120,
   },
   {
-    accessorKey: "monitor_id",
-    header: "Monitor ID",
-    cell: ({ row }) => (
-      <span
-        className="font-mono text-xs text-muted-foreground truncate block max-w-[100px]"
-        title={row.getValue("monitor_id")}
+    accessorKey: "colo",
+    header: ({ column }) => (
+      <button
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="px-1 justify-start text-left -ml-1 h-auto py-1"
       >
-        {row.getValue("monitor_id")}
-      </span>
+        Region
+      </button>
     ),
+    cell: ({ row }) => {
+      const colo = row.getValue("colo") as string;
+      return colo ? (
+        <span className="font-mono text-sm">{colo}</span>
+      ) : (
+        <span className="text-muted-foreground text-sm">N/A</span>
+      );
+    },
     size: 120,
-  },
-  {
-    accessorKey: "do_id",
-    header: "DO ID",
-    cell: ({ row }) => (
-      <span
-        className="font-mono text-xs text-muted-foreground truncate block max-w-[150px]"
-        title={row.getValue("do_id")}
-      >
-        {row.getValue("do_id")}
-      </span>
-    ),
-    size: 170,
   },
 ];
 
@@ -193,16 +253,31 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
   });
 
   return (
-    <div className="w-full">
-      <div className="border-y overflow-x-auto">
-        <Table>
-          <TableHeader className="bg-muted/50 text-muted-foreground">
+    <div className="flex h-full min-h-screen w-full flex-col">
+      <div className="z-0">
+        <Table className="border-separate border-spacing-0">
+          <TableHeader className="sticky top-0 z-10 bg-background">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="border-b">
+              <TableRow
+                key={headerGroup.id}
+                className={cn(
+                  "hover:bg-transparent",
+                  "[&>*]:border-t-0 [&>*]:border-b",
+                  "[&>:not(:last-child)]:border-r",
+                  "border-border",
+                )}
+              >
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className="px-2 py-1.5 h-auto text-sm whitespace-nowrap border-r last:border-r-0 sticky top-0 bg-muted/95 backdrop-blur-sm"
+                    colSpan={header.colSpan}
+                    className={cn(
+                      "px-2 py-1.5 h-auto relative select-none truncate text-sm font-medium",
+                      "whitespace-nowrap text-muted-foreground",
+                      "bg-background",
+                      // First header column for status indicator
+                      header.id === "status-indicator" && "w-6",
+                    )}
                     style={{ width: header.getSize() }}
                   >
                     {header.isPlaceholder
@@ -222,12 +297,20 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className="border-b even:bg-muted/30 hover:bg-muted/50"
+                  className={cn(
+                    "border-b even:bg-slate-100 hover:bg-slate-200",
+                    getStatusRowClass(row.original.status),
+                    "data-[state=selected]:bg-primary/20 data-[state=selected]:hover:!bg-primary/30",
+                  )}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
-                      className="px-2 py-1.5 whitespace-nowrap border-r last:border-r-0"
+                      className={cn(
+                        "px-2 py-1.5 whitespace-nowrap border-r last:border-r-0 border-border/50",
+                        // Make status indicator cell smaller
+                        cell.column.id === "status-indicator" && "w-6 p-1",
+                      )}
                       style={{ width: cell.column.getSize() }}
                     >
                       {flexRender(
@@ -242,7 +325,7 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-24 text-center text-muted-foreground"
                 >
                   No logs found.
                 </TableCell>
@@ -251,7 +334,7 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end p-4">
+      <div className="flex items-center justify-end p-4 border-t">
         <div className="space-x-2">
           <Button
             variant={"outline"}

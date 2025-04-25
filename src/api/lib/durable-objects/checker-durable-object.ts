@@ -1,6 +1,6 @@
 import { DurableObject } from "cloudflare:workers";
-import type { EnvBindings } from "../../../bindings";
-import { createSupabaseClient } from "./supabase/client";
+import type { EnvBindings } from "../../../../bindings";
+import { createSupabaseClient } from "../supabase/client";
 
 const DEFAULT_CHECK_INTERVAL_MS = 60 * 1000;
 
@@ -9,18 +9,7 @@ interface InitializePayload {
   monitorId: string;
   userId: string;
   intervalMs?: number;
-}
-
-type JsonValue =
-  | string
-  | number
-  | boolean
-  | null
-  | JsonObject
-  | Array<JsonValue>;
-
-interface JsonObject {
-  [key: string]: JsonValue;
+  method: string;
 }
 
 export class CheckerDurableObject extends DurableObject {
@@ -39,6 +28,7 @@ export class CheckerDurableObject extends DurableObject {
       monitorId,
       userId,
       intervalMs = DEFAULT_CHECK_INTERVAL_MS,
+      method,
     } = params;
 
     if (!urlToCheck || !monitorId || !userId) {
@@ -52,6 +42,7 @@ export class CheckerDurableObject extends DurableObject {
       monitorId,
       userId,
       intervalMs,
+      method,
     });
 
     // fire up the first check
@@ -76,7 +67,7 @@ export class CheckerDurableObject extends DurableObject {
     if (path === "/initialize" && request.method === "POST") {
       let initParams: InitializePayload;
       try {
-        initParams = await request.json<InitializePayload>();
+        initParams = await request.json();
       } catch {
         return new Response("Invalid JSON body", { status: 400 });
       }
@@ -103,6 +94,8 @@ export class CheckerDurableObject extends DurableObject {
     const urlToCheck = await this.ctx.storage.get<string>("urlToCheck");
     const monitorId = await this.ctx.storage.get<string>("monitorId");
     const userId = await this.ctx.storage.get<string>("userId");
+    const method = await this.ctx.storage.get<string>("method");
+
     const intervalMs =
       (await this.ctx.storage.get<number>("intervalMs")) ??
       DEFAULT_CHECK_INTERVAL_MS;
@@ -125,8 +118,9 @@ export class CheckerDurableObject extends DurableObject {
     let ok: boolean | null = null;
     let latency: number | null = null;
     let headers: Record<string, string> | null = null;
-    let bodyContent: JsonObject | null = null;
+    let bodyContent = null;
     let checkError: string | null = null;
+    let colo: string | null = null;
     const checkStartTime = performance.now();
 
     try {
@@ -134,28 +128,20 @@ export class CheckerDurableObject extends DurableObject {
         redirect: "manual",
         headers: { "User-Agent": "Blinks-Checker/1.0" },
       });
+
       latency = performance.now() - checkStartTime;
       status = response.status;
       ok = response.ok;
+      colo = response.cf?.colo ?? null;
       headers = Object.fromEntries(response.headers.entries());
 
-      try {
-        const contentType = response.headers.get("content-type") ?? "";
-        if (contentType.includes("application/json")) {
-          bodyContent = (await response.json()) as JsonObject;
-        } else {
-          const textContent = await response.text();
-          const truncatedContent = textContent.slice(0, 10000);
-          bodyContent = { _rawContent: truncatedContent };
-        }
-      } catch (bodyError: unknown) {
-        console.error(
-          `Error reading response body for ${urlToCheck}:`,
-          bodyError,
-        );
-        const message =
-          bodyError instanceof Error ? bodyError.message : String(bodyError);
-        bodyContent = { _error: `Failed to read body: ${message}` };
+      const contentType = response.headers.get("content-type") ?? "";
+      if (contentType.includes("application/json")) {
+        bodyContent = await response.json();
+      } else {
+        const textContent = await response.text();
+        const truncatedContent = textContent.slice(0, 10000);
+        bodyContent = { _rawContent: truncatedContent };
       }
     } catch (error: unknown) {
       console.error(`Alarm check failed for ${urlToCheck}:`, error);
@@ -177,6 +163,8 @@ export class CheckerDurableObject extends DurableObject {
       headers: headers,
       body_content: bodyContent,
       error: checkError,
+      colo: colo,
+      method: method,
     };
 
     try {

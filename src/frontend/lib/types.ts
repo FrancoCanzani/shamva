@@ -10,6 +10,9 @@ export interface Log {
   created_at: string;
   headers: Record<string, string>;
   body_content: Record<string, string>;
+  error: string;
+  colo: string;
+  method: "GET" | "POST" | "HEAD";
 }
 
 export type ApiLogResponse = {

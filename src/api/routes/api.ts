@@ -223,7 +223,7 @@ apiRoutes.get("/api/logs", async (c) => {
       .select("*")
       .eq("user_id", userId)
       .order("created_at", {
-        ascending: true,
+        ascending: false,
       })
       .limit(50);
 

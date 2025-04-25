@@ -1,4 +1,9 @@
+import { useNavigate } from "@tanstack/react-router";
+import { format, parseISO } from "date-fns";
+import * as React from "react";
+
 import { Log } from "@/frontend/lib/types";
+import { Route } from "@/frontend/routes/dashboard/logs/index";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -11,10 +16,16 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { format, parseISO } from "date-fns";
-import * as React from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "../lib/utils";
 import { Button } from "./ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "./ui/sheet";
 import {
   Table,
   TableBody,
@@ -31,11 +42,11 @@ const getStatusColor = (status: number | unknown): string => {
   if (status >= 200 && status < 300) {
     return "bg-gray-200 dark:bg-gray-700";
   } else if (status >= 300 && status < 400) {
-    return "bg-blue-200 dark:bg-blue-300";
+    return "bg-blue-200 dark:bg-blue-700";
   } else if (status >= 400 && status < 500) {
-    return "bg-yellow-200 dark:bg-yellow-300";
-  } else if (status >= 500) {
-    return "bg-red-200 dark:bg-red-300";
+    return "bg-yellow-200 dark:bg-yellow-700";
+  } else if (status >= 500 || status < 0) {
+    return "bg-red-200 dark:bg-red-700";
   }
   return "bg-gray-200 dark:bg-gray-700";
 };
@@ -45,13 +56,13 @@ const getStatusTextColor = (status: number | unknown): string => {
     return "text-gray-700 dark:text-gray-300";
   }
   if (status >= 200 && status < 300) {
-    return "text-green-700 dark:text-green-200";
+    return "text-green-700 dark:text-green-300";
   } else if (status >= 300 && status < 400) {
-    return "text-blue-700 dark:text-blue-200";
+    return "text-blue-700 dark:text-blue-300";
   } else if (status >= 400 && status < 500) {
-    return "text-yellow-800 dark:text-yellow-200";
-  } else if (status >= 500) {
-    return "text-red-700 dark:text-red-200";
+    return "text-yellow-800 dark:text-yellow-300";
+  } else if (status >= 500 || status < 0) {
+    return "text-red-700 dark:text-red-300";
   }
   return "text-gray-700 dark:text-gray-300";
 };
@@ -61,15 +72,15 @@ const getStatusRowClass = (status: number | unknown): string => {
     return "";
   }
   if (status >= 200 && status < 300) {
-    return "";
+    return "hover:bg-slate-100 dark:hover:bg-slate-800/50";
   } else if (status >= 300 && status < 400) {
     return "bg-blue-50 dark:bg-blue-900/20 hover:!bg-blue-100/80 dark:hover:!bg-blue-800/40";
   } else if (status >= 400 && status < 500) {
     return "bg-yellow-50 dark:bg-yellow-900/20 hover:!bg-yellow-100/80 dark:hover:!bg-yellow-800/40";
-  } else if (status >= 500) {
+  } else if (status >= 500 || status < 0) {
     return "bg-red-50 dark:bg-red-900/20 hover:!bg-red-100/80 dark:hover:!bg-red-800/40";
   }
-  return "";
+  return "hover:bg-slate-100 dark:hover:bg-slate-800/50";
 };
 
 export const columns: ColumnDef<Log>[] = [
@@ -118,8 +129,8 @@ export const columns: ColumnDef<Log>[] = [
         );
       }
     },
-    size: 200,
-    minSize: 200,
+    size: 220,
+    minSize: 220,
     sortingFn: "datetime",
   },
   {
@@ -127,9 +138,10 @@ export const columns: ColumnDef<Log>[] = [
     header: "Method",
     cell: ({ row }) => {
       const method = row.getValue("method") as string;
-      return <span className="text-sm">{method}</span>;
+      return <span className="text-sm font-mono">{method}</span>;
     },
-    size: 80,
+    size: 70,
+    minSize: 60,
   },
   {
     accessorKey: "url",
@@ -163,7 +175,7 @@ export const columns: ColumnDef<Log>[] = [
             getStatusTextColor(status),
           )}
         >
-          {status}
+          {status === -1 ? "ERR" : status}
         </span>
       );
     },
@@ -183,13 +195,14 @@ export const columns: ColumnDef<Log>[] = [
     ),
     cell: ({ row }) => {
       const latency = row.getValue("latency") as number;
-      return latency >= 0 ? (
-        <span className="geist-mono text-sm">{`${latency}ms`}</span>
+      return typeof latency === "number" && latency >= 0 ? (
+        <span className="geist-mono text-sm">{`${latency.toFixed(0)}ms`}</span>
       ) : (
-        <span className="text-muted-foreground text-sm">N/A</span>
+        <span className="text-muted-foreground text-sm geist-mono">N/A</span>
       );
     },
-    size: 120,
+    size: 80,
+    minSize: 70,
   },
   {
     accessorKey: "colo",
@@ -206,10 +219,11 @@ export const columns: ColumnDef<Log>[] = [
       return colo ? (
         <span className="font-mono text-sm">{colo}</span>
       ) : (
-        <span className="text-muted-foreground text-sm">N/A</span>
+        <span className="text-muted-foreground text-sm geist-mono">N/A</span>
       );
     },
-    size: 120,
+    size: 70,
+    minSize: 60,
   },
 ];
 
@@ -218,6 +232,9 @@ interface LogsDataTableProps {
 }
 
 export function LogsDataTable({ data }: LogsDataTableProps) {
+  const navigate = useNavigate();
+  const { logId } = Route.useSearch();
+
   const [sorting, setSorting] = React.useState<SortingState>([
     { id: "created_at", desc: true },
   ]);
@@ -226,7 +243,6 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({ monitor_id: false, do_id: false });
-  const [rowSelection, setRowSelection] = React.useState({});
 
   const table = useReactTable({
     data,
@@ -243,18 +259,64 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
+    getRowId: (row) => row.id,
     state: {
       sorting,
       columnFilters,
       columnVisibility,
-      rowSelection,
     },
   });
 
+  const sortedFilteredRows = table.getRowModel().rows;
+
+  const selectedLogIndex = React.useMemo(() => {
+    if (!logId) return -1;
+    return sortedFilteredRows.findIndex((row) => row.original.id === logId);
+  }, [logId, sortedFilteredRows]);
+
+  const selectedLog = React.useMemo(() => {
+    if (selectedLogIndex === -1) return null;
+    return sortedFilteredRows[selectedLogIndex]?.original;
+  }, [selectedLogIndex, sortedFilteredRows]);
+
+  const handleCloseSheet = () => {
+    navigate({
+      search: (prev) => {
+        const { logId: _, ...rest } = prev;
+        return rest;
+      },
+      replace: true,
+    });
+  };
+
+  const canGoPrevious = selectedLogIndex > 0;
+  const canGoNext =
+    selectedLogIndex !== -1 && selectedLogIndex < sortedFilteredRows.length - 1;
+
+  const goToPrevious = () => {
+    if (canGoPrevious) {
+      const previousLogId =
+        sortedFilteredRows[selectedLogIndex - 1].original.id;
+      navigate({
+        search: (prev) => ({ ...prev, logId: previousLogId }),
+        replace: true,
+      });
+    }
+  };
+
+  const goToNext = () => {
+    if (canGoNext) {
+      const nextLogId = sortedFilteredRows[selectedLogIndex + 1].original.id;
+      navigate({
+        search: (prev) => ({ ...prev, logId: nextLogId }),
+        replace: true,
+      });
+    }
+  };
+
   return (
-    <div className="flex h-full min-h-screen w-full flex-col">
-      <div className="z-0">
+    <div className="flex h-full min-h-screen w-full flex-col relative">
+      <div className="z-0 flex-grow overflow-auto">
         <Table className="border-separate border-spacing-0">
           <TableHeader className="sticky top-0 z-10 bg-background">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -275,7 +337,6 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
                       "px-2 py-1.5 h-auto relative select-none truncate text-sm font-medium",
                       "whitespace-nowrap text-muted-foreground",
                       "bg-background",
-                      // First header column for status indicator
                       header.id === "status-indicator" && "w-6",
                     )}
                     style={{ width: header.getSize() }}
@@ -296,19 +357,29 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
+                  data-state={
+                    logId === row.original.id ? "selected" : undefined
+                  }
                   className={cn(
-                    "border-b even:bg-slate-100 hover:bg-slate-200",
+                    "border-b cursor-pointer transition-colors duration-100",
                     getStatusRowClass(row.original.status),
-                    "data-[state=selected]:bg-primary/20 data-[state=selected]:hover:!bg-primary/30",
+                    "data-[state=selected]:bg-blue-100 dark:data-[state=selected]:bg-blue-900/40",
+                    "data-[state=selected]:hover:!bg-blue-200/80 dark:data-[state=selected]:hover:!bg-blue-800/60",
+                    !getStatusRowClass(row.original.status) &&
+                      "even:bg-slate-50/50 dark:even:bg-slate-900/20 hover:bg-slate-100 dark:hover:bg-slate-800/50",
                   )}
+                  onClick={() => {
+                    navigate({
+                      search: (prev) => ({ ...prev, logId: row.original.id }),
+                      replace: true,
+                    });
+                  }}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
                       className={cn(
                         "px-2 py-1.5 whitespace-nowrap border-r last:border-r-0 border-border/50",
-                        // Make status indicator cell smaller
                         cell.column.id === "status-indicator" && "w-6 p-1",
                       )}
                       style={{ width: cell.column.getSize() }}
@@ -334,8 +405,12 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end p-4 border-t">
-        <div className="space-x-2">
+      <div className="flex items-center justify-end p-4 border-t sticky bottom-0 bg-background z-10">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          Page {table.getState().pagination.pageIndex + 1} of{" "}
+          {table.getPageCount()}
+        </div>
+        <div className="space-x-2 ml-4">
           <Button
             variant={"outline"}
             size={"sm"}
@@ -354,6 +429,142 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
           </Button>
         </div>
       </div>
+
+      <Sheet
+        open={!!logId && selectedLogIndex !== -1}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) handleCloseSheet();
+        }}
+      >
+        <SheetContent className="w-full sm:max-w-xl flex flex-col">
+          {selectedLog ? (
+            <>
+              <SheetHeader className="flex-shrink-0 flex items-start justify-between w-full flex-row pr-10">
+                <div className="">
+                  <SheetTitle>Log Details</SheetTitle>
+                  <SheetDescription className="geist-mono text-xs break-all">
+                    {selectedLog.url}
+                  </SheetDescription>
+                </div>
+
+                <div className="space-x-2">
+                  <Button
+                    variant="outline"
+                    size={"xs"}
+                    className="text-xs rounded-xs"
+                    onClick={goToPrevious}
+                    disabled={!canGoPrevious}
+                  >
+                    <ChevronUp />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size={"xs"}
+                    className="text-xs rounded-xs"
+                    onClick={goToNext}
+                    disabled={!canGoNext}
+                  >
+                    <ChevronDown />
+                  </Button>
+                </div>
+              </SheetHeader>
+              <div className="p-4 space-y-4 overflow-y-auto flex-grow">
+                <div className="divide-y divide-dashed space-y-1 text-sm">
+                  <div className="flex items-center justify-between py-2">
+                    <strong>Timestamp</strong>
+                    <time>
+                      {format(
+                        parseISO(selectedLog.created_at),
+                        "LLL dd, y HH:mm:ss",
+                      )}
+                    </time>
+                  </div>
+                  <div className="flex items-center justify-between py-2">
+                    <strong>Method</strong>
+                    <span className="geist-mono">{selectedLog.method}</span>
+                  </div>
+                  <div className="flex items-center justify-between py-2">
+                    <strong>Status</strong>
+                    <span
+                      className={cn(
+                        "geist-mono font-medium",
+                        getStatusTextColor(selectedLog.status),
+                      )}
+                    >
+                      {selectedLog.status === -1 ? "ERR" : selectedLog.status}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between py-2">
+                    <strong>Latency</strong>
+                    <span className="geist-mono">
+                      {selectedLog.latency >= 0
+                        ? `${selectedLog.latency.toFixed(0)}ms`
+                        : "N/A"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between py-2">
+                    <strong>Region</strong>
+                    <span className="geist-mono">
+                      {selectedLog.colo || "N/A"}
+                    </span>
+                  </div>
+                </div>
+
+                {selectedLog.error && (
+                  <div className="text-sm">
+                    <p>
+                      <strong>Error:</strong>
+                    </p>{" "}
+                    <pre className="text-xs bg-red-50 dark:bg-red-900/30 p-2 rounded overflow-auto max-h-48 text-red-700 dark:text-red-300">
+                      {selectedLog.error}
+                    </pre>
+                  </div>
+                )}
+
+                <div>
+                  <strong className="text-sm">Headers</strong>
+                  <pre className="text-xs bg-muted p-2 rounded overflow-auto max-h-48 geist-mono">
+                    {JSON.stringify(selectedLog.headers, null, 2)}
+                  </pre>
+                </div>
+                <div>
+                  <strong className="text-sm">Body Content</strong>
+                  <pre className="text-xs bg-muted p-2 rounded overflow-auto max-h-96 geist-mono">
+                    {(() => {
+                      try {
+                        if (
+                          selectedLog.body_content &&
+                          typeof selectedLog.body_content === "object" &&
+                          "_rawContent" in selectedLog.body_content
+                        ) {
+                          return selectedLog.body_content._rawContent;
+                        }
+                        if (
+                          selectedLog.body_content &&
+                          typeof selectedLog.body_content === "object"
+                        ) {
+                          return JSON.stringify(
+                            selectedLog.body_content,
+                            null,
+                            2,
+                          );
+                        }
+                        return String(selectedLog.body_content ?? "N/A");
+                      } catch {
+                        return String(selectedLog.body_content ?? "N/A");
+                      }
+                    })()}
+                  </pre>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="p-4 text-center text-muted-foreground">
+              {logId ? "Log not found in current view." : "No log selected."}
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

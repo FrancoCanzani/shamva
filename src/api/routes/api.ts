@@ -2,8 +2,9 @@ import { Hono } from "hono";
 import { nanoid } from "nanoid";
 import type { EnvBindings } from "../../../bindings";
 import { authMiddleware } from "../lib/middleware/auth-middleware";
+import { MonitorsParamsSchema } from "../lib/schemas";
 import { createSupabaseClient } from "../lib/supabase/client";
-import { ApiVariables } from "../lib/types";
+import { ApiVariables, MonitorsParams } from "../lib/types";
 
 const apiRoutes = new Hono<{
   Bindings: EnvBindings;
@@ -23,38 +24,37 @@ apiRoutes.get("/api/test", (c) => {
 });
 
 apiRoutes.post("/api/monitors", async (c) => {
-  let url: string, method: string, headers, body;
-
+  let rawBody: unknown;
   try {
-    const jsonData = await c.req.json();
-    url = jsonData.url;
-    method = jsonData.method;
-    headers = jsonData.headers;
-    body = jsonData.body;
-
-    if (!url || typeof url !== "string" || url.trim() === "") {
-      throw new Error("URL is required and must be a non-empty string.");
-    }
-    if (!method || typeof method !== "string" || method.trim() === "") {
-      throw new Error("Method is required and must be a non-empty string.");
-    }
-  } catch (err) {
-    console.error("Error parsing request body or invalid data:", err);
+    rawBody = await c.req.json();
+  } catch {
     return c.json(
       {
-        data: null,
         success: false,
-        error: "Invalid request body",
-        details: String(err),
+        error: "Invalid JSON payload provided.",
       },
       400,
     );
   }
 
-  const userId = c.get("userId");
+  const result = MonitorsParamsSchema.safeParse(rawBody);
+  if (!result.success) {
+    console.error("Validation Error Details:", result.error.flatten());
+    return c.json(
+      {
+        success: false,
+        error: "Request parameter validation failed.",
+        details: result.error.flatten(),
+      },
+      400,
+    );
+  }
 
-  const doName = `${userId}-${nanoid(5)}`;
+  const { url, method, headers, body }: MonitorsParams = result.data;
+  const userId = c.get("userId");
+  const doName = `${userId}-${nanoid(10)}`;
   const doId = c.env.CHECKER_DURABLE_OBJECT.idFromName(doName);
+
   let monitorData = null;
 
   try {
@@ -69,6 +69,11 @@ apiRoutes.post("/api/monitors", async (c) => {
           body: body,
           user_id: userId,
           do_id: doId.toString(),
+          interval: result.data.interval ?? 60000,
+          status: "initializing",
+          is_active: true,
+          failure_count: 0,
+          success_count: 0,
         },
       ])
       .select()
@@ -86,7 +91,11 @@ apiRoutes.post("/api/monitors", async (c) => {
         "Failed to create monitor record: No data returned from database.",
       );
     }
+
     monitorData = data;
+    console.log(
+      `Monitor created in database. ID: ${monitorData.id}, DO ID: ${doId.toString()}`,
+    );
   } catch (error) {
     console.error("Error during monitor database creation:", error);
     return c.json(
@@ -100,50 +109,124 @@ apiRoutes.post("/api/monitors", async (c) => {
     );
   }
 
+  let doInitialized = false;
+  let retryCount = 0;
+  const maxRetries = 3;
+  const retryDelay = 1000;
+
+  while (!doInitialized && retryCount < maxRetries) {
+    try {
+      const doStub = c.env.CHECKER_DURABLE_OBJECT.get(doId);
+      const initPayload = {
+        urlToCheck: monitorData.url,
+        monitorId: monitorData.id,
+        userId: userId,
+        intervalMs: monitorData.interval ?? 60000,
+        method: method,
+      };
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+      const response = await doStub.fetch(
+        new Request(new URL("/initialize", new URL(c.req.url).origin), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(initPayload),
+          signal: controller.signal,
+        }),
+      );
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`DO returned status ${response.status}: ${errorText}`);
+      }
+
+      const supabase = createSupabaseClient(c.env);
+      await supabase
+        .from("monitors")
+        .update({ status: "active" })
+        .eq("id", monitorData.id);
+
+      doInitialized = true;
+      console.log(
+        `Durable Object initialized successfully for monitor ID: ${monitorData.id}`,
+      );
+    } catch (error: unknown) {
+      retryCount++;
+      console.error(`DO initialization attempt ${retryCount} failed:`, error);
+
+      if (retryCount < maxRetries) {
+        console.log(`Retrying DO initialization in ${retryDelay}ms...`);
+        await new Promise((resolve) => setTimeout(resolve, retryDelay));
+      }
+    }
+  }
+
+  if (!doInitialized) {
+    try {
+      const supabase = createSupabaseClient(c.env);
+      await supabase
+        .from("monitors")
+        .update({
+          status: "error",
+          error_message: "Failed to initialize checker after multiple attempts",
+        })
+        .eq("id", monitorData.id);
+
+      return c.json(
+        {
+          data: monitorData,
+          success: false,
+          error: "Failed to initialize checker after multiple attempts",
+          details: `Monitor record created (ID: ${monitorData?.id}), but failed to start the background checker.`,
+        },
+        500,
+      );
+    } catch (dbError) {
+      console.error(
+        "Failed to update monitor status after DO init failure:",
+        dbError,
+      );
+      return c.json(
+        {
+          data: monitorData,
+          success: false,
+          error:
+            "Critical error: Monitor created but checker failed to initialize",
+          details: `Monitor record created (ID: ${monitorData?.id}), but failed to start the background checker and failed to update monitor status.`,
+        },
+        500,
+      );
+    }
+  }
+
   try {
     const doStub = c.env.CHECKER_DURABLE_OBJECT.get(doId);
-    const initPayload = {
-      urlToCheck: monitorData.url,
-      monitorId: monitorData.id,
-      userId: userId,
-      intervalMs: monitorData.interval_ms ?? 60000,
-      method: method,
-    };
-
-    const response = await doStub.fetch(
-      new Request(new URL("/initialize", new URL(c.req.url).origin), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(initPayload),
+    const verifyResponse = await doStub.fetch(
+      new Request(new URL("/verify", new URL(c.req.url).origin), {
+        method: "GET",
       }),
     );
 
-    if (!response.ok) {
-      const errorDetails = `DO returned status ${response.status}`;
-      throw new Error(`Failed to initialize Durable Object. ${errorDetails}`);
+    if (!verifyResponse.ok) {
+      console.warn(
+        `DO verification check failed for monitor ${monitorData.id}, but proceeding anyway`,
+      );
     }
-
-    return c.json({
-      data: monitorData,
-      success: true,
-      error: null,
-      details: `Monitor created and checker initialized successfully.`,
-    });
-  } catch (error: unknown) {
-    console.error("Error during Durable Object initialization:", error);
-    // CRITICAL: Monitor created in DB, but DO initialization failed.
-    // Consider adding cleanup logic here (e.g., delete the monitor record)
-    // or clearly indicate the partial failure to the user/logs.
-    return c.json(
-      {
-        data: monitorData,
-        success: false,
-        error: "Failed to initialize checker",
-        details: `Monitor record created (ID: ${monitorData?.id}), but failed to start the background checker: ${String(error)}`,
-      },
-      500,
+  } catch (verifyError) {
+    console.warn(
+      `DO verification check failed for monitor ${monitorData.id}:`,
+      verifyError,
     );
   }
+
+  return c.json({
+    data: monitorData,
+    success: true,
+  });
 });
 
 apiRoutes.get("/api/check", async (c) => {

@@ -17,6 +17,7 @@ export interface Monitor {
   interval: number;
   status: "active" | "warning" | "error" | "initializing" | "broken";
   error_message: string | null;
+  recent_logs: Partial<Log>[];
 }
 
 export interface Log {

@@ -17,3 +17,51 @@ export async function copyToClipboard(text: string): Promise<void> {
     throw new Error("Could not copy text.");
   }
 }
+
+export const getStatusColor = (status: number | unknown): string => {
+  if (typeof status !== "number") {
+    return "bg-gray-200 dark:bg-gray-700";
+  }
+  if (status >= 200 && status < 300) {
+    return "bg-gray-200 dark:bg-gray-700";
+  } else if (status >= 300 && status < 400) {
+    return "bg-blue-200 dark:bg-blue-700";
+  } else if (status >= 400 && status < 500) {
+    return "bg-yellow-200 dark:bg-yellow-700";
+  } else if (status >= 500 || status < 0) {
+    return "bg-red-200 dark:bg-red-700";
+  }
+  return "bg-gray-200 dark:bg-gray-700";
+};
+
+export const getStatusTextColor = (status: number | unknown): string => {
+  if (typeof status !== "number") {
+    return "text-gray-700 dark:text-gray-300";
+  }
+  if (status >= 200 && status < 300) {
+    return "text-green-700 dark:text-green-300";
+  } else if (status >= 300 && status < 400) {
+    return "text-blue-700 dark:text-blue-300";
+  } else if (status >= 400 && status < 500) {
+    return "text-yellow-800 dark:text-yellow-300";
+  } else if (status >= 500 || status < 0) {
+    return "text-red-700 dark:text-red-300";
+  }
+  return "text-gray-700 dark:text-gray-300";
+};
+
+export const getStatusRowClass = (status: number | unknown): string => {
+  if (typeof status !== "number") {
+    return "";
+  }
+  if (status >= 200 && status < 300) {
+    return "hover:bg-slate-100 dark:hover:bg-slate-800/50";
+  } else if (status >= 300 && status < 400) {
+    return "bg-blue-50 dark:bg-blue-900/20 hover:!bg-blue-100/80 dark:hover:!bg-blue-800/40";
+  } else if (status >= 400 && status < 500) {
+    return "bg-yellow-50 dark:bg-yellow-900/20 hover:!bg-yellow-100/80 dark:hover:!bg-yellow-800/40";
+  } else if (status >= 500 || status < 0) {
+    return "bg-red-50 dark:bg-red-900/20 hover:!bg-red-100/80 dark:hover:!bg-red-800/40";
+  }
+  return "hover:bg-slate-100 dark:hover:bg-slate-800/50";
+};

@@ -129,6 +129,8 @@ export class CheckerDurableObject extends DurableObject {
         headers: { "User-Agent": "Blinks-Checker/1.0" },
       });
 
+      console.log(response);
+
       latency = performance.now() - checkStartTime;
       status = response.status;
       ok = response.ok;

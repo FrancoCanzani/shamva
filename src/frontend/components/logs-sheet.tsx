@@ -76,7 +76,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
             <SheetHeader className="flex-shrink-0 flex items-start justify-between w-full flex-row">
               <div className="">
                 <SheetTitle>Log Details</SheetTitle>
-                <SheetDescription className="geist-mono text-xs break-all">
+                <SheetDescription className="font-mono text-xs break-all">
                   {selectedLog.url}
                 </SheetDescription>
               </div>
@@ -128,13 +128,13 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                 </div>
                 <div className="flex items-center justify-between py-2">
                   <strong>Method</strong>
-                  <span className="geist-mono">{selectedLog.method}</span>
+                  <span className="font-mono">{selectedLog.method}</span>
                 </div>
                 <div className="flex items-center justify-between py-2">
                   <strong>Status</strong>
                   <span
                     className={cn(
-                      "geist-mono font-medium",
+                      "font-mono font-medium",
                       getStatusTextColor(selectedLog.status),
                     )}
                   >
@@ -143,7 +143,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                 </div>
                 <div className="flex items-center justify-between py-2">
                   <strong>Latency</strong>
-                  <span className="geist-mono">
+                  <span className="font-mono">
                     {selectedLog.latency >= 0
                       ? `${selectedLog.latency.toFixed(0)}ms`
                       : "N/A"}
@@ -151,9 +151,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                 </div>
                 <div className="flex items-center justify-between py-2">
                   <strong>Region</strong>
-                  <span className="geist-mono">
-                    {selectedLog.colo || "N/A"}
-                  </span>
+                  <span className="font-mono">{selectedLog.colo || "N/A"}</span>
                 </div>
               </div>
 
@@ -170,13 +168,13 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
 
               <div>
                 <strong className="text-sm">Headers</strong>
-                <pre className="text-xs bg-muted p-2 mt-2 rounded overflow-auto max-h-48 geist-mono">
+                <pre className="text-xs bg-muted p-2 mt-2 rounded overflow-auto max-h-48 font-mono">
                   {JSON.stringify(selectedLog.headers, null, 2)}
                 </pre>
               </div>
               <div>
                 <strong className="text-sm">Body Content</strong>
-                <pre className="text-xs bg-muted p-2 mt-2 rounded overflow-auto max-h-96 geist-mono">
+                <pre className="text-xs bg-muted p-2 mt-2 rounded overflow-auto max-h-96 font-mono">
                   {(() => {
                     try {
                       if (

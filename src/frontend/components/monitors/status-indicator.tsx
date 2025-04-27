@@ -3,7 +3,5 @@ interface StatusIndicatorProps {
 }
 
 export function StatusIndicator({ status }: StatusIndicatorProps) {
-  return (
-    <span className={`status-indicator status-${status}`} title={status} />
-  );
+  return <span className={`h-3 w-3`} title={status}></span>;
 }

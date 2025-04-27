@@ -66,7 +66,7 @@ export const columns: ColumnDef<Log>[] = [
       try {
         const date = parseISO(dateString);
         return (
-          <span className="whitespace-nowrap text-muted-foreground geist-mono text-sm">
+          <span className="whitespace-nowrap text-muted-foreground font-mono text-sm">
             {format(date, "LLL dd, y HH:mm:ss")}
           </span>
         );
@@ -120,7 +120,7 @@ export const columns: ColumnDef<Log>[] = [
       return (
         <span
           className={cn(
-            "geist-mono text-sm font-medium",
+            "font-mono text-sm font-medium",
             getStatusTextColor(status),
           )}
         >
@@ -145,9 +145,9 @@ export const columns: ColumnDef<Log>[] = [
     cell: ({ row }) => {
       const latency = row.getValue("latency") as number;
       return typeof latency === "number" && latency >= 0 ? (
-        <span className="geist-mono text-sm">{`${latency.toFixed(0)}ms`}</span>
+        <span className="font-mono text-sm">{`${latency.toFixed(0)}ms`}</span>
       ) : (
-        <span className="text-muted-foreground text-sm geist-mono">N/A</span>
+        <span className="text-muted-foreground text-sm font-mono">N/A</span>
       );
     },
     size: 80,
@@ -168,7 +168,7 @@ export const columns: ColumnDef<Log>[] = [
       return colo ? (
         <span className="font-mono text-sm">{colo}</span>
       ) : (
-        <span className="text-muted-foreground text-sm geist-mono">N/A</span>
+        <span className="text-muted-foreground text-sm font-mono">N/A</span>
       );
     },
     size: 70,

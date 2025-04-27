@@ -6,7 +6,7 @@ import {
   TooltipTrigger,
 } from "@/frontend/components/ui/tooltip";
 import { Log, Monitor } from "@/frontend/lib/types";
-import { cn } from "@/frontend/lib/utils";
+import { cn, getStatusColor } from "@/frontend/lib/utils";
 import { Link } from "@tanstack/react-router";
 import {
   format,
@@ -16,7 +16,6 @@ import {
   subHours,
 } from "date-fns";
 import { ChevronRight } from "lucide-react";
-import { StatusIndicator } from "./status-indicator";
 
 const calculateAvailability = (
   logs: Partial<Log>[],
@@ -133,7 +132,7 @@ function AvailabilityDisplay({
         <TooltipTrigger asChild>
           <span
             className={cn(
-              "text-sm font-medium geist-mono",
+              "text-sm font-medium font-mono",
               availability.percentage < 95 && availability.total > 0
                 ? "text-red-600"
                 : availability.percentage < 100 && availability.total > 0
@@ -170,26 +169,23 @@ export default function MonitorsTableRow({ monitor }: MonitorRowProps) {
       key={monitor.id}
       className="group hover:bg-slate-50 transition-colors"
     >
-      <TableCell className="w-8 pl-4 pr-2">
-        <StatusIndicator status={monitor.status} />
+      <TableCell className="w-8">
+        <div
+          className={cn(
+            "w-3 h-3",
+            getStatusColor(monitor.recent_logs[0].status),
+          )}
+          title={`Status: ${monitor.recent_logs[0].status}`}
+        />
       </TableCell>
-      <TableCell className="max-w-xs font-medium">
-        <TooltipProvider delayDuration={300}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Link
-                to="/dashboard/monitors/$slug"
-                params={{ slug: monitor.id }}
-                className="block truncate hover:underline"
-              >
-                {monitor.url}
-              </Link>
-            </TooltipTrigger>
-            <TooltipContent side="top" align="start">
-              {monitor.url}
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+      <TableCell className="max-w-xs">
+        <Link
+          to="/dashboard/monitors/$slug"
+          params={{ slug: monitor.id }}
+          className="truncate hover:underline"
+        >
+          {monitor.url}
+        </Link>
       </TableCell>
       <TableCell>
         <RecentChecks logs={monitor.recent_logs} />
@@ -201,7 +197,7 @@ export default function MonitorsTableRow({ monitor }: MonitorRowProps) {
         <AvailabilityDisplay label="7d" availability={availability7d} />
       </TableCell>
       <TableCell className="text-right">
-        <span className="text-sm geist-mono">
+        <span className="text-sm font-mono">
           {avgLatency !== null ? `${avgLatency.toFixed(0)}ms` : "N/A"}
         </span>
       </TableCell>

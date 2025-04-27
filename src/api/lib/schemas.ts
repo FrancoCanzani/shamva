@@ -10,5 +10,6 @@ export const MonitorsParamsSchema = z.object({
       z.string(), // Allows plain text or pre-stringified JSON
       z.record(z.string(), z.unknown()),
     ])
+    .nullable()
     .optional(),
 });

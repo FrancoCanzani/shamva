@@ -38,8 +38,10 @@ apiRoutes.post("/api/monitors", async (c) => {
   }
 
   const result = MonitorsParamsSchema.safeParse(rawBody);
+
   if (!result.success) {
     console.error("Validation Error Details:", result.error.flatten());
+    console.log(result.error.flatten());
     return c.json(
       {
         success: false,
@@ -227,6 +229,56 @@ apiRoutes.post("/api/monitors", async (c) => {
     data: monitorData,
     success: true,
   });
+});
+
+apiRoutes.get("/api/monitors", async (c) => {
+  const userId = c.get("userId");
+
+  if (!userId) {
+    return c.json(
+      { data: null, success: false, error: "User not authenticated" },
+      401,
+    );
+  }
+
+  try {
+    const supabase = createSupabaseClient(c.env);
+    const { data: monitors, error } = await supabase
+      .from("monitors")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching monitors from DB:", error);
+      return c.json(
+        {
+          data: null,
+          success: false,
+          error: "Database error fetching monitors",
+          details: error.message,
+        },
+        500,
+      );
+    }
+
+    return c.json({
+      data: monitors,
+      success: true,
+      error: null,
+    });
+  } catch (err) {
+    console.error("Unexpected error fetching monitors:", err);
+    return c.json(
+      {
+        data: null,
+        success: false,
+        error: "An unexpected error occurred",
+        details: String(err),
+      },
+      500,
+    );
+  }
 });
 
 apiRoutes.get("/api/check", async (c) => {

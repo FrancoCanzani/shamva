@@ -167,7 +167,7 @@ export default function MonitorsTableRow({ monitor }: MonitorRowProps) {
   return (
     <TableRow
       key={monitor.id}
-      className="group hover:bg-slate-50 transition-colors"
+      className="group hover:bg-slate-50 transition-colors border-dashed"
     >
       <TableCell className="w-8">
         <div
@@ -188,20 +188,23 @@ export default function MonitorsTableRow({ monitor }: MonitorRowProps) {
         </Link>
       </TableCell>
       <TableCell>
+        <span>{monitor.last_check_at ?? "NA"}</span>
+      </TableCell>
+      <TableCell>
         <RecentChecks logs={monitor.recent_logs} />
       </TableCell>
-      <TableCell className="text-center">
+      <TableCell className="text-left">
         <AvailabilityDisplay label="24h" availability={availability24h} />
       </TableCell>
-      <TableCell className="text-center">
+      <TableCell className="text-left">
         <AvailabilityDisplay label="7d" availability={availability7d} />
       </TableCell>
-      <TableCell className="text-right">
+      <TableCell className="text-left">
         <span className="text-sm font-mono">
           {avgLatency !== null ? `${avgLatency.toFixed(0)}ms` : "N/A"}
         </span>
       </TableCell>
-      <TableCell>
+      <TableCell className="text-left">
         <span className="text-sm text-gray-500">{nextCheck}</span>
       </TableCell>
       <TableCell className="w-8 pl-2 pr-4">

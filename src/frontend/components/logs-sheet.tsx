@@ -160,7 +160,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                   <p>
                     <strong>Error:</strong>
                   </p>{" "}
-                  <pre className="text-xs bg-red-50 dark:bg-red-900/30 p-2 mt-2 rounded overflow-auto max-h-48 text-red-700 dark:text-red-300">
+                  <pre className="text-xs bg-red-50 dark:bg-red-900/30 p-2 mt-2 rounded-sm overflow-auto max-h-48 text-red-700 dark:text-red-300">
                     {selectedLog.error}
                   </pre>
                 </div>
@@ -168,13 +168,13 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
 
               <div>
                 <strong className="text-sm">Headers</strong>
-                <pre className="text-xs bg-muted p-2 mt-2 rounded overflow-auto max-h-48 font-mono">
+                <pre className="text-xs bg-muted p-2 mt-2 rounded-sm overflow-auto max-h-48 font-mono">
                   {JSON.stringify(selectedLog.headers, null, 2)}
                 </pre>
               </div>
               <div>
                 <strong className="text-sm">Body Content</strong>
-                <pre className="text-xs bg-muted p-2 mt-2 rounded overflow-auto max-h-96 font-mono">
+                <pre className="text-xs bg-muted p-2 mt-2 rounded-sm overflow-auto max-h-96 font-mono">
                   {(() => {
                     try {
                       if (

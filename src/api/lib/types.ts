@@ -33,7 +33,7 @@ export interface Monitor {
   body: Record<string, unknown> | string | null;
   do_id: string;
   interval: number;
-  status: "active" | "warning" | "error" | "initializing" | "broken";
+  status: "broken" | "active" | "maintenance" | "paused" | "warning" | "error";
   error_message: string | null;
   name: string;
   regions: string[];

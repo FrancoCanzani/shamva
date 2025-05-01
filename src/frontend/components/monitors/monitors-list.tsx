@@ -25,7 +25,8 @@ export function MonitorsList({ monitors }: MonitorsListProps) {
             <TableHeader className="">
               <TableRow className="border-b border-dashed font-mono border-gray-200 dark:border-gray-700">
                 <TableHead className="w-8"></TableHead>
-                <TableHead>URL</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Name</TableHead>
                 <TableHead>Last check</TableHead>
                 <TableHead>Recent</TableHead>
                 <TableHead className="text-left">24h</TableHead>

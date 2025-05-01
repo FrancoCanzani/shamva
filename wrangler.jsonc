@@ -1,0 +1,39 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "blinks",
+  "main": "./src/api/index.ts",
+  "compatibility_date": "2025-04-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true,
+  },
+  "assets": {
+    "run_worker_first": true,
+    "not_found_handling": "single-page-application",
+    "binding": "ASSETS",
+  },
+  "upload_source_maps": true,
+
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "CHECKER_DURABLE_OBJECT",
+        "class_name": "CheckerDurableObject",
+      },
+    ],
+  },
+
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_classes": ["CheckerDurableObject"],
+    },
+  ],
+
+  "kv_namespaces": [
+    {
+      "binding": "LINKS",
+      "id": "0dc40affc7d647e89163d55f581d484b",
+    },
+  ],
+}

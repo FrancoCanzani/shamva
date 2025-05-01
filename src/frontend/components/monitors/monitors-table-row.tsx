@@ -181,13 +181,18 @@ export default function MonitorsTableRow({ monitor }: MonitorRowProps) {
           title={`Status: ${monitor.recent_logs[0].status_code}`}
         />
       </TableCell>
+      <TableCell>
+        <span className="capitalize text-muted-foreground">
+          {monitor.status}
+        </span>
+      </TableCell>
       <TableCell className="max-w-xs">
         <Link
           to="/dashboard/monitors/$slug"
           params={{ slug: monitor.id }}
           className="truncate hover:underline"
         >
-          {monitor.url}
+          {monitor.name ?? monitor.url}
         </Link>
       </TableCell>
       <TableCell>

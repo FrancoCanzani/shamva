@@ -15,6 +15,7 @@ export interface InitializeCheckerDOPayload {
   userId: string;
   intervalMs?: number;
   method: string;
+  region: string;
 }
 
 export interface Monitor {
@@ -31,7 +32,7 @@ export interface Monitor {
   success_count: number;
   user_id: string;
   body: Record<string, unknown> | string | null;
-  do_id: string;
+  region: string;
   interval: number;
   status: "broken" | "active" | "maintenance" | "paused" | "warning" | "error";
   error_message: string | null;

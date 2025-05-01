@@ -8,7 +8,13 @@ import {
 import { Log, Monitor } from "@/frontend/lib/types";
 import { cn, getStatusColor } from "@/frontend/lib/utils";
 import { Link } from "@tanstack/react-router";
-import { format, isAfter, parseISO, subHours } from "date-fns";
+import {
+  format,
+  formatDistanceToNowStrict,
+  isAfter,
+  parseISO,
+  subHours,
+} from "date-fns";
 import { ChevronRight } from "lucide-react";
 
 const calculateAvailability = (
@@ -164,7 +170,9 @@ export default function MonitorsTableRow({ monitor }: MonitorRowProps) {
   const availability7d = calculateAvailability(monitor.recent_logs, 7 * 24);
   const nextCheck = calculateNextCheck(monitor.last_check_at, monitor.interval);
   const lastCheck = monitor.last_check_at
-    ? format(parseISO(monitor.last_check_at), "LLL dd, y HH:mm:ss")
+    ? formatDistanceToNowStrict(parseISO(monitor.last_check_at), {
+        addSuffix: true,
+      })
     : "N/A";
 
   return (

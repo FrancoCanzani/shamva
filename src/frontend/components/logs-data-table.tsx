@@ -13,7 +13,7 @@ import {
 } from "@tanstack/react-table";
 import { format, parseISO } from "date-fns";
 import * as React from "react";
-import { cn } from "../lib/utils";
+import { cn, getRegionNameFromCode } from "../lib/utils";
 import { Route } from "../routes/dashboard/logs";
 import LogsSheet from "./logs-sheet";
 import { Button } from "./ui/button";
@@ -118,12 +118,7 @@ export const columns: ColumnDef<Log>[] = [
     cell: ({ row }) => {
       const status = row.getValue("status_code") as number;
       return (
-        <span
-          className={cn(
-            "font-mono text-sm font-medium",
-            getStatusTextColor(status),
-          )}
-        >
+        <span className={cn("font-mono text-sm", getStatusTextColor(status))}>
           {status === -1 ? "ERR" : status}
         </span>
       );
@@ -154,7 +149,7 @@ export const columns: ColumnDef<Log>[] = [
     minSize: 70,
   },
   {
-    accessorKey: "colo",
+    accessorKey: "region",
     header: ({ column }) => (
       <button
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
@@ -164,9 +159,12 @@ export const columns: ColumnDef<Log>[] = [
       </button>
     ),
     cell: ({ row }) => {
-      const colo = row.getValue("colo") as string;
-      return colo ? (
-        <span className="font-mono text-sm">{colo}</span>
+      const regionCode = row.getValue("region") as string;
+
+      const region = getRegionNameFromCode(regionCode);
+
+      return region ? (
+        <span className="font-mono text-sm">{region}</span>
       ) : (
         <span className="text-muted-foreground text-sm font-mono">N/A</span>
       );
@@ -220,7 +218,7 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
   return (
     <div className="flex h-full min-h-screen w-full flex-col relative">
       <div className="z-0 flex-grow overflow-auto">
-        <Table className="border-separate border-spacing-0">
+        <Table>
           <TableHeader className="sticky top-0 z-10 bg-background">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow
@@ -264,7 +262,7 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
                     logId === row.original.id ? "selected" : undefined
                   }
                   className={cn(
-                    "border-b cursor-pointer transition-colors duration-100",
+                    "border-b cursor-pointer border-dashed transition-colors duration-100",
                     getStatusRowClass(row.original.status_code),
                     "data-[state=selected]:bg-blue-100 dark:data-[state=selected]:bg-blue-900/40",
                     "data-[state=selected]:hover:!bg-blue-200/80 dark:data-[state=selected]:hover:!bg-blue-800/60",

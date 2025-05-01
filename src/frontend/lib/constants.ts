@@ -54,3 +54,15 @@ export const monitoringRegions = [
     flag: "🇦🇪",
   },
 ];
+
+export const regionCodeToNameMap: Record<string, string> = {
+  wnam: "Western North America (USA)",
+  enam: "Eastern North America (USA)",
+  sam: "South America (Brazil)",
+  weur: "Western Europe (Netherlands)",
+  eeur: "Eastern Europe (Romania)",
+  apac: "Asia-Pacific (Singapore)",
+  oc: "Oceania (Australia)",
+  afr: "Africa (South Africa)",
+  me: "Middle East (UAE)",
+};

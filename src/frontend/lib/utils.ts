@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { regionCodeToNameMap } from "./constants";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -27,7 +28,7 @@ export const getStatusColor = (status: number | unknown): string => {
   } else if (status >= 300 && status < 400) {
     return "bg-blue-200 dark:bg-blue-700";
   } else if (status >= 400 && status < 500) {
-    return "bg-yellow-200 dark:bg-yellow-700";
+    return "bg-orange-200 dark:bg-orange-700";
   } else if (status >= 500 || status < 0) {
     return "bg-red-200 dark:bg-red-700";
   }
@@ -39,11 +40,11 @@ export const getStatusTextColor = (status: number | unknown): string => {
     return "text-gray-700 dark:text-gray-300";
   }
   if (status >= 200 && status < 300) {
-    return "text-green-700 dark:text-green-300";
+    return "text-green-400 dark:text-green-200";
   } else if (status >= 300 && status < 400) {
     return "text-blue-700 dark:text-blue-300";
   } else if (status >= 400 && status < 500) {
-    return "text-yellow-800 dark:text-yellow-300";
+    return "text-orange-400 dark:text-orange-500";
   } else if (status >= 500 || status < 0) {
     return "text-red-700 dark:text-red-300";
   }
@@ -59,9 +60,13 @@ export const getStatusRowClass = (status: number | unknown): string => {
   } else if (status >= 300 && status < 400) {
     return "bg-blue-50 dark:bg-blue-900/20 hover:!bg-blue-100/80 dark:hover:!bg-blue-800/40";
   } else if (status >= 400 && status < 500) {
-    return "bg-yellow-50 dark:bg-yellow-900/20 hover:!bg-yellow-100/80 dark:hover:!bg-yellow-800/40";
+    return "bg-orange-50/80 dark:bg-orange-900/20 hover:!bg-orange-100/80 dark:hover:!bg-orange-800/40";
   } else if (status >= 500 || status < 0) {
     return "bg-red-50 dark:bg-red-900/20 hover:!bg-red-100/80 dark:hover:!bg-red-800/40";
   }
   return "hover:bg-slate-100 dark:hover:bg-slate-800/50";
 };
+
+export function getRegionNameFromCode(regionCode: string): string {
+  return regionCodeToNameMap[regionCode] || regionCode;
+}

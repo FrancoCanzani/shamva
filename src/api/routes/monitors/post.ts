@@ -150,7 +150,7 @@ export default async function postMonitors(c: Context) {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-      const response = await doStub.fetch("/initialize", {
+      const response = await doStub.fetch("http://do.com/initialize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(initPayload),

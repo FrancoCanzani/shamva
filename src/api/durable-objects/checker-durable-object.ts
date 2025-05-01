@@ -372,6 +372,7 @@ export class CheckerDurableObject extends DurableObject {
 
   async fetch(request: Request): Promise<Response> {
     const url = new URL(request.url);
+
     if (request.method === "POST" && url.pathname === "/initialize") {
       try {
         await this.initialize(await request.json());

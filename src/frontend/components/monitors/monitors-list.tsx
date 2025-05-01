@@ -32,7 +32,7 @@ export function MonitorsList({ monitors }: MonitorsListProps) {
                 <TableHead className="text-left">24h</TableHead>
                 <TableHead className="text-left">7d</TableHead>
                 <TableHead className="text-left">Avg Latency</TableHead>
-                <TableHead>Next Check</TableHead>
+                <TableHead>Regions</TableHead>
                 <TableHead className="w-8 pl-2 pr-4"></TableHead>
               </TableRow>
             </TableHeader>

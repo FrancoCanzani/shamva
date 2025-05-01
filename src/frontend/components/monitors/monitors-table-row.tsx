@@ -6,7 +6,7 @@ import {
   TooltipTrigger,
 } from "@/frontend/components/ui/tooltip";
 import { Log, Monitor } from "@/frontend/lib/types";
-import { cn, getStatusColor } from "@/frontend/lib/utils";
+import { cn, getRegionFlags, getStatusColor } from "@/frontend/lib/utils";
 import { Link } from "@tanstack/react-router";
 import {
   format,
@@ -54,25 +54,6 @@ const calculateAverageLatency = (logs: Partial<Log>[]): number | null => {
 
   const sum = validLatencies.reduce((acc, val) => acc + val, 0);
   return sum / validLatencies.length;
-};
-
-const calculateNextCheck = (
-  lastCheckAt: string | null,
-  intervalMs: number,
-): string => {
-  if (!lastCheckAt) {
-    return "Pending";
-  }
-  try {
-    const lastCheckDate = parseISO(lastCheckAt);
-    const nextCheckDate = new Date(lastCheckDate.getTime() + intervalMs);
-    if (isAfter(new Date(), nextCheckDate)) {
-      return "Due";
-    }
-    return format(nextCheckDate, "LLL dd, y HH:mm:ss");
-  } catch {
-    return "Unknown";
-  }
 };
 
 const getStatusColorForCheck = (ok?: boolean | null): string => {
@@ -168,7 +149,6 @@ export default function MonitorsTableRow({ monitor }: MonitorRowProps) {
   const avgLatency = calculateAverageLatency(monitor.recent_logs);
   const availability24h = calculateAvailability(monitor.recent_logs, 24);
   const availability7d = calculateAvailability(monitor.recent_logs, 7 * 24);
-  const nextCheck = calculateNextCheck(monitor.last_check_at, monitor.interval);
   const lastCheck = monitor.last_check_at
     ? formatDistanceToNowStrict(parseISO(monitor.last_check_at), {
         addSuffix: true,
@@ -221,7 +201,9 @@ export default function MonitorsTableRow({ monitor }: MonitorRowProps) {
         </span>
       </TableCell>
       <TableCell className="text-left">
-        <span className="text-sm text-gray-500">{nextCheck}</span>
+        <span className="text-sm text-gray-500">
+          {getRegionFlags(monitor.regions)}
+        </span>
       </TableCell>
       <TableCell className="w-8 pl-2 pr-4">
         <Link

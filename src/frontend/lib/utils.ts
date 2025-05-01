@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { regionCodeToNameMap } from "./constants";
+import { monitoringRegions, regionCodeToNameMap } from "./constants";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -69,4 +69,13 @@ export const getStatusRowClass = (status: number | unknown): string => {
 
 export function getRegionNameFromCode(regionCode: string): string {
   return regionCodeToNameMap[regionCode] || regionCode;
+}
+
+const regionFlagMap = new Map(
+  monitoringRegions.map((region) => [region.value, region.flag]),
+);
+
+export function getRegionFlags(regionCodes: string[]): string {
+  if (!Array.isArray(regionCodes)) return "";
+  return regionCodes.map((code) => regionFlagMap.get(code) || "❓").join(" ");
 }

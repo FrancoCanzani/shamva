@@ -46,6 +46,7 @@ export default async function postMonitors(c: Context) {
       .from("monitors")
       .insert([
         {
+          name: result.data.name,
           url: url,
           method: method,
           headers: headers ?? {},
@@ -54,7 +55,7 @@ export default async function postMonitors(c: Context) {
           do_id: doId.toString(),
           interval: result.data.interval ?? 60000,
           status: "initializing",
-          is_active: true,
+          regions: result.data.regions,
           failure_count: 0,
           success_count: 0,
         },

@@ -15,7 +15,7 @@ export default async function postCheck(c: Context) {
     });
     const latency = performance.now() - start;
 
-    const status = response.status;
+    const status_code = response.status;
     const statusText = response.statusText;
     const ok = response.ok;
     const headers = Object.fromEntries(response.headers.entries());
@@ -35,13 +35,13 @@ export default async function postCheck(c: Context) {
 
     const logData = {
       url: urlToCheck,
-      status,
+      status_code,
       ok,
       latency,
     };
 
     const responseData = {
-      status: status,
+      status_code: status_code,
       statusText: statusText,
       ok: ok,
       headers: headers,

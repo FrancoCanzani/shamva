@@ -28,7 +28,6 @@ export function MonitorDetail({ monitor }: MonitorDetailProps) {
           <div>{monitor.method}</div>
 
           <div className="monitor-detail-label">Active</div>
-          <div>{monitor.is_active ? "Yes" : "No"}</div>
 
           <div className="monitor-detail-label">Interval</div>
           <div>{monitor.interval} seconds</div>

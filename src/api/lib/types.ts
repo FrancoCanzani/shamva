@@ -22,7 +22,7 @@ export interface Monitor {
   created_at: string;
   updated_at: string;
   url: string;
-  method: string;
+  method: "GET" | "POST" | "HEAD";
   headers: Record<string, string>;
   last_check_at: string | null;
   last_success_at: string | null;
@@ -30,12 +30,14 @@ export interface Monitor {
   failure_count: number;
   success_count: number;
   user_id: string;
-  is_active: boolean;
-  body: string | Record<string, unknown> | null;
+  body: Record<string, unknown> | string | null;
   do_id: string;
   interval: number;
   status: "active" | "warning" | "error" | "initializing" | "broken";
   error_message: string | null;
+  name: string;
+  regions: string[];
+  recent_logs: Partial<Log>[];
 }
 
 export interface Log {
@@ -44,7 +46,7 @@ export interface Log {
   monitor_id: string;
   do_id: string;
   url: string;
-  status: number;
+  status_code: number;
   ok: boolean;
   latency: number;
   created_at: string;

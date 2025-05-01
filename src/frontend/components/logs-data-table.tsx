@@ -38,7 +38,7 @@ export const columns: ColumnDef<Log>[] = [
     enableSorting: false,
     enableHiding: false,
     cell: ({ row }) => {
-      const status = row.original.status;
+      const status = row.original.status_code;
       return (
         <div className="flex items-center justify-center">
           <div
@@ -106,7 +106,7 @@ export const columns: ColumnDef<Log>[] = [
     size: 250,
   },
   {
-    accessorKey: "status",
+    accessorKey: "status_code",
     header: ({ column }) => (
       <button
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
@@ -116,7 +116,7 @@ export const columns: ColumnDef<Log>[] = [
       </button>
     ),
     cell: ({ row }) => {
-      const status = row.getValue("status") as number;
+      const status = row.getValue("status_code") as number;
       return (
         <span
           className={cn(
@@ -265,10 +265,10 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
                   }
                   className={cn(
                     "border-b cursor-pointer transition-colors duration-100",
-                    getStatusRowClass(row.original.status),
+                    getStatusRowClass(row.original.status_code),
                     "data-[state=selected]:bg-blue-100 dark:data-[state=selected]:bg-blue-900/40",
                     "data-[state=selected]:hover:!bg-blue-200/80 dark:data-[state=selected]:hover:!bg-blue-800/60",
-                    !getStatusRowClass(row.original.status) &&
+                    !getStatusRowClass(row.original.status_code) &&
                       "even:bg-slate-50/50 dark:even:bg-slate-900/20 hover:bg-slate-100 dark:hover:bg-slate-800/50",
                   )}
                   onClick={() => {

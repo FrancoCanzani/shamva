@@ -8,13 +8,7 @@ import {
 import { Log, Monitor } from "@/frontend/lib/types";
 import { cn, getStatusColor } from "@/frontend/lib/utils";
 import { Link } from "@tanstack/react-router";
-import {
-  format,
-  formatDistanceToNow,
-  isAfter,
-  parseISO,
-  subHours,
-} from "date-fns";
+import { format, isAfter, parseISO, subHours } from "date-fns";
 import { ChevronRight } from "lucide-react";
 
 const calculateAvailability = (
@@ -31,7 +25,9 @@ const calculateAvailability = (
     return { percentage: 100, success: 0, total: 0 };
   }
 
-  const successCount = relevantLogs.filter((log) => log.ok === true).length;
+  const successCount = relevantLogs.filter(
+    (log) => log.status_code! >= 200 && log.status_code! < 300,
+  ).length;
   const totalCount = relevantLogs.length;
   const percentage = (successCount / totalCount) * 100;
 
@@ -67,7 +63,7 @@ const calculateNextCheck = (
     if (isAfter(new Date(), nextCheckDate)) {
       return "Due";
     }
-    return formatDistanceToNow(nextCheckDate, { addSuffix: true });
+    return format(nextCheckDate, "LLL dd, y HH:mm:ss");
   } catch {
     return "Unknown";
   }
@@ -91,9 +87,13 @@ function RecentChecks({ logs }: RecentChecksProps) {
       <div className="flex items-center space-x-1">
         {Array.from({ length: 7 }).map((_, index) => {
           const log = recent[index];
-          const color = log ? getStatusColorForCheck(log.ok) : "bg-gray-200";
+          const color = log
+            ? getStatusColorForCheck(
+                log.status_code! >= 200 && log.status_code! < 300,
+              )
+            : "bg-gray-200";
           const title = log
-            ? `${log.ok ? "Success" : log.error ? "Error" : "Failed"} (${log.status ?? "N/A"}) at ${log.created_at ? format(parseISO(log.created_at), "HH:mm:ss") : "Unknown time"}`
+            ? `${log.status_code! >= 200 && log.status_code! < 300 ? "Success" : log.error ? "Error" : "Failed"} (${log.status_code ?? "N/A"}) at ${log.created_at ? format(parseISO(log.created_at), "HH:mm:ss") : "Unknown time"}`
             : `Check ${index + 1} (No data)`;
 
           return (
@@ -163,6 +163,9 @@ export default function MonitorsTableRow({ monitor }: MonitorRowProps) {
   const availability24h = calculateAvailability(monitor.recent_logs, 24);
   const availability7d = calculateAvailability(monitor.recent_logs, 7 * 24);
   const nextCheck = calculateNextCheck(monitor.last_check_at, monitor.interval);
+  const lastCheck = monitor.last_check_at
+    ? format(parseISO(monitor.last_check_at), "LLL dd, y HH:mm:ss")
+    : "N/A";
 
   return (
     <TableRow
@@ -173,9 +176,9 @@ export default function MonitorsTableRow({ monitor }: MonitorRowProps) {
         <div
           className={cn(
             "w-3 h-3",
-            getStatusColor(monitor.recent_logs[0].status),
+            getStatusColor(monitor.recent_logs[0].status_code),
           )}
-          title={`Status: ${monitor.recent_logs[0].status}`}
+          title={`Status: ${monitor.recent_logs[0].status_code}`}
         />
       </TableCell>
       <TableCell className="max-w-xs">
@@ -188,7 +191,7 @@ export default function MonitorsTableRow({ monitor }: MonitorRowProps) {
         </Link>
       </TableCell>
       <TableCell>
-        <span>{monitor.last_check_at ?? "NA"}</span>
+        <span>{lastCheck}</span>
       </TableCell>
       <TableCell>
         <RecentChecks logs={monitor.recent_logs} />

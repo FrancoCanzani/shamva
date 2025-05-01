@@ -1,3 +1,4 @@
+import { cn } from "@/frontend/lib/utils";
 import type { Dispatch, SetStateAction } from "react";
 import { FormState } from "../pages/new-monitor-page";
 import { Label } from "../ui/label";
@@ -38,8 +39,11 @@ export function HeadersBodySection({
             value={formData.headersString}
             onChange={handleChange}
             placeholder='{"Authorization": "Bearer token", "Content-Type": "application/json"}'
-            rows={3}
-            className={errors.headersString ? "border-destructive" : ""}
+            rows={6}
+            className={cn(
+              "text-sm",
+              errors.headersString ? "border-destructive" : "",
+            )}
           />
           {errors.headersString && (
             <p className="text-sm text-destructive">{errors.headersString}</p>

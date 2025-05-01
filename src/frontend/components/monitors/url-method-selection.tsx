@@ -58,7 +58,7 @@ export function UrlMethodSection({
     <div className="space-y-4">
       <h2 className="font-medium">Request Configuration</h2>
 
-      <div className="flex items-center justify-start gap-2">
+      <div className="flex items-baseline justify-start gap-2">
         <div className="space-y-2">
           <Label htmlFor="method">Method</Label>
           <Select onValueChange={handleMethodChange} value={formData.method}>

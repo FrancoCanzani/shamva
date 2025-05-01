@@ -51,7 +51,7 @@ export default async function getMonitors(c: Context) {
     const { data: recentLogs, error: logError } = await supabase
       .from("logs")
       .select(
-        "monitor_id, created_at, status, ok, latency, error, colo, method",
+        "monitor_id, created_at, status_code, latency, error, colo, method",
       )
       .in("monitor_id", monitorIds)
       .gte("created_at", sevenDaysAgoISO)

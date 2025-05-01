@@ -135,10 +135,12 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                   <span
                     className={cn(
                       "font-mono font-medium",
-                      getStatusTextColor(selectedLog.status),
+                      getStatusTextColor(selectedLog.status_code),
                     )}
                   >
-                    {selectedLog.status === -1 ? "ERR" : selectedLog.status}
+                    {selectedLog.status_code === -1
+                      ? "ERR"
+                      : selectedLog.status_code}
                   </span>
                 </div>
                 <div className="flex items-center justify-between py-2">

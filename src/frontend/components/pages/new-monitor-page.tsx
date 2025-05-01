@@ -64,7 +64,7 @@ export default function NewMonitorPage() {
 
     if (errors.regions) {
       setErrors((prev) => {
-        const { regions, ...rest } = prev;
+        const { ...rest } = prev;
         return rest;
       });
     }
@@ -130,7 +130,7 @@ export default function NewMonitorPage() {
         name: formData.name,
         url: formData.url,
         method: formData.method,
-        interval: formData.interval, // Add interval to the request
+        interval: formData.interval,
         regions: formData.regions,
         headers: parsedHeaders,
         body: parsedBody,

@@ -220,6 +220,7 @@ export class CheckerDurableObject extends DurableObject {
               error_message: `${this.consecutiveFailures} consecutive check failures`,
               failure_count: this.consecutiveFailures,
               last_failure_at: new Date().toISOString(),
+              last_check_at: new Date().toISOString(),
             })
             .eq("id", monitorId);
         } catch (e) {
@@ -235,7 +236,7 @@ export class CheckerDurableObject extends DurableObject {
       }
     }
 
-    let status: number | null = null;
+    let status_code: number | null = null;
     let ok: boolean | null = null;
     let latency: number | null = null;
     let headers: Record<string, string> | null = null;
@@ -258,7 +259,7 @@ export class CheckerDurableObject extends DurableObject {
       clearTimeout(timeoutId);
 
       latency = performance.now() - checkStartTime;
-      status = response.status;
+      status_code = response.status;
       ok = response.ok;
       colo = response.cf?.colo ?? null;
       headers = Object.fromEntries(response.headers.entries());
@@ -293,7 +294,7 @@ export class CheckerDurableObject extends DurableObject {
       console.error(`Alarm check failed for ${urlToCheck}:`, error);
       const message = error instanceof Error ? error.message : String(error);
       checkError = message;
-      status = -1;
+      status_code = -1;
       ok = false;
       latency = performance.now() - checkStartTime;
 
@@ -309,8 +310,7 @@ export class CheckerDurableObject extends DurableObject {
       monitor_id: monitorId,
       do_id: doId,
       url: urlToCheck,
-      status: status,
-      ok: ok,
+      status_code: status_code,
       latency: latency,
       headers: headers,
       body_content: bodyContent,
@@ -346,7 +346,7 @@ export class CheckerDurableObject extends DurableObject {
         } else {
           logSaved = true;
           console.log(
-            `Log saved for monitor ${monitorId} (Status: ${status}, Latency: ${latency?.toFixed(2)}ms)`,
+            `Log saved for monitor ${monitorId} (Status: ${status_code}, Latency: ${latency?.toFixed(2)}ms)`,
           );
 
           /* eslint "@typescript-eslint/no-explicit-any": "off" */
@@ -356,11 +356,11 @@ export class CheckerDurableObject extends DurableObject {
 
           if (ok === false) {
             monitorUpdate.last_failure_at = new Date().toISOString();
-            monitorUpdate.failure_count = supabase.rpc("increment", {
-              row_id: monitorId,
-              table_name: "monitors",
-              column_name: "failure_count",
-            });
+            // monitorUpdate.failure_count = supabase.rpc("increment", {
+            //   row_id: monitorId,
+            //   table_name: "monitors",
+            //   column_name: "failure_count",
+            // });
 
             if (this.consecutiveFailures === 1) {
               monitorUpdate.status = "warning";
@@ -370,11 +370,11 @@ export class CheckerDurableObject extends DurableObject {
             }
           } else if (ok === true) {
             monitorUpdate.last_success_at = new Date().toISOString();
-            monitorUpdate.success_count = supabase.rpc("increment", {
-              row_id: monitorId,
-              table_name: "monitors",
-              column_name: "success_count",
-            });
+            // monitorUpdate.success_count = supabase.rpc("increment", {
+            //   row_id: monitorId,
+            //   table_name: "monitors",
+            //   column_name: "success_count",
+            // });
 
             if (this.consecutiveFailures === 0) {
               monitorUpdate.status = "active";
@@ -383,10 +383,13 @@ export class CheckerDurableObject extends DurableObject {
           }
 
           try {
-            await supabase
+            const { data, error } = await supabase
               .from("monitors")
               .update(monitorUpdate)
               .eq("id", monitorId);
+
+            console.log(data);
+            console.log(error);
           } catch (statusUpdateError) {
             console.error(
               `Failed to update monitor status: ${statusUpdateError}`,

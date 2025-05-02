@@ -176,8 +176,8 @@ export default function MonitorsTableRow({ monitor }: MonitorRowProps) {
       </TableCell>
       <TableCell className="max-w-xs">
         <Link
-          to="/dashboard/monitors/$slug"
-          params={{ slug: monitor.id }}
+          to="/dashboard/monitors/$id"
+          params={{ id: monitor.id }}
           className="truncate hover:underline"
         >
           {monitor.name ?? monitor.url}
@@ -207,8 +207,8 @@ export default function MonitorsTableRow({ monitor }: MonitorRowProps) {
       </TableCell>
       <TableCell className="w-8 pl-2 pr-4">
         <Link
-          to="/dashboard/monitors/$slug"
-          params={{ slug: monitor.id }}
+          to="/dashboard/monitors/$id"
+          params={{ id: monitor.id }}
           className="opacity-0 group-hover:opacity-100 transition-opacity"
           aria-label={`Details for ${monitor.url}`}
         >

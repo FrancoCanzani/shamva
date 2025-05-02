@@ -48,7 +48,7 @@ export interface Log {
   do_id: string;
   url: string;
   status_code: number;
-  ok: boolean;
+  region: string;
   latency: number;
   created_at: string;
   headers: Record<string, string> | null;

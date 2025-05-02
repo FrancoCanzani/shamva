@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { monitoringRegions, regionCodeToNameMap } from "./constants";
+import { Log } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -78,4 +79,34 @@ const regionFlagMap = new Map(
 export function getRegionFlags(regionCodes: string[]): string {
   if (!Array.isArray(regionCodes)) return "";
   return regionCodes.map((code) => regionFlagMap.get(code) || "❓").join(" ");
+}
+
+export function groupLogsByRegion(logs: Partial<Log>[]) {
+  const regionGroups: Record<string, Partial<Log>[]> = {};
+
+  monitoringRegions.forEach((region) => {
+    regionGroups[region.value] = [];
+  });
+
+  logs.forEach((log) => {
+    if (!log || !log.region) return;
+
+    if (regionGroups[log.region]) {
+      regionGroups[log.region].push(log);
+    } else {
+      regionGroups[log.region] = [log];
+    }
+  });
+
+  Object.keys(regionGroups).forEach((region) => {
+    regionGroups[region].sort((a, b) => {
+      return (
+        new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+      );
+    });
+  });
+
+  return Object.fromEntries(
+    Object.entries(regionGroups).filter(([_, logs]) => logs.length > 0),
+  );
 }

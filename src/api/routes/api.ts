@@ -5,6 +5,7 @@ import { ApiVariables } from "../lib/types";
 import postCheck from "./check/post";
 import getLogs from "./logs/get";
 import getMonitor from "./monitor/get";
+import putMonitor from "./monitor/put";
 import getMonitors from "./monitors/get";
 import postMonitors from "./monitors/post";
 
@@ -24,6 +25,8 @@ apiRoutes.post("/api/monitors", postMonitors);
 apiRoutes.get("/api/monitors", getMonitors);
 
 apiRoutes.get("/api/monitors/:id", getMonitor);
+
+apiRoutes.put("/api/monitors/:id", putMonitor);
 
 apiRoutes.get("/api/logs", getLogs);
 

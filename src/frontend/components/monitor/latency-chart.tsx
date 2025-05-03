@@ -1,6 +1,13 @@
 import { Log } from "@/frontend/lib/types";
 import { format } from "date-fns";
-import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ReferenceLine,
+  XAxis,
+  YAxis,
+} from "recharts";
 import {
   ChartConfig,
   ChartContainer,
@@ -27,17 +34,24 @@ export default function LatencyChart({
     );
   }
 
-  // Keep track of original log date for tooltip
   const chartData = logs.map((log, index) => ({
     index,
     latency: log.latency || 0,
     date: log.created_at ? new Date(log.created_at) : new Date(),
   }));
 
+  // Calculate average latency
+  const avgLatency =
+    chartData.reduce((sum, item) => sum + item.latency, 0) / chartData.length;
+
   const chartConfig = {
     latency: {
       label: "Latency",
       color: "#3b82f6",
+    },
+    avgLatency: {
+      label: "Avg Latency",
+      color: "#ef4444", // Red color for average line
     },
   } satisfies ChartConfig;
 
@@ -73,7 +87,7 @@ export default function LatencyChart({
                   return "";
                 }
               }}
-              formatter={(value) => [`${value}ms`, "latency"]}
+              formatter={(value) => [`${value}ms`, " latency"]}
             />
           }
         />
@@ -84,6 +98,17 @@ export default function LatencyChart({
           strokeWidth={2}
           dot={false}
           activeDot={{ r: 4 }}
+        />
+        <ReferenceLine
+          y={avgLatency}
+          stroke="#62748e"
+          strokeDasharray="3 3"
+          label={{
+            value: `Avg: ${avgLatency.toFixed()}ms`,
+            position: "insideBottomRight",
+            fill: "#62748e",
+            fontSize: 12,
+          }}
         />
       </LineChart>
     </ChartContainer>

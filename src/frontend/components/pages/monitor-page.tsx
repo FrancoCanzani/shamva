@@ -1,13 +1,13 @@
 import {
   cn,
   getRegionFlags,
-  getStatusTextColor,
+  getStatusColor,
   groupLogsByRegion,
 } from "@/frontend/lib/utils";
 import { Route } from "@/frontend/routes/dashboard/monitors/$id";
 import { Link } from "@tanstack/react-router";
 import { format, formatDistanceToNowStrict, parseISO } from "date-fns";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import RegionLatencyCharts from "../monitor/region-latency-charts";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
@@ -35,63 +35,70 @@ export default function MonitorPage() {
   console.log(groupedLogs);
 
   return (
-    <div className="flex flex-1 flex-col overflow-hidden">
-      <div className="flex h-14 items-center gap-4 border-b px-4 lg:h-[60px] lg:px-6 flex-shrink-0">
-        <Button variant="ghost" size="sm" asChild>
-          <Link to="/dashboard/monitors">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Link>
-        </Button>
-        <h1 className="flex-1 text-lg font-semibold md:text-xl truncate">
-          {monitor.name || "Monitor Details"}
-        </h1>
-        <div className="ml-auto flex items-center gap-2">
-          <Button variant="outline" size="sm">
+    <div className="flex flex-1 w-full max-w-6xl mx-auto p-4 flex-col">
+      <Link
+        to="/dashboard/monitors"
+        className="flex items-center justify-start text-xs gap-1 text-muted-foreground"
+      >
+        <ArrowLeft className="size-3" />
+        <span>Back to monitors</span>
+      </Link>
+
+      <div className="flex tems-center justify-between gap-4 py-4 flex-shrink-0">
+        <div className="flex items-center justify-start gap-1">
+          <h1 className="flex-1 font-medium">{monitor.name || monitor.url}</h1>
+          {monitor.name && (
+            <a
+              href={monitor.url}
+              className="text-xs hover:underline text-muted-foreground"
+            >
+              {monitor.url}
+            </a>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Link to="/dashboard/monitors/$id/edit" params={{ id: monitor.id }}>
             Edit
-          </Button>
+          </Link>
           <Button variant="ghost" size="sm" className="text-red-500">
             Delete
           </Button>
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col p-4 md:p-6 overflow-y-auto space-y-8">
-        <div className="flex flex-col gap-6">
+      <div className="flex flex-1 flex-col overflow-y-auto space-y-8">
+        <div className="flex items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className={`size-3 rounded-full`}></div>
-            <span
-              className={cn(
-                "text-xl font-medium capitalize",
-                getStatusTextColor(monitor.recent_logs[0]?.status_code),
-              )}
-            >
+            <button>
+              <span className="relative flex h-2 w-2">
+                <span
+                  className={cn(
+                    "absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 duration-[2000ms]",
+                    getStatusColor(monitor.recent_logs[0]?.status_code),
+                  )}
+                ></span>
+                <span
+                  className={cn(
+                    "absolute inline-flex h-2 w-2 rounded-full bg-red-500",
+                    getStatusColor(monitor.recent_logs[0]?.status_code),
+                  )}
+                ></span>
+              </span>
+            </button>
+            <span className={cn("font-medium capitalize")}>
               {monitor.status}
             </span>
             <span className="text-sm text-muted-foreground">
               Last checked {lastCheck}
             </span>
           </div>
-
-          <div className="flex items-baseline gap-2 break-all">
-            <div className="text-sm text-muted-foreground min-w-16">URL</div>
-            <a
-              href={monitor.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-mono text-sm hover:underline flex-grow"
-            >
-              {monitor.url}
-              <ExternalLink className="inline ml-1 h-3 w-3" />
-            </a>
-          </div>
-
-          <div className="flex flex-wrap gap-6">
-            <div className="flex gap-2 min-w-32">
+          <div className="flex items-center justify-end gap-2">
+            <div className="flex gap-2">
               <div className="text-sm text-muted-foreground">Method:</div>
               <div className="text-sm font-medium">{monitor.method}</div>
             </div>
-            <div className="flex gap-2 min-w-32">
+            <div className="flex gap-2">
               <div className="text-sm text-muted-foreground">Interval:</div>
               <div className="text-sm font-medium">
                 {monitor.interval / 60000} min
@@ -102,29 +109,29 @@ export default function MonitorPage() {
               <div className="text-sm">{getRegionFlags(monitor.regions)}</div>
             </div>
           </div>
+        </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 border-y py-4 border-gray-100 dark:border-gray-800">
-            <div>
-              <div className="text-sm text-muted-foreground">Success Rate</div>
-              <div className="text-xl font-medium">{successRate}%</div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 border-y py-4 border-gray-100 dark:border-gray-800">
+          <div>
+            <div className="text-sm text-muted-foreground">Success Rate</div>
+            <div className="text-xl font-medium">{successRate}%</div>
+          </div>
+          <div>
+            <div className="text-sm text-muted-foreground">Total Checks</div>
+            <div className="text-xl font-medium">
+              {monitor.success_count + monitor.failure_count}
             </div>
-            <div>
-              <div className="text-sm text-muted-foreground">Total Checks</div>
-              <div className="text-xl font-medium">
-                {monitor.success_count + monitor.failure_count}
-              </div>
+          </div>
+          <div>
+            <div className="text-sm text-muted-foreground">Successes</div>
+            <div className="text-xl font-medium text-green-500">
+              {monitor.success_count}
             </div>
-            <div>
-              <div className="text-sm text-muted-foreground">Successes</div>
-              <div className="text-xl font-medium text-green-500">
-                {monitor.success_count}
-              </div>
-            </div>
-            <div>
-              <div className="text-sm text-muted-foreground">Failures</div>
-              <div className="text-xl font-medium text-red-500">
-                {monitor.failure_count}
-              </div>
+          </div>
+          <div>
+            <div className="text-sm text-muted-foreground">Failures</div>
+            <div className="text-xl font-medium text-red-500">
+              {monitor.failure_count}
             </div>
           </div>
         </div>

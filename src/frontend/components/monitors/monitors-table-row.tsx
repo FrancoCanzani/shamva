@@ -31,10 +31,19 @@ const calculateAvailability = (
     return { percentage: 100, success: 0, total: 0 };
   }
 
-  const successCount = relevantLogs.filter(
+  // Only count logs with valid status code
+  const validLogs = relevantLogs.filter(
+    (log) => typeof log.status_code === "number",
+  );
+
+  if (validLogs.length === 0) {
+    return { percentage: 0, success: 0, total: relevantLogs.length };
+  }
+
+  const successCount = validLogs.filter(
     (log) => log.status_code! >= 200 && log.status_code! < 300,
   ).length;
-  const totalCount = relevantLogs.length;
+  const totalCount = validLogs.length;
   const percentage = (successCount / totalCount) * 100;
 
   return { percentage, success: successCount, total: totalCount };
@@ -56,10 +65,27 @@ const calculateAverageLatency = (logs: Partial<Log>[]): number | null => {
   return sum / validLatencies.length;
 };
 
-const getStatusColorForCheck = (ok?: boolean | null): string => {
-  if (ok === true) return "bg-green-500";
-  if (ok === false) return "bg-red-500";
-  return "bg-gray-400";
+const getStatusColorForCheck = (log: Partial<Log> | undefined): string => {
+  if (!log) return "bg-gray-200";
+
+  if (typeof log.status_code !== "number") {
+    return log.error ? "bg-red-500" : "bg-gray-400";
+  }
+
+  if (log.status_code >= 200 && log.status_code < 300) return "bg-green-500";
+  return "bg-red-500";
+};
+
+const getStatusText = (log: Partial<Log> | undefined): string => {
+  if (!log) return "No data";
+
+  if (typeof log.status_code !== "number") {
+    return log.error ? `Error: ${log.error}` : "Unknown status";
+  }
+
+  if (log.status_code >= 200 && log.status_code < 300) return "Success";
+  if (log.error) return `Error: ${log.error}`;
+  return `Failed (${log.status_code})`;
 };
 
 interface RecentChecksProps {
@@ -74,13 +100,11 @@ function RecentChecks({ logs }: RecentChecksProps) {
       <div className="flex items-center space-x-1">
         {Array.from({ length: 7 }).map((_, index) => {
           const log = recent[index];
-          const color = log
-            ? getStatusColorForCheck(
-                log.status_code! >= 200 && log.status_code! < 300,
-              )
-            : "bg-gray-200";
+          const color = getStatusColorForCheck(log);
+          const statusText = getStatusText(log);
+
           const title = log
-            ? `${log.status_code! >= 200 && log.status_code! < 300 ? "Success" : log.error ? "Error" : "Failed"} (${log.status_code ?? "N/A"}) at ${log.created_at ? format(parseISO(log.created_at), "HH:mm:ss") : "Unknown time"}`
+            ? `${statusText} ${log.status_code ? `(${log.status_code})` : ""} at ${log.created_at ? format(parseISO(log.created_at), "HH:mm:ss") : "Unknown time"}`
             : `Check ${index + 1} (No data)`;
 
           return (
@@ -155,6 +179,11 @@ export default function MonitorsTableRow({ monitor }: MonitorRowProps) {
       })
     : "N/A";
 
+  const mostRecentLog =
+    monitor.recent_logs && monitor.recent_logs.length > 0
+      ? monitor.recent_logs[0]
+      : undefined;
+
   return (
     <TableRow
       key={monitor.id}
@@ -162,11 +191,8 @@ export default function MonitorsTableRow({ monitor }: MonitorRowProps) {
     >
       <TableCell className="w-8">
         <div
-          className={cn(
-            "w-3 h-3",
-            getStatusColor(monitor.recent_logs[0].status_code),
-          )}
-          title={`Status: ${monitor.recent_logs[0].status_code}`}
+          className={cn("w-3 h-3", getStatusColor(mostRecentLog?.status_code))}
+          title={`Status: ${mostRecentLog?.status_code ?? "Unknown"}`}
         />
       </TableCell>
       <TableCell>

@@ -1,18 +1,21 @@
 import { useAuth } from "@/frontend/lib/context/auth-context";
 import { ApiResponse, Monitor } from "@/frontend/lib/types";
+import { Route } from "@/frontend/routes/dashboard/monitors/$id/edit";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import MonitorForm, { MonitorFormValues } from "../monitor/monitor-form";
 
-export default function NewMonitorPage() {
+export default function EditMonitorPage() {
   const navigate = useNavigate();
+  const { id } = Route.useParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const monitor = Route.useLoaderData();
+
   const { session } = useAuth();
 
   const handleSubmit = async (formData: MonitorFormValues) => {
     setIsSubmitting(true);
-
     try {
       if (!session?.access_token) {
         throw new Error("Authentication error. Please log in again.");
@@ -53,10 +56,8 @@ export default function NewMonitorPage() {
         body: parsedBody,
       };
 
-      console.log("Creating monitor with data:", monitorRequest);
-
-      const response = await fetch("/api/monitors", {
-        method: "POST",
+      const response = await fetch(`/api/monitors/${id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session.access_token}`,
@@ -69,14 +70,14 @@ export default function NewMonitorPage() {
       if (!response.ok) {
         console.error("Error response from API:", result);
         throw new Error(
-          result.error || `Failed to create monitor (${response.status})`,
+          result.error || `Failed to update monitor (${response.status})`,
         );
       }
 
-      toast.success("Monitor created successfully");
+      toast.success("Monitor updated successfully");
       navigate({ to: "/dashboard/monitors" });
     } catch (error) {
-      console.error("Error creating monitor:", error);
+      console.error("Error updating monitor:", error);
       toast.error(
         error instanceof Error ? error.message : "An unexpected error occurred",
       );
@@ -90,21 +91,34 @@ export default function NewMonitorPage() {
     navigate({ to: "/dashboard/monitors" });
   };
 
+  const initialValues: MonitorFormValues = {
+    name: monitor.name,
+    url: monitor.url,
+    method: monitor.method as "GET" | "POST" | "HEAD",
+    interval: monitor.interval,
+    regions: monitor.regions,
+    headersString: monitor.headers
+      ? JSON.stringify(monitor.headers, null, 2)
+      : "",
+    bodyString: monitor.body ? JSON.stringify(monitor.body, null, 2) : "",
+  };
+
   return (
     <div className="container max-w-4xl mx-auto p-4">
       <div className="space-y-4">
         <div>
-          <h1 className="text-xl font-medium">Create New Monitor</h1>
+          <h1 className="text-xl font-medium">Edit Monitor</h1>
           <p className="text-muted-foreground mt-1">
-            Enter the details for the URL you want to monitor.
+            Update the details for your monitor.
           </p>
         </div>
 
         <MonitorForm
+          initialValues={initialValues}
           onSubmit={handleSubmit}
           onCancel={handleCancel}
           isSubmitting={isSubmitting}
-          submitLabel="Create Monitor"
+          submitLabel="Update Monitor"
         />
       </div>
     </div>

@@ -100,13 +100,14 @@ export function groupLogsByRegion(logs: Partial<Log>[]) {
 
   Object.keys(regionGroups).forEach((region) => {
     regionGroups[region].sort((a, b) => {
-      return (
-        new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-      );
+      // Handle undefined created_at values
+      const timeA = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const timeB = b.created_at ? new Date(b.created_at).getTime() : 0;
+      return timeA - timeB;
     });
   });
 
   return Object.fromEntries(
-    Object.entries(regionGroups).filter(([_, logs]) => logs.length > 0),
+    Object.entries(regionGroups).filter(([logs]) => logs.length > 0),
   );
 }

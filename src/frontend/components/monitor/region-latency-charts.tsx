@@ -28,14 +28,26 @@ export default function RegionLatencyCharts({
 
   return (
     <div className="w-full space-y-6">
-      {Object.entries(groupedLogs).map(([region, regionLogs]) => (
-        <div key={region}>
-          <h3 className="text-xs font-medium mb-2 flex items-center">
-            {getRegionNameFromCode(region)}
-          </h3>
-          <LatencyChart logs={regionLogs} height={perRegionHeight} />
-        </div>
-      ))}
+      {Object.entries(groupedLogs).map(([region, regionLogs]) => {
+        const latencies = regionLogs.map((log) => log.latency || 0);
+        const maxLatency = Math.max(...latencies);
+        const minLatency = Math.min(...latencies);
+
+        return (
+          <div key={region}>
+            <div className="mb-2 flex items-center justify-between">
+              <h3 className="text-xs font-medium">
+                {getRegionNameFromCode(region)}
+              </h3>
+              <div className="text-xs text-slate-500 space-x-3">
+                <span className="font-medium">Min: {minLatency}ms</span>
+                <span className="font-medium">Max: {maxLatency}ms</span>
+              </div>
+            </div>
+            <LatencyChart logs={regionLogs} height={perRegionHeight} />
+          </div>
+        );
+      })}
     </div>
   );
 }

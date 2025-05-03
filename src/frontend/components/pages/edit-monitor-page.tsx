@@ -9,6 +9,7 @@ import MonitorForm, { MonitorFormValues } from "../monitor/monitor-form";
 export default function EditMonitorPage() {
   const navigate = useNavigate();
   const { id } = Route.useParams();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const monitor = Route.useLoaderData();
 

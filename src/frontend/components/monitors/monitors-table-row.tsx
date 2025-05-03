@@ -170,6 +170,8 @@ interface MonitorRowProps {
 }
 
 export default function MonitorsTableRow({ monitor }: MonitorRowProps) {
+  console.log(monitor);
+
   const avgLatency = calculateAverageLatency(monitor.recent_logs);
   const availability24h = calculateAvailability(monitor.recent_logs, 24);
   const availability7d = calculateAvailability(monitor.recent_logs, 7 * 24);

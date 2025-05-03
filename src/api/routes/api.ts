@@ -4,6 +4,7 @@ import { authMiddleware } from "../lib/middleware/auth-middleware";
 import { ApiVariables } from "../lib/types";
 import postCheck from "./check/post";
 import getLogs from "./logs/get";
+import deleteMonitor from "./monitor/delete";
 import getMonitor from "./monitor/get";
 import putMonitor from "./monitor/put";
 import getMonitors from "./monitors/get";
@@ -27,6 +28,8 @@ apiRoutes.get("/api/monitors", getMonitors);
 apiRoutes.get("/api/monitors/:id", getMonitor);
 
 apiRoutes.put("/api/monitors/:id", putMonitor);
+
+apiRoutes.delete("/api/monitors/:id", deleteMonitor);
 
 apiRoutes.get("/api/logs", getLogs);
 

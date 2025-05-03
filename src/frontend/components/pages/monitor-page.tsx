@@ -1,3 +1,4 @@
+import { supabase } from "@/frontend/lib/supabase";
 import {
   cn,
   getRegionFlags,
@@ -5,15 +6,18 @@ import {
   groupLogsByRegion,
 } from "@/frontend/lib/utils";
 import { Route } from "@/frontend/routes/dashboard/monitors/$id";
-import { Link } from "@tanstack/react-router";
+import { Link, redirect, useNavigate } from "@tanstack/react-router";
 import { format, formatDistanceToNowStrict, parseISO } from "date-fns";
 import { ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
 import RegionLatencyCharts from "../monitor/region-latency-charts";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 
 export default function MonitorPage() {
+  const navigate = useNavigate();
   const monitor = Route.useLoaderData();
+  const { id } = Route.useParams();
 
   const lastCheck = monitor.last_check_at
     ? formatDistanceToNowStrict(parseISO(monitor.last_check_at), {
@@ -61,7 +65,54 @@ export default function MonitorPage() {
           <Link to="/dashboard/monitors/$id/edit" params={{ id: monitor.id }}>
             Edit
           </Link>
-          <Button variant="ghost" size="sm" className="text-red-500">
+          <Button
+            onClick={async () => {
+              const {
+                data: { session },
+                error: sessionError,
+              } = await supabase.auth.getSession();
+
+              if (sessionError || !session?.access_token) {
+                console.error("Session Error or no token:", sessionError);
+                throw redirect({
+                  to: "/auth/login",
+                  search: { redirect: `/dashboard/monitors/${id}` },
+                  throw: true,
+                });
+              }
+
+              const token = session.access_token;
+
+              try {
+                const response = await fetch(`/api/monitors/${id}`, {
+                  method: "DELETE",
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                  },
+                });
+
+                const result = await response.json();
+
+                console.log(result);
+
+                if (response.ok) {
+                  toast.success("Monitor deleted");
+                  navigate({
+                    to: "/dashboard/monitors",
+                  });
+                } else {
+                  toast.error("Error deleting monitor");
+                }
+              } catch (error) {
+                console.error("Error deleting monitor:", error);
+                toast.error("Error deleting monitor");
+              }
+            }}
+            variant="ghost"
+            size="sm"
+            className="text-red-500"
+          >
             Delete
           </Button>
         </div>
@@ -162,19 +213,7 @@ export default function MonitorPage() {
                   <div
                     className={cn(
                       "size-2 rounded-full",
-                      log.status_code &&
-                        log.status_code >= 200 &&
-                        log.status_code < 300
-                        ? "bg-green-500"
-                        : log.status_code &&
-                            log.status_code >= 300 &&
-                            log.status_code < 400
-                          ? "bg-blue-500"
-                          : log.status_code &&
-                              log.status_code >= 400 &&
-                              log.status_code < 500
-                            ? "bg-yellow-500"
-                            : "bg-red-500",
+                      getStatusColor(log.status_code),
                     )}
                   />
                   <div className="w-16 font-mono text-xs">

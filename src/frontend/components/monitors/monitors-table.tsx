@@ -12,7 +12,7 @@ interface MonitorsListProps {
   monitors: Monitor[];
 }
 
-export function MonitorsList({ monitors }: MonitorsListProps) {
+export function MonitorsTable({ monitors }: MonitorsListProps) {
   return (
     <div className="p-4 space-y-8">
       <div className="flex items-center justify-between">

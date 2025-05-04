@@ -4,7 +4,7 @@ import { format, parseISO } from "date-fns";
 import { ChevronDown, ChevronUp, X } from "lucide-react";
 import { useMemo } from "react";
 import { Log } from "../lib/types";
-import { cn, getStatusTextColor } from "../lib/utils";
+import { cn, getRegionNameFromCode, getStatusTextColor } from "../lib/utils";
 import { Button } from "./ui/button";
 import {
   Sheet,
@@ -30,6 +30,23 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
     if (selectedLogIndex === -1) return null;
     return sortedFilteredRows[selectedLogIndex]?.original;
   }, [selectedLogIndex, sortedFilteredRows]);
+
+  const headersArray = useMemo(() => {
+    if (!selectedLog?.headers) return [];
+
+    try {
+      const headersObj =
+        typeof selectedLog.headers === "string"
+          ? JSON.parse(selectedLog.headers)
+          : selectedLog.headers;
+
+      return Object.entries(headersObj)
+        .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
+        .map(([key, value]) => ({ key, value: String(value) }));
+    } catch {
+      return [];
+    }
+  }, [selectedLog?.headers]);
 
   const handleCloseSheet = () => {
     navigate({
@@ -153,7 +170,11 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                 </div>
                 <div className="flex items-center justify-between py-2">
                   <strong>Region</strong>
-                  <span className="font-mono">{selectedLog.colo || "N/A"}</span>
+                  <span className="font-mono">
+                    {(selectedLog.region &&
+                      getRegionNameFromCode(selectedLog.region)) ||
+                      "N/A"}
+                  </span>
                 </div>
               </div>
 
@@ -170,9 +191,28 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
 
               <div>
                 <strong className="text-sm">Headers</strong>
-                <pre className="text-xs bg-muted p-2 mt-2 rounded-sm overflow-auto max-h-48 font-mono">
-                  {JSON.stringify(selectedLog.headers, null, 2)}
-                </pre>
+                {headersArray.length > 0 ? (
+                  <div className="mt-2 overflow-auto">
+                    <table className="w-full text-xs">
+                      <tbody className="divide-y divide-dashed">
+                        {headersArray.map(({ key, value }, index) => (
+                          <tr key={index} className="odd:bg-slate-50">
+                            <td className="py-1.5 font-mono text-left font-medium">
+                              {key}
+                            </td>
+                            <td className="py-1.5 font-mono text-left break-all whitespace-pre-wrap">
+                              {value}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="text-xs bg-muted p-2 mt-2 rounded-sm text-center text-muted-foreground">
+                    No headers available
+                  </div>
+                )}
               </div>
               <div>
                 <strong className="text-sm">Body Content</strong>
@@ -182,9 +222,12 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                       if (
                         selectedLog.body_content &&
                         typeof selectedLog.body_content === "object" &&
+                        selectedLog.body_content !== null &&
                         "_rawContent" in selectedLog.body_content
                       ) {
-                        return selectedLog.body_content._rawContent;
+                        return String(
+                          selectedLog.body_content._rawContent ?? "",
+                        );
                       }
                       if (
                         selectedLog.body_content &&
@@ -197,8 +240,9 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                         );
                       }
                       return String(selectedLog.body_content ?? "N/A");
-                    } catch {
-                      return String(selectedLog.body_content ?? "N/A");
+                    } catch (error) {
+                      console.error("Error rendering body content:", error);
+                      return "Error displaying content";
                     }
                   })()}
                 </pre>

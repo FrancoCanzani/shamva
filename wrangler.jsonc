@@ -1,17 +1,24 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
+
   "name": "blinks",
+
   "main": "./src/api/index.ts",
+
   "compatibility_date": "2025-04-01",
   "compatibility_flags": ["nodejs_compat"],
+
   "observability": {
     "enabled": true,
   },
+
+  // Static asset handling configuration
   "assets": {
     "run_worker_first": true,
     "not_found_handling": "single-page-application",
     "binding": "ASSETS",
   },
+
   "upload_source_maps": true,
 
   "durable_objects": {
@@ -23,6 +30,7 @@
     ],
   },
 
+  // Durable Object migration settings
   "migrations": [
     {
       "tag": "v1",
@@ -36,4 +44,12 @@
       "id": "0dc40affc7d647e89163d55f581d484b",
     },
   ],
+
+  // Cron triggers for scheduled tasks
+  "triggers": {
+    "crons": [
+      // Run the Durable Object health check every 30 minutes
+      "*/30 * * * *",
+    ],
+  },
 }

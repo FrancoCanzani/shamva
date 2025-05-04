@@ -61,7 +61,7 @@ export default function MonitorStats({
                   ? "text-green-700"
                   : recentSuccessRate >= 90
                     ? "text-yellow-500"
-                    : "text-red-500",
+                    : "text-red-700",
               )}
             >
               {formatRate(recentSuccessRate)}
@@ -78,7 +78,7 @@ export default function MonitorStats({
                 successRateDiff > 0
                   ? "text-green-700"
                   : successRateDiff < 0
-                    ? "text-red-500"
+                    ? "text-red-700"
                     : "text-gray-500",
               )}
             >
@@ -103,7 +103,7 @@ export default function MonitorStats({
                   ? "bg-green-700"
                   : recentSuccessRate >= 90
                     ? "bg-yellow-500"
-                    : "bg-red-500",
+                    : "bg-red-700",
               )}
               style={{ width: `${Math.max(recentSuccessRate, 3)}%` }}
             />

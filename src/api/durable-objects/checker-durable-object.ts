@@ -5,7 +5,6 @@ import { createSupabaseClient } from "../lib/supabase/client";
 import { InitializeCheckerDOPayload } from "../lib/types";
 import handleBodyParsing from "../lib/utils";
 
-// defaults
 const DEFAULT_CHECK_INTERVAL_MS = 60 * 1000;
 const MAX_CONSECUTIVE_FAILURES = 5;
 const MAX_COOLDOWN_INTERVAL_MS = 15 * 60 * 1000;
@@ -386,6 +385,26 @@ export class CheckerDurableObject extends DurableObject {
         return new Response(`Init failed: ${message}`, { status: 400 });
       }
     }
+
+    if (request.method === "DELETE" && url.pathname === "/cleanup") {
+      try {
+        await this.ctx.storage.deleteAll();
+
+        await this.ctx.storage.deleteAlarm();
+
+        console.log(
+          `DO ${this.doId}: Successfully cleaned up and ready for deletion`,
+        );
+
+        return new Response(JSON.stringify({ success: true }), {
+          headers: { "Content-Type": "application/json" },
+        });
+      } catch (err) {
+        console.error(`DO ${this.doId}: Cleanup failed:`, err);
+        return new Response(`Cleanup failed: ${err}`, { status: 500 });
+      }
+    }
+
     return new Response("Not Found", { status: 404 });
   }
 

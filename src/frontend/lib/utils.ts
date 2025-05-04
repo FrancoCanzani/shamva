@@ -108,6 +108,6 @@ export function groupLogsByRegion(logs: Partial<Log>[]) {
   });
 
   return Object.fromEntries(
-    Object.entries(regionGroups).filter(([logs]) => logs.length > 0),
+    Object.entries(regionGroups).filter((entry) => entry[1].length > 0),
   );
 }

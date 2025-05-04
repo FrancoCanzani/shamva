@@ -16,6 +16,7 @@ import {
   subHours,
 } from "date-fns";
 import { ChevronRight } from "lucide-react";
+import MonitorsTableRowAvailabilityDisplay from "./monitors-table-row-availability";
 
 const calculateAvailability = (
   logs: Partial<Log>[],
@@ -41,8 +42,9 @@ const calculateAvailability = (
   }
 
   const successCount = validLogs.filter(
-    (log) => log.status_code! >= 200 && log.status_code! < 300,
+    (log) => log.status_code && log.status_code >= 200 && log.status_code < 300,
   ).length;
+
   const totalCount = validLogs.length;
   const percentage = (successCount / totalCount) * 100;
 
@@ -125,46 +127,6 @@ function RecentChecks({ logs }: RecentChecksProps) {
   );
 }
 
-interface AvailabilityDisplayProps {
-  label: string;
-  availability: { percentage: number; success: number; total: number };
-}
-
-function AvailabilityDisplay({
-  label,
-  availability,
-}: AvailabilityDisplayProps) {
-  const formattedPercentage =
-    availability.total > 0 ? `${availability.percentage.toFixed()}%` : "N/A";
-
-  return (
-    <TooltipProvider delayDuration={100}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <span
-            className={cn(
-              "text-sm font-medium font-mono",
-              availability.percentage < 95 && availability.total > 0
-                ? "text-red-600"
-                : availability.percentage < 100 && availability.total > 0
-                  ? "text-yellow-600"
-                  : "text-gray-700",
-            )}
-          >
-            {formattedPercentage}
-          </span>
-        </TooltipTrigger>
-        <TooltipContent side="top" className="text-xs">
-          <p>
-            {label}: {availability.success} successful / {availability.total}{" "}
-            checks
-          </p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
-}
-
 interface MonitorRowProps {
   monitor: Monitor;
 }
@@ -218,10 +180,16 @@ export default function MonitorsTableRow({ monitor }: MonitorRowProps) {
         <RecentChecks logs={monitor.recent_logs} />
       </TableCell>
       <TableCell className="text-left">
-        <AvailabilityDisplay label="24h" availability={availability24h} />
+        <MonitorsTableRowAvailabilityDisplay
+          label="24h"
+          availability={availability24h}
+        />
       </TableCell>
       <TableCell className="text-left">
-        <AvailabilityDisplay label="7d" availability={availability7d} />
+        <MonitorsTableRowAvailabilityDisplay
+          label="7d"
+          availability={availability7d}
+        />
       </TableCell>
       <TableCell className="text-left">
         <span className="text-sm font-mono">

@@ -54,6 +54,10 @@ export interface Log {
   headers: Record<string, string> | null;
   body_content: string | Record<string, unknown> | null;
   error: string | null;
-  colo: string | null;
   method: string;
+}
+
+export interface BodyContent {
+  rawContent: string;
+  parseError?: string;
 }

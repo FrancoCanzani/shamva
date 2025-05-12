@@ -16,6 +16,7 @@ import { Route as IndexImport } from './routes/index'
 import { Route as AuthLoginImport } from './routes/auth/login'
 import { Route as DashboardMonitorsIndexImport } from './routes/dashboard/monitors/index'
 import { Route as DashboardLogsIndexImport } from './routes/dashboard/logs/index'
+import { Route as DashboardWorkspacesNewIndexImport } from './routes/dashboard/workspaces/new/index'
 import { Route as DashboardMonitorsNewIndexImport } from './routes/dashboard/monitors/new/index'
 import { Route as DashboardMonitorsIdIndexImport } from './routes/dashboard/monitors/$id/index'
 import { Route as DashboardMonitorsIdEditIndexImport } from './routes/dashboard/monitors/$id/edit/index'
@@ -51,6 +52,13 @@ const DashboardLogsIndexRoute = DashboardLogsIndexImport.update({
   path: '/logs/',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
+
+const DashboardWorkspacesNewIndexRoute =
+  DashboardWorkspacesNewIndexImport.update({
+    id: '/workspaces/new/',
+    path: '/workspaces/new/',
+    getParentRoute: () => DashboardRouteRoute,
+  } as any)
 
 const DashboardMonitorsNewIndexRoute = DashboardMonitorsNewIndexImport.update({
   id: '/monitors/new/',
@@ -124,6 +132,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardMonitorsNewIndexImport
       parentRoute: typeof DashboardRouteImport
     }
+    '/dashboard/workspaces/new/': {
+      id: '/dashboard/workspaces/new/'
+      path: '/workspaces/new'
+      fullPath: '/dashboard/workspaces/new'
+      preLoaderRoute: typeof DashboardWorkspacesNewIndexImport
+      parentRoute: typeof DashboardRouteImport
+    }
     '/dashboard/monitors/$id/edit/': {
       id: '/dashboard/monitors/$id/edit/'
       path: '/monitors/$id/edit'
@@ -141,6 +156,7 @@ interface DashboardRouteRouteChildren {
   DashboardMonitorsIndexRoute: typeof DashboardMonitorsIndexRoute
   DashboardMonitorsIdIndexRoute: typeof DashboardMonitorsIdIndexRoute
   DashboardMonitorsNewIndexRoute: typeof DashboardMonitorsNewIndexRoute
+  DashboardWorkspacesNewIndexRoute: typeof DashboardWorkspacesNewIndexRoute
   DashboardMonitorsIdEditIndexRoute: typeof DashboardMonitorsIdEditIndexRoute
 }
 
@@ -149,6 +165,7 @@ const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
   DashboardMonitorsIndexRoute: DashboardMonitorsIndexRoute,
   DashboardMonitorsIdIndexRoute: DashboardMonitorsIdIndexRoute,
   DashboardMonitorsNewIndexRoute: DashboardMonitorsNewIndexRoute,
+  DashboardWorkspacesNewIndexRoute: DashboardWorkspacesNewIndexRoute,
   DashboardMonitorsIdEditIndexRoute: DashboardMonitorsIdEditIndexRoute,
 }
 
@@ -164,6 +181,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/monitors': typeof DashboardMonitorsIndexRoute
   '/dashboard/monitors/$id': typeof DashboardMonitorsIdIndexRoute
   '/dashboard/monitors/new': typeof DashboardMonitorsNewIndexRoute
+  '/dashboard/workspaces/new': typeof DashboardWorkspacesNewIndexRoute
   '/dashboard/monitors/$id/edit': typeof DashboardMonitorsIdEditIndexRoute
 }
 
@@ -175,6 +193,7 @@ export interface FileRoutesByTo {
   '/dashboard/monitors': typeof DashboardMonitorsIndexRoute
   '/dashboard/monitors/$id': typeof DashboardMonitorsIdIndexRoute
   '/dashboard/monitors/new': typeof DashboardMonitorsNewIndexRoute
+  '/dashboard/workspaces/new': typeof DashboardWorkspacesNewIndexRoute
   '/dashboard/monitors/$id/edit': typeof DashboardMonitorsIdEditIndexRoute
 }
 
@@ -187,6 +206,7 @@ export interface FileRoutesById {
   '/dashboard/monitors/': typeof DashboardMonitorsIndexRoute
   '/dashboard/monitors/$id/': typeof DashboardMonitorsIdIndexRoute
   '/dashboard/monitors/new/': typeof DashboardMonitorsNewIndexRoute
+  '/dashboard/workspaces/new/': typeof DashboardWorkspacesNewIndexRoute
   '/dashboard/monitors/$id/edit/': typeof DashboardMonitorsIdEditIndexRoute
 }
 
@@ -200,6 +220,7 @@ export interface FileRouteTypes {
     | '/dashboard/monitors'
     | '/dashboard/monitors/$id'
     | '/dashboard/monitors/new'
+    | '/dashboard/workspaces/new'
     | '/dashboard/monitors/$id/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -210,6 +231,7 @@ export interface FileRouteTypes {
     | '/dashboard/monitors'
     | '/dashboard/monitors/$id'
     | '/dashboard/monitors/new'
+    | '/dashboard/workspaces/new'
     | '/dashboard/monitors/$id/edit'
   id:
     | '__root__'
@@ -220,6 +242,7 @@ export interface FileRouteTypes {
     | '/dashboard/monitors/'
     | '/dashboard/monitors/$id/'
     | '/dashboard/monitors/new/'
+    | '/dashboard/workspaces/new/'
     | '/dashboard/monitors/$id/edit/'
   fileRoutesById: FileRoutesById
 }
@@ -261,6 +284,7 @@ export const routeTree = rootRoute
         "/dashboard/monitors/",
         "/dashboard/monitors/$id/",
         "/dashboard/monitors/new/",
+        "/dashboard/workspaces/new/",
         "/dashboard/monitors/$id/edit/"
       ]
     },
@@ -281,6 +305,10 @@ export const routeTree = rootRoute
     },
     "/dashboard/monitors/new/": {
       "filePath": "dashboard/monitors/new/index.tsx",
+      "parent": "/dashboard"
+    },
+    "/dashboard/workspaces/new/": {
+      "filePath": "dashboard/workspaces/new/index.tsx",
       "parent": "/dashboard"
     },
     "/dashboard/monitors/$id/edit/": {

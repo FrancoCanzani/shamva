@@ -26,8 +26,8 @@ export default function LatencyChart({
 }: LatencyChartProps) {
   if (!logs.length) {
     return (
-      <div className="flex items-center justify-center h-full bg-gray-50 dark:bg-gray-800/50 rounded-md p-4">
-        <p className="text-sm text-gray-500 dark:text-gray-400">
+      <div className="flex items-center justify-center h-full p-4">
+        <p className="text-sm text-muted-foreground">
           No latency data available
         </p>
       </div>

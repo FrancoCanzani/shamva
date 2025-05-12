@@ -13,8 +13,8 @@ export default function RegionLatencyCharts({
 
   if (Object.keys(groupedLogs).length === 0) {
     return (
-      <div className="flex items-center justify-center w-full bg-slate-50 dark:bg-slate-800/50 rounded-md p-4">
-        <p className="text-sm text-slate-500 dark:text-slate-400">
+      <div className="flex items-center justify-center w-full p-4">
+        <p className="text-sm text-muted-foreground">
           No latency data available
         </p>
       </div>

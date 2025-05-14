@@ -40,6 +40,7 @@ export default async function postMonitors(c: Context) {
     body,
     regions,
     interval,
+    workspaceId,
   }: MonitorsParams = result.data;
   const userId = c.get("userId");
 
@@ -47,8 +48,44 @@ export default async function postMonitors(c: Context) {
     return c.json({ success: false, error: "User not authenticated." }, 401);
   }
 
-  let createdMonitor: Monitor | null = null;
+  // Verify the user has permission for this workspace
+  if (!workspaceId) {
+    return c.json({ success: false, error: "Workspace ID is required." }, 400);
+  }
+
   const supabase = createSupabaseClient(c.env);
+
+  // Check if user has permission to create in this workspace
+  const { data: membership, error: membershipError } = await supabase
+    .from("workspace_members")
+    .select("role")
+    .eq("workspace_id", workspaceId)
+    .eq("user_id", userId)
+    .single();
+
+  if (membershipError || !membership) {
+    return c.json(
+      {
+        success: false,
+        error:
+          "You do not have permission to create monitors in this workspace.",
+      },
+      403,
+    );
+  }
+
+  if (membership.role === "viewer") {
+    return c.json(
+      {
+        success: false,
+        error:
+          "Viewers cannot create monitors. Contact a workspace admin or member.",
+      },
+      403,
+    );
+  }
+
+  let createdMonitor: Monitor | null = null;
 
   try {
     const { data, error: insertError } = await supabase
@@ -61,6 +98,7 @@ export default async function postMonitors(c: Context) {
           headers: headers ?? {},
           body: body,
           user_id: userId,
+          workspace_id: workspaceId,
           interval: interval ?? 5 * 60000,
           status: "active",
           regions: regions,
@@ -129,10 +167,6 @@ export default async function postMonitors(c: Context) {
       if (!checkerData) {
         throw new Error(`No ID returned for checker record region ${region}`);
       }
-
-      console.log(
-        `Attempting to initialize DO ${doIdString} for monitor ${createdMonitor.id} in region ${region}`,
-      );
 
       const doStub = c.env.CHECKER_DURABLE_OBJECT.get(doId, {
         locationHint: region,

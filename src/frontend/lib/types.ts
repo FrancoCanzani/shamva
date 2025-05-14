@@ -1,4 +1,8 @@
 import type { User } from "@supabase/supabase-js";
+import z from "zod";
+import { WorkspaceSchema } from "./schemas";
+
+export type Workspace = z.infer<typeof WorkspaceSchema>;
 
 export type ApiVariables = {
   user: User;

@@ -1,4 +1,5 @@
 import { useAuth } from "@/frontend/lib/context/auth-context";
+import { ApiResponse, Workspace } from "@/frontend/lib/types";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -14,37 +15,33 @@ export default function NewWorkspacePage() {
     try {
       if (!session?.access_token) {
         toast.error("Authentication error. Please log in again.");
-        // Potentially redirect to login
-        // navigate({ to: "/auth/login", search: { redirect: "/dashboard/workspaces/new" } });
         setIsSubmitting(false);
         return;
       }
 
-      // This is where you'd make the API call
-      // For now, we'll simulate it
-      console.log("Creating workspace with data:", formData);
+      const response = await fetch("/api/workspaces", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify(formData),
+      });
 
-      // Simulated API call
-      // const response = await fetch("/api/workspaces", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //     Authorization: `Bearer ${session.access_token}`,
-      //   },
-      //   body: JSON.stringify(formData),
-      // });
-      // const result: ApiResponse<Workspace> = await response.json();
-      // if (!response.ok || !result.success) {
-      //   throw new Error(result.error || "Failed to create workspace");
-      // }
+      const result: ApiResponse<Workspace> = await response.json();
 
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate network delay
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || "Failed to create workspace");
+      }
 
       toast.success(
         `Workspace "${formData.workspaceName}" created successfully!`,
       );
-      // Redirect to the new workspace or a list of workspaces
-      navigate({ to: "/dashboard/monitors" }); // Or perhaps /dashboard/workspaces/:workspaceId
+
+      navigate({
+        to: "/dashboard/monitors",
+        search: { workspace_id: result.data.id },
+      });
     } catch (error) {
       console.error("Error creating workspace:", error);
       toast.error(
@@ -63,9 +60,10 @@ export default function NewWorkspacePage() {
     <div className="container max-w-4xl mx-auto p-4">
       <div className="space-y-4">
         <div>
-          <h1 className="text-xl font-medium">Create New Monitor</h1>
+          <h1 className="text-xl font-medium">Create New Workspace</h1>
           <p className="text-muted-foreground mt-1">
-            Enter the details for the URL you want to monitor.
+            Create a workspace to organize your monitors and collaborate with
+            team members.
           </p>
         </div>
 

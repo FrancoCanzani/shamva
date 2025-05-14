@@ -1,8 +1,10 @@
 import type { User } from "@supabase/supabase-js";
 import z from "zod";
-import { MonitorsParamsSchema } from "./schemas";
+import { MonitorsParamsSchema, WorkspaceSchema } from "./schemas";
 
 export type MonitorsParams = z.infer<typeof MonitorsParamsSchema>;
+
+export type Workspace = z.infer<typeof WorkspaceSchema>;
 
 export type ApiVariables = {
   user: User;

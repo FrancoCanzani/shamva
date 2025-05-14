@@ -18,4 +18,27 @@ export const MonitorsParamsSchema = z.object({
     ])
     .nullable()
     .optional(),
+  workspaceId: z.string().uuid("Invalid workspace ID format"),
+});
+
+export const WorkspaceSchema = z.object({
+  workspaceName: z
+    .string()
+    .min(1, "Workspace name is required")
+    .max(100, "Workspace name cannot exceed 100 characters"),
+  description: z
+    .string()
+    .max(500, "Description cannot exceed 500 characters")
+    .optional(),
+  members: z.array(
+    z.object({
+      email: z
+        .string()
+        .email("Please enter a valid email address")
+        .min(1, "Email is required"),
+      role: z.enum(["admin", "member", "viewer"], {
+        errorMap: () => ({ message: "Please select a valid role" }),
+      }),
+    }),
+  ),
 });

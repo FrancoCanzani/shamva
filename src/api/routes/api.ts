@@ -9,6 +9,8 @@ import getMonitor from "./monitor/get";
 import putMonitor from "./monitor/put";
 import getMonitors from "./monitors/get";
 import postMonitors from "./monitors/post";
+import postWorkspace from "./workspace/post";
+import getWorkspaces from "./workspaces/get";
 
 const apiRoutes = new Hono<{
   Bindings: EnvBindings;
@@ -21,18 +23,18 @@ apiRoutes.get("/api/test", (c) => {
   return c.text("test");
 });
 
+// Workspace routes
+apiRoutes.post("/api/workspaces", postWorkspace);
+apiRoutes.get("/api/workspaces", getWorkspaces);
+
+// Monitor routes
 apiRoutes.post("/api/monitors", postMonitors);
-
 apiRoutes.get("/api/monitors", getMonitors);
-
 apiRoutes.get("/api/monitors/:id", getMonitor);
-
 apiRoutes.put("/api/monitors/:id", putMonitor);
-
 apiRoutes.delete("/api/monitors/:id", deleteMonitor);
 
 apiRoutes.get("/api/logs", getLogs);
-
 apiRoutes.post("/api/check", postCheck);
 
 export default apiRoutes;

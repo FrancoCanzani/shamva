@@ -27,7 +27,7 @@ export default async function postWorkspace(c: Context) {
     );
   }
 
-  const { workspaceName, description, members } = result.data;
+  const { name, description, members } = result.data;
   const userId = c.get("userId");
 
   if (!userId) {
@@ -40,7 +40,7 @@ export default async function postWorkspace(c: Context) {
     const { data: workspace, error: workspaceError } = await supabase
       .from("workspaces")
       .insert({
-        name: workspaceName,
+        name: name,
         description: description || null,
         created_by: userId,
       })

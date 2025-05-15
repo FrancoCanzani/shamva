@@ -22,7 +22,7 @@ export const MonitorsParamsSchema = z.object({
 });
 
 export const WorkspaceSchema = z.object({
-  workspaceName: z
+  name: z
     .string()
     .min(1, "Workspace name is required")
     .max(100, "Workspace name cannot exceed 100 characters"),

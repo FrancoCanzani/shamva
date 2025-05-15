@@ -27,7 +27,7 @@ const memberInviteSchema = z.object({
 });
 
 const workspaceSchema = z.object({
-  workspaceName: z
+  name: z
     .string()
     .min(1, "Workspace name is required")
     .max(100, "Workspace name cannot exceed 100 characters"),
@@ -51,6 +51,7 @@ interface MonitorWorkspaceFormProps {
 
 const memberRoles = [
   { value: "admin", label: "Admin" },
+  { value: "member", label: "Member" },
   { value: "viewer", label: "Viewer" },
 ];
 
@@ -66,7 +67,7 @@ export default function MonitorWorkspaceForm({
     React.useState<MemberInvite["role"]>("member");
 
   const defaultValues: MonitorWorkspaceFormValues = {
-    workspaceName: "",
+    name: "",
     description: "",
     members: [],
     ...initialValues,
@@ -109,13 +110,13 @@ export default function MonitorWorkspaceForm({
       className="space-y-8"
     >
       <div className="space-y-2">
-        <form.Field name="workspaceName">
+        <form.Field name="name">
           {(field) => (
             <>
-              <Label htmlFor="workspaceName">Workspace Name</Label>
+              <Label htmlFor="name">Workspace Name</Label>
               <Input
-                id="workspaceName"
-                name="workspaceName"
+                id="name"
+                name="name"
                 value={field.state.value}
                 onChange={(e) => field.handleChange(e.target.value)}
                 onBlur={field.handleBlur}

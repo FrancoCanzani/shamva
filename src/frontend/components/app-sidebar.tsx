@@ -8,7 +8,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "./ui/sidebar";
-import { WorkspaceDropwdown } from "./workspace-dropdown";
+import { WorkspaceDropdown } from "./workspace-dropdown";
 
 export function AppSidebar() {
   const navItems = [
@@ -65,7 +65,7 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter>
-        <WorkspaceDropwdown />
+        <WorkspaceDropdown />
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>

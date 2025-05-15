@@ -24,7 +24,7 @@ apiRoutes.get("/api/test", (c) => {
 });
 
 // Workspace routes
-apiRoutes.post("/api/workspaces", postWorkspace);
+apiRoutes.post("/api/workspace", postWorkspace);
 apiRoutes.get("/api/workspaces", getWorkspaces);
 
 // Monitor routes

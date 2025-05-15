@@ -4,6 +4,8 @@ import { createSupabaseClient } from "../../lib/supabase/client";
 export default async function getWorkspaces(c: Context) {
   const userId = c.get("userId");
 
+  console.log(userId);
+
   if (!userId) {
     return c.json(
       { data: null, success: false, error: "User not authenticated" },

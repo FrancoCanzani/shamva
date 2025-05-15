@@ -19,7 +19,7 @@ export default function NewWorkspacePage() {
         return;
       }
 
-      const response = await fetch("/api/workspaces", {
+      const response = await fetch("/api/workspace", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -34,14 +34,14 @@ export default function NewWorkspacePage() {
         throw new Error(result.error || "Failed to create workspace");
       }
 
-      toast.success(
-        `Workspace "${formData.workspaceName}" created successfully!`,
-      );
+      toast.success(`Workspace "${formData.name}" created successfully!`);
 
-      navigate({
-        to: "/dashboard/monitors",
-        search: { workspace_id: result.data.id },
-      });
+      if (result && result.data && result.data.id) {
+        navigate({
+          to: "/dashboard/monitors",
+          search: { workspace_id: result.data.id },
+        });
+      }
     } catch (error) {
       console.error("Error creating workspace:", error);
       toast.error(

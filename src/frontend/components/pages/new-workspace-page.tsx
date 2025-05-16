@@ -1,60 +1,99 @@
 import { useAuth } from "@/frontend/lib/context/auth-context";
-import { ApiResponse, Workspace } from "@/frontend/lib/types";
-import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors";
+import { useWorkspace } from "@/frontend/lib/context/workspace-context"; // Import useWorkspace
+import { ApiResponse, Monitor } from "@/frontend/lib/types";
+import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/new";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import WorkspaceForm, { MonitorWorkspaceFormValues } from "../workspace-form";
+import MonitorForm, { MonitorFormValues } from "../monitor/monitor-form";
 
-export default function NewWorkspacePage() {
+export default function NewMonitorPage() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { session } = useAuth();
+  const { selectedWorkspace } = useWorkspace();
 
   const { workspaceName } = Route.useParams();
 
-  const handleSubmit = async (formData: MonitorWorkspaceFormValues) => {
+  const handleSubmit = async (formData: MonitorFormValues) => {
     setIsSubmitting(true);
+
     try {
       if (!session?.access_token) {
-        toast.error("Authentication error. Please log in again.");
-        setIsSubmitting(false);
-        return;
+        throw new Error("Authentication error. Please log in again.");
       }
 
-      const response = await fetch("/api/workspace", {
+      if (!selectedWorkspace?.id) {
+        throw new Error(
+          "No workspace selected. Please select a workspace first.",
+        );
+      }
+
+      let parsedHeaders: Record<string, string> | undefined = undefined;
+      if (formData.headersString) {
+        try {
+          parsedHeaders = JSON.parse(formData.headersString);
+          if (
+            typeof parsedHeaders !== "object" ||
+            Array.isArray(parsedHeaders) ||
+            parsedHeaders === null
+          ) {
+            throw new Error("Headers must be a valid JSON object.");
+          }
+        } catch {
+          throw new Error("Invalid JSON format for headers.");
+        }
+      }
+
+      let parsedBody: Record<string, unknown> | string | undefined = undefined;
+      if (formData.method === "POST" && formData.bodyString) {
+        try {
+          parsedBody = JSON.parse(formData.bodyString);
+        } catch {
+          throw new Error("Invalid JSON format for body.");
+        }
+      }
+
+      const monitorRequest = {
+        name: formData.name,
+        url: formData.url,
+        method: formData.method,
+        interval: formData.interval,
+        regions: formData.regions,
+        headers: parsedHeaders,
+        body: parsedBody,
+        workspaceId: selectedWorkspace.id,
+      };
+
+      const response = await fetch("/api/monitors", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(monitorRequest),
       });
 
-      const result: ApiResponse<Workspace> = await response.json();
+      const result: ApiResponse<Monitor> = await response.json();
 
-      if (!response.ok || !result.success) {
-        throw new Error(result.error || "Failed to create workspace");
+      if (!response.ok) {
+        console.error("Error response from API:", result);
+        throw new Error(
+          result.error || `Failed to create monitor (${response.status})`,
+        );
       }
 
-      toast.success(`Workspace "${formData.name}" created successfully!`);
-
-      if (result && result.data && result.data.name) {
-        navigate({
-          to: "/dashboard/$workspaceName/monitors",
-          params: { workspaceName: result.data.name },
-        });
-      } else {
-        navigate({
-          to: "/dashboard/$workspaceName/monitors",
-          params: { workspaceName: workspaceName },
-        });
-      }
+      toast.success("Monitor created successfully");
+      navigate({
+        to: "/dashboard/$workspaceName/monitors",
+        params: { workspaceName: selectedWorkspace.name },
+      });
     } catch (error) {
-      console.error("Error creating workspace:", error);
+      console.error("Error creating monitor:", error);
       toast.error(
         error instanceof Error ? error.message : "An unexpected error occurred",
       );
+      throw error;
     } finally {
       setIsSubmitting(false);
     }
@@ -71,18 +110,17 @@ export default function NewWorkspacePage() {
     <div className="container max-w-4xl mx-auto p-4">
       <div className="space-y-4">
         <div>
-          <h1 className="text-xl font-medium">Create New Workspace</h1>
+          <h1 className="text-xl font-medium">Create New Monitor</h1>
           <p className="text-muted-foreground mt-1">
-            Create a workspace to organize your monitors and collaborate with
-            team members.
+            Enter the details for the URL you want to monitor.
           </p>
         </div>
 
-        <WorkspaceForm
+        <MonitorForm
           onSubmit={handleSubmit}
           onCancel={handleCancel}
           isSubmitting={isSubmitting}
-          submitLabel="Create Workspace"
+          submitLabel="Create Monitor"
         />
       </div>
     </div>

@@ -1,4 +1,5 @@
 import { useAuth } from "@/frontend/lib/context/auth-context";
+import { useWorkspace } from "@/frontend/lib/context/workspace-context";
 import { ApiResponse, Monitor } from "@/frontend/lib/types";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/new";
 import { useNavigate } from "@tanstack/react-router";
@@ -12,6 +13,7 @@ export default function NewMonitorPage() {
   const { session } = useAuth();
 
   const { workspaceName } = Route.useParams();
+  const { selectedWorkspace } = useWorkspace();
 
   const handleSubmit = async (formData: MonitorFormValues) => {
     setIsSubmitting(true);
@@ -19,6 +21,12 @@ export default function NewMonitorPage() {
     try {
       if (!session?.access_token) {
         throw new Error("Authentication error. Please log in again.");
+      }
+
+      if (!selectedWorkspace?.id) {
+        throw new Error(
+          "No workspace selected. Please select a workspace first.",
+        );
       }
 
       let parsedHeaders: Record<string, string> | undefined = undefined;
@@ -54,6 +62,7 @@ export default function NewMonitorPage() {
         regions: formData.regions,
         headers: parsedHeaders,
         body: parsedBody,
+        workspaceId: selectedWorkspace.id,
       };
 
       console.log("Creating monitor with data:", monitorRequest);

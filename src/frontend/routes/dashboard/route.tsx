@@ -12,7 +12,7 @@ export const Route = createFileRoute("/dashboard")({
 function DashboardLayout() {
   const { user, isLoading } = useAuth();
 
-  if (!isLoading && !user) redirect({ to: "/auth/login", throw: true });
+  if (!isLoading && !user) redirect({ to: "/auth/login" });
 
   return (
     <div className="flex h-screen w-full min-w-0 overflow-hidden">

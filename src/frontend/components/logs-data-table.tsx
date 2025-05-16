@@ -14,7 +14,7 @@ import {
 import { format, parseISO } from "date-fns";
 import * as React from "react";
 import { cn, getRegionNameFromCode } from "../lib/utils";
-import { Route } from "../routes/dashboard/logs";
+import { Route } from "../routes/dashboard/$workspaceName/logs";
 import LogsSheet from "./logs-sheet";
 import { Button } from "./ui/button";
 import {
@@ -274,7 +274,10 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
                   )}
                   onClick={() => {
                     navigate({
-                      search: (prev) => ({ ...prev, logId: row.original.id }),
+                      search: (prev: Log) => ({
+                        ...prev,
+                        logId: row.original.id,
+                      }),
                       replace: true,
                     });
                   }}

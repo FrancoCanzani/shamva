@@ -7,6 +7,7 @@ import {
 } from "@/frontend/components/ui/tooltip";
 import { Log, Monitor } from "@/frontend/lib/types";
 import { cn, getRegionFlags, getStatusColor } from "@/frontend/lib/utils";
+import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors";
 import { Link } from "@tanstack/react-router";
 import {
   format,
@@ -132,8 +133,6 @@ interface MonitorRowProps {
 }
 
 export default function MonitorsTableRow({ monitor }: MonitorRowProps) {
-  console.log(monitor);
-
   const avgLatency = calculateAverageLatency(monitor.recent_logs);
   const availability24h = calculateAvailability(monitor.recent_logs, 24);
   const availability7d = calculateAvailability(monitor.recent_logs, 7 * 24);
@@ -147,6 +146,8 @@ export default function MonitorsTableRow({ monitor }: MonitorRowProps) {
     monitor.recent_logs && monitor.recent_logs.length > 0
       ? monitor.recent_logs[0]
       : undefined;
+
+  const { workspaceName } = Route.useParams();
 
   return (
     <TableRow
@@ -166,8 +167,8 @@ export default function MonitorsTableRow({ monitor }: MonitorRowProps) {
       </TableCell>
       <TableCell className="max-w-xs">
         <Link
-          to="/dashboard/monitors/$id"
-          params={{ id: monitor.id }}
+          to="/dashboard/$workspaceName/monitors/$id"
+          params={{ id: monitor.id, workspaceName: workspaceName }}
           className="truncate hover:underline"
         >
           {monitor.name ?? monitor.url}
@@ -203,8 +204,8 @@ export default function MonitorsTableRow({ monitor }: MonitorRowProps) {
       </TableCell>
       <TableCell className="w-8 pl-2 pr-4">
         <Link
-          to="/dashboard/monitors/$id"
-          params={{ id: monitor.id }}
+          to="/dashboard/$workspaceName/monitors/$id"
+          params={{ id: monitor.id, workspaceName: workspaceName }}
           className="opacity-0 group-hover:opacity-100 transition-opacity"
           aria-label={`Details for ${monitor.url}`}
         >

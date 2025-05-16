@@ -52,7 +52,7 @@ export default async function getWorkspaces(c: Context) {
 
         if (countError) {
           console.error(
-            `Error counting monitors for workspace ${workspace.id}:`,
+            `Error counting monitors for workspace ${workspace.name}:`,
             countError,
           );
         }

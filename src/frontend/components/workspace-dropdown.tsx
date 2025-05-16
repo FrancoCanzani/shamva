@@ -24,6 +24,12 @@ export function WorkspaceDropdown() {
   const handleSelectWorkspace = (workspace: Workspace) => {
     setSelectedWorkspace(workspace);
     setOpen(false);
+    navigate({
+      to: "/dashboard/$workspaceName/monitors",
+      params: {
+        workspaceName: workspace.name,
+      },
+    });
   };
 
   const handleCreateWorkspace = () => {

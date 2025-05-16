@@ -1,6 +1,6 @@
 import { supabase } from "@/frontend/lib/supabase";
 import { cn, getRegionFlags, getStatusColor } from "@/frontend/lib/utils";
-import { Route } from "@/frontend/routes/dashboard/monitors/$id";
+import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id";
 import { Link, redirect, useNavigate } from "@tanstack/react-router";
 import { formatDistanceToNowStrict, parseISO } from "date-fns";
 import { ArrowLeft } from "lucide-react";
@@ -14,7 +14,7 @@ import { Separator } from "../ui/separator";
 export default function MonitorPage() {
   const navigate = useNavigate();
   const monitor = Route.useLoaderData();
-  const { id } = Route.useParams();
+  const { id, workspaceName } = Route.useParams();
 
   async function handleDelete() {
     const {
@@ -45,7 +45,8 @@ export default function MonitorPage() {
       if (response.ok) {
         toast.success("Monitor deleted");
         navigate({
-          to: "/dashboard/monitors",
+          to: "/dashboard/$workspaceName/monitors",
+          params: { workspaceName: workspaceName },
         });
       } else {
         toast.error("Error deleting monitor");
@@ -72,7 +73,8 @@ export default function MonitorPage() {
     <div className="flex flex-1 w-full max-w-6xl mx-auto p-4 flex-col">
       <div className="flex items-center justify-between gap-6">
         <Link
-          to="/dashboard/monitors"
+          to="/dashboard/$workspaceName/monitors"
+          params={{ workspaceName: workspaceName }}
           className="flex items-center justify-start text-xs gap-1 text-muted-foreground"
         >
           <ArrowLeft className="size-3" />
@@ -82,8 +84,8 @@ export default function MonitorPage() {
           <Button asChild variant={"ghost"} size={"sm"}>
             <Link
               className="text-sm"
-              to="/dashboard/monitors/$id/edit"
-              params={{ id: monitor.id }}
+              to="/dashboard/$workspaceName/monitors/$id/edit"
+              params={{ id: monitor.id, workspaceName: workspaceName }}
             >
               Edit
             </Link>

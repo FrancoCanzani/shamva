@@ -1,5 +1,6 @@
 import { useAuth } from "@/frontend/lib/context/auth-context";
 import { ApiResponse, Workspace } from "@/frontend/lib/types";
+import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -9,6 +10,8 @@ export default function NewWorkspacePage() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { session } = useAuth();
+
+  const { workspaceName } = Route.useParams();
 
   const handleSubmit = async (formData: MonitorWorkspaceFormValues) => {
     setIsSubmitting(true);
@@ -36,10 +39,15 @@ export default function NewWorkspacePage() {
 
       toast.success(`Workspace "${formData.name}" created successfully!`);
 
-      if (result && result.data && result.data.id) {
+      if (result && result.data && result.data.name) {
         navigate({
-          to: "/dashboard/monitors",
-          search: { workspace_id: result.data.id },
+          to: "/dashboard/$workspaceName/monitors",
+          params: { workspaceName: result.data.name },
+        });
+      } else {
+        navigate({
+          to: "/dashboard/$workspaceName/monitors",
+          params: { workspaceName: workspaceName },
         });
       }
     } catch (error) {
@@ -53,7 +61,10 @@ export default function NewWorkspacePage() {
   };
 
   const handleCancel = () => {
-    navigate({ to: "/dashboard/monitors" });
+    navigate({
+      to: "/dashboard/$workspaceName/monitors",
+      params: { workspaceName: workspaceName },
+    });
   };
 
   return (

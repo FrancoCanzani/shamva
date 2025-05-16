@@ -1,6 +1,6 @@
 import { useAuth } from "@/frontend/lib/context/auth-context";
 import { ApiResponse, Monitor } from "@/frontend/lib/types";
-import { Route } from "@/frontend/routes/dashboard/monitors/$id/edit";
+import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id/edit";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -8,7 +8,7 @@ import MonitorForm, { MonitorFormValues } from "../monitor/monitor-form";
 
 export default function EditMonitorPage() {
   const navigate = useNavigate();
-  const { id } = Route.useParams();
+  const { id, workspaceName } = Route.useParams();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const monitor = Route.useLoaderData();
@@ -55,6 +55,7 @@ export default function EditMonitorPage() {
         regions: formData.regions,
         headers: parsedHeaders,
         body: parsedBody,
+        workspaceName: workspaceName,
       };
 
       const response = await fetch(`/api/monitors/${id}`, {
@@ -76,7 +77,6 @@ export default function EditMonitorPage() {
       }
 
       toast.success("Monitor updated successfully");
-      navigate({ to: "/dashboard/monitors" });
     } catch (error) {
       console.error("Error updating monitor:", error);
       toast.error(
@@ -89,7 +89,10 @@ export default function EditMonitorPage() {
   };
 
   const handleCancel = () => {
-    navigate({ to: "/dashboard/monitors" });
+    navigate({
+      to: "/dashboard/$workspaceName/monitors",
+      params: { workspaceName: workspaceName },
+    });
   };
 
   const initialValues: MonitorFormValues = {

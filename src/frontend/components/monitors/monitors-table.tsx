@@ -6,6 +6,7 @@ import {
   TableRow,
 } from "@/frontend/components/ui/table";
 import { Monitor } from "@/frontend/lib/types";
+import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors";
 import { Link } from "@tanstack/react-router";
 import MonitorsTableRow from "./monitors-table-row";
 interface MonitorsListProps {
@@ -13,11 +14,18 @@ interface MonitorsListProps {
 }
 
 export function MonitorsTable({ monitors }: MonitorsListProps) {
+  const { workspaceName } = Route.useParams();
+
   return (
     <div className="p-4 space-y-8">
       <div className="flex items-center justify-between">
         <h2 className="font-medium text-xl">Monitors</h2>
-        <Link to="/dashboard/monitors/new">New</Link>
+        <Link
+          to="/dashboard/$workspaceName/monitors/new"
+          params={{ workspaceName: workspaceName }}
+        >
+          New
+        </Link>
       </div>
       <div className="overflow-auto">
         {monitors.length > 0 ? (

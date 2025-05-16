@@ -1,4 +1,4 @@
-import { Route } from "@/frontend/routes/dashboard/logs/index";
+import { Route } from "@/frontend/routes/dashboard/$workspaceName/logs/index";
 import { Table } from "@tanstack/react-table";
 import { format, parseISO } from "date-fns";
 import { ChevronDown, ChevronUp, X } from "lucide-react";
@@ -64,7 +64,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
       const previousLogId =
         sortedFilteredRows[selectedLogIndex - 1].original.id;
       navigate({
-        search: (prev) => ({ ...prev, logId: previousLogId }),
+        search: (prev: Log) => ({ ...prev, logId: previousLogId }),
         replace: true,
       });
     }
@@ -74,7 +74,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
     if (canGoNext) {
       const nextLogId = sortedFilteredRows[selectedLogIndex + 1].original.id;
       navigate({
-        search: (prev) => ({ ...prev, logId: nextLogId }),
+        search: (prev: Log) => ({ ...prev, logId: nextLogId }),
         replace: true,
       });
     }

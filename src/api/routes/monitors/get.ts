@@ -4,6 +4,7 @@ import { Log } from "../../lib/types";
 
 export default async function getMonitors(c: Context) {
   const userId = c.get("userId");
+  const workspaceId = c.req.query("workspaceId");
 
   if (!userId) {
     return c.json(
@@ -15,11 +16,16 @@ export default async function getMonitors(c: Context) {
   try {
     const supabase = createSupabaseClient(c.env);
 
-    const { data: monitors, error: monitorError } = await supabase
-      .from("monitors")
-      .select("*")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false });
+    let query = supabase.from("monitors").select("*").eq("user_id", userId);
+
+    if (workspaceId) {
+      query = query.eq("workspace_id", workspaceId);
+    }
+
+    const { data: monitors, error: monitorError } = await query.order(
+      "created_at",
+      { ascending: false },
+    );
 
     if (monitorError) {
       console.error("Error fetching monitors from DB:", monitorError);

@@ -38,7 +38,7 @@ export async function fetchMonitors({
   if (!workspaceNameFromParams) {
     console.warn("Workspace name missing from route parameters, redirecting.");
     throw redirect({
-      to: "/dashboard/workspaces/new", // Redirect to create a workspace if none specified
+      to: "/dashboard/workspaces/new",
       throw: true,
     });
   }

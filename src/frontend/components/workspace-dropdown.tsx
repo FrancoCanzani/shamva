@@ -18,8 +18,6 @@ export function WorkspaceDropdown() {
   const { workspaces, selectedWorkspace, setSelectedWorkspace, isLoading } =
     useWorkspace();
 
-  console.log(workspaces);
-
   const navigate = useNavigate();
   const [open, setOpen] = React.useState(false);
 

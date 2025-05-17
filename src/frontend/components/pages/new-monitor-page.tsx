@@ -65,8 +65,6 @@ export default function NewMonitorPage() {
         workspaceId: selectedWorkspace.id,
       };
 
-      console.log("Creating monitor with data:", monitorRequest);
-
       const response = await fetch("/api/monitors", {
         method: "POST",
         headers: {
@@ -112,8 +110,8 @@ export default function NewMonitorPage() {
     <div className="container max-w-4xl mx-auto p-4">
       <div className="space-y-4">
         <div>
-          <h1 className="text-xl font-medium">Create New Monitor</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="font-medium">Create New Monitor</h1>
+          <p className="text-muted-foreground text-sm mt-1">
             Enter the details for the URL you want to monitor.
           </p>
         </div>

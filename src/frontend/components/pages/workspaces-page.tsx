@@ -25,9 +25,6 @@ export default function WorkspacesPage() {
           <p className="text-muted-foreground">
             No workspaces found. Create one to get started.
           </p>
-          <Button asChild variant="outline" size="sm" className="mt-2">
-            <Link to="/dashboard/workspaces/new">Create Workspace</Link>
-          </Button>
         </div>
       ) : (
         <div className="space-y-8">
@@ -35,10 +32,13 @@ export default function WorkspacesPage() {
             const members = workspace.workspace_members || [];
 
             return (
-              <div key={workspace.id} className="space-y-6 rounded border p-6">
+              <div
+                key={workspace.id}
+                className="space-y-4 rounded border border-dashed p-4"
+              >
                 <div className="flex justify-between items-center">
                   <div>
-                    <h2 className="text-lg font-medium">{workspace.name}</h2>
+                    <h2 className="font-medium">{workspace.name}</h2>
                     {workspace.description && (
                       <p className="text-sm text-muted-foreground mt-1">
                         {workspace.description}
@@ -48,8 +48,8 @@ export default function WorkspacesPage() {
                   <Button
                     asChild
                     variant="outline"
-                    size="sm"
-                    className="text-sm"
+                    size="xs"
+                    className="text-xs"
                   >
                     <Link
                       to="/dashboard/workspaces/$workspaceId"
@@ -61,17 +61,14 @@ export default function WorkspacesPage() {
                 </div>
 
                 <div>
-                  <h3 className="text-sm font-medium mb-4">Team Members</h3>
+                  <h3 className="text-xs font-medium mb-2">Team Members</h3>
 
                   {members.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       No members yet.
                     </p>
                   ) : (
-                    <div className="rounded border p-2">
-                      <h3 className="text-sm font-medium text-muted-foreground mb-2">
-                        {members.length} Members
-                      </h3>
+                    <div className="rounded border-dashed border px-2 py-1.5">
                       {members.map((member, index) => (
                         <div
                           key={member.id}

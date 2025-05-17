@@ -214,7 +214,6 @@ export default function MonitorForm({
       <div className="space-y-4">
         <h2 className="font-medium">Request Configuration</h2>
         <div className="flex items-baseline justify-start gap-2">
-          {/* Method Field */}
           <div className="space-y-2">
             <form.Field
               name="method"
@@ -325,12 +324,21 @@ export default function MonitorForm({
         >
           {(field) => (
             <>
-              <div className="flex items-center justify-between">
-                <h2 className="font-medium">Monitoring Regions</h2>
-                <span className="text-sm text-muted-foreground">
-                  {field.state.value.length} region
-                  {field.state.value.length !== 1 ? "s" : ""} selected
-                </span>
+              <div className="flex gap-1.5 flex-col items-center justify-between">
+                <div className="flex w-full items-center justify-between">
+                  <h2 className="font-medium">Monitoring Regions *</h2>
+
+                  <span className="text-sm text-muted-foreground">
+                    {field.state.value.length} region
+                    {field.state.value.length !== 1 ? "s" : ""} selected
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  * Regions are a best effort and not a guarantee. Monitors will
+                  not necessarily be instantiated in the hinted region, but
+                  instead instantiated in a data center selected to minimize
+                  latency.
+                </p>
               </div>
 
               <div className="border rounded-sm p-4 bg-slate/10">

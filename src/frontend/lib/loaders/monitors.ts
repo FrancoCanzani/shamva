@@ -33,9 +33,10 @@ export async function fetchMonitors({
   }
 
   const token = session.access_token;
-  const workspaceNameFromParams = params.workspaceName;
 
-  if (!workspaceNameFromParams) {
+  const workspaceName = params.workspaceName;
+
+  if (!workspaceName) {
     console.warn("Workspace name missing from route parameters, redirecting.");
     throw redirect({
       to: "/dashboard/workspaces/new",
@@ -58,7 +59,7 @@ export async function fetchMonitors({
       );
       throw redirect({
         to: "/auth/login",
-        search: { redirect: `/dashboard/${workspaceNameFromParams}/monitors` },
+        search: { redirect: `/dashboard/${workspaceName}/monitors` },
         throw: true,
       });
     }
@@ -90,12 +91,12 @@ export async function fetchMonitors({
 
     const allWorkspaces = workspaceResult.data;
     const targetWorkspace = allWorkspaces.find(
-      (ws) => ws.name === workspaceNameFromParams,
+      (ws) => ws.name === workspaceName,
     );
 
     if (!targetWorkspace) {
       console.warn(
-        `Workspace with name "${workspaceNameFromParams}" not found, redirecting.`,
+        `Workspace with name "${workspaceName}" not found, redirecting.`,
       );
       throw redirect({
         to: "/dashboard/workspaces/new",
@@ -120,7 +121,7 @@ export async function fetchMonitors({
       console.log("API returned 401 fetching monitors, redirecting to login.");
       throw redirect({
         to: "/auth/login",
-        search: { redirect: `/dashboard/${workspaceNameFromParams}/monitors` },
+        search: { redirect: `/dashboard/${workspaceName}/monitors` },
         throw: true,
       });
     }

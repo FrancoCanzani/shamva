@@ -1,4 +1,4 @@
-import { MonitorsTable } from "@/frontend/components/monitors/monitors-table";
+import MonitorsPage from "@/frontend/components/pages/monitors-page";
 import { fetchMonitors } from "@/frontend/lib/loaders/monitors";
 import { createFileRoute } from "@tanstack/react-router";
 
@@ -7,9 +7,3 @@ export const Route = createFileRoute("/dashboard/$workspaceName/monitors/")({
     fetchMonitors({ params, abortController }),
   component: MonitorsPage,
 });
-
-function MonitorsPage() {
-  const monitorsData = Route.useLoaderData();
-
-  return <MonitorsTable monitors={monitorsData} />;
-}

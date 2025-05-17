@@ -9,6 +9,7 @@ import getMonitor from "./monitor/get";
 import putMonitor from "./monitor/put";
 import getMonitors from "./monitors/get";
 import postMonitors from "./monitors/post";
+import getWorkspace from "./workspace/get";
 import postWorkspace from "./workspace/post";
 import getWorkspaces from "./workspaces/get";
 
@@ -26,6 +27,8 @@ apiRoutes.get("/api/test", (c) => {
 // Workspace routes
 apiRoutes.post("/api/workspace", postWorkspace);
 apiRoutes.get("/api/workspaces", getWorkspaces);
+apiRoutes.get("/api/workspace/:id", getWorkspace);
+apiRoutes.put("/api/workspace/:id", getWorkspace);
 
 // Monitor routes
 apiRoutes.post("/api/monitors", postMonitors);

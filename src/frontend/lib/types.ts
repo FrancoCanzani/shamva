@@ -6,8 +6,20 @@ export type WorkspaceSchema = z.infer<typeof WorkspaceSchema>;
 export type MemberInvite = z.infer<typeof MemberInviteSchema>;
 export type MonitorWorkspaceFormValues = z.infer<typeof WorkspaceSchema>;
 
+export interface WorkspaceMember {
+  id: string;
+  user_id: string | null;
+  role: "admin" | "member" | "viewer";
+  invitation_email: string | null;
+  invitation_status: "pending" | "accepted" | "declined";
+}
+
 export interface Workspace extends WorkspaceSchema {
   id: string;
+  created_at: string;
+  updated_at: string;
+  created_by: string;
+  workspace_members?: WorkspaceMember[];
 }
 
 export type ApiVariables = {

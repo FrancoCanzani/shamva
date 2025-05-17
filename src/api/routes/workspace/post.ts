@@ -6,6 +6,7 @@ export default async function postWorkspace(c: Context) {
   let rawBody: unknown;
   try {
     rawBody = await c.req.json();
+    console.log(rawBody);
   } catch {
     return c.json(
       { success: false, error: "Invalid JSON payload provided." },
@@ -14,7 +15,7 @@ export default async function postWorkspace(c: Context) {
   }
 
   const result = WorkspaceSchema.safeParse(rawBody);
-
+  console.log(result);
   if (!result.success) {
     console.error("Validation Error Details:", result.error.flatten());
     return c.json(
@@ -29,13 +30,11 @@ export default async function postWorkspace(c: Context) {
 
   const { name, description, members } = result.data;
   const userId = c.get("userId");
-
   if (!userId) {
     return c.json({ success: false, error: "User not authenticated." }, 401);
   }
 
   const supabase = createSupabaseClient(c.env);
-
   try {
     const { data: workspace, error: workspaceError } = await supabase
       .from("workspaces")
@@ -65,7 +64,8 @@ export default async function postWorkspace(c: Context) {
         workspace_id: workspace.id,
         user_id: userId,
         role: "admin",
-        invitation_status: "accepted", // Creator is automatically accepted
+        invitation_email: null,
+        invitation_status: "accepted",
       });
 
     if (memberError) {
@@ -82,6 +82,7 @@ export default async function postWorkspace(c: Context) {
     }
 
     const memberPromises = members.map(async (member) => {
+      console.log(member);
       const { data: existingUser } = await supabase
         .from("auth.users")
         .select("id")
@@ -93,7 +94,7 @@ export default async function postWorkspace(c: Context) {
         user_id: existingUser?.id || null,
         role: member.role,
         invitation_email: member.email,
-        invitation_status: existingUser ? "pending" : "pending", // If user exists, set to pending
+        invitation_status: existingUser ? "pending" : "invited",
         invited_by: userId,
       });
     });
@@ -112,12 +113,12 @@ export default async function postWorkspace(c: Context) {
           user_id,
           role,
           invitation_email,
-          invitation_status
+          invitation_status,
+          invited_by
         )
       `,
       )
-      .eq("id", workspace.id)
-      .single();
+      .eq("id", workspace.id);
 
     if (finalError) {
       console.error("Error fetching final workspace data:", finalError);

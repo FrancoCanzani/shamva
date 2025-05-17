@@ -4,8 +4,6 @@ import { createSupabaseClient } from "../../lib/supabase/client";
 export default async function getWorkspaces(c: Context) {
   const userId = c.get("userId");
 
-  console.log(userId);
-
   if (!userId) {
     return c.json(
       { data: null, success: false, error: "User not authenticated" },
@@ -16,20 +14,53 @@ export default async function getWorkspaces(c: Context) {
   try {
     const supabase = createSupabaseClient(c.env);
 
+    const { data: memberWorkspaces, error: memberWorkspacesError } =
+      await supabase
+        .from("workspace_members")
+        .select("workspace_id")
+        .eq("user_id", userId)
+        .eq("invitation_status", "accepted");
+
+    if (memberWorkspacesError) {
+      console.error(
+        "Error fetching user's workspace memberships:",
+        memberWorkspacesError,
+      );
+      return c.json(
+        {
+          success: false,
+          error: "Database error fetching workspace memberships",
+          details: memberWorkspacesError.message,
+        },
+        500,
+      );
+    }
+
+    const workspaceIds = memberWorkspaces.map((m) => m.workspace_id);
+
+    if (workspaceIds.length === 0) {
+      return c.json({
+        data: [],
+        success: true,
+      });
+    }
+
     const { data: workspaces, error: workspacesError } = await supabase
       .from("workspaces")
       .select(
         `
         *,
-        workspace_members!inner (
+        workspace_members (
           id,
+          user_id,
           role,
+          invitation_email,
           invitation_status
         )
       `,
       )
-      .eq("workspace_members.user_id", userId)
-      .eq("workspace_members.invitation_status", "accepted");
+      .in("id", workspaceIds)
+      .order("created_at", { ascending: false });
 
     if (workspacesError) {
       console.error("Error fetching workspaces:", workspacesError);
@@ -43,29 +74,8 @@ export default async function getWorkspaces(c: Context) {
       );
     }
 
-    const workspacesWithCounts = await Promise.all(
-      workspaces.map(async (workspace) => {
-        const { count, error: countError } = await supabase
-          .from("monitors")
-          .select("id", { count: "exact", head: true })
-          .eq("workspace_id", workspace.id);
-
-        if (countError) {
-          console.error(
-            `Error counting monitors for workspace ${workspace.name}:`,
-            countError,
-          );
-        }
-
-        return {
-          ...workspace,
-          monitorCount: count || 0,
-        };
-      }),
-    );
-
     return c.json({
-      data: workspacesWithCounts,
+      data: workspaces,
       success: true,
     });
   } catch (error) {

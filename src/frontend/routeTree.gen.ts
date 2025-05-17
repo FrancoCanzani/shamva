@@ -14,7 +14,9 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as DashboardRouteImport } from './routes/dashboard/route'
 import { Route as IndexImport } from './routes/index'
 import { Route as AuthLoginImport } from './routes/auth/login'
+import { Route as DashboardWorkspacesIndexImport } from './routes/dashboard/workspaces/index'
 import { Route as DashboardWorkspacesNewIndexImport } from './routes/dashboard/workspaces/new/index'
+import { Route as DashboardWorkspacesWorkspaceIdIndexImport } from './routes/dashboard/workspaces/$workspaceId/index'
 import { Route as DashboardWorkspaceNameMonitorsIndexImport } from './routes/dashboard/$workspaceName/monitors/index'
 import { Route as DashboardWorkspaceNameLogsIndexImport } from './routes/dashboard/$workspaceName/logs/index'
 import { Route as DashboardWorkspaceNameMonitorsNewIndexImport } from './routes/dashboard/$workspaceName/monitors/new/index'
@@ -41,10 +43,23 @@ const AuthLoginRoute = AuthLoginImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const DashboardWorkspacesIndexRoute = DashboardWorkspacesIndexImport.update({
+  id: '/workspaces/',
+  path: '/workspaces/',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+
 const DashboardWorkspacesNewIndexRoute =
   DashboardWorkspacesNewIndexImport.update({
     id: '/workspaces/new/',
     path: '/workspaces/new/',
+    getParentRoute: () => DashboardRouteRoute,
+  } as any)
+
+const DashboardWorkspacesWorkspaceIdIndexRoute =
+  DashboardWorkspacesWorkspaceIdIndexImport.update({
+    id: '/workspaces/$workspaceId/',
+    path: '/workspaces/$workspaceId/',
     getParentRoute: () => DashboardRouteRoute,
   } as any)
 
@@ -108,6 +123,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLoginImport
       parentRoute: typeof rootRoute
     }
+    '/dashboard/workspaces/': {
+      id: '/dashboard/workspaces/'
+      path: '/workspaces'
+      fullPath: '/dashboard/workspaces'
+      preLoaderRoute: typeof DashboardWorkspacesIndexImport
+      parentRoute: typeof DashboardRouteImport
+    }
     '/dashboard/$workspaceName/logs/': {
       id: '/dashboard/$workspaceName/logs/'
       path: '/$workspaceName/logs'
@@ -120,6 +142,13 @@ declare module '@tanstack/react-router' {
       path: '/$workspaceName/monitors'
       fullPath: '/dashboard/$workspaceName/monitors'
       preLoaderRoute: typeof DashboardWorkspaceNameMonitorsIndexImport
+      parentRoute: typeof DashboardRouteImport
+    }
+    '/dashboard/workspaces/$workspaceId/': {
+      id: '/dashboard/workspaces/$workspaceId/'
+      path: '/workspaces/$workspaceId'
+      fullPath: '/dashboard/workspaces/$workspaceId'
+      preLoaderRoute: typeof DashboardWorkspacesWorkspaceIdIndexImport
       parentRoute: typeof DashboardRouteImport
     }
     '/dashboard/workspaces/new/': {
@@ -156,8 +185,10 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 interface DashboardRouteRouteChildren {
+  DashboardWorkspacesIndexRoute: typeof DashboardWorkspacesIndexRoute
   DashboardWorkspaceNameLogsIndexRoute: typeof DashboardWorkspaceNameLogsIndexRoute
   DashboardWorkspaceNameMonitorsIndexRoute: typeof DashboardWorkspaceNameMonitorsIndexRoute
+  DashboardWorkspacesWorkspaceIdIndexRoute: typeof DashboardWorkspacesWorkspaceIdIndexRoute
   DashboardWorkspacesNewIndexRoute: typeof DashboardWorkspacesNewIndexRoute
   DashboardWorkspaceNameMonitorsIdIndexRoute: typeof DashboardWorkspaceNameMonitorsIdIndexRoute
   DashboardWorkspaceNameMonitorsNewIndexRoute: typeof DashboardWorkspaceNameMonitorsNewIndexRoute
@@ -165,9 +196,12 @@ interface DashboardRouteRouteChildren {
 }
 
 const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
+  DashboardWorkspacesIndexRoute: DashboardWorkspacesIndexRoute,
   DashboardWorkspaceNameLogsIndexRoute: DashboardWorkspaceNameLogsIndexRoute,
   DashboardWorkspaceNameMonitorsIndexRoute:
     DashboardWorkspaceNameMonitorsIndexRoute,
+  DashboardWorkspacesWorkspaceIdIndexRoute:
+    DashboardWorkspacesWorkspaceIdIndexRoute,
   DashboardWorkspacesNewIndexRoute: DashboardWorkspacesNewIndexRoute,
   DashboardWorkspaceNameMonitorsIdIndexRoute:
     DashboardWorkspaceNameMonitorsIdIndexRoute,
@@ -185,8 +219,10 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/auth/login': typeof AuthLoginRoute
+  '/dashboard/workspaces': typeof DashboardWorkspacesIndexRoute
   '/dashboard/$workspaceName/logs': typeof DashboardWorkspaceNameLogsIndexRoute
   '/dashboard/$workspaceName/monitors': typeof DashboardWorkspaceNameMonitorsIndexRoute
+  '/dashboard/workspaces/$workspaceId': typeof DashboardWorkspacesWorkspaceIdIndexRoute
   '/dashboard/workspaces/new': typeof DashboardWorkspacesNewIndexRoute
   '/dashboard/$workspaceName/monitors/$id': typeof DashboardWorkspaceNameMonitorsIdIndexRoute
   '/dashboard/$workspaceName/monitors/new': typeof DashboardWorkspaceNameMonitorsNewIndexRoute
@@ -197,8 +233,10 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/auth/login': typeof AuthLoginRoute
+  '/dashboard/workspaces': typeof DashboardWorkspacesIndexRoute
   '/dashboard/$workspaceName/logs': typeof DashboardWorkspaceNameLogsIndexRoute
   '/dashboard/$workspaceName/monitors': typeof DashboardWorkspaceNameMonitorsIndexRoute
+  '/dashboard/workspaces/$workspaceId': typeof DashboardWorkspacesWorkspaceIdIndexRoute
   '/dashboard/workspaces/new': typeof DashboardWorkspacesNewIndexRoute
   '/dashboard/$workspaceName/monitors/$id': typeof DashboardWorkspaceNameMonitorsIdIndexRoute
   '/dashboard/$workspaceName/monitors/new': typeof DashboardWorkspaceNameMonitorsNewIndexRoute
@@ -210,8 +248,10 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/auth/login': typeof AuthLoginRoute
+  '/dashboard/workspaces/': typeof DashboardWorkspacesIndexRoute
   '/dashboard/$workspaceName/logs/': typeof DashboardWorkspaceNameLogsIndexRoute
   '/dashboard/$workspaceName/monitors/': typeof DashboardWorkspaceNameMonitorsIndexRoute
+  '/dashboard/workspaces/$workspaceId/': typeof DashboardWorkspacesWorkspaceIdIndexRoute
   '/dashboard/workspaces/new/': typeof DashboardWorkspacesNewIndexRoute
   '/dashboard/$workspaceName/monitors/$id/': typeof DashboardWorkspaceNameMonitorsIdIndexRoute
   '/dashboard/$workspaceName/monitors/new/': typeof DashboardWorkspaceNameMonitorsNewIndexRoute
@@ -224,8 +264,10 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/auth/login'
+    | '/dashboard/workspaces'
     | '/dashboard/$workspaceName/logs'
     | '/dashboard/$workspaceName/monitors'
+    | '/dashboard/workspaces/$workspaceId'
     | '/dashboard/workspaces/new'
     | '/dashboard/$workspaceName/monitors/$id'
     | '/dashboard/$workspaceName/monitors/new'
@@ -235,8 +277,10 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/auth/login'
+    | '/dashboard/workspaces'
     | '/dashboard/$workspaceName/logs'
     | '/dashboard/$workspaceName/monitors'
+    | '/dashboard/workspaces/$workspaceId'
     | '/dashboard/workspaces/new'
     | '/dashboard/$workspaceName/monitors/$id'
     | '/dashboard/$workspaceName/monitors/new'
@@ -246,8 +290,10 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/auth/login'
+    | '/dashboard/workspaces/'
     | '/dashboard/$workspaceName/logs/'
     | '/dashboard/$workspaceName/monitors/'
+    | '/dashboard/workspaces/$workspaceId/'
     | '/dashboard/workspaces/new/'
     | '/dashboard/$workspaceName/monitors/$id/'
     | '/dashboard/$workspaceName/monitors/new/'
@@ -288,8 +334,10 @@ export const routeTree = rootRoute
     "/dashboard": {
       "filePath": "dashboard/route.tsx",
       "children": [
+        "/dashboard/workspaces/",
         "/dashboard/$workspaceName/logs/",
         "/dashboard/$workspaceName/monitors/",
+        "/dashboard/workspaces/$workspaceId/",
         "/dashboard/workspaces/new/",
         "/dashboard/$workspaceName/monitors/$id/",
         "/dashboard/$workspaceName/monitors/new/",
@@ -299,12 +347,20 @@ export const routeTree = rootRoute
     "/auth/login": {
       "filePath": "auth/login.tsx"
     },
+    "/dashboard/workspaces/": {
+      "filePath": "dashboard/workspaces/index.tsx",
+      "parent": "/dashboard"
+    },
     "/dashboard/$workspaceName/logs/": {
       "filePath": "dashboard/$workspaceName/logs/index.tsx",
       "parent": "/dashboard"
     },
     "/dashboard/$workspaceName/monitors/": {
       "filePath": "dashboard/$workspaceName/monitors/index.tsx",
+      "parent": "/dashboard"
+    },
+    "/dashboard/workspaces/$workspaceId/": {
+      "filePath": "dashboard/workspaces/$workspaceId/index.tsx",
       "parent": "/dashboard"
     },
     "/dashboard/workspaces/new/": {

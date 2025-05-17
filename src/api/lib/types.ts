@@ -6,6 +6,14 @@ export type MonitorsParams = z.infer<typeof MonitorsParamsSchema>;
 
 export type Workspace = z.infer<typeof WorkspaceSchema>;
 
+export interface WorkspaceMember {
+  id: string;
+  user_id: string | null;
+  role: "admin" | "member" | "viewer";
+  invitation_email: string | null;
+  invitation_status: "pending" | "accepted" | "declined";
+}
+
 export type ApiVariables = {
   user: User;
   userId: string;

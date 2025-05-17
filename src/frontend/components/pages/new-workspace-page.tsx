@@ -72,7 +72,7 @@ export default function NewWorkspacePage() {
       <div className="space-y-4">
         <div>
           <h1 className="text-xl font-medium">Create New Workspace</h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-muted-foreground mt-1 text-sm">
             Set up a new workspace for your team.
           </p>
         </div>

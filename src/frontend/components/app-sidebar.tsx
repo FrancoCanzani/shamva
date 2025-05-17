@@ -35,7 +35,12 @@ export function AppSidebar() {
         to: selectedWorkspace
           ? "/dashboard/" + selectedWorkspace.name + "/status"
           : undefined,
-        label: "Status",
+        label: "Status Pages",
+        disabled: workspacesLoading || !selectedWorkspace,
+      },
+      {
+        to: "/dashboard/workspaces",
+        label: "Workspaces",
         disabled: workspacesLoading || !selectedWorkspace,
       },
     ],

@@ -21,24 +21,28 @@ export const MonitorsParamsSchema = z.object({
   workspaceId: z.string().uuid("Invalid workspace ID format"),
 });
 
+export const MemberInviteSchema = z.object({
+  email: z
+    .string()
+    .email("Please enter a valid email address")
+    .min(1, "Email is required"),
+  role: z.enum(["admin", "member", "viewer"], {
+    errorMap: () => ({ message: "Please select a valid role" }),
+  }),
+});
+
 export const WorkspaceSchema = z.object({
   name: z
     .string()
     .min(1, "Workspace name is required")
-    .max(100, "Workspace name cannot exceed 100 characters"),
+    .max(100, "Workspace name cannot exceed 100 characters")
+    .regex(
+      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+      "Workspace name must be URL-friendly (lowercase letters, numbers, and hyphens, no leading/trailing/consecutive hyphens)",
+    ),
   description: z
     .string()
     .max(500, "Description cannot exceed 500 characters")
     .optional(),
-  members: z.array(
-    z.object({
-      email: z
-        .string()
-        .email("Please enter a valid email address")
-        .min(1, "Email is required"),
-      role: z.enum(["admin", "member", "viewer"], {
-        errorMap: () => ({ message: "Please select a valid role" }),
-      }),
-    }),
-  ),
+  members: z.array(MemberInviteSchema),
 });

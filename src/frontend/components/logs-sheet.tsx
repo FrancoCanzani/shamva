@@ -64,7 +64,10 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
       const previousLogId =
         sortedFilteredRows[selectedLogIndex - 1].original.id;
       navigate({
-        search: (prev: Log) => ({ ...prev, logId: previousLogId }),
+        search: (prev) => ({
+          ...prev,
+          logId: previousLogId,
+        }),
         replace: true,
       });
     }
@@ -74,7 +77,10 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
     if (canGoNext) {
       const nextLogId = sortedFilteredRows[selectedLogIndex + 1].original.id;
       navigate({
-        search: (prev: Log) => ({ ...prev, logId: nextLogId }),
+        search: (prev) => ({
+          ...prev,
+          logId: nextLogId,
+        }),
         replace: true,
       });
     }

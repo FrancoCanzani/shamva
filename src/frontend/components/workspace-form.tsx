@@ -15,31 +15,8 @@ import { X } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
 import { z } from "zod";
-
-const memberInviteSchema = z.object({
-  email: z
-    .string()
-    .email("Please enter a valid email address")
-    .min(1, "Email is required"),
-  role: z.enum(["admin", "member", "viewer"], {
-    errorMap: () => ({ message: "Please select a valid role" }),
-  }),
-});
-
-const workspaceSchema = z.object({
-  name: z
-    .string()
-    .min(1, "Workspace name is required")
-    .max(100, "Workspace name cannot exceed 100 characters"),
-  description: z
-    .string()
-    .max(500, "Description cannot exceed 500 characters")
-    .optional(),
-  members: z.array(memberInviteSchema),
-});
-
-export type MemberInvite = z.infer<typeof memberInviteSchema>;
-export type MonitorWorkspaceFormValues = z.infer<typeof workspaceSchema>;
+import { MemberInviteSchema, WorkspaceSchema } from "../lib/schemas";
+import { MemberInvite, MonitorWorkspaceFormValues } from "../lib/types";
 
 interface MonitorWorkspaceFormProps {
   initialValues?: Partial<MonitorWorkspaceFormValues>;
@@ -55,7 +32,7 @@ const memberRoles = [
   { value: "viewer", label: "Viewer" },
 ];
 
-export default function MonitorWorkspaceForm({
+export default function WorkspaceForm({
   initialValues,
   onSubmit,
   onCancel,
@@ -81,7 +58,7 @@ export default function MonitorWorkspaceForm({
     validators: {
       onChange: ({ value }) => {
         try {
-          workspaceSchema.parse(value);
+          WorkspaceSchema.parse(value);
           return undefined;
         } catch (error) {
           if (error instanceof z.ZodError) {
@@ -120,11 +97,15 @@ export default function MonitorWorkspaceForm({
                 value={field.state.value}
                 onChange={(e) => field.handleChange(e.target.value)}
                 onBlur={field.handleBlur}
-                placeholder="My Monitor Workspace"
+                placeholder="my-monitor-workspace"
                 className={
                   field.state.meta.errors?.length ? "border-destructive" : ""
                 }
               />
+              <p className="text-sm text-muted-foreground mt-1">
+                This will be part of the URL for your workspace. Use only
+                lowercase letters, numbers, and hyphens.
+              </p>
               {field.state.meta.errors?.length > 0 && (
                 <p className="text-sm text-destructive">
                   {field.state.meta.errors[0]}
@@ -164,8 +145,18 @@ export default function MonitorWorkspaceForm({
 
       <Separator />
 
-      <div className="space-y-4">
+      <div className="">
         <h2 className="text-lg font-medium">Invite Team Members</h2>
+        <p className="text-sm text-muted-foreground mb-4">
+          Each invited member will receive an email they must accept to join.
+          <br />
+          <br />- <strong>Admin:</strong> Full access to manage monitors,
+          members, and workspace settings.
+          <br />- <strong>Member:</strong> Can create and manage monitors, but
+          cannot manage workspace members or settings.
+          <br />- <strong>Viewer:</strong> Can only view monitors and logs, no
+          management capabilities.
+        </p>
         <form.Field name="members" mode="array">
           {(membersApi) => (
             <>
@@ -207,7 +198,7 @@ export default function MonitorWorkspaceForm({
                   variant="outline"
                   onClick={() => {
                     try {
-                      const validatedMember = memberInviteSchema.parse({
+                      const validatedMember = MemberInviteSchema.parse({
                         email: newMemberEmail,
                         role: newMemberRole,
                       });

@@ -1,8 +1,10 @@
 import type { User } from "@supabase/supabase-js";
 import z from "zod";
-import { WorkspaceSchema } from "./schemas";
+import { MemberInviteSchema, WorkspaceSchema } from "./schemas";
 
 export type WorkspaceSchema = z.infer<typeof WorkspaceSchema>;
+export type MemberInvite = z.infer<typeof MemberInviteSchema>;
+export type MonitorWorkspaceFormValues = z.infer<typeof WorkspaceSchema>;
 
 export interface Workspace extends WorkspaceSchema {
   id: string;

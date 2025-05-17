@@ -274,7 +274,7 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
                   )}
                   onClick={() => {
                     navigate({
-                      search: (prev: Log) => ({
+                      search: (prev) => ({
                         ...prev,
                         logId: row.original.id,
                       }),

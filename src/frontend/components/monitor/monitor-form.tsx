@@ -341,7 +341,7 @@ export default function MonitorForm({
                 </p>
               </div>
 
-              <div className="border rounded-sm p-4 bg-slate/10">
+              <div className="border rounded p-4 bg-slate/10">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {continentOrder.map((continent) => {
                     const regions = regionsByContinent[continent] || [];
@@ -359,7 +359,7 @@ export default function MonitorForm({
                             return (
                               <div
                                 key={region.value}
-                                className={`flex items-center justify-between p-2 border rounded-sm cursor-pointer hover:bg-slate-50 transition-colors ${
+                                className={`flex items-center justify-between p-2 border rounded cursor-pointer hover:bg-slate-50 transition-colors ${
                                   isSelected ? "border-primary bg-slate-50" : ""
                                 }`}
                                 onClick={() => {
@@ -416,12 +416,10 @@ export default function MonitorForm({
         </form.Field>
       </div>
 
-      {/* Advanced Options */}
       <div className="space-y-4">
         <h2 className="font-medium">Advanced Options</h2>
 
-        <div className="space-y-4 border rounded-sm p-4 bg-slate-50/10">
-          {/* Headers Field */}
+        <div className="space-y-4 border rounded p-4 bg-slate-50/10">
           <div className="space-y-2">
             <form.Field
               name="headersString"
@@ -533,7 +531,12 @@ export default function MonitorForm({
       </div>
 
       <div className="flex justify-end space-x-4">
-        <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
+        <Button
+          type="button"
+          variant="destructive"
+          size="sm"
+          onClick={onCancel}
+        >
           Cancel
         </Button>
         <Button type="submit" size="sm" disabled={isSubmitting}>

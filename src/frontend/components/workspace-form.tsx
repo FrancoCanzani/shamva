@@ -22,6 +22,7 @@ interface MonitorWorkspaceFormProps {
   initialValues?: Partial<MonitorWorkspaceFormValues>;
   onSubmit: (values: MonitorWorkspaceFormValues) => Promise<void>;
   onCancel: () => void;
+  onDelete?: () => Promise<void>;
   isSubmitting: boolean;
   submitLabel: string;
 }
@@ -36,9 +37,11 @@ export default function WorkspaceForm({
   initialValues,
   onSubmit,
   onCancel,
+  onDelete,
   isSubmitting,
   submitLabel,
 }: MonitorWorkspaceFormProps) {
+  const [isDeleting, setIsDeleting] = React.useState(false);
   const [newMemberEmail, setNewMemberEmail] = React.useState("");
   const [newMemberRole, setNewMemberRole] =
     React.useState<MemberInvite["role"]>("member");
@@ -77,6 +80,24 @@ export default function WorkspaceForm({
       },
     },
   });
+
+  const handleDelete = async () => {
+    if (!onDelete) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      await onDelete();
+      toast.success("Workspace deleted successfully");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to delete workspace",
+      );
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <form
@@ -277,28 +298,45 @@ export default function WorkspaceForm({
         </form.Field>
       </div>
 
-      <div className="flex justify-end space-x-4 pt-4">
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={onCancel}
-          disabled={isSubmitting}
-        >
-          Cancel
-        </Button>
-
-        <form.Subscribe selector={(state) => [state.canSubmit, state.isDirty]}>
-          {([canSubmit, isDirty]) => (
+      <div className="flex justify-between space-x-4 pt-4">
+        <div>
+          {onDelete && (
             <Button
-              type="submit"
+              type="button"
+              variant="destructive"
               size="sm"
-              disabled={isSubmitting || !canSubmit || !isDirty}
+              onClick={handleDelete}
+              disabled={isSubmitting || isDeleting}
             >
-              {isSubmitting ? "Creating..." : submitLabel}
+              {isDeleting ? "Deleting..." : "Delete Workspace"}
             </Button>
           )}
-        </form.Subscribe>
+        </div>
+        <div className="flex space-x-4">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={onCancel}
+            disabled={isSubmitting || isDeleting}
+          >
+            Cancel
+          </Button>
+
+          <form.Subscribe
+            selector={(state) => [state.canSubmit, state.isDirty]}
+          >
+            {([canSubmit, isDirty]) => (
+              <Button
+                type="submit"
+                size="sm"
+                disabled={isSubmitting || !canSubmit || !isDirty || isDeleting}
+              >
+                {isSubmitting ? "Creating..." : submitLabel}
+              </Button>
+            )}
+          </form.Subscribe>
+        </div>
       </div>
     </form>
   );

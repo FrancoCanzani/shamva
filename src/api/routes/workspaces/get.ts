@@ -19,7 +19,8 @@ export default async function getWorkspaces(c: Context) {
         .from("workspace_members")
         .select("workspace_id")
         .eq("user_id", userId)
-        .eq("invitation_status", "accepted");
+        .eq("invitation_status", "accepted")
+        .order("created_at", { ascending: false });
 
     if (memberWorkspacesError) {
       console.error(

@@ -30,6 +30,22 @@ export default function EditWorkspacePage() {
       })) || [],
   };
 
+  const handleDelete = async () => {
+    const response = await fetch(`/api/workspace/${workspace.id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${session?.access_token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to delete workspace");
+    }
+
+    queryClient.invalidateQueries({ queryKey: ["workspaces"] });
+    navigate({ to: "/dashboard/workspaces" });
+  };
+
   const updateWorkspaceMutation = useMutation<
     ApiResponse<Workspace>,
     Error,
@@ -50,8 +66,6 @@ export default function EditWorkspacePage() {
       });
 
       const result: ApiResponse<Workspace> = await response.json();
-
-      console.log(result);
 
       if (!response.ok) {
         console.error("Error response from API:", result);
@@ -99,6 +113,7 @@ export default function EditWorkspacePage() {
           initialValues={initialValues}
           onSubmit={handleSubmit}
           onCancel={handleCancel}
+          onDelete={handleDelete}
           isSubmitting={updateWorkspaceMutation.isPending}
           submitLabel="Save Changes"
         />

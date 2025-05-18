@@ -9,6 +9,7 @@ import getMonitor from "./monitor/get";
 import putMonitor from "./monitor/put";
 import getMonitors from "./monitors/get";
 import postMonitors from "./monitors/post";
+import deleteWorkspace from "./workspace/delete";
 import getWorkspace from "./workspace/get";
 import postWorkspace from "./workspace/post";
 import getWorkspaces from "./workspaces/get";
@@ -29,6 +30,7 @@ apiRoutes.post("/api/workspace", postWorkspace);
 apiRoutes.get("/api/workspaces", getWorkspaces);
 apiRoutes.get("/api/workspace/:id", getWorkspace);
 apiRoutes.put("/api/workspace/:id", getWorkspace);
+apiRoutes.delete("/api/workspace/:id", deleteWorkspace);
 
 // Monitor routes
 apiRoutes.post("/api/monitors", postMonitors);

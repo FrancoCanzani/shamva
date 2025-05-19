@@ -7,7 +7,7 @@ import {
   MonitorsParams,
 } from "../../lib/types";
 
-export default async function postMonitors(c: Context) {
+export default async function postMonitor(c: Context) {
   let rawBody: unknown;
   try {
     rawBody = await c.req.json();

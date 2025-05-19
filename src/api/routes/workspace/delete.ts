@@ -90,7 +90,7 @@ export default async function deleteWorkspace(c: Context) {
             `Error fetching monitor checkers for monitor ${monitor.id}:`,
             checkersError,
           );
-          continue; // Try to delete the next monitor's DOs
+          continue;
         }
 
         if (checkers && checkers.length > 0) {
@@ -133,7 +133,7 @@ export default async function deleteWorkspace(c: Context) {
   }
 
   try {
-    // Delete monitors (this will trigger cascade deletion of checkers and logs)
+    // this will trigger cascade deletion of checkers and logs
     const { error: deleteMonitorsError } = await supabase
       .from("monitors")
       .delete()

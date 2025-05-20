@@ -4,13 +4,17 @@ import {
   MonitorWorkspaceFormValues,
   Workspace,
 } from "@/frontend/lib/types";
-import { useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import WorkspaceForm from "../workspace-form";
 
 export default function NewWorkspacePage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { session } = useAuth();
 
@@ -26,6 +30,7 @@ export default function NewWorkspacePage() {
         name: formData.name,
         description: formData.description,
         members: formData.members,
+        creatorEmail: session.user.email,
       };
 
       const response = await fetch("/api/workspace", {
@@ -47,8 +52,10 @@ export default function NewWorkspacePage() {
       }
 
       toast.success("Workspace created successfully");
+      queryClient.invalidateQueries({ queryKey: ["workspaces"] });
+      router.invalidate();
       navigate({
-        to: "/dashboard",
+        to: "/dashboard/workspaces",
       });
     } catch (error) {
       console.error("Error creating workspace:", error);
@@ -63,15 +70,15 @@ export default function NewWorkspacePage() {
 
   const handleCancel = () => {
     navigate({
-      to: "/dashboard",
+      to: "/dashboard/workspaces",
     });
   };
 
   return (
     <div className="container max-w-4xl mx-auto p-4">
-      <div className="space-y-4">
+      <div className="space-y-8">
         <div>
-          <h1 className="text-xl font-medium">Create New Workspace</h1>
+          <h1 className="font-medium text-xl">Create New Workspace</h1>
           <p className="text-muted-foreground mt-1 text-sm">
             Set up a new workspace for your team.
           </p>

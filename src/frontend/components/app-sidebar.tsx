@@ -1,6 +1,6 @@
-import { useWorkspace } from "@/frontend/lib/context/workspace-context";
-import { Link } from "@tanstack/react-router";
+import { Link, useParams } from "@tanstack/react-router";
 import { useMemo } from "react";
+import { Route } from "../routes/dashboard/route";
 import {
   Sidebar,
   SidebarContent,
@@ -13,65 +13,53 @@ import {
 import { WorkspaceDropdown } from "./workspace-dropdown";
 
 export function AppSidebar() {
-  const { selectedWorkspace, isLoading: workspacesLoading } = useWorkspace();
+  const { workspaceName } = useParams({ strict: false });
+  const workspaces = Route.useLoaderData();
+
+  const currentWorkspace =
+    workspaces.find((w) => w.name === workspaceName) ?? workspaces[0];
 
   const navItems = useMemo(
     () => [
       {
-        to: selectedWorkspace
-          ? "/dashboard/" + selectedWorkspace.name + "/monitors"
-          : undefined,
+        to: "/dashboard/$workspaceName/monitors",
         label: "Monitors",
-        disabled: workspacesLoading || !selectedWorkspace,
+        disabled: !currentWorkspace,
       },
       {
-        to: selectedWorkspace
-          ? "/dashboard/" + selectedWorkspace.name + "/logs"
-          : undefined,
+        to: "/dashboard/$workspaceName/logs",
         label: "Logs",
-        disabled: workspacesLoading || !selectedWorkspace,
+        disabled: !currentWorkspace,
       },
       {
-        to: selectedWorkspace
-          ? "/dashboard/" + selectedWorkspace.name + "/status"
-          : undefined,
+        to: "/dashboard/$workspaceName/status",
         label: "Status Pages",
-        disabled: workspacesLoading || !selectedWorkspace,
+        disabled: !currentWorkspace,
       },
       {
         to: "/dashboard/workspaces",
         label: "Workspaces",
-        disabled: workspacesLoading || !selectedWorkspace,
+        disabled: !currentWorkspace,
       },
     ],
-    [selectedWorkspace, workspacesLoading],
+    [currentWorkspace],
   );
-
-  const blinksLogoLink = useMemo(() => {
-    if (workspacesLoading || !selectedWorkspace) {
-      return undefined;
-    }
-    return "/dashboard/" + selectedWorkspace.name + "/monitors";
-  }, [selectedWorkspace, workspacesLoading]);
 
   return (
     <Sidebar>
       <SidebarHeader>
         <SidebarMenu className="p-3">
           <SidebarMenuItem>
-            {selectedWorkspace ? (
+            {currentWorkspace ? (
               <Link
-                to={blinksLogoLink}
+                to="/dashboard/$workspaceName/monitors"
+                params={{ workspaceName: currentWorkspace.name }}
                 className="font-mono"
-                disabled={workspacesLoading || !selectedWorkspace}
               >
                 <span className="font-semibold font-mono">Blinks</span>
-                {workspacesLoading && "..."}
               </Link>
             ) : (
-              <span className="font-semibold font-mono">
-                Blinks{workspacesLoading && "..."}
-              </span>
+              <span className="font-semibold font-mono">Blinks</span>
             )}
           </SidebarMenuItem>
         </SidebarMenu>
@@ -81,9 +69,10 @@ export function AppSidebar() {
           {navItems.map((item) => (
             <SidebarMenuItem key={item.label}>
               <SidebarMenuButton asChild disabled={item.disabled}>
-                {selectedWorkspace ? (
+                {currentWorkspace ? (
                   <Link
                     to={item.to}
+                    params={{ workspaceName: currentWorkspace.name }}
                     className="font-mono text-sm"
                     activeProps={{ "data-active": "true" }}
                     disabled={item.disabled}

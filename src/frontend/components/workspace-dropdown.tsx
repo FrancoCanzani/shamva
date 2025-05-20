@@ -1,7 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { CheckIcon, ChevronsUpDown, PlusCircle } from "lucide-react";
 import * as React from "react";
-import { useWorkspace } from "../lib/context/workspace-context";
+import { useWorkspaces } from "../hooks/use-workspaces";
 import { Workspace } from "../lib/types";
 import { Button } from "./ui/button";
 import {
@@ -14,15 +14,17 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 
-export function WorkspaceDropdown() {
-  const { workspaces, selectedWorkspace, setSelectedWorkspace, isLoading } =
-    useWorkspace();
+interface WorkspaceDropdownProps {
+  workspaceName?: string;
+}
 
+export function WorkspaceDropdown({ workspaceName }: WorkspaceDropdownProps) {
+  const { workspaces, currentWorkspace, isLoading } =
+    useWorkspaces(workspaceName);
   const navigate = useNavigate();
   const [open, setOpen] = React.useState(false);
 
   const handleSelectWorkspace = (workspace: Workspace) => {
-    setSelectedWorkspace(workspace);
     setOpen(false);
     navigate({
       to: "/dashboard/$workspaceName/monitors",
@@ -47,7 +49,7 @@ export function WorkspaceDropdown() {
         >
           {isLoading
             ? "Loading workspaces..."
-            : selectedWorkspace?.name || "Select workspace"}
+            : currentWorkspace?.name || "Select workspace"}
           <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
@@ -62,7 +64,7 @@ export function WorkspaceDropdown() {
                 onClick={() => handleSelectWorkspace(workspace)}
               >
                 <span className="flex-1">{workspace.name}</span>
-                {selectedWorkspace?.id === workspace.id && (
+                {currentWorkspace?.id === workspace.id && (
                   <CheckIcon className="h-4 w-4 ml-2" />
                 )}
               </DropdownMenuItem>

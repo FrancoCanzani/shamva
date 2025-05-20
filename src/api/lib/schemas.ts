@@ -45,4 +45,5 @@ export const WorkspaceSchema = z.object({
     .max(500, "Description cannot exceed 500 characters")
     .optional(),
   members: z.array(MemberInviteSchema),
+  creatorEmail: z.string(),
 });

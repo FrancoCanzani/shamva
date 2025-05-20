@@ -15,13 +15,15 @@ export default function WorkspacesPage() {
             Manage workspaces and team access across your organization.
           </p>
         </div>
-        <Link to="/dashboard/workspaces/new">New</Link>
+        <Button asChild variant={"outline"} size={"xs"}>
+          <Link to="/dashboard/workspaces/new">New</Link>
+        </Button>
       </div>
 
       <Separator />
 
       {workspaces.length === 0 ? (
-        <div className="rounded border p-6 text-center space-y-2">
+        <div className="rounded border p-6 text-center text-sm space-y-2">
           <p className="text-muted-foreground">
             No workspaces found. Create one to get started.
           </p>

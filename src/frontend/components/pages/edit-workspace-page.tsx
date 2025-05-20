@@ -1,6 +1,6 @@
 import { Route } from "@/frontend/routes/dashboard/workspaces/$workspaceId";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouter } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 import { useAuth } from "@/frontend/lib/context/auth-context";
@@ -15,6 +15,7 @@ export default function EditWorkspacePage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { session } = useAuth();
+  const router = useRouter();
   const workspace: Workspace = Route.useLoaderData();
 
   const initialValues: MonitorWorkspaceFormValues = {
@@ -43,6 +44,7 @@ export default function EditWorkspacePage() {
     }
 
     queryClient.invalidateQueries({ queryKey: ["workspaces"] });
+    router.invalidate();
     navigate({ to: "/dashboard/workspaces" });
   };
 
@@ -56,13 +58,18 @@ export default function EditWorkspacePage() {
         throw new Error("Authentication error. Please log in again.");
       }
 
+      const formDataWithCreatorEmail = {
+        ...formData,
+        creatorEmail: session.user.email,
+      };
+
       const response = await fetch(`/api/workspace/${workspace.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(formDataWithCreatorEmail),
       });
 
       const result: ApiResponse<Workspace> = await response.json();
@@ -78,7 +85,7 @@ export default function EditWorkspacePage() {
     onSuccess: () => {
       toast.success("Workspace updated successfully");
       queryClient.invalidateQueries({ queryKey: ["workspaces"] });
-      queryClient.invalidateQueries({ queryKey: ["workspace", workspace.id] });
+      router.invalidate();
       navigate({ to: "/dashboard/workspaces" });
     },
     onError: (error) => {
@@ -103,8 +110,8 @@ export default function EditWorkspacePage() {
     <div className="container max-w-4xl mx-auto p-4">
       <div className="space-y-4">
         <div>
-          <h1 className="text-xl font-medium">Edit Workspace</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="font-medium text-xl">Edit Workspace</h1>
+          <p className="text-muted-foreground text-sm mt-1">
             Update the details and manage members for your workspace.
           </p>
         </div>

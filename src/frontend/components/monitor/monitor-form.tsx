@@ -341,7 +341,7 @@ export default function MonitorForm({
                 </p>
               </div>
 
-              <div className="border rounded p-4 bg-slate/10">
+              <div className="border rounded border-dashed p-2">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {continentOrder.map((continent) => {
                     const regions = regionsByContinent[continent] || [];
@@ -349,7 +349,7 @@ export default function MonitorForm({
 
                     return (
                       <div key={continent} className="space-y-2">
-                        <h3 className="font-medium">{continent}</h3>
+                        <h3 className="font-medium text-sm">{continent}</h3>
                         <div className="grid gap-2">
                           {regions.map((region) => {
                             const isSelected = field.state.value.includes(
@@ -386,10 +386,10 @@ export default function MonitorForm({
                                 }}
                               >
                                 <div className="flex items-center gap-2">
-                                  <span className="text-lg leading-none">
+                                  <span className="text-sm leading-none">
                                     {region.flag}
                                   </span>
-                                  <span className="text-sm">
+                                  <span className="text-xs">
                                     {region.label}
                                   </span>
                                 </div>
@@ -419,7 +419,7 @@ export default function MonitorForm({
       <div className="space-y-4">
         <h2 className="font-medium">Advanced Options</h2>
 
-        <div className="space-y-4 border rounded p-4 bg-slate-50/10">
+        <div className="space-y-4 border rounded border-dashed p-4 bg-slate-50/10">
           <div className="space-y-2">
             <form.Field
               name="headersString"
@@ -453,7 +453,7 @@ export default function MonitorForm({
                     onChange={(e) => field.handleChange(e.target.value)}
                     onBlur={field.handleBlur}
                     placeholder='{"Authorization": "Bearer token", "Content-Type": "application/json"}'
-                    rows={6}
+                    rows={8}
                     className={cn(
                       "text-sm",
                       field.state.meta.errors?.length
@@ -505,12 +505,13 @@ export default function MonitorForm({
                           onChange={(e) => field.handleChange(e.target.value)}
                           onBlur={field.handleBlur}
                           placeholder='{"key": "value"}'
-                          rows={4}
-                          className={
+                          rows={8}
+                          className={cn(
+                            "text-sm",
                             field.state.meta.errors?.length
                               ? "border-destructive"
-                              : ""
-                          }
+                              : "",
+                          )}
                         />
                         {field.state.meta.errors?.length > 0 && (
                           <p className="text-sm text-destructive">
@@ -531,12 +532,7 @@ export default function MonitorForm({
       </div>
 
       <div className="flex justify-end space-x-4">
-        <Button
-          type="button"
-          variant="destructive"
-          size="sm"
-          onClick={onCancel}
-        >
+        <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
           Cancel
         </Button>
         <Button type="submit" size="sm" disabled={isSubmitting}>

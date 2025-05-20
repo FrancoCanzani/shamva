@@ -1,11 +1,11 @@
+import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
 import { useAuth } from "@/frontend/lib/context/auth-context";
-import { useWorkspace } from "@/frontend/lib/context/workspace-context";
 import { Link } from "@tanstack/react-router";
 import { Button } from "../ui/button";
 
 export default function IndexPage() {
   const { user, isLoading: authLoading, signOut } = useAuth();
-  const { workspaces, isLoading: workspacesLoading } = useWorkspace();
+  const { workspaces, isLoading: workspacesLoading } = useWorkspaces();
 
   const name =
     user &&

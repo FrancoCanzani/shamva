@@ -1,5 +1,5 @@
+import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
 import { useAuth } from "@/frontend/lib/context/auth-context";
-import { useWorkspace } from "@/frontend/lib/context/workspace-context";
 import { ApiResponse, Monitor } from "@/frontend/lib/types";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/new";
 import { useNavigate } from "@tanstack/react-router";
@@ -13,7 +13,7 @@ export default function NewMonitorPage() {
   const { session } = useAuth();
 
   const { workspaceName } = Route.useParams();
-  const { selectedWorkspace } = useWorkspace();
+  const { currentWorkspace } = useWorkspaces();
 
   const handleSubmit = async (formData: MonitorFormValues) => {
     setIsSubmitting(true);
@@ -23,7 +23,7 @@ export default function NewMonitorPage() {
         throw new Error("Authentication error. Please log in again.");
       }
 
-      if (!selectedWorkspace?.id) {
+      if (!currentWorkspace?.id) {
         throw new Error(
           "No workspace selected. Please select a workspace first.",
         );
@@ -62,7 +62,7 @@ export default function NewMonitorPage() {
         regions: formData.regions,
         headers: parsedHeaders,
         body: parsedBody,
-        workspaceId: selectedWorkspace.id,
+        workspaceId: currentWorkspace.id,
       };
 
       const response = await fetch("/api/monitors", {
@@ -108,9 +108,9 @@ export default function NewMonitorPage() {
 
   return (
     <div className="container max-w-4xl mx-auto p-4">
-      <div className="space-y-4">
+      <div className="space-y-8">
         <div>
-          <h1 className="font-medium">Create New Monitor</h1>
+          <h1 className="font-medium text-xl">Create New Monitor</h1>
           <p className="text-muted-foreground text-sm mt-1">
             Enter the details for the URL you want to monitor.
           </p>

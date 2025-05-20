@@ -6,7 +6,7 @@ export default async function postWorkspace(c: Context) {
   let rawBody: unknown;
   try {
     rawBody = await c.req.json();
-    console.log(rawBody);
+    console.log("Received workspace creation request:", rawBody);
   } catch {
     return c.json(
       { success: false, error: "Invalid JSON payload provided." },
@@ -15,7 +15,6 @@ export default async function postWorkspace(c: Context) {
   }
 
   const result = WorkspaceSchema.safeParse(rawBody);
-  console.log(result);
   if (!result.success) {
     console.error("Validation Error Details:", result.error.flatten());
     return c.json(
@@ -28,7 +27,8 @@ export default async function postWorkspace(c: Context) {
     );
   }
 
-  const { name, description, members } = result.data;
+  const { name, description, members, creatorEmail } = result.data;
+
   const userId = c.get("userId");
   if (!userId) {
     return c.json({ success: false, error: "User not authenticated." }, 401);
@@ -58,18 +58,20 @@ export default async function postWorkspace(c: Context) {
       );
     }
 
+    console.log("Workspace created successfully:", workspace);
+
     const { error: memberError } = await supabase
       .from("workspace_members")
       .insert({
         workspace_id: workspace.id,
         user_id: userId,
         role: "admin",
-        invitation_email: null,
+        invitation_email: creatorEmail,
         invitation_status: "accepted",
       });
 
     if (memberError) {
-      console.error("Error adding creator as admin:", memberError);
+      console.error("Error adding admin member:", memberError);
       await supabase.from("workspaces").delete().eq("id", workspace.id);
       return c.json(
         {
@@ -81,59 +83,65 @@ export default async function postWorkspace(c: Context) {
       );
     }
 
-    const memberPromises = members.map(async (member) => {
-      console.log(member);
-      const { data: existingUser } = await supabase
-        .from("auth.users")
-        .select("id")
-        .eq("email", member.email)
-        .single();
+    console.log(
+      "Admin member added successfully, proceeding with invitations for:",
+      members,
+    );
 
-      return supabase.from("workspace_members").insert({
-        workspace_id: workspace.id,
-        user_id: existingUser?.id || null,
-        role: member.role,
-        invitation_email: member.email,
-        invitation_status: existingUser ? "pending" : "invited",
-        invited_by: userId,
-      });
-    });
+    const memberPromises = members.map((member) =>
+      supabase
+        .from("workspace_members")
+        .insert({
+          workspace_id: workspace.id,
+          user_id: null,
+          role: member.role,
+          invitation_email: member.email,
+          invitation_status: "pending",
+          invited_by: userId,
+        })
+        .select()
+        .single(),
+    );
 
-    await Promise.all(memberPromises).catch((err) => {
-      console.error("Error processing member invitations:", err);
-    });
+    try {
+      const results = await Promise.all(memberPromises);
+      console.log("Member invitation results:", results);
 
-    const { data: workspaceWithMembers, error: finalError } = await supabase
-      .from("workspaces")
-      .select(
-        `
-        *,
-        workspace_members (
-          id,
-          user_id,
-          role,
-          invitation_email,
-          invitation_status,
-          invited_by
+      const { data: workspaceWithMembers, error: finalError } = await supabase
+        .from("workspaces")
+        .select(
+          `
+          *,
+          workspace_members (
+            id,
+            user_id,
+            role,
+            invitation_email,
+            invitation_status,
+            invited_by
+          )
+        `,
         )
-      `,
-      )
-      .eq("id", workspace.id);
+        .eq("id", workspace.id);
 
-    if (finalError) {
-      console.error("Error fetching final workspace data:", finalError);
+      if (finalError) throw finalError;
+
+      console.log("Final workspace state:", workspaceWithMembers);
+
+      return c.json({
+        data: workspaceWithMembers || workspace,
+        success: true,
+      });
+    } catch (err) {
+      console.error("Error adding members:", err);
+      await supabase.from("workspaces").delete().eq("id", workspace.id);
+      throw err;
     }
-
-    return c.json({
-      data: workspaceWithMembers || workspace,
-      success: true,
-    });
   } catch (error) {
-    console.error("Unexpected error creating workspace:", error);
     return c.json(
       {
         success: false,
-        error: "An unexpected error occurred",
+        error: "Failed to create workspace",
         details: error instanceof Error ? error.message : String(error),
       },
       500,

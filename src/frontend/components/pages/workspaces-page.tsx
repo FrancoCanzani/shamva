@@ -16,7 +16,7 @@ export default function WorkspacesPage() {
           </p>
         </div>
         <Button asChild variant={"outline"} size={"xs"}>
-          <Link to="/dashboard/workspaces/new">New</Link>
+          <Link to="/dashboard/workspaces/new">New Workspace</Link>
         </Button>
       </div>
 

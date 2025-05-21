@@ -168,7 +168,7 @@ export default function WorkspaceForm({
 
       <div className="">
         <h2 className="text-lg font-medium">Invite Team Members</h2>
-        <p className="text-sm text-muted-foreground mb-4">
+        <p className="text-xs text-muted-foreground mb-4">
           Each invited member will receive an email they must accept to join.
           <br />
           <br />- <strong>Admin:</strong> Full access to manage monitors,
@@ -258,33 +258,35 @@ export default function WorkspaceForm({
                   <h3 className="text-sm font-medium text-muted-foreground">
                     Pending Invitations
                   </h3>
-                  {membersApi.state.value?.map(
-                    (member: MemberInvite, index: number) => (
-                      <div
-                        key={`member-${index}`}
-                        className="flex py-2 even:border-b even:border-dashed items-center justify-between gap-2 last:border-none"
-                      >
-                        <div className="flex flex-col">
-                          <span className="text-sm font-medium">
-                            {member.email}
-                          </span>
-                          <span className="text-xs text-muted-foreground capitalize">
-                            {member.role}
-                          </span>
-                        </div>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="size-7 text-muted-foreground hover:text-destructive"
-                          onClick={() => membersApi.removeValue(index)}
-                          aria-label="Remove member"
+                  <div className="divide-y divide-dashed">
+                    {membersApi.state.value?.map(
+                      (member: MemberInvite, index: number) => (
+                        <div
+                          key={`member-${index}`}
+                          className="flex py-2 items-center justify-between gap-2"
                         >
-                          <X className="size-4" />
-                        </Button>
-                      </div>
-                    ),
-                  )}
+                          <div className="flex flex-col">
+                            <span className="text-sm font-medium">
+                              {member.email}
+                            </span>
+                            <span className="text-xs text-muted-foreground capitalize">
+                              {member.role}
+                            </span>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="size-7 text-muted-foreground hover:text-destructive"
+                            onClick={() => membersApi.removeValue(index)}
+                            aria-label="Remove member"
+                          >
+                            <X className="size-4" />
+                          </Button>
+                        </div>
+                      ),
+                    )}
+                  </div>
                 </div>
               )}
               {membersApi.state.meta.errors &&

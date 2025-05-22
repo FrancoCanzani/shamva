@@ -1,7 +1,9 @@
 import { monitoringRegions } from "@/frontend/lib/constants";
+import { MonitorFormSchema } from "@/frontend/lib/schemas";
 import { cn } from "@/frontend/lib/utils";
 import { useForm } from "@tanstack/react-form";
 import { Check } from "lucide-react";
+import { z } from "zod";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -45,15 +47,7 @@ const continentOrder = [
   "Oceania",
 ];
 
-export type MonitorFormValues = {
-  name: string;
-  url: string;
-  method: "GET" | "POST" | "HEAD";
-  interval: number;
-  regions: string[];
-  headersString: string;
-  bodyString: string;
-};
+export type MonitorFormValues = z.infer<typeof MonitorFormSchema>;
 
 interface MonitorFormProps {
   initialValues?: Partial<MonitorFormValues>;
@@ -88,9 +82,29 @@ export default function MonitorForm({
         await onSubmit(value);
       } catch (error) {
         console.error("Error submitting form:", error);
-
         throw error;
       }
+    },
+    validators: {
+      onChange: ({ value }) => {
+        try {
+          MonitorFormSchema.parse(value);
+          return undefined;
+        } catch (error) {
+          if (error instanceof z.ZodError) {
+            const fieldErrors: Record<string, string> = {};
+            error.errors.forEach((err) => {
+              const path = err.path.join(".");
+              fieldErrors[path] = err.message;
+            });
+
+            return {
+              fields: fieldErrors,
+            };
+          }
+          return { form: "Invalid form data" };
+        }
+      },
     },
   });
 
@@ -106,20 +120,7 @@ export default function MonitorForm({
         <h2 className="font-medium">Basic Configuration</h2>
         <div className="flex items-start justify-start gap-2">
           <div className="space-y-2 flex-1">
-            <form.Field
-              name="name"
-              validators={{
-                onChange: ({ value }) => {
-                  if (!value || value.trim() === "") {
-                    return "Monitor name cannot be empty";
-                  }
-                  if (value.length > 100) {
-                    return "Monitor name is too long";
-                  }
-                  return undefined;
-                },
-              }}
-            >
+            <form.Field name="name">
               {(field) => (
                 <>
                   <Label htmlFor="name">Monitor name</Label>
@@ -147,20 +148,7 @@ export default function MonitorForm({
           </div>
 
           <div className="space-y-2 w-[150px]">
-            <form.Field
-              name="interval"
-              validators={{
-                onChange: ({ value }) => {
-                  const validIntervals = [
-                    30000, 60000, 120000, 300000, 600000, 900000,
-                  ];
-                  if (!validIntervals.includes(value)) {
-                    return "Please select a valid check interval";
-                  }
-                  return undefined;
-                },
-              }}
-            >
+            <form.Field name="interval">
               {(field) => (
                 <>
                   <Label htmlFor="interval">Check interval</Label>
@@ -215,17 +203,7 @@ export default function MonitorForm({
         <h2 className="font-medium">Request Configuration</h2>
         <div className="flex items-baseline justify-start gap-2">
           <div className="space-y-2">
-            <form.Field
-              name="method"
-              validators={{
-                onChange: ({ value }) => {
-                  if (!["GET", "POST", "HEAD"].includes(value)) {
-                    return "Please select a valid method";
-                  }
-                  return undefined;
-                },
-              }}
-            >
+            <form.Field name="method">
               {(field) => (
                 <>
                   <Label htmlFor="method">Method</Label>
@@ -269,19 +247,7 @@ export default function MonitorForm({
           </div>
 
           <div className="space-y-2 flex-1">
-            <form.Field
-              name="url"
-              validators={{
-                onChange: ({ value }) => {
-                  try {
-                    new URL(value);
-                    return undefined;
-                  } catch {
-                    return "Please enter a valid URL";
-                  }
-                },
-              }}
-            >
+            <form.Field name="url">
               {(field) => (
                 <>
                   <Label htmlFor="url">URL to Monitor</Label>
@@ -311,17 +277,7 @@ export default function MonitorForm({
       </div>
 
       <div className="space-y-4">
-        <form.Field
-          name="regions"
-          validators={{
-            onChange: ({ value }) => {
-              if (value.length === 0) {
-                return "Please select at least one monitoring region";
-              }
-              return undefined;
-            },
-          }}
-        >
+        <form.Field name="regions">
           {(field) => (
             <>
               <div className="flex gap-1.5 flex-col items-center justify-between">
@@ -421,28 +377,7 @@ export default function MonitorForm({
 
         <div className="space-y-4 border rounded border-dashed p-4 bg-slate-50/10">
           <div className="space-y-2">
-            <form.Field
-              name="headersString"
-              validators={{
-                onChange: ({ value }) => {
-                  if (!value || value.trim() === "") return undefined;
-
-                  try {
-                    const parsed = JSON.parse(value);
-                    if (
-                      typeof parsed !== "object" ||
-                      parsed === null ||
-                      Array.isArray(parsed)
-                    ) {
-                      return 'Headers must be a valid JSON object string, e.g. {"key": "value"}';
-                    }
-                    return undefined;
-                  } catch {
-                    return 'Headers must be a valid JSON object string, e.g. {"key": "value"}';
-                  }
-                },
-              }}
-            >
+            <form.Field name="headersString">
               {(field) => (
                 <>
                   <Label htmlFor="headersString">Headers (JSON String)</Label>
@@ -478,21 +413,7 @@ export default function MonitorForm({
             {(methodField) =>
               methodField.state.value === "POST" && (
                 <div className="space-y-2">
-                  <form.Field
-                    name="bodyString"
-                    validators={{
-                      onChange: ({ value }) => {
-                        if (!value || value.trim() === "") return undefined;
-
-                        try {
-                          JSON.parse(value);
-                          return undefined;
-                        } catch {
-                          return "Body must be a valid JSON string";
-                        }
-                      },
-                    }}
-                  >
+                  <form.Field name="bodyString">
                     {(field) => (
                       <>
                         <Label htmlFor="bodyString">

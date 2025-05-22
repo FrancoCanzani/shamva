@@ -1,6 +1,6 @@
 import z from "zod";
 
-const validIntervals = [30000, 60000, 120000, 300000, 600000, 900000];
+const validIntervals = [60000, 300000, 600000, 900000, 1800000, 3600000];
 
 export const MonitorFormSchema = z
   .object({
@@ -29,13 +29,11 @@ export const MonitorFormSchema = z
       .string()
       .trim()
       .optional()
-      .nullable()
       .refine(
         (val) => {
           if (!val || val === "") return true;
           try {
             const parsed = JSON.parse(val);
-            // Ensure it's an object, not an array or null
             return (
               typeof parsed === "object" &&
               parsed !== null &&
@@ -49,13 +47,11 @@ export const MonitorFormSchema = z
           message:
             'Headers must be a valid JSON object string, e.g. {"key": "value"}',
         },
-      )
-      .transform((val) => (val === "" ? null : val)),
+      ),
     bodyString: z
       .string()
       .trim()
       .optional()
-      .nullable()
       .refine(
         (val) => {
           if (!val || val === "") return true;
@@ -70,8 +66,7 @@ export const MonitorFormSchema = z
           message:
             'Body must be a valid JSON string, e.g. {"key": "value"} or "text"',
         },
-      )
-      .transform((val) => (val === "" ? null : val)),
+      ),
   })
   .refine(
     (data) =>

@@ -6,8 +6,8 @@ import { toast } from "sonner";
 import { useAuth } from "@/frontend/lib/context/auth-context";
 import {
   ApiResponse,
-  MonitorWorkspaceFormValues,
   Workspace,
+  WorkspaceFormValues,
 } from "@/frontend/lib/types";
 import WorkspaceForm from "../workspace-form";
 
@@ -18,7 +18,7 @@ export default function EditWorkspacePage() {
   const router = useRouter();
   const workspace: Workspace = Route.useLoaderData();
 
-  const initialValues: MonitorWorkspaceFormValues = {
+  const initialValues: WorkspaceFormValues = {
     name: workspace.name,
     description: workspace.description || "",
     members:
@@ -51,7 +51,7 @@ export default function EditWorkspacePage() {
   const updateWorkspaceMutation = useMutation<
     ApiResponse<Workspace>,
     Error,
-    MonitorWorkspaceFormValues
+    WorkspaceFormValues
   >({
     mutationFn: async (formData) => {
       if (!session?.access_token) {
@@ -96,7 +96,7 @@ export default function EditWorkspacePage() {
     },
   });
 
-  const handleSubmit = async (formData: MonitorWorkspaceFormValues) => {
+  const handleSubmit = async (formData: WorkspaceFormValues) => {
     updateWorkspaceMutation.mutate(formData);
   };
 

@@ -71,3 +71,25 @@ export interface BodyContent {
   rawContent: string;
   parseError?: string;
 }
+
+export interface MonitorConfig {
+  urlToCheck: string;
+  monitorId: string;
+  userId: string;
+  method: string;
+  intervalMs: number;
+  region: string | null;
+  createdAt: number;
+  consecutiveFailures: number;
+  lastStatusCode?: number;
+}
+
+export interface CheckResult {
+  ok: boolean;
+  statusCode: number | null;
+  latencyMs: number | null;
+  headers: Record<string, string> | null;
+  bodyContent: string | object | null;
+  checkError: string | null;
+  colo: string | null;
+}

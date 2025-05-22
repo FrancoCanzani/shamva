@@ -2,96 +2,47 @@ import { PostgrestError } from "@supabase/supabase-js";
 import { DurableObject } from "cloudflare:workers";
 import type { EnvBindings } from "../../../bindings";
 import { createSupabaseClient } from "../lib/supabase/client";
-import { InitializeCheckerDOPayload } from "../lib/types";
+import {
+  CheckResult,
+  InitializeCheckerDOPayload,
+  MonitorConfig,
+} from "../lib/types";
 import handleBodyParsing from "../lib/utils";
 
 const DEFAULT_CHECK_INTERVAL_MS = 60 * 1000;
 const MAX_CONSECUTIVE_FAILURES = 5;
-const MAX_COOLDOWN_INTERVAL_MS = 15 * 60 * 1000;
 const FETCH_TIMEOUT_MS = 30 * 1000;
 const MAX_DB_RETRIES = 3;
 const DB_RETRY_DELAY_BASE_MS = 1000;
 const USER_AGENT = "Blinks-Checker/1.0";
-
-interface MonitorState {
-  urlToCheck: string;
-  monitorId: string;
-  userId: string;
-  method: string | "GET";
-  intervalMs: number;
-  region: string | null;
-  createdAt: number;
-  consecutiveFailures: number;
-  lastStatusCode?: number;
-}
-
-interface CheckResult {
-  ok: boolean;
-  statusCode: number | null;
-  latencyMs: number | null;
-  headers: Record<string, string> | null;
-  bodyContent: any;
-  checkError: string | null;
-  colo: string | null;
-}
+const FIRST_CHECK_DELAY_MS = 5000;
 
 export class CheckerDurableObject extends DurableObject {
   ctx: DurableObjectState;
   env: EnvBindings;
-
   private readonly doId: string;
-  private consecutiveFailures: number = 0;
 
   constructor(ctx: DurableObjectState, env: EnvBindings) {
     super(ctx, env);
     this.ctx = ctx;
     this.env = env;
-
     this.doId = ctx.id.toString();
-    this.consecutiveFailures = 0;
   }
 
-  private async loadAndSyncState(): Promise<MonitorState | null> {
-    const [
-      urlToCheck,
-      monitorId,
-      userId,
-      method,
-      intervalMs,
-      region,
-      createdAt,
-      consecutiveFailures,
-      lastStatusCode,
-    ] = await Promise.all([
-      this.ctx.storage.get<string>("urlToCheck"),
-      this.ctx.storage.get<string>("monitorId"),
-      this.ctx.storage.get<string>("userId"),
-      this.ctx.storage.get<string>("method"),
-      this.ctx.storage.get<number>("intervalMs"),
-      this.ctx.storage.get<string>("region"),
-      this.ctx.storage.get<number>("createdAt"),
-      this.ctx.storage.get<number>("consecutiveFailures"),
-      this.ctx.storage.get<number>("lastStatusCode"),
-    ]);
-
-    if (!urlToCheck || !monitorId || !userId || !createdAt) {
-      console.error(`DO ${this.doId}: Missing critical configuration.`);
+  private async loadConfig(): Promise<MonitorConfig | null> {
+    const config = await this.ctx.storage.get<MonitorConfig>("config");
+    if (!config || !config.urlToCheck || !config.monitorId || !config.userId) {
       return null;
     }
+    return config;
+  }
 
-    this.consecutiveFailures = consecutiveFailures ?? 0;
+  private async updateConfig(updates: Partial<MonitorConfig>): Promise<void> {
+    const current = await this.loadConfig();
+    if (!current) throw new Error("No config to update");
 
-    return {
-      urlToCheck,
-      monitorId,
-      userId,
-      method: method || "GET",
-      intervalMs: intervalMs ?? DEFAULT_CHECK_INTERVAL_MS,
-      region: region ?? null,
-      createdAt,
-      consecutiveFailures: this.consecutiveFailures,
-      lastStatusCode: lastStatusCode,
-    };
+    const merged = { ...current, ...updates };
+    await this.ctx.storage.put("config", merged);
   }
 
   private async initialize(params: InitializeCheckerDOPayload): Promise<void> {
@@ -110,34 +61,28 @@ export class CheckerDurableObject extends DurableObject {
       );
     }
 
-    const existingUrl = await this.ctx.storage.get<string>("urlToCheck");
-    if (existingUrl) {
+    const existingConfig = await this.loadConfig();
+    if (existingConfig) {
       if ((await this.ctx.storage.getAlarm()) === null) {
-        const nextAlarmTime =
-          Date.now() +
-          ((await this.ctx.storage.get<number>("intervalMs")) ??
-            DEFAULT_CHECK_INTERVAL_MS);
+        const nextAlarmTime = Date.now() + existingConfig.intervalMs;
         await this.ctx.storage.setAlarm(nextAlarmTime);
       }
       return;
     }
 
-    const now = Date.now();
-    this.consecutiveFailures = 0;
-
-    await this.ctx.storage.put({
+    const newConfig: MonitorConfig = {
       urlToCheck,
       monitorId,
       userId,
-      intervalMs,
       method,
-      createdAt: now,
-      consecutiveFailures: this.consecutiveFailures,
+      intervalMs,
       region: region ?? null,
-    });
+      createdAt: Date.now(),
+      consecutiveFailures: 0,
+    };
 
-    const firstAlarmTime = now + 5000;
-    await this.ctx.storage.setAlarm(firstAlarmTime);
+    await this.ctx.storage.put("config", newConfig);
+    await this.ctx.storage.setAlarm(Date.now() + FIRST_CHECK_DELAY_MS);
   }
 
   private async performCheck(
@@ -145,13 +90,15 @@ export class CheckerDurableObject extends DurableObject {
     method: string,
   ): Promise<CheckResult> {
     const checkStartTime = performance.now();
-    let ok: boolean = false,
-      statusCode: number | null = null,
-      latencyMs: number | null = null;
-    let headers: Record<string, string> | null = null,
-      bodyContent: any = null,
-      checkError: string | null = null,
-      colo: string | null = null;
+    const result: CheckResult = {
+      ok: false,
+      statusCode: null,
+      latencyMs: null,
+      headers: null,
+      bodyContent: null,
+      checkError: null,
+      colo: null,
+    };
 
     try {
       const controller = new AbortController();
@@ -163,60 +110,58 @@ export class CheckerDurableObject extends DurableObject {
         headers: { "User-Agent": USER_AGENT },
         signal: controller.signal,
       });
-      clearTimeout(timeoutId);
-      latencyMs = performance.now() - checkStartTime;
 
-      ok = response.ok;
-      statusCode = response.status;
-      colo = response.cf?.colo ?? null;
-      headers = Object.fromEntries(response.headers.entries());
-      bodyContent = await handleBodyParsing(response);
+      clearTimeout(timeoutId);
+
+      result.latencyMs = performance.now() - checkStartTime;
+      result.ok = response.ok;
+      result.statusCode = response.status;
+      result.colo = response.cf?.colo ?? null;
+      result.headers = Object.fromEntries(response.headers.entries());
+      result.bodyContent = await handleBodyParsing(response);
     } catch (error: unknown) {
-      latencyMs = performance.now() - checkStartTime;
-      ok = false;
-      statusCode = null;
-      checkError =
+      result.latencyMs = performance.now() - checkStartTime;
+      result.checkError =
         error instanceof Error && error.name === "AbortError"
           ? "Timeout"
           : String(error);
     }
-    return {
-      ok,
-      statusCode,
-      latencyMs,
-      headers,
-      bodyContent,
-      checkError,
-      colo,
-    };
+
+    return result;
   }
 
   private async processCheckResult(
     result: CheckResult,
-  ): Promise<Record<string, any> | null> {
+  ): Promise<Record<string, string | number | null> | null> {
+    const config = await this.loadConfig();
+    if (!config) {
+      throw new Error("Missing configuration");
+    }
+
     const now = Date.now();
     const isSuccess =
       result.ok === true &&
       result.statusCode !== null &&
       result.statusCode < 400;
-    /* eslint "@typescript-eslint/no-explicit-any": "off" */
-    const monitorStatusUpdate: Record<string, any> = {
+    const monitorStatusUpdate: Record<string, string | number | null> = {
       last_check_at: new Date(now).toISOString(),
     };
 
+    let newConsecutiveFailures = config.consecutiveFailures;
+
     if (isSuccess) {
-      if (this.consecutiveFailures > 0) {
-        // TODO: Notify user that the monitor has recovered.
+      if (config.consecutiveFailures > 0) {
+        // TODO: notify user about reconnect
         monitorStatusUpdate.status = "active";
         monitorStatusUpdate.error_message = null;
       }
-      this.consecutiveFailures = 0;
+      newConsecutiveFailures = 0;
       monitorStatusUpdate.last_success_at = new Date(now).toISOString();
       if (!monitorStatusUpdate.status) monitorStatusUpdate.status = "active";
     } else {
-      this.consecutiveFailures++;
-      if (this.consecutiveFailures === MAX_CONSECUTIVE_FAILURES) {
-        // TODO: Notify user that the failure threshold has been reached.
+      newConsecutiveFailures++;
+      if (newConsecutiveFailures === MAX_CONSECUTIVE_FAILURES) {
+        // TODO: Notify user that the failure threshold has been reached
       }
       monitorStatusUpdate.last_failure_at = new Date(now).toISOString();
       monitorStatusUpdate.status = "error";
@@ -224,9 +169,9 @@ export class CheckerDurableObject extends DurableObject {
         result.checkError ?? `HTTP status ${result.statusCode}`;
     }
 
-    await this.ctx.storage.put({
+    await this.updateConfig({
       lastStatusCode: result.statusCode ?? undefined,
-      consecutiveFailures: this.consecutiveFailures,
+      consecutiveFailures: newConsecutiveFailures,
     });
 
     const hasMeaningfulUpdate = Object.keys(monitorStatusUpdate).some(
@@ -236,23 +181,23 @@ export class CheckerDurableObject extends DurableObject {
   }
 
   private async logCheckResult(
-    state: MonitorState,
+    config: MonitorConfig,
     result: CheckResult,
   ): Promise<void> {
     const logData = {
-      user_id: state.userId,
-      monitor_id: state.monitorId,
+      user_id: config.userId,
+      monitor_id: config.monitorId,
       do_id: this.doId,
-      url: state.urlToCheck,
+      url: config.urlToCheck,
       status_code: result.statusCode,
       latency: result.latencyMs,
       headers: result.headers,
       body_content: result.bodyContent,
       error: result.checkError,
       colo: result.colo,
-      method: state.method,
+      method: config.method,
       created_at: new Date().toISOString(),
-      region: state.region,
+      region: config.region,
     };
 
     let attempt = 0;
@@ -269,7 +214,6 @@ export class CheckerDurableObject extends DurableObject {
           console.error(
             `DO ${this.doId}: Failed DB log insert after ${attempt} attempts: ${(dbError as PostgrestError)?.message ?? String(dbError)}`,
           );
-          // TODO: Potentially notify admin/system about persistent DB logging issues.
         } else {
           await new Promise((r) =>
             setTimeout(r, DB_RETRY_DELAY_BASE_MS * 2 ** (attempt - 1)),
@@ -281,7 +225,7 @@ export class CheckerDurableObject extends DurableObject {
 
   private async updateMonitorStatus(
     monitorId: string,
-    updateData: Record<string, any>,
+    updateData: Record<string, string | number | null>,
   ): Promise<void> {
     try {
       const { error } = await createSupabaseClient(this.env)
@@ -297,36 +241,19 @@ export class CheckerDurableObject extends DurableObject {
     }
   }
 
-  private async scheduleNextAlarm(
-    monitorId: string,
-    intervalMs: number,
-  ): Promise<void> {
-    const nextAlarmTime = Date.now() + intervalMs;
+  private async scheduleNextAlarm(intervalMs: number): Promise<void> {
     try {
-      await this.ctx.storage.setAlarm(nextAlarmTime);
+      await this.ctx.storage.setAlarm(Date.now() + intervalMs);
     } catch (alarmError) {
       console.error(
-        `DO ${this.doId}: Failed primary alarm schedule for ${monitorId}:`,
+        `DO ${this.doId}: Failed primary alarm schedule for ${this.doId}:`,
         alarmError,
       );
-      try {
-        const fallbackTime = Date.now() + DEFAULT_CHECK_INTERVAL_MS;
-        await this.ctx.storage.setAlarm(fallbackTime);
-        await this.reportCriticalError(
-          monitorId,
-          `Failed schedule, using fallback. Err: ${alarmError instanceof Error ? alarmError.message : String(alarmError)}`,
-        );
-      } catch (fallbackError) {
-        console.error(
-          `DO ${this.doId}: CRITICAL - Failed fallback alarm schedule for ${monitorId}:`,
-          fallbackError,
-        );
-        // TODO: Notify admin/system immediately
-        await this.reportCriticalError(
-          monitorId,
-          `CRITICAL: Failed fallback schedule. Err: ${fallbackError instanceof Error ? fallbackError.message : String(fallbackError)}`,
-        );
-      }
+      await this.ctx.storage.setAlarm(Date.now() + DEFAULT_CHECK_INTERVAL_MS);
+      await this.reportCriticalError(
+        this.doId,
+        `Failed schedule, using fallback. Err: ${alarmError instanceof Error ? alarmError.message : String(alarmError)}`,
+      );
     }
   }
 
@@ -356,10 +283,7 @@ export class CheckerDurableObject extends DurableObject {
   ): Promise<void> {
     console.error(`DO ${this.doId}: Fatal error (${reason}). Cleaning up.`);
     if (monitorId) {
-      // TODO: Notify user that their monitor is being disabled due to internal error.
       await this.reportCriticalError(monitorId, `Disabled: ${reason}`);
-    } else {
-      // TODO: Notify admin/system about an orphaned/broken DO.
     }
     try {
       await this.ctx.storage.deleteAll();
@@ -381,7 +305,6 @@ export class CheckerDurableObject extends DurableObject {
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err);
         console.error(`DO ${this.doId}: Init fetch failed: ${message}`, err);
-        // TODO: Notify user of initialization failure
         return new Response(`Init failed: ${message}`, { status: 400 });
       }
     }
@@ -389,13 +312,10 @@ export class CheckerDurableObject extends DurableObject {
     if (request.method === "DELETE" && url.pathname === "/cleanup") {
       try {
         await this.ctx.storage.deleteAll();
-
         await this.ctx.storage.deleteAlarm();
-
         console.log(
           `DO ${this.doId}: Successfully cleaned up and ready for deletion`,
         );
-
         return new Response(JSON.stringify({ success: true }), {
           headers: { "Content-Type": "application/json" },
         });
@@ -409,40 +329,20 @@ export class CheckerDurableObject extends DurableObject {
   }
 
   async alarm(): Promise<void> {
-    const state = await this.loadAndSyncState();
-    if (!state) {
-      await this.handleFatalError(
-        (await this.ctx.storage.get<string>("monitorId")) ?? null,
-        "Missing critical config",
-      );
+    const config = await this.loadConfig();
+    if (!config) {
+      await this.handleFatalError(null, "Missing critical config");
       return;
     }
 
-    if (this.consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
-      console.warn(
-        `DO ${this.doId}: Monitor ${state.monitorId} entering cooldown after ${this.consecutiveFailures} failures.`,
-      );
-      await this.updateMonitorStatus(state.monitorId, {
-        status: "error",
-        error_message: `${this.consecutiveFailures} failures. Cooldown active.`,
-        last_check_at: new Date().toISOString(),
-      });
-      const cooldownInterval = Math.min(
-        state.intervalMs * 3,
-        MAX_COOLDOWN_INTERVAL_MS,
-      );
-      await this.scheduleNextAlarm(state.monitorId, cooldownInterval);
-      return;
-    }
-
-    const result = await this.performCheck(state.urlToCheck, state.method);
+    const result = await this.performCheck(config.urlToCheck, config.method);
     const monitorStatusUpdate = await this.processCheckResult(result);
-    await this.logCheckResult(state, result);
+    await this.logCheckResult(config, result);
 
     if (monitorStatusUpdate) {
-      await this.updateMonitorStatus(state.monitorId, monitorStatusUpdate);
+      await this.updateMonitorStatus(config.monitorId, monitorStatusUpdate);
     }
 
-    await this.scheduleNextAlarm(state.monitorId, state.intervalMs);
+    await this.scheduleNextAlarm(config.intervalMs);
   }
 }

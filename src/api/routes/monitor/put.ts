@@ -113,9 +113,6 @@ export default async function putMonitor(c: Context) {
     // Handle removing regions
     if (regionsToRemove.length > 0) {
       for (const region of regionsToRemove) {
-        // const doName = `${monitorId}-${region}`;
-
-        // Update checker status to inactive
         await supabase
           .from("monitor_checkers")
           .update({ status: "inactive" })
@@ -127,7 +124,6 @@ export default async function putMonitor(c: Context) {
       }
     }
 
-    // Handle adding new regions
     if (regionsToAdd.length > 0) {
       for (const region of regionsToAdd) {
         const doName = `${monitorId}-${region}`;
@@ -266,7 +262,6 @@ export default async function putMonitor(c: Context) {
       }
     }
 
-    // Get latest logs for the updated monitor
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
     const sevenDaysAgoISO = sevenDaysAgo.toISOString();

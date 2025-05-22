@@ -2,7 +2,7 @@ import type { User } from "@supabase/supabase-js";
 import z from "zod";
 import { MemberInviteSchema, WorkspaceSchema } from "./schemas";
 
-export type WorkspaceSchema = z.infer<typeof WorkspaceSchema>;
+export type WorkspaceFormValues = z.infer<typeof WorkspaceSchema>;
 export type MemberInvite = z.infer<typeof MemberInviteSchema>;
 
 export interface WorkspaceMember {
@@ -13,14 +13,7 @@ export interface WorkspaceMember {
   invitation_status: "pending" | "accepted" | "declined";
 }
 
-export type MonitorWorkspaceFormValues = {
-  name: string;
-  description?: string;
-  members: MemberInvite[];
-  creatorEmail?: string;
-};
-
-export interface Workspace extends WorkspaceSchema {
+export interface Workspace extends WorkspaceFormValues {
   id: string;
   created_at: string;
   updated_at: string;

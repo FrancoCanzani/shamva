@@ -1,8 +1,8 @@
 import { useAuth } from "@/frontend/lib/context/auth-context";
 import {
   ApiResponse,
-  MonitorWorkspaceFormValues,
   Workspace,
+  WorkspaceFormValues,
 } from "@/frontend/lib/types";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useRouter } from "@tanstack/react-router";
@@ -18,7 +18,7 @@ export default function NewWorkspacePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { session } = useAuth();
 
-  const handleSubmit = async (formData: MonitorWorkspaceFormValues) => {
+  const handleSubmit = async (formData: WorkspaceFormValues) => {
     setIsSubmitting(true);
 
     try {

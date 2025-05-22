@@ -15,12 +15,13 @@ import { X } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useWorkspaces } from "../hooks/use-workspaces";
 import { MemberInviteSchema, WorkspaceSchema } from "../lib/schemas";
-import { MemberInvite, MonitorWorkspaceFormValues } from "../lib/types";
+import { MemberInvite, WorkspaceFormValues } from "../lib/types";
 
 interface MonitorWorkspaceFormProps {
-  initialValues?: Partial<MonitorWorkspaceFormValues>;
-  onSubmit: (values: MonitorWorkspaceFormValues) => Promise<void>;
+  initialValues?: Partial<WorkspaceFormValues>;
+  onSubmit: (values: WorkspaceFormValues) => Promise<void>;
   onCancel: () => void;
   onDelete?: () => Promise<void>;
   isSubmitting: boolean;
@@ -45,10 +46,11 @@ export default function WorkspaceForm({
   const [newMemberEmail, setNewMemberEmail] = React.useState("");
   const [newMemberRole, setNewMemberRole] =
     React.useState<MemberInvite["role"]>("member");
+  const { workspaces } = useWorkspaces();
 
-  const defaultValues: MonitorWorkspaceFormValues = {
+  const defaultValues = {
     name: "",
-    description: "",
+    description: undefined,
     members: [],
     ...initialValues,
   };
@@ -108,7 +110,24 @@ export default function WorkspaceForm({
       className="space-y-8"
     >
       <div className="space-y-2">
-        <form.Field name="name">
+        <form.Field
+          name="name"
+          validators={{
+            onChange: ({ value }) => {
+              if (!initialValues?.name) {
+                const nameExists = workspaces?.some(
+                  (workspace) =>
+                    workspace.name.toLowerCase() === value.toLowerCase(),
+                );
+
+                if (nameExists) {
+                  return "This workspace name is already taken";
+                }
+              }
+              return undefined;
+            },
+          }}
+        >
           {(field) => (
             <>
               <Label htmlFor="name">Workspace Name</Label>

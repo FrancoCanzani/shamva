@@ -1,4 +1,4 @@
-import { useNavigate } from "@tanstack/react-router";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 import { CheckIcon, ChevronsUpDown, PlusCircle } from "lucide-react";
 import * as React from "react";
 import { useWorkspaces } from "../hooks/use-workspaces";
@@ -23,6 +23,10 @@ export function WorkspaceDropdown({ workspaceName }: WorkspaceDropdownProps) {
     useWorkspaces(workspaceName);
   const navigate = useNavigate();
   const [open, setOpen] = React.useState(false);
+
+  const location = useLocation();
+
+  console.log(location);
 
   const handleSelectWorkspace = (workspace: Workspace) => {
     setOpen(false);
@@ -64,7 +68,7 @@ export function WorkspaceDropdown({ workspaceName }: WorkspaceDropdownProps) {
                 onClick={() => handleSelectWorkspace(workspace)}
               >
                 <span className="flex-1">{workspace.name}</span>
-                {currentWorkspace?.id === workspace.id && (
+                {location.pathname.split("/").includes(workspace.name) && (
                   <CheckIcon className="h-4 w-4 ml-2" />
                 )}
               </DropdownMenuItem>

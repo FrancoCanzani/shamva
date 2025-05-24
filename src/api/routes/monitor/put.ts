@@ -167,6 +167,8 @@ export default async function putMonitor(c: Context) {
             intervalMs: interval ?? existingMonitor.interval,
             method: method,
             region: region,
+            headers: headers || undefined,
+            body: body || undefined,
           };
 
           const controller = new AbortController();
@@ -231,6 +233,8 @@ export default async function putMonitor(c: Context) {
             intervalMs: interval ?? existingMonitor.interval,
             method: method,
             region: region,
+            headers: headers || undefined,
+            body: body || undefined,
           };
 
           const controller = new AbortController();

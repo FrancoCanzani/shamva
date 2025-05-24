@@ -12,6 +12,7 @@ import getMonitors from "./monitors/get";
 import deleteWorkspace from "./workspace/delete";
 import getWorkspace from "./workspace/get";
 import postWorkspace from "./workspace/post";
+import putWorkspace from "./workspace/put";
 import getWorkspaces from "./workspaces/get";
 
 const apiRoutes = new Hono<{
@@ -29,7 +30,7 @@ apiRoutes.get("/api/test", (c) => {
 apiRoutes.get("/api/workspaces", getWorkspaces);
 apiRoutes.post("/api/workspace", postWorkspace);
 apiRoutes.get("/api/workspace/:id", getWorkspace);
-apiRoutes.put("/api/workspace/:id", getWorkspace);
+apiRoutes.put("/api/workspace/:id", putWorkspace);
 apiRoutes.delete("/api/workspace/:id", deleteWorkspace);
 
 // Monitor routes

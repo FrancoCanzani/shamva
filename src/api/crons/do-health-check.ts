@@ -21,6 +21,8 @@ export async function doHealthCheck(env: EnvBindings, scheduledTime: number) {
         regions,
         status,
         user_id,
+        headers,
+        body,
         monitor_checkers(id, region, do_id, status, last_check_at, error_message)
       `,
       )
@@ -110,6 +112,8 @@ export async function doHealthCheck(env: EnvBindings, scheduledTime: number) {
               intervalMs: monitor.interval,
               method: monitor.method,
               region: region,
+              headers: monitor.headers || undefined,
+              body: monitor.body || undefined,
             };
 
             const controller = new AbortController();

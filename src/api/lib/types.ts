@@ -26,6 +26,8 @@ export interface InitializeCheckerDOPayload {
   intervalMs?: number;
   method: string;
   region: string;
+  headers?: Record<string, string>;
+  body?: Record<string, unknown> | string | null;
 }
 
 export interface Monitor {
@@ -82,6 +84,8 @@ export interface MonitorConfig {
   createdAt: number;
   consecutiveFailures: number;
   lastStatusCode?: number;
+  headers?: Record<string, string>;
+  body?: Record<string, unknown> | string | null;
 }
 
 export interface CheckResult {

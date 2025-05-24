@@ -179,6 +179,8 @@ export default async function postMonitor(c: Context) {
         intervalMs: createdMonitor.interval,
         method: method,
         region: region,
+        headers: headers || undefined,
+        body: body || undefined,
       };
 
       const controller = new AbortController();

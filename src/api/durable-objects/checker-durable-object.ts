@@ -53,6 +53,8 @@ export class CheckerDurableObject extends DurableObject {
       intervalMs = DEFAULT_CHECK_INTERVAL_MS,
       method = "GET",
       region,
+      headers,
+      body,
     } = params;
 
     if (!urlToCheck || !monitorId || !userId) {
@@ -79,6 +81,8 @@ export class CheckerDurableObject extends DurableObject {
       region: region ?? null,
       createdAt: Date.now(),
       consecutiveFailures: 0,
+      headers: headers || undefined,
+      body: body || undefined,
     };
 
     await this.ctx.storage.put("config", newConfig);
@@ -88,6 +92,8 @@ export class CheckerDurableObject extends DurableObject {
   private async performCheck(
     urlToCheck: string,
     method: string,
+    customHeaders?: Record<string, string>,
+    customBody?: Record<string, unknown> | string | null,
   ): Promise<CheckResult> {
     const checkStartTime = performance.now();
     const result: CheckResult = {
@@ -104,12 +110,34 @@ export class CheckerDurableObject extends DurableObject {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
 
-      const response = await fetch(urlToCheck, {
+      const requestHeaders: HeadersInit = {
+        "User-Agent": USER_AGENT,
+        ...customHeaders,
+      };
+
+      const requestOptions: RequestInit = {
         method,
         redirect: "manual",
-        headers: { "User-Agent": USER_AGENT },
+        headers: requestHeaders,
         signal: controller.signal,
-      });
+      };
+
+      if (method === "POST" && customBody) {
+        if (typeof customBody === "string") {
+          requestOptions.body = customBody;
+        } else {
+          requestOptions.body = JSON.stringify(customBody);
+          if (
+            !customHeaders?.["Content-Type"] &&
+            !customHeaders?.["content-type"]
+          ) {
+            (requestOptions.headers as Record<string, string>)["Content-Type"] =
+              "application/json";
+          }
+        }
+      }
+
+      const response = await fetch(urlToCheck, requestOptions);
 
       clearTimeout(timeoutId);
 
@@ -335,7 +363,12 @@ export class CheckerDurableObject extends DurableObject {
       return;
     }
 
-    const result = await this.performCheck(config.urlToCheck, config.method);
+    const result = await this.performCheck(
+      config.urlToCheck,
+      config.method,
+      config.headers,
+      config.body,
+    );
     const monitorStatusUpdate = await this.processCheckResult(result);
     await this.logCheckResult(config, result);
 

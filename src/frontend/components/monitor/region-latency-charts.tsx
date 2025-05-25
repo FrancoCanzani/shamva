@@ -1,27 +1,17 @@
 import { Log } from "@/frontend/lib/types";
 import { getRegionNameFromCode, groupLogsByRegion } from "@/frontend/lib/utils";
-import { subDays } from "date-fns";
 import LatencyChart from "./latency-chart";
 
 interface RegionLatencyChartsProps {
   logs: Partial<Log>[];
   height?: number;
-  days: number;
 }
 
 export default function RegionLatencyCharts({
   logs,
   height = 36,
-  days,
 }: RegionLatencyChartsProps) {
-  const filterDate = subDays(new Date(), days);
-  const filteredLogs = logs.filter((log) => {
-    if (!log.created_at) return false;
-    const logDate = new Date(log.created_at);
-    return logDate >= filterDate;
-  });
-
-  const groupedLogs = groupLogsByRegion(filteredLogs);
+  const groupedLogs = groupLogsByRegion(logs);
 
   if (Object.keys(groupedLogs).length === 0) {
     return (

@@ -2,7 +2,7 @@ import { supabase } from "@/frontend/lib/supabase";
 import { cn, getRegionFlags, getStatusColor } from "@/frontend/lib/utils";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id";
 import { Link, redirect, useNavigate, useRouter } from "@tanstack/react-router";
-import { formatDistanceToNowStrict, parseISO } from "date-fns";
+import { formatDistanceToNowStrict, parseISO, subDays } from "date-fns";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import MonitorStats from "../monitor/monitor-stats";
@@ -16,6 +16,12 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Separator } from "../ui/separator";
+
+const PERIOD_OPTIONS = [
+  { value: 7, label: "Last 7 days" },
+  { value: 14, label: "Last 14 days" },
+  { value: 30, label: "Last 30 days" },
+];
 
 export default function MonitorPage() {
   const navigate = useNavigate();
@@ -33,6 +39,13 @@ export default function MonitorPage() {
       replace: true,
     });
   };
+
+  const filterDate = subDays(new Date(), days);
+  const filteredLogs = (monitor.recent_logs || []).filter((log) => {
+    if (!log.created_at) return false;
+    const logDate = new Date(log.created_at);
+    return logDate >= filterDate;
+  });
 
   async function handleDelete() {
     const {
@@ -87,6 +100,9 @@ export default function MonitorPage() {
       })
     : "Never";
 
+  const currentPeriod =
+    PERIOD_OPTIONS.find((p) => p.value === days)?.label || `Last ${days} days`;
+
   return (
     <div className="flex flex-1 w-full mx-auto p-4 flex-col">
       <div className="flex items-center justify-between gap-6">
@@ -99,6 +115,24 @@ export default function MonitorPage() {
           <span className="hover:underline">Back to monitors</span>
         </Link>
         <div className="flex items-center gap-1">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="xs" className="text-xs">
+                {currentPeriod}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {PERIOD_OPTIONS.map((option) => (
+                <DropdownMenuItem
+                  key={option.value}
+                  onClick={() => handleDaysChange(option.value)}
+                  className={cn(option.value === days && "bg-accent")}
+                >
+                  {option.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
           <DropdownMenu>
             <DropdownMenuTrigger>
               <Button variant={"outline"} size={"xs"} className="text-xs">
@@ -189,21 +223,13 @@ export default function MonitorPage() {
 
         <Separator />
 
-        <MonitorStats
-          monitor={monitor}
-          days={days}
-          onDaysChange={handleDaysChange}
-        />
+        <MonitorStats logs={filteredLogs} />
 
         <Separator />
 
         <div>
           <h2 className="text-sm font-medium mb-4">Latency Trends by Region</h2>
-          <RegionLatencyCharts
-            logs={monitor.recent_logs}
-            height={36}
-            days={days}
-          />
+          <RegionLatencyCharts logs={filteredLogs} height={36} />
         </div>
 
         <Separator />

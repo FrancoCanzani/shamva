@@ -130,3 +130,10 @@ export function calculatePercentile(
     return sorted[lower] * (1 - weight) + sorted[upper] * weight;
   }
 }
+
+export const getLatencyColor = (latency: number) => {
+  if (latency < 200) return "text-green-700";
+  if (latency < 500) return "text-yellow-500";
+  if (latency < 1000) return "text-red-500";
+  return "text-red-700";
+};

@@ -1,52 +1,22 @@
-import { Monitor } from "@/frontend/lib/types";
-import { calculatePercentile, cn } from "@/frontend/lib/utils";
-import { subDays } from "date-fns";
-import { Button } from "../ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+import { Log } from "@/frontend/lib/types";
+import { calculatePercentile, cn, getLatencyColor } from "@/frontend/lib/utils";
+import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id";
 
-interface MonitorStatsProps {
-  monitor: Monitor;
-  days: number;
-  onDaysChange: (days: number) => void;
-}
+export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
+  const { days } = Route.useSearch();
 
-const PERIOD_OPTIONS = [
-  { value: 7, label: "Last 7 days" },
-  { value: 14, label: "Last 14 days" },
-  { value: 30, label: "Last 30 days" },
-];
-
-export default function MonitorStats({
-  monitor,
-  days,
-  onDaysChange,
-}: MonitorStatsProps) {
-  const filterDate = subDays(new Date(), days);
-  const recentLogs = (monitor.recent_logs || []).filter((log) => {
-    if (!log.created_at) return false;
-    const logDate = new Date(log.created_at);
-    return logDate >= filterDate;
-  });
-
-  const recentSuccessCount = recentLogs.filter(
+  const recentSuccessCount = logs.filter(
     (log) =>
       typeof log.status_code === "number" &&
       log.status_code >= 200 &&
       log.status_code < 300,
   ).length;
 
-  const recentTotalCount = recentLogs.length;
+  const recentTotalCount = logs.length;
   const recentSuccessRate =
     recentTotalCount > 0 ? (recentSuccessCount / recentTotalCount) * 100 : 0;
 
-  const allLatencies = recentLogs
-    .filter((log) => typeof log.latency === "number")
-    .map((log) => log.latency as number);
+  const allLatencies = logs.map((log) => log.latency as number);
 
   const p50 = calculatePercentile(allLatencies, 50);
   const p75 = calculatePercentile(allLatencies, 75);
@@ -56,38 +26,10 @@ export default function MonitorStats({
   const formatRate = (rate: number) => Math.round(rate) + "%";
   const formatLatency = (ms: number) => Math.round(ms) + "ms";
 
-  const getLatencyColor = (latency: number) => {
-    if (latency < 200) return "text-green-700";
-    if (latency < 500) return "text-yellow-500";
-    if (latency < 1000) return "text-red-500";
-    return "text-red-700";
-  };
-
-  const currentPeriod =
-    PERIOD_OPTIONS.find((p) => p.value === days)?.label || `Last ${days} days`;
-
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-medium">Statistics</h2>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="xs">
-              {currentPeriod}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {PERIOD_OPTIONS.map((option) => (
-              <DropdownMenuItem
-                key={option.value}
-                onClick={() => onDaysChange(option.value)}
-                className={cn(option.value === days && "bg-accent")}
-              >
-                {option.label}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <h2 className="text-sm font-medium">{`Statistics`} </h2>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">

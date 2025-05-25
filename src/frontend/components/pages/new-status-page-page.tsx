@@ -7,47 +7,45 @@ import {
   StatusPageFormValues,
 } from "@/frontend/lib/types";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/status-pages/new";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import StatusPageForm from "../status-page-form";
+
+async function fetchMonitors(workspaceId: string, accessToken: string) {
+  const response = await fetch(`/api/monitors?workspaceId=${workspaceId}`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch monitors: ${response.status}`);
+  }
+
+  const result: ApiResponse<Monitor[]> = await response.json();
+
+  if (!result.success) {
+    throw new Error(result.error || "Failed to fetch monitors");
+  }
+
+  return result.data || [];
+}
 
 export default function NewStatusPage() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [availableMonitors, setAvailableMonitors] = useState<Monitor[]>([]);
   const { session } = useAuth();
   const { workspaceName } = Route.useParams();
   const { currentWorkspace } = useWorkspaces();
 
-  useEffect(() => {
-    const fetchMonitors = async () => {
-      if (!session?.access_token || !currentWorkspace?.id) return;
-
-      try {
-        const response = await fetch(
-          `/api/monitors?workspaceId=${currentWorkspace.id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${session.access_token}`,
-              "Content-Type": "application/json",
-            },
-          },
-        );
-
-        if (response.ok) {
-          const result: ApiResponse<Monitor[]> = await response.json();
-          if (result.success && result.data) {
-            setAvailableMonitors(result.data);
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching monitors:", error);
-      }
-    };
-
-    fetchMonitors();
-  }, [session?.access_token, currentWorkspace?.id]);
+  const { data: availableMonitors = [] } = useQuery({
+    queryKey: ["monitors", currentWorkspace?.id],
+    queryFn: () => fetchMonitors(currentWorkspace!.id, session!.access_token),
+    enabled: !!(session?.access_token && currentWorkspace?.id),
+  });
 
   const handleSubmit = async (formData: StatusPageFormValues) => {
     setIsSubmitting(true);

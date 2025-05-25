@@ -22,6 +22,41 @@ export default async function deleteMonitor(c: Context) {
   const supabase = createSupabaseClient(c.env);
 
   try {
+    const { data: monitor, error: monitorError } = await supabase
+      .from("monitors")
+      .select("id, workspace_id")
+      .eq("id", monitorId)
+      .single();
+
+    if (monitorError || !monitor) {
+      return c.json(
+        { data: null, success: false, error: "Monitor not found" },
+        404,
+      );
+    }
+
+    const { data: membership, error: membershipError } = await supabase
+      .from("workspace_members")
+      .select("role")
+      .eq("workspace_id", monitor.workspace_id)
+      .eq("user_id", userId)
+      .eq("invitation_status", "accepted")
+      .single();
+
+    if (membershipError || !membership) {
+      return c.json(
+        { data: null, success: false, error: "Monitor not found" },
+        404,
+      );
+    }
+
+    if (membership.role != "admin") {
+      return c.json(
+        { data: null, success: false, error: "Insufficient permissions" },
+        403,
+      );
+    }
+
     const { data: checkers, error: checkersError } = await supabase
       .from("monitor_checkers")
       .select("id, region, do_id")
@@ -61,7 +96,6 @@ export default async function deleteMonitor(c: Context) {
       .from("monitors")
       .delete()
       .eq("id", monitorId)
-      .eq("user_id", userId)
       .single();
 
     if (error) {

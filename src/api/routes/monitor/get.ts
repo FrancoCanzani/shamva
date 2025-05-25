@@ -27,7 +27,6 @@ export default async function getMonitor(c: Context) {
       .from("monitors")
       .select("*")
       .eq("id", monitorId)
-      .eq("user_id", userId)
       .single();
 
     if (monitorError) {
@@ -56,26 +55,37 @@ export default async function getMonitor(c: Context) {
       );
     }
 
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    const sevenDaysAgoISO = sevenDaysAgo.toISOString();
+    const { data: membership, error: membershipError } = await supabase
+      .from("workspace_members")
+      .select("role")
+      .eq("workspace_id", monitor.workspace_id)
+      .eq("user_id", userId)
+      .eq("invitation_status", "accepted")
+      .single();
+
+    if (membershipError || !membership) {
+      return c.json(
+        { data: null, success: false, error: "Monitor not found" },
+        404,
+      );
+    }
+
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const thirtyDaysAgoISO = thirtyDaysAgo.toISOString();
 
     const { data: recentLogs, error: logError } = await supabase
       .from("logs")
-      .select(
-        "id, monitor_id, created_at, status_code, latency, error, region, method, headers, body_content, url, do_id, user_id",
-      )
+      .select("*")
       .eq("monitor_id", monitorId)
-      .gte("created_at", sevenDaysAgoISO)
-      .order("created_at", { ascending: false })
-      .limit(50);
+      .gte("created_at", thirtyDaysAgoISO)
+      .order("created_at", { ascending: false });
 
     if (logError) {
       console.error(
         `Error fetching recent logs for monitor ${monitorId}:`,
         logError,
       );
-
       monitor.recent_logs = [];
     } else {
       monitor.recent_logs = (recentLogs || []) as Log[];

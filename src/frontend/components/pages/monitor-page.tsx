@@ -1,7 +1,7 @@
 import { supabase } from "@/frontend/lib/supabase";
 import { cn, getRegionFlags, getStatusColor } from "@/frontend/lib/utils";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id";
-import { Link, redirect, useNavigate } from "@tanstack/react-router";
+import { Link, redirect, useNavigate, useRouter } from "@tanstack/react-router";
 import { formatDistanceToNowStrict, parseISO } from "date-fns";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
@@ -9,12 +9,30 @@ import MonitorStats from "../monitor/monitor-stats";
 import RecentChecks from "../monitor/recent-checks";
 import RegionLatencyCharts from "../monitor/region-latency-charts";
 import { Button } from "../ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 import { Separator } from "../ui/separator";
 
 export default function MonitorPage() {
   const navigate = useNavigate();
   const monitor = Route.useLoaderData();
+  const router = useRouter();
+  const { days } = Route.useSearch();
+
   const { id, workspaceName } = Route.useParams();
+
+  const handleDaysChange = (newDays: number) => {
+    navigate({
+      to: "/dashboard/$workspaceName/monitors/$id",
+      params: { workspaceName, id },
+      search: { days: newDays },
+      replace: true,
+    });
+  };
 
   async function handleDelete() {
     const {
@@ -70,7 +88,7 @@ export default function MonitorPage() {
     : "Never";
 
   return (
-    <div className="flex flex-1 w-full max-w-6xl mx-auto p-4 flex-col">
+    <div className="flex flex-1 w-full mx-auto p-4 flex-col">
       <div className="flex items-center justify-between gap-6">
         <Link
           to="/dashboard/$workspaceName/monitors"
@@ -78,29 +96,38 @@ export default function MonitorPage() {
           className="flex items-center justify-start text-xs gap-1 text-muted-foreground"
         >
           <ArrowLeft className="size-3" />
-          <span>Back to monitors</span>
+          <span className="hover:underline">Back to monitors</span>
         </Link>
         <div className="flex items-center gap-1">
-          <Button asChild variant={"ghost"} size={"sm"}>
-            <Link
-              className="text-sm"
-              to="/dashboard/$workspaceName/monitors/$id/edit"
-              params={{ id: monitor.id, workspaceName: workspaceName }}
-            >
-              Edit
-            </Link>
-          </Button>
-          <Button
-            onClick={handleDelete}
-            variant="ghost"
-            size="sm"
-            className="text-red-500"
-          >
-            Delete
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <Button variant={"outline"} size={"xs"} className="text-xs">
+                Options
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem>
+                <Link
+                  to="/dashboard/$workspaceName/monitors/$id/edit"
+                  params={{ id: monitor.id, workspaceName: workspaceName }}
+                >
+                  Edit
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.invalidate()}>
+                Refresh
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-red-500 focus:text-red-500 hover:text-red-500"
+                onClick={handleDelete}
+              >
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
-      <div className="flex tems-center justify-between gap-4 py-4 flex-shrink-0">
+      <div className="flex items-center justify-between gap-4 py-4 flex-shrink-0">
         <div className="flex items-center justify-start gap-1">
           <h1 className="flex-1 font-medium">{monitor.name || monitor.url}</h1>
           {monitor.name && (
@@ -123,7 +150,7 @@ export default function MonitorPage() {
               <span className="relative flex h-2 w-2">
                 <span
                   className={cn(
-                    "absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 duration-[2000ms]",
+                    "absolute inline-flex h-full w-full animate-ping rounded-full duration-[2000ms]",
                     getStatusColor(sortedLogs[0]?.status_code),
                   )}
                 ></span>
@@ -161,17 +188,27 @@ export default function MonitorPage() {
         </div>
 
         <Separator />
-        <MonitorStats monitor={monitor} />
+
+        <MonitorStats
+          monitor={monitor}
+          days={days}
+          onDaysChange={handleDaysChange}
+        />
+
         <Separator />
 
         <div>
           <h2 className="text-sm font-medium mb-4">Latency Trends by Region</h2>
-          <RegionLatencyCharts logs={monitor.recent_logs} height={36} />
+          <RegionLatencyCharts
+            logs={monitor.recent_logs}
+            height={36}
+            days={days}
+          />
         </div>
 
         <Separator />
         <div>
-          <h2 className="text-sm font-medium mb-4">Recent checks (7d)</h2>
+          <h2 className="text-sm font-medium mb-4">Recent checks</h2>
           <RecentChecks logs={monitor.recent_logs} />
         </div>
       </div>

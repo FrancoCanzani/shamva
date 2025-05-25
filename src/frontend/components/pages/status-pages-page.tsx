@@ -1,5 +1,6 @@
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/status-pages";
 import { Link } from "@tanstack/react-router";
+import NotFoundMessage from "../not-found-message";
 import { Button } from "../ui/button";
 
 export default function StatusPagesPage() {
@@ -26,11 +27,7 @@ export default function StatusPagesPage() {
       </div>
 
       {statusPages.length === 0 ? (
-        <div className="rounded border border-dashed p-6 text-center text-sm space-y-2">
-          <p className="text-muted-foreground">
-            No status pages found. Create one to get started.
-          </p>
-        </div>
+        <NotFoundMessage message="No status pages found. Create one to get started." />
       ) : (
         <div className="space-y-4">
           {statusPages.map((statusPage) => (

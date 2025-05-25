@@ -40,7 +40,6 @@ export default function LatencyChart({
     date: log.created_at ? new Date(log.created_at) : new Date(),
   }));
 
-  // Calculate average latency
   const avgLatency =
     chartData.reduce((sum, item) => sum + item.latency, 0) / chartData.length;
 
@@ -51,7 +50,7 @@ export default function LatencyChart({
     },
     avgLatency: {
       label: "Avg Latency",
-      color: "#ef4444", // Red color for average line
+      color: "#ef4444",
     },
   } satisfies ChartConfig;
 
@@ -67,7 +66,7 @@ export default function LatencyChart({
         <YAxis
           tickLine={false}
           axisLine={false}
-          tickMargin={8}
+          tickMargin={2}
           tickFormatter={(value) => `${value}ms`}
           width={50}
         />

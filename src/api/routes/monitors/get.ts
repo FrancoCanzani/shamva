@@ -13,19 +13,37 @@ export default async function getMonitors(c: Context) {
     );
   }
 
+  if (!workspaceId) {
+    return c.json(
+      { data: null, success: false, error: "Workspace Id is missing" },
+      400,
+    );
+  }
+
   try {
     const supabase = createSupabaseClient(c.env);
 
-    let query = supabase.from("monitors").select("*").eq("user_id", userId);
+    const { data: membership, error: membershipError } = await supabase
+      .from("workspace_members")
+      .select("role")
+      .eq("workspace_id", workspaceId)
+      .eq("user_id", userId)
+      .eq("invitation_status", "accepted")
+      .single();
 
-    if (workspaceId) {
-      query = query.eq("workspace_id", workspaceId);
+    if (membershipError || !membership) {
+      return c.json({
+        data: [],
+        success: true,
+        error: null,
+      });
     }
 
-    const { data: monitors, error: monitorError } = await query.order(
-      "created_at",
-      { ascending: false },
-    );
+    const { data: monitors, error: monitorError } = await supabase
+      .from("monitors")
+      .select("*")
+      .eq("workspace_id", workspaceId)
+      .order("created_at", { ascending: false });
 
     if (monitorError) {
       console.error("Error fetching monitors from DB:", monitorError);
@@ -49,22 +67,19 @@ export default async function getMonitors(c: Context) {
     }
 
     const monitorIds = monitors.map((m) => m.id);
-
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    const sevenDaysAgoISO = sevenDaysAgo.toISOString();
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const thirtyDaysAgoISO = thirtyDaysAgo.toISOString();
 
     const { data: recentLogs, error: logError } = await supabase
       .from("logs")
-      .select(
-        "monitor_id, created_at, status_code, latency, error, region, method",
-      )
+      .select("*")
       .in("monitor_id", monitorIds)
-      .gte("created_at", sevenDaysAgoISO)
+      .gte("created_at", thirtyDaysAgoISO)
       .order("created_at", { ascending: false });
 
     if (logError) {
-      console.error(`Error fetching recent logs for user ${userId}:`, logError);
+      console.error(`Error fetching recent logs:`, logError);
     }
 
     const logsByMonitorId = new Map<string, Partial<Log>[]>();
@@ -73,7 +88,6 @@ export default async function getMonitors(c: Context) {
         if (!logsByMonitorId.has(log.monitor_id)) {
           logsByMonitorId.set(log.monitor_id, []);
         }
-
         logsByMonitorId.get(log.monitor_id)!.push(log);
       }
     }

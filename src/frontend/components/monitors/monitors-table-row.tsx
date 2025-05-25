@@ -169,6 +169,7 @@ export default function MonitorsTableRow({ monitor }: MonitorRowProps) {
         <Link
           to="/dashboard/$workspaceName/monitors/$id"
           params={{ id: monitor.id, workspaceName: workspaceName }}
+          search={{ days: 30 }}
           className="truncate hover:underline"
         >
           {monitor.name ?? monitor.url}
@@ -206,6 +207,7 @@ export default function MonitorsTableRow({ monitor }: MonitorRowProps) {
         <Link
           to="/dashboard/$workspaceName/monitors/$id"
           params={{ id: monitor.id, workspaceName: workspaceName }}
+          search={{ days: 30 }}
           className="opacity-0 group-hover:opacity-100 transition-opacity"
           aria-label={`Details for ${monitor.url}`}
         >

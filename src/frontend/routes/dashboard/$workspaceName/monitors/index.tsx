@@ -5,5 +5,7 @@ import { createFileRoute } from "@tanstack/react-router";
 export const Route = createFileRoute("/dashboard/$workspaceName/monitors/")({
   loader: ({ params, abortController }) =>
     fetchMonitors({ params, abortController }),
+  // route's data fresh for 30 seconds
+  staleTime: 30_000,
   component: MonitorsPage,
 });

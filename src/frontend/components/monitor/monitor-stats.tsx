@@ -1,26 +1,36 @@
 import { Monitor } from "@/frontend/lib/types";
 import { cn } from "@/frontend/lib/utils";
 import { subDays } from "date-fns";
-import { ArrowDownIcon, ArrowUpIcon, MinusIcon } from "lucide-react";
+import { Button } from "../ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 interface MonitorStatsProps {
   monitor: Monitor;
-  recentDays?: number;
+  days: number;
+  onDaysChange: (days: number) => void;
 }
+
+const PERIOD_OPTIONS = [
+  { value: 7, label: "Last 7 days" },
+  { value: 14, label: "Last 14 days" },
+  { value: 30, label: "Last 30 days" },
+];
 
 export default function MonitorStats({
   monitor,
-  recentDays = 7,
+  days,
+  onDaysChange,
 }: MonitorStatsProps) {
-  const totalChecks = monitor.success_count + monitor.failure_count;
-  const allTimeSuccessRate =
-    totalChecks > 0 ? (monitor.success_count / totalChecks) * 100 : 0;
-
-  const recentDate = subDays(new Date(), recentDays);
-  const recentLogs = monitor.recent_logs.filter((log) => {
+  const filterDate = subDays(new Date(), days);
+  const recentLogs = (monitor.recent_logs || []).filter((log) => {
     if (!log.created_at) return false;
     const logDate = new Date(log.created_at);
-    return logDate >= recentDate;
+    return logDate >= filterDate;
   });
 
   const recentSuccessCount = recentLogs.filter(
@@ -34,177 +44,129 @@ export default function MonitorStats({
   const recentSuccessRate =
     recentTotalCount > 0 ? (recentSuccessCount / recentTotalCount) * 100 : 0;
 
-  const successRateDiff = recentSuccessRate - allTimeSuccessRate;
-
   const formatRate = (rate: number) => Math.round(rate) + "%";
-  const formatDiff = (diff: number) => {
-    const rounded = Math.abs(Math.round(diff * 10) / 10);
-    return diff > 0 ? `+${rounded}%` : diff < 0 ? `-${rounded}%` : "±0%";
-  };
+
+  const currentPeriod =
+    PERIOD_OPTIONS.find((p) => p.value === days)?.label || `Last ${days} days`;
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-      <div className="border border-dashed p-2 hover:bg-slate-50">
-        <h3 className="text-sm font-medium text-muted-foreground mb-2">
-          Success Rate
-        </h3>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm font-medium">Statistics</h2>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="xs">
+              {currentPeriod}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {PERIOD_OPTIONS.map((option) => (
+              <DropdownMenuItem
+                key={option.value}
+                onClick={() => onDaysChange(option.value)}
+                className={cn(option.value === days && "bg-accent")}
+              >
+                {option.label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
 
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="text-xs text-muted-foreground">
-              Last {recentDays}d
-            </div>
-            <div
-              className={cn(
-                "font-mono font-medium",
-                recentSuccessRate >= 98
-                  ? "text-green-700"
-                  : recentSuccessRate >= 90
-                    ? "text-yellow-500"
-                    : "text-red-700",
-              )}
-            >
-              {formatRate(recentSuccessRate)}
-            </div>
-          </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="border border-dashed p-2 hover:bg-slate-50">
+          <h3 className="text-sm font-medium text-muted-foreground mb-2">
+            Success Rate
+          </h3>
 
-          <div className="flex flex-col items-center">
-            <div className="text-xs font-mono text-muted-foreground">
-              vs all time
-            </div>
-            <div
-              className={cn(
-                "flex items-center text-sm font-medium font-mono",
-                successRateDiff > 0
-                  ? "text-green-700"
-                  : successRateDiff < 0
-                    ? "text-red-700"
-                    : "text-gray-500",
-              )}
-            >
-              {successRateDiff > 0.5 ? (
-                <ArrowUpIcon className="mr-1 size-3" />
-              ) : successRateDiff < -0.5 ? (
-                <ArrowDownIcon className="mr-1 size-3" />
-              ) : (
-                <MinusIcon className="mr-1 size-3" />
-              )}
-              {formatDiff(successRateDiff)}
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-xs text-muted-foreground">Last {days}d</div>
+              <div
+                className={cn(
+                  "font-mono font-medium",
+                  recentSuccessRate >= 98
+                    ? "text-green-700"
+                    : recentSuccessRate >= 90
+                      ? "text-yellow-500"
+                      : "text-red-700",
+                )}
+              >
+                {formatRate(recentSuccessRate)}
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-1 mt-2">
-          <div className="h-1 flex-1 bg-gray-100 dark:bg-gray-700 overflow-hidden">
-            <div
-              className={cn(
-                "h-full transition-all duration-500",
-                recentSuccessRate >= 98
-                  ? "bg-green-700"
-                  : recentSuccessRate >= 90
-                    ? "bg-yellow-500"
-                    : "bg-red-700",
-              )}
-              style={{ width: `${Math.max(recentSuccessRate, 3)}%` }}
-            />
+        <div className="border border-dashed p-2 hover:bg-slate-50">
+          <h3 className="text-sm font-medium text-muted-foreground mb-2">
+            Total Checks
+          </h3>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-xs text-muted-foreground">Last {days}d</div>
+              <div className="font-mono font-medium">
+                {recentTotalCount.toLocaleString()}
+              </div>
+            </div>
           </div>
-          <span className="text-xs text-muted-foreground">
-            {formatRate(recentSuccessRate)}
-          </span>
+        </div>
+
+        <div className="border border-dashed p-2 hover:bg-slate-50">
+          <h3 className="text-sm font-medium text-muted-foreground mb-2">
+            Successes
+          </h3>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-xs text-muted-foreground">Last {days}d</div>
+              <div className="font-mono font-medium text-green-700">
+                {recentSuccessCount.toLocaleString()}
+              </div>
+            </div>
+
+            <div className="flex flex-col items-center">
+              <div className="text-sm text-muted-foreground">of period</div>
+              <div className="text-sm font-medium font-mono text-green-700">
+                {recentTotalCount > 0
+                  ? `${Math.round((recentSuccessCount / recentTotalCount) * 100)}%`
+                  : "0%"}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="border border-dashed p-2 hover:bg-slate-50">
+          <h3 className="text-sm font-medium text-muted-foreground mb-2">
+            Failures
+          </h3>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-sm text-muted-foreground">Last {days}d</div>
+              <div className="font-mono font-medium text-red-700">
+                {(recentTotalCount - recentSuccessCount).toLocaleString()}
+              </div>
+            </div>
+
+            <div className="flex flex-col items-center">
+              <div className="text-sm text-muted-foreground">of period</div>
+              <div className="text-sm font-medium font-mono text-red-700">
+                {recentTotalCount > 0
+                  ? `${Math.round(((recentTotalCount - recentSuccessCount) / recentTotalCount) * 100)}%`
+                  : "0%"}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="border border-dashed p-2 hover:bg-slate-50">
-        <h3 className="text-sm font-medium text-muted-foreground mb-2">
-          Total Checks
-        </h3>
-
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="text-xs text-muted-foreground">
-              Last {recentDays}d
-            </div>
-            <div className="font-mono font-medium">
-              {recentTotalCount.toLocaleString()}
-            </div>
-          </div>
-
-          <div className="flex flex-col items-center">
-            <div className="text-xs text-muted-foreground">of all time</div>
-            <div className="text-sm font-mono font-medium">
-              {totalChecks > 0
-                ? `${Math.round((recentTotalCount / totalChecks) * 100)}%`
-                : "0%"}
-            </div>
-          </div>
+      {recentTotalCount === 0 && (
+        <div className="text-center py-4 text-muted-foreground">
+          <p className="text-sm">No data available for the selected period</p>
         </div>
-
-        <div className="text-xs text-muted-foreground mt-2">
-          {totalChecks.toLocaleString()} total lifetime checks
-        </div>
-      </div>
-
-      <div className="border border-dashed p-2 hover:bg-slate-50">
-        <h3 className="text-sm font-medium text-muted-foreground mb-2">
-          Successes
-        </h3>
-
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="text-xs text-muted-foreground">
-              Last {recentDays}d
-            </div>
-            <div className="font-mono font-medium text-green-700">
-              {recentSuccessCount.toLocaleString()}
-            </div>
-          </div>
-
-          <div className="flex flex-col items-center">
-            <div className="text-sm text-muted-foreground">of period</div>
-            <div className="text-sm font-medium font-mono text-green-700">
-              {recentTotalCount > 0
-                ? `${Math.round((recentSuccessCount / recentTotalCount) * 100)}%`
-                : "0%"}
-            </div>
-          </div>
-        </div>
-
-        <div className="text-xs text-gray-500 mt-2">
-          {monitor.success_count.toLocaleString()} total successes (
-          {formatRate(allTimeSuccessRate)})
-        </div>
-      </div>
-
-      <div className="border border-dashed p-2 hover:bg-slate-50">
-        <h3 className="text-sm font-medium text-muted-foreground mb-2">
-          Failures
-        </h3>
-
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="text-sm text-muted-foreground">
-              Last {recentDays}d
-            </div>
-            <div className="font-mono font-medium text-red-700">
-              {(recentTotalCount - recentSuccessCount).toLocaleString()}
-            </div>
-          </div>
-
-          <div className="flex flex-col items-center">
-            <div className="text-sm text-muted-foreground">of period</div>
-            <div className="text-sm font-medium font-mono text-red-700">
-              {recentTotalCount > 0
-                ? `${Math.round(((recentTotalCount - recentSuccessCount) / recentTotalCount) * 100)}%`
-                : "0%"}
-            </div>
-          </div>
-        </div>
-
-        <div className="text-xs text-muted-foreground mt-2">
-          {monitor.failure_count.toLocaleString()} total failures (
-          {100 - Math.round(allTimeSuccessRate)}%)
-        </div>
-      </div>
+      )}
     </div>
   );
 }

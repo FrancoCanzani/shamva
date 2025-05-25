@@ -46,7 +46,6 @@ export default async function putMonitor(c: Context) {
     .from("monitors")
     .select("*")
     .eq("id", monitorId)
-    .eq("user_id", userId)
     .single();
 
   if (fetchError) {
@@ -68,6 +67,22 @@ export default async function putMonitor(c: Context) {
     return c.json({ success: false, error: "Monitor not found" }, 404);
   }
 
+  const { data: membership, error: membershipError } = await supabase
+    .from("workspace_members")
+    .select("role")
+    .eq("workspace_id", existingMonitor.workspace_id)
+    .eq("user_id", userId)
+    .eq("invitation_status", "accepted")
+    .single();
+
+  if (membershipError || !membership) {
+    return c.json({ success: false, error: "Monitor not found" }, 404);
+  }
+
+  if (membership.role === "viewer") {
+    return c.json({ success: false, error: "Insufficient permissions" }, 403);
+  }
+
   try {
     const updateData = {
       name,
@@ -84,7 +99,6 @@ export default async function putMonitor(c: Context) {
       .from("monitors")
       .update(updateData)
       .eq("id", monitorId)
-      .eq("user_id", userId)
       .select()
       .single();
 
@@ -119,7 +133,7 @@ export default async function putMonitor(c: Context) {
           .eq("monitor_id", monitorId)
           .eq("region", region);
 
-        // Note: We're not deleting the DO itself, just marking it as inactive
+        // Note: not deleting the DO itself, just marking it as inactive
         // Actual cleanup can be handled by a background job
       }
     }
@@ -155,7 +169,6 @@ export default async function putMonitor(c: Context) {
             });
           }
 
-          // Initialize the DO
           const doStub = c.env.CHECKER_DURABLE_OBJECT.get(doId, {
             locationHint: region,
           });
@@ -215,8 +228,7 @@ export default async function putMonitor(c: Context) {
         method !== existingMonitor.method ||
         (interval && interval !== existingMonitor.interval))
     ) {
-      // For now, we'll just recreate the DOs with the new configuration
-      // A more sophisticated approach would be to update them in place
+      // we'll just recreate the DOs with the new configuration
       for (const region of regionsToUpdate) {
         const doName = `${monitorId}-${region}`;
         const doId = c.env.CHECKER_DURABLE_OBJECT.idFromName(doName);
@@ -272,9 +284,7 @@ export default async function putMonitor(c: Context) {
 
     const { data: recentLogs, error: logError } = await supabase
       .from("logs")
-      .select(
-        "id, monitor_id, created_at, status_code, latency, error, region, method, headers, body_content, url, do_id, user_id",
-      )
+      .select("*")
       .eq("monitor_id", monitorId)
       .gte("created_at", sevenDaysAgoISO)
       .order("created_at", { ascending: false })

@@ -29,7 +29,7 @@ export const getStatusColor = (status: number | unknown): string => {
   } else if (status >= 300 && status < 400) {
     return "bg-blue-200 dark:bg-blue-700";
   } else if (status >= 400 && status < 500) {
-    return "bg-orange-200 dark:bg-orange-700";
+    return "bg-red-200 dark:bg-red-700";
   } else if (status >= 500 || status < 0) {
     return "bg-red-200 dark:bg-red-700";
   }

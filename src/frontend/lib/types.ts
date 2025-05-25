@@ -1,9 +1,15 @@
 import type { User } from "@supabase/supabase-js";
 import z from "zod";
-import { MemberInviteSchema, WorkspaceSchema } from "./schemas";
+import {
+  MemberInviteSchema,
+  StatusPageSchema,
+  WorkspaceSchema,
+} from "./schemas";
 
 export type WorkspaceFormValues = z.infer<typeof WorkspaceSchema>;
 export type MemberInvite = z.infer<typeof MemberInviteSchema>;
+
+export type StatusPageFormValues = z.infer<typeof StatusPageSchema>;
 
 export interface WorkspaceMember {
   id: string;
@@ -89,4 +95,19 @@ export interface ApiResponse<T> {
   success: boolean;
   error: string | null;
   details?: string;
+}
+
+export interface StatusPage {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  workspace_id: string;
+  slug: string;
+  title: string;
+  description: string | null;
+  show_values: boolean;
+  password: string | null;
+  is_public: boolean;
+  monitors: string[];
+  user_id: string;
 }

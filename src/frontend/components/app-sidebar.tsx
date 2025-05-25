@@ -32,7 +32,7 @@ export function AppSidebar() {
         disabled: !currentWorkspace,
       },
       {
-        to: "/dashboard/$workspaceName/status",
+        to: "/dashboard/$workspaceName/status-pages",
         label: "Status Pages",
         disabled: !currentWorkspace,
       },

@@ -1,5 +1,5 @@
 import { Monitor } from "@/frontend/lib/types";
-import { cn } from "@/frontend/lib/utils";
+import { calculatePercentile, cn } from "@/frontend/lib/utils";
 import { subDays } from "date-fns";
 import { Button } from "../ui/button";
 import {
@@ -44,7 +44,24 @@ export default function MonitorStats({
   const recentSuccessRate =
     recentTotalCount > 0 ? (recentSuccessCount / recentTotalCount) * 100 : 0;
 
+  const allLatencies = recentLogs
+    .filter((log) => typeof log.latency === "number")
+    .map((log) => log.latency as number);
+
+  const p50 = calculatePercentile(allLatencies, 50);
+  const p75 = calculatePercentile(allLatencies, 75);
+  const p95 = calculatePercentile(allLatencies, 95);
+  const p99 = calculatePercentile(allLatencies, 99);
+
   const formatRate = (rate: number) => Math.round(rate) + "%";
+  const formatLatency = (ms: number) => Math.round(ms) + "ms";
+
+  const getLatencyColor = (latency: number) => {
+    if (latency < 200) return "text-green-700";
+    if (latency < 500) return "text-yellow-500";
+    if (latency < 1000) return "text-red-500";
+    return "text-red-700";
+  };
 
   const currentPeriod =
     PERIOD_OPTIONS.find((p) => p.value === days)?.label || `Last ${days} days`;
@@ -144,7 +161,7 @@ export default function MonitorStats({
 
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-sm text-muted-foreground">Last {days}d</div>
+              <div className="text-xs text-muted-foreground">Last {days}d</div>
               <div className="font-mono font-medium text-red-700">
                 {(recentTotalCount - recentSuccessCount).toLocaleString()}
               </div>
@@ -162,11 +179,81 @@ export default function MonitorStats({
         </div>
       </div>
 
-      {recentTotalCount === 0 && (
-        <div className="text-center py-4 text-muted-foreground">
-          <p className="text-sm">No data available for the selected period</p>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="border border-dashed p-2 hover:bg-slate-50">
+          <h3 className="text-sm font-medium text-muted-foreground mb-2">
+            P50 Latency
+          </h3>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-xs text-muted-foreground">Median</div>
+              <div
+                className={cn("font-mono font-medium", getLatencyColor(p50))}
+              >
+                {formatLatency(p50)}
+              </div>
+            </div>
+          </div>
         </div>
-      )}
+
+        <div className="border border-dashed p-2 hover:bg-slate-50">
+          <h3 className="text-sm font-medium text-muted-foreground mb-2">
+            P75 Latency
+          </h3>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-xs text-muted-foreground">
+                75th percentile
+              </div>
+              <div
+                className={cn("font-mono font-medium", getLatencyColor(p75))}
+              >
+                {formatLatency(p75)}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="border border-dashed p-2 hover:bg-slate-50">
+          <h3 className="text-sm font-medium text-muted-foreground mb-2">
+            P95 Latency
+          </h3>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-xs text-muted-foreground">
+                95th percentile
+              </div>
+              <div
+                className={cn("font-mono font-medium", getLatencyColor(p95))}
+              >
+                {formatLatency(p95)}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="border border-dashed p-2 hover:bg-slate-50">
+          <h3 className="text-sm font-medium text-muted-foreground mb-2">
+            P99 Latency
+          </h3>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-xs text-muted-foreground">
+                99th percentile
+              </div>
+              <div
+                className={cn("font-mono font-medium", getLatencyColor(p99))}
+              >
+                {formatLatency(p99)}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -55,9 +55,9 @@ export default function StatusPagesPage() {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  {/* <Button asChild variant="outline" size="xs">
+                  <Button asChild variant="outline" size="xs">
                     <Link
-                      to="/dashboard/$workspaceName/status/$id/edit"
+                      to="/dashboard/$workspaceName/status-pages/$id/edit"
                       params={{
                         workspaceName: workspaceName,
                         id: statusPage.id,
@@ -65,7 +65,7 @@ export default function StatusPagesPage() {
                     >
                       Edit
                     </Link>
-                  </Button> */}
+                  </Button>
                   <Button asChild variant="outline" size="xs">
                     <a
                       href={`/status/${statusPage.slug}`}

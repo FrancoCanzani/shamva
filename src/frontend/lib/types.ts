@@ -111,3 +111,38 @@ export interface StatusPage {
   monitors: string[];
   user_id: string;
 }
+
+export interface DailyStat {
+  date: string;
+  total_requests: number;
+  successful_requests: number;
+  failed_requests: number;
+  uptime_percentage: number | null;
+}
+
+export interface PublicMonitor {
+  id: string;
+  name: string;
+  url: string;
+  status: "active" | "error" | "warning" | "maintenance" | "broken";
+  uptime_percentage?: number;
+  avg_response_time?: number;
+  total_checks?: number;
+  successful_checks?: number;
+  daily_stats?: DailyStat[];
+}
+
+export interface PublicStatusPageData {
+  id: string;
+  slug: string;
+  title: string;
+  description?: string;
+  show_values: boolean;
+  monitors: PublicMonitor[];
+  needsPassword?: boolean;
+  requiresPassword?: boolean;
+}
+
+export interface PasswordRequiredResponse {
+  requiresPassword: true;
+}

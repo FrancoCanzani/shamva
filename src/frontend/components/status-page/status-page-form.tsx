@@ -5,10 +5,10 @@ import { useForm } from "@tanstack/react-form";
 import { Check, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { z } from "zod";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Textarea } from "./ui/textarea";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Textarea } from "../ui/textarea";
 
 interface StatusPageFormProps {
   initialValues?: Partial<StatusPageFormValues>;

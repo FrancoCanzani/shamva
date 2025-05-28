@@ -1,3 +1,4 @@
+import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
 import { useAuth } from "@/frontend/lib/context/auth-context";
 import { ApiResponse, Monitor } from "@/frontend/lib/types";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id/edit";
@@ -14,6 +15,7 @@ export default function EditMonitorPage() {
   const monitor = Route.useLoaderData();
 
   const { session } = useAuth();
+  const { currentWorkspace } = useWorkspaces(workspaceName);
 
   const handleSubmit = async (formData: MonitorFormValues) => {
     setIsSubmitting(true);
@@ -55,7 +57,7 @@ export default function EditMonitorPage() {
         regions: formData.regions,
         headers: parsedHeaders,
         body: parsedBody,
-        workspaceName: workspaceName,
+        workspaceId: currentWorkspace && currentWorkspace.id,
       };
 
       const response = await fetch(`/api/monitors/${id}`, {
@@ -77,6 +79,10 @@ export default function EditMonitorPage() {
       }
 
       toast.success("Monitor updated successfully");
+      navigate({
+        to: "/dashboard/$workspaceName/monitors",
+        params: { workspaceName: workspaceName },
+      });
     } catch (error) {
       console.error("Error updating monitor:", error);
       toast.error(

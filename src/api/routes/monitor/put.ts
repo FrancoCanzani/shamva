@@ -26,6 +26,7 @@ export default async function putMonitor(c: Context) {
   }
 
   const result = MonitorsParamsSchema.safeParse(rawBody);
+  console.log(result);
 
   if (!result.success) {
     console.error("Validation Error Details:", result.error.flatten());

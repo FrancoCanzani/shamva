@@ -14,7 +14,7 @@ const MAX_CONSECUTIVE_FAILURES = 5;
 const FETCH_TIMEOUT_MS = 30 * 1000;
 const MAX_DB_RETRIES = 3;
 const DB_RETRY_DELAY_BASE_MS = 1000;
-const USER_AGENT = "Blinks-Checker/1.0";
+const USER_AGENT = "Shamva-Checker/1.0";
 const FIRST_CHECK_DELAY_MS = 5000;
 
 export class CheckerDurableObject extends DurableObject {
@@ -64,6 +64,7 @@ export class CheckerDurableObject extends DurableObject {
     }
 
     const existingConfig = await this.loadConfig();
+
     if (existingConfig) {
       if ((await this.ctx.storage.getAlarm()) === null) {
         const nextAlarmTime = Date.now() + existingConfig.intervalMs;

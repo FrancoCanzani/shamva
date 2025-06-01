@@ -1,6 +1,8 @@
-import { Link, useParams } from "@tanstack/react-router";
+import { Link, redirect, useParams } from "@tanstack/react-router";
 import { useMemo } from "react";
+import { supabase } from "../lib/supabase";
 import { Route } from "../routes/dashboard/route";
+import { Button } from "./ui/button";
 import {
   Sidebar,
   SidebarContent,
@@ -56,10 +58,10 @@ export function AppSidebar() {
                 params={{ workspaceName: currentWorkspace.name }}
                 className="font-mono"
               >
-                <span className="font-semibold font-mono">Blinks</span>
+                <span className="font-semibold font-mono">Shamva</span>
               </Link>
             ) : (
-              <span className="font-semibold font-mono">Blinks</span>
+              <span className="font-semibold font-mono">Shamva</span>
             )}
           </SidebarMenuItem>
         </SidebarMenu>
@@ -95,7 +97,18 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium font-mono">John Doe</span>
+                <Button
+                  variant={"outline"}
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    redirect({
+                      to: "/",
+                      throw: true,
+                    });
+                  }}
+                >
+                  Sign out
+                </Button>
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>

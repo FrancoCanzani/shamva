@@ -8,4 +8,5 @@ export interface EnvBindings {
   NAME: string;
   DATABASE_URL: string;
   CHECKER_DURABLE_OBJECT: DurableObjectNamespace<CheckerDurableObject>;
+  RESEND_API_KEY: string;
 }

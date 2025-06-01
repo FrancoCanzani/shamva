@@ -96,7 +96,7 @@ export default function IndexPage() {
 
           <section className="py-8">
             <h2 className="text-lg uppercase mb-6">
-              Why Developers Choose Blinks
+              Why Developers Choose Shamva
             </h2>
             <div className="space-y-4">
               <div className="border hover:bg-gray-50 transition-colors">
@@ -418,7 +418,7 @@ export default function IndexPage() {
                   asChild
                   className="bg-black text-white rounded-none text-xs uppercase w-full"
                 >
-                  <a href="mailto:enterprise@blinks.dev">
+                  <a href="mailto:enterprise@shamva.dev">
                     Upgrade to Enterprise
                   </a>
                 </Button>
@@ -458,13 +458,13 @@ export default function IndexPage() {
                 <div className="mt-4 pt-4 border-t">
                   <div className="flex gap-4">
                     <a
-                      href="https://github.com/your-org/blinks"
+                      href="https://github.com/your-org/shamva"
                       className="uppercase text-xs font-mono font-medium underline hover:no-underline"
                     >
                       View Source
                     </a>
                     <a
-                      href="https://docs.blinks.dev/self-hosting"
+                      href="https://docs.shamva.dev/self-hosting"
                       className="uppercase text-xs font-mono font-medium underline hover:no-underline"
                     >
                       Self-Host Guide
@@ -536,7 +536,7 @@ export default function IndexPage() {
                 Docs.
               </a>
               <a
-                href="https://github.com/your-org/blinks"
+                href="https://github.com/your-org/shamva"
                 className="uppercase text-xs sm:text-sm font-mono font-medium underline"
               >
                 GitHub.
@@ -547,7 +547,7 @@ export default function IndexPage() {
 
         <footer className="p-4 mt-8">
           <p className="text-xs sm:text-sm font-mono font-medium text-slate-400">
-            © Blinks Monitoring. Open source uptime monitoring. 2024.
+            © Shamva Monitoring. Open source uptime monitoring. 2024.
           </p>
         </footer>
       </div>

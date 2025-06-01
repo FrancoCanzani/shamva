@@ -11,7 +11,7 @@ export default async function postCheck(c: Context) {
     const start = performance.now();
     const response = await fetch(urlToCheck, {
       redirect: "manual",
-      headers: { "User-Agent": "Blinks-Checker/1.0" },
+      headers: { "User-Agent": "Shamva-Checker/1.0" },
     });
     const latency = performance.now() - start;
 

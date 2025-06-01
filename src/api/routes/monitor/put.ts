@@ -26,7 +26,6 @@ export default async function putMonitor(c: Context) {
   }
 
   const result = MonitorsParamsSchema.safeParse(rawBody);
-  console.log(result);
 
   if (!result.success) {
     console.error("Validation Error Details:", result.error.flatten());
@@ -85,13 +84,15 @@ export default async function putMonitor(c: Context) {
   }
 
   try {
+    const finalInterval = interval ?? existingMonitor.interval;
+
     const updateData = {
       name,
       url,
       method,
       headers: headers ?? {},
       body,
-      interval: interval ?? existingMonitor.interval,
+      interval: finalInterval,
       regions,
       updated_at: new Date().toISOString(),
     };
@@ -120,12 +121,10 @@ export default async function putMonitor(c: Context) {
 
     const regionsToAdd = regions.filter((r) => !existingRegions.has(r));
 
-    // Find regions to remove (present in existing but not in new)
     const regionsToRemove = existingMonitor.regions.filter(
       (r: string) => !newRegions.has(r),
     );
 
-    // Handle removing regions
     if (regionsToRemove.length > 0) {
       for (const region of regionsToRemove) {
         await supabase
@@ -133,9 +132,6 @@ export default async function putMonitor(c: Context) {
           .update({ status: "inactive" })
           .eq("monitor_id", monitorId)
           .eq("region", region);
-
-        // Note: not deleting the DO itself, just marking it as inactive
-        // Actual cleanup can be handled by a background job
       }
     }
 
@@ -146,7 +142,6 @@ export default async function putMonitor(c: Context) {
         const doIdString = doId.toString();
 
         try {
-          // Check if a checker record already exists but is marked inactive
           const { data: existingChecker } = await supabase
             .from("monitor_checkers")
             .select("*")
@@ -155,13 +150,11 @@ export default async function putMonitor(c: Context) {
             .single();
 
           if (existingChecker) {
-            // Reactivate existing checker
             await supabase
               .from("monitor_checkers")
               .update({ status: "active", error_message: null })
               .eq("id", existingChecker.id);
           } else {
-            // Create new checker record
             await supabase.from("monitor_checkers").insert({
               monitor_id: monitorId,
               region: region,
@@ -178,7 +171,7 @@ export default async function putMonitor(c: Context) {
             urlToCheck: url,
             monitorId: monitorId,
             userId: userId,
-            intervalMs: interval ?? existingMonitor.interval,
+            intervalMs: finalInterval,
             method: method,
             region: region,
             headers: headers || undefined,
@@ -219,17 +212,16 @@ export default async function putMonitor(c: Context) {
       }
     }
 
-    // If we're keeping the same regions but changing other properties,
-    // we need to update the existing DOs
     const regionsToUpdate = regions.filter((r) => existingRegions.has(r));
 
     if (
       regionsToUpdate.length > 0 &&
       (url !== existingMonitor.url ||
         method !== existingMonitor.method ||
-        (interval && interval !== existingMonitor.interval))
+        JSON.stringify(headers) !== JSON.stringify(existingMonitor.headers) ||
+        JSON.stringify(body) !== JSON.stringify(existingMonitor.body) ||
+        finalInterval !== existingMonitor.interval)
     ) {
-      // we'll just recreate the DOs with the new configuration
       for (const region of regionsToUpdate) {
         const doName = `${monitorId}-${region}`;
         const doId = c.env.CHECKER_DURABLE_OBJECT.idFromName(doName);
@@ -243,7 +235,7 @@ export default async function putMonitor(c: Context) {
             urlToCheck: url,
             monitorId: monitorId,
             userId: userId,
-            intervalMs: interval ?? existingMonitor.interval,
+            intervalMs: finalInterval,
             method: method,
             region: region,
             headers: headers || undefined,

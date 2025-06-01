@@ -267,13 +267,15 @@ export class CheckerDurableObject extends DurableObject {
 
   private async scheduleNextAlarm(intervalMs: number): Promise<void> {
     try {
+      console.log("Schedule next alarm");
       await this.ctx.storage.setAlarm(Date.now() + intervalMs);
     } catch (alarmError) {
       console.error(
         `DO ${this.doId}: Failed primary alarm schedule for ${this.doId}:`,
         alarmError,
       );
-      await this.ctx.storage.setAlarm(Date.now() + DEFAULT_CHECK_INTERVAL_MS);
+      const fallbackInterval = Math.max(intervalMs, DEFAULT_CHECK_INTERVAL_MS);
+      await this.ctx.storage.setAlarm(Date.now() + fallbackInterval);
       await this.reportCriticalError(
         this.doId,
         `Failed schedule, using fallback. Err: ${alarmError instanceof Error ? alarmError.message : String(alarmError)}`,
@@ -354,6 +356,9 @@ export class CheckerDurableObject extends DurableObject {
 
   async alarm(): Promise<void> {
     const config = await this.loadConfig();
+
+    console.log(config);
+
     if (!config) {
       await this.handleFatalError(null, "Missing critical config");
       return;
@@ -365,6 +370,7 @@ export class CheckerDurableObject extends DurableObject {
       config.headers,
       config.body,
     );
+
     const monitorStatusUpdate = await this.processCheckResult(result);
     await this.logCheckResult(config, result);
 

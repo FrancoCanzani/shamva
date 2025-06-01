@@ -65,14 +65,6 @@ export class CheckerDurableObject extends DurableObject {
 
     const existingConfig = await this.loadConfig();
 
-    if (existingConfig) {
-      if ((await this.ctx.storage.getAlarm()) === null) {
-        const nextAlarmTime = Date.now() + existingConfig.intervalMs;
-        await this.ctx.storage.setAlarm(nextAlarmTime);
-      }
-      return;
-    }
-
     const newConfig: MonitorConfig = {
       urlToCheck,
       monitorId,
@@ -80,13 +72,16 @@ export class CheckerDurableObject extends DurableObject {
       method,
       intervalMs,
       region: region ?? null,
-      createdAt: Date.now(),
-      consecutiveFailures: 0,
+      createdAt: existingConfig?.createdAt ?? Date.now(),
+      consecutiveFailures: existingConfig?.consecutiveFailures ?? 0,
       headers: headers || undefined,
       body: body || undefined,
+      lastStatusCode: existingConfig?.lastStatusCode,
     };
 
     await this.ctx.storage.put("config", newConfig);
+
+    await this.ctx.storage.deleteAlarm();
     await this.ctx.storage.setAlarm(Date.now() + FIRST_CHECK_DELAY_MS);
   }
 

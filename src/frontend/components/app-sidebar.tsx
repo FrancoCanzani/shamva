@@ -56,12 +56,12 @@ export function AppSidebar() {
               <Link
                 to="/dashboard/$workspaceName/monitors"
                 params={{ workspaceName: currentWorkspace.name }}
-                className="font-mono"
+                className="font-mono font-semibold text-2xl"
               >
-                <span className="font-semibold font-mono">Shamva</span>
+                Shamva
               </Link>
             ) : (
-              <span className="font-semibold font-mono">Shamva</span>
+              <span className="font-semibold text-2xl font-mono">Shamva</span>
             )}
           </SidebarMenuItem>
         </SidebarMenu>

@@ -48,14 +48,12 @@ export default async function postMonitor(c: Context) {
     return c.json({ success: false, error: "User not authenticated." }, 401);
   }
 
-  // Verify the user has permission for this workspace
   if (!workspaceId) {
     return c.json({ success: false, error: "Workspace ID is required." }, 400);
   }
 
   const supabase = createSupabaseClient(c.env);
 
-  // Check if user has permission to create in this workspace
   const { data: membership, error: membershipError } = await supabase
     .from("workspace_members")
     .select("role")

@@ -127,15 +127,74 @@ export default async function putMonitor(c: Context) {
 
     if (regionsToRemove.length > 0) {
       for (const region of regionsToRemove) {
-        await supabase
-          .from("monitor_checkers")
-          .update({ status: "inactive" })
-          .eq("monitor_id", monitorId)
-          .eq("region", region);
+        const doName = `${monitorId}-${region}`;
+        const doId = c.env.CHECKER_DURABLE_OBJECT.idFromName(doName);
+
+        try {
+          const doStub = c.env.CHECKER_DURABLE_OBJECT.get(doId, {
+            locationHint: region,
+          });
+
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+          const response = await doStub.fetch("http://do.com/cleanup", {
+            method: "DELETE",
+            signal: controller.signal,
+          });
+
+          clearTimeout(timeoutId);
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.warn(
+              `DO cleanup failed for region ${region} (Monitor: ${monitorId}, Status: ${response.status}): ${errorText}`,
+            );
+          } else {
+            console.log(
+              `Successfully cleaned up DO for region ${region} (Monitor: ${monitorId})`,
+            );
+          }
+        } catch (error: unknown) {
+          const errorMessage =
+            error instanceof Error ? error.message : String(error);
+          console.error(
+            `Error cleaning up DO for region ${region} (Monitor: ${monitorId}):`,
+            errorMessage,
+          );
+        }
+
+        try {
+          const { error: updateCheckerError } = await supabase
+            .from("monitor_checkers")
+            .update({
+              status: "inactive",
+              error_message: "Region removed from monitor",
+              updated_at: new Date().toISOString(),
+            })
+            .eq("monitor_id", monitorId)
+            .eq("region", region);
+
+          if (updateCheckerError) {
+            console.error(
+              `Error updating monitor_checker status for region ${region} (Monitor: ${monitorId}):`,
+              updateCheckerError,
+            );
+          }
+        } catch (dbError) {
+          console.error(
+            `Database error updating checker for region ${region} (Monitor: ${monitorId}):`,
+            dbError,
+          );
+        }
       }
     }
 
     if (regionsToAdd.length > 0) {
+      console.log(
+        `Adding regions [${regionsToAdd.join(", ")}] to monitor ${monitorId}`,
+      );
+
       for (const region of regionsToAdd) {
         const doName = `${monitorId}-${region}`;
         const doId = c.env.CHECKER_DURABLE_OBJECT.idFromName(doName);
@@ -152,7 +211,11 @@ export default async function putMonitor(c: Context) {
           if (existingChecker) {
             await supabase
               .from("monitor_checkers")
-              .update({ status: "active", error_message: null })
+              .update({
+                status: "active",
+                error_message: null,
+                updated_at: new Date().toISOString(),
+              })
               .eq("id", existingChecker.id);
           } else {
             await supabase.from("monitor_checkers").insert({
@@ -160,6 +223,8 @@ export default async function putMonitor(c: Context) {
               region: region,
               do_id: doIdString,
               status: "active",
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
             });
           }
 
@@ -196,6 +261,10 @@ export default async function putMonitor(c: Context) {
               `DO init failed (Region: ${region}, Status: ${response.status}): ${errorText}`,
             );
           }
+
+          console.log(
+            `Successfully initialized DO for region ${region} (Monitor: ${monitorId})`,
+          );
         } catch (error: unknown) {
           const errorMessage =
             error instanceof Error ? error.message : String(error);
@@ -206,7 +275,11 @@ export default async function putMonitor(c: Context) {
 
           await supabase
             .from("monitor_checkers")
-            .update({ status: "error", error_message: errorMessage })
+            .update({
+              status: "error",
+              error_message: errorMessage,
+              updated_at: new Date().toISOString(),
+            })
             .eq("do_id", doIdString);
         }
       }
@@ -222,6 +295,10 @@ export default async function putMonitor(c: Context) {
         JSON.stringify(body) !== JSON.stringify(existingMonitor.body) ||
         finalInterval !== existingMonitor.interval)
     ) {
+      console.log(
+        `Updating configuration for regions [${regionsToUpdate.join(", ")}] in monitor ${monitorId}`,
+      );
+
       for (const region of regionsToUpdate) {
         const doName = `${monitorId}-${region}`;
         const doId = c.env.CHECKER_DURABLE_OBJECT.idFromName(doName);
@@ -260,6 +337,10 @@ export default async function putMonitor(c: Context) {
               `DO update failed (Region: ${region}, Status: ${response.status}): ${errorText}`,
             );
           }
+
+          console.log(
+            `Successfully updated DO configuration for region ${region} (Monitor: ${monitorId})`,
+          );
         } catch (error: unknown) {
           const errorMessage =
             error instanceof Error ? error.message : String(error);
@@ -267,6 +348,16 @@ export default async function putMonitor(c: Context) {
             `Error updating checker for region ${region} (Monitor: ${monitorId}):`,
             errorMessage,
           );
+
+          await supabase
+            .from("monitor_checkers")
+            .update({
+              status: "error",
+              error_message: `Config update failed: ${errorMessage}`,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("monitor_id", monitorId)
+            .eq("region", region);
         }
       }
     }

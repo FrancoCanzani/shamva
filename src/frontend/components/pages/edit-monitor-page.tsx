@@ -2,13 +2,15 @@ import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
 import { useAuth } from "@/frontend/lib/context/auth-context";
 import { ApiResponse, Monitor } from "@/frontend/lib/types";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id/edit";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import MonitorForm, { MonitorFormValues } from "../monitor/monitor-form";
 
 export default function EditMonitorPage() {
   const navigate = useNavigate();
+  const router = useRouter();
+
   const { id, workspaceName } = Route.useParams();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -79,6 +81,7 @@ export default function EditMonitorPage() {
       }
 
       toast.success("Monitor updated successfully");
+      router.invalidate();
       navigate({
         to: "/dashboard/$workspaceName/monitors",
         params: { workspaceName: workspaceName },

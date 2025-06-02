@@ -10,10 +10,8 @@ import {
 import handleBodyParsing from "../lib/utils";
 
 const DEFAULT_CHECK_INTERVAL_MS = 60 * 1000;
-const MAX_CONSECUTIVE_FAILURES = 5;
+const MAX_CONSECUTIVE_FAILURES = 3;
 const FETCH_TIMEOUT_MS = 30 * 1000;
-const MAX_DB_RETRIES = 3;
-const DB_RETRY_DELAY_BASE_MS = 1000;
 const USER_AGENT = "Shamva-Checker/1.0";
 const FIRST_CHECK_DELAY_MS = 5000;
 
@@ -46,43 +44,46 @@ export class CheckerDurableObject extends DurableObject {
   }
 
   private async initialize(params: InitializeCheckerDOPayload): Promise<void> {
-    const {
-      urlToCheck,
-      monitorId,
-      userId,
-      intervalMs = DEFAULT_CHECK_INTERVAL_MS,
-      method = "GET",
-      region,
-      headers,
-      body,
-    } = params;
+    // Prevents race conditions if multiple initialization requests somehow arrive simultaneously
+    await this.ctx.blockConcurrencyWhile(async () => {
+      const {
+        urlToCheck,
+        monitorId,
+        userId,
+        intervalMs = DEFAULT_CHECK_INTERVAL_MS,
+        method = "GET",
+        region,
+        headers,
+        body,
+      } = params;
 
-    if (!urlToCheck || !monitorId || !userId) {
-      throw new Error(
-        "Invalid parameters: urlToCheck, monitorId, userId required",
-      );
-    }
+      if (!urlToCheck || !monitorId || !userId) {
+        throw new Error(
+          "Invalid parameters: urlToCheck, monitorId, userId required",
+        );
+      }
 
-    const existingConfig = await this.loadConfig();
+      const existingConfig = await this.loadConfig();
 
-    const newConfig: MonitorConfig = {
-      urlToCheck,
-      monitorId,
-      userId,
-      method,
-      intervalMs,
-      region: region ?? null,
-      createdAt: existingConfig?.createdAt ?? Date.now(),
-      consecutiveFailures: existingConfig?.consecutiveFailures ?? 0,
-      headers: headers || undefined,
-      body: body || undefined,
-      lastStatusCode: existingConfig?.lastStatusCode,
-    };
+      const newConfig: MonitorConfig = {
+        urlToCheck,
+        monitorId,
+        userId,
+        method,
+        intervalMs,
+        region: region ?? null,
+        createdAt: existingConfig?.createdAt ?? Date.now(),
+        consecutiveFailures: existingConfig?.consecutiveFailures ?? 0,
+        headers: headers || undefined,
+        body: body || undefined,
+        lastStatusCode: existingConfig?.lastStatusCode,
+      };
 
-    await this.ctx.storage.put("config", newConfig);
+      await this.ctx.storage.put("config", newConfig);
 
-    await this.ctx.storage.deleteAlarm();
-    await this.ctx.storage.setAlarm(Date.now() + FIRST_CHECK_DELAY_MS);
+      await this.ctx.storage.deleteAlarm();
+      await this.ctx.storage.setAlarm(Date.now() + FIRST_CHECK_DELAY_MS);
+    });
   }
 
   private async performCheck(
@@ -224,26 +225,17 @@ export class CheckerDurableObject extends DurableObject {
       region: config.region,
     };
 
-    let attempt = 0;
-    while (attempt < MAX_DB_RETRIES) {
-      attempt++;
-      try {
-        const { error } = await createSupabaseClient(this.env)
-          .from("logs")
-          .insert(logData);
-        if (error) throw error;
-        return;
-      } catch (dbError: unknown) {
-        if (attempt >= MAX_DB_RETRIES) {
-          console.error(
-            `DO ${this.doId}: Failed DB log insert after ${attempt} attempts: ${(dbError as PostgrestError)?.message ?? String(dbError)}`,
-          );
-        } else {
-          await new Promise((r) =>
-            setTimeout(r, DB_RETRY_DELAY_BASE_MS * 2 ** (attempt - 1)),
-          );
-        }
-      }
+    try {
+      const { error } = await createSupabaseClient(this.env)
+        .from("logs")
+        .insert(logData);
+
+      if (error) throw error;
+      return;
+    } catch (dbError: unknown) {
+      console.error(
+        `DO ${this.doId}: Failed DB log insert: ${(dbError as PostgrestError)?.message ?? String(dbError)}`,
+      );
     }
   }
 

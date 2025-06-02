@@ -74,6 +74,7 @@ export default function MonitorPage() {
       });
 
       if (response.ok) {
+        router.invalidate();
         toast.success("Monitor deleted");
         navigate({
           to: "/dashboard/$workspaceName/monitors",

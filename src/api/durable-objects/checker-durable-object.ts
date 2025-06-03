@@ -44,7 +44,6 @@ export class CheckerDurableObject extends DurableObject {
   }
 
   private async initialize(params: InitializeCheckerDOPayload): Promise<void> {
-    // Prevents race conditions if multiple initialization requests somehow arrive simultaneously
     await this.ctx.blockConcurrencyWhile(async () => {
       const {
         urlToCheck,
@@ -155,6 +154,31 @@ export class CheckerDurableObject extends DurableObject {
     return result;
   }
 
+  private async checkMonitorExists(
+    monitorId: string,
+  ): Promise<{ exists: boolean; status?: string }> {
+    try {
+      const { data: monitor, error } = await createSupabaseClient(this.env)
+        .from("monitors")
+        .select("id, status")
+        .eq("id", monitorId)
+        .single();
+
+      if (error) {
+        if (error.code === "PGRST116") {
+          return { exists: false };
+        }
+        throw error;
+      }
+
+      return { exists: true, status: monitor.status };
+    } catch (error) {
+      console.error(`DO ${this.doId}: DB validation attempt failed:`, error);
+    }
+
+    throw new Error("Max retry attempts exceeded");
+  }
+
   private async processCheckResult(
     result: CheckResult,
   ): Promise<Record<string, string | number | null> | null> {
@@ -168,6 +192,7 @@ export class CheckerDurableObject extends DurableObject {
       result.ok === true &&
       result.statusCode !== null &&
       result.statusCode < 400;
+
     const monitorStatusUpdate: Record<string, string | number | null> = {
       last_check_at: new Date(now).toISOString(),
     };
@@ -231,7 +256,6 @@ export class CheckerDurableObject extends DurableObject {
         .insert(logData);
 
       if (error) throw error;
-      return;
     } catch (dbError: unknown) {
       console.error(
         `DO ${this.doId}: Failed DB log insert: ${(dbError as PostgrestError)?.message ?? String(dbError)}`,
@@ -242,36 +266,48 @@ export class CheckerDurableObject extends DurableObject {
   private async updateMonitorStatus(
     monitorId: string,
     updateData: Record<string, string | number | null>,
-  ): Promise<void> {
+  ): Promise<boolean> {
     try {
       const { error } = await createSupabaseClient(this.env)
         .from("monitors")
-        .update(updateData)
+        .update({
+          ...updateData,
+          updated_at: new Date().toISOString(),
+        })
         .eq("id", monitorId);
 
       if (error) throw error;
+      return true;
     } catch (error: unknown) {
       console.error(
         `DO ${this.doId}: Failed monitor update ${monitorId}: ${(error as PostgrestError)?.message ?? String(error)}`,
       );
+      return false;
     }
   }
 
   private async scheduleNextAlarm(intervalMs: number): Promise<void> {
     try {
-      console.log("Schedule next alarm");
       await this.ctx.storage.setAlarm(Date.now() + intervalMs);
     } catch (alarmError) {
       console.error(
-        `DO ${this.doId}: Failed primary alarm schedule for ${this.doId}:`,
+        `DO ${this.doId}: Failed primary alarm schedule:`,
         alarmError,
       );
+
       const fallbackInterval = Math.max(intervalMs, DEFAULT_CHECK_INTERVAL_MS);
-      await this.ctx.storage.setAlarm(Date.now() + fallbackInterval);
-      await this.reportCriticalError(
-        this.doId,
-        `Failed schedule, using fallback. Err: ${alarmError instanceof Error ? alarmError.message : String(alarmError)}`,
-      );
+      try {
+        await this.ctx.storage.setAlarm(Date.now() + fallbackInterval);
+      } catch (fallbackError) {
+        console.error(
+          `DO ${this.doId}: Failed fallback alarm schedule:`,
+          fallbackError,
+        );
+        await this.handleFatalError(
+          null,
+          `Failed to schedule alarm: ${fallbackError instanceof Error ? fallbackError.message : String(fallbackError)}`,
+        );
+      }
     }
   }
 
@@ -285,6 +321,7 @@ export class CheckerDurableObject extends DurableObject {
         .update({
           status: "error",
           error_message: `Critical DO Error: ${errorMessage}`,
+          updated_at: new Date().toISOString(),
         })
         .eq("id", monitorId);
     } catch (reportError) {
@@ -299,10 +336,10 @@ export class CheckerDurableObject extends DurableObject {
     monitorId: string | null,
     reason: string,
   ): Promise<void> {
-    console.error(`DO ${this.doId}: Fatal error (${reason}). Cleaning up.`);
     if (monitorId) {
       await this.reportCriticalError(monitorId, `Disabled: ${reason}`);
     }
+
     try {
       await this.ctx.storage.deleteAll();
       await this.ctx.storage.deleteAlarm();
@@ -323,7 +360,16 @@ export class CheckerDurableObject extends DurableObject {
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err);
         console.error(`DO ${this.doId}: Init fetch failed: ${message}`, err);
-        return new Response(`Init failed: ${message}`, { status: 400 });
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: message,
+          }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
       }
     }
 
@@ -339,7 +385,16 @@ export class CheckerDurableObject extends DurableObject {
         });
       } catch (err) {
         console.error(`DO ${this.doId}: Cleanup failed:`, err);
-        return new Response(`Cleanup failed: ${err}`, { status: 500 });
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: String(err),
+          }),
+          {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
       }
     }
 
@@ -349,10 +404,33 @@ export class CheckerDurableObject extends DurableObject {
   async alarm(): Promise<void> {
     const config = await this.loadConfig();
 
-    console.log(config);
-
     if (!config) {
       await this.handleFatalError(null, "Missing critical config");
+      return;
+    }
+
+    try {
+      const validation = await this.checkMonitorExists(config.monitorId);
+
+      if (!validation.exists) {
+        console.log(
+          `DO ${this.doId}: Monitor ${config.monitorId} no longer exists in database. Cleaning up.`,
+        );
+        await this.handleFatalError(null, "Monitor deleted from database");
+        return;
+      }
+
+      if (
+        validation.status === "disabled" ||
+        validation.status === "inactive"
+      ) {
+        return;
+      }
+    } catch (dbError) {
+      console.error(
+        `DO ${this.doId}: Failed to validate monitor existence: `,
+        dbError,
+      );
       return;
     }
 
@@ -367,7 +445,15 @@ export class CheckerDurableObject extends DurableObject {
     await this.logCheckResult(config, result);
 
     if (monitorStatusUpdate) {
-      await this.updateMonitorStatus(config.monitorId, monitorStatusUpdate);
+      const updateSuccess = await this.updateMonitorStatus(
+        config.monitorId,
+        monitorStatusUpdate,
+      );
+      if (!updateSuccess) {
+        console.warn(
+          `DO ${this.doId}: Failed to update monitor status, but continuing`,
+        );
+      }
     }
 
     await this.scheduleNextAlarm(config.intervalMs);

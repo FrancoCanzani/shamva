@@ -98,17 +98,7 @@ export default function LatencyChart({
           dot={false}
           activeDot={{ r: 4 }}
         />
-        <ReferenceLine
-          y={avgLatency}
-          stroke="#62748e"
-          strokeDasharray="3 3"
-          label={{
-            value: `Avg: ${avgLatency.toFixed()}ms`,
-            position: "insideBottomRight",
-            fill: "#62748e",
-            fontSize: 12,
-          }}
-        />
+        <ReferenceLine y={avgLatency} stroke="#62748e" strokeDasharray="3 3" />
       </LineChart>
     </ChartContainer>
   );

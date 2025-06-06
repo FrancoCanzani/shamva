@@ -41,7 +41,7 @@ export const getStatusTextColor = (status: number | unknown): string => {
     return "text-gray-700 dark:text-gray-300";
   }
   if (status >= 200 && status < 300) {
-    return "text-green-400 dark:text-green-200";
+    return "text-green-700 dark:text-green-200";
   } else if (status >= 300 && status < 400) {
     return "text-blue-700 dark:text-blue-300";
   } else if (status >= 400 && status < 500) {

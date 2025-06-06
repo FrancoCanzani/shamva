@@ -1,10 +1,15 @@
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/logs/index";
-import { Table } from "@tanstack/react-table";
+import type { Table } from "@tanstack/react-table";
 import { format, parseISO } from "date-fns";
-import { ChevronDown, ChevronUp, X } from "lucide-react";
-import { useMemo } from "react";
-import { Log } from "../lib/types";
-import { cn, getRegionNameFromCode, getStatusTextColor } from "../lib/utils";
+import { Check, ChevronDown, ChevronUp, Copy, X } from "lucide-react";
+import { useMemo, useState } from "react";
+import type { Log } from "../lib/types";
+import {
+  cn,
+  copyToClipboard,
+  getRegionNameFromCode,
+  getStatusTextColor,
+} from "../lib/utils";
 import { Button } from "./ui/button";
 import {
   Sheet,
@@ -18,6 +23,14 @@ import {
 export default function LogsSheet({ table }: { table: Table<Log> }) {
   const navigate = Route.useNavigate();
   const { logId } = Route.useSearch();
+  const [copyStatus, setCopyStatus] = useState<{
+    headers: boolean;
+    body: boolean;
+  }>({
+    headers: false,
+    body: false,
+  });
+  const [isBodyExpanded, setIsBodyExpanded] = useState(false);
 
   const sortedFilteredRows = table.getRowModel().rows;
 
@@ -86,6 +99,53 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
     }
   };
 
+  const handleCopyHeaders = async () => {
+    if (!selectedLog?.headers) return;
+
+    try {
+      const headersText = headersArray
+        .map(({ key, value }) => `${key}: ${value}`)
+        .join("\n");
+
+      await copyToClipboard(headersText);
+      setCopyStatus((prev) => ({ ...prev, headers: true }));
+      setTimeout(
+        () => setCopyStatus((prev) => ({ ...prev, headers: false })),
+        2000,
+      );
+    } catch (error) {
+      console.error("Failed to copy headers:", error);
+    }
+  };
+
+  const handleCopyBody = async () => {
+    if (!selectedLog?.body_content) return;
+
+    try {
+      let bodyText;
+      if (
+        typeof selectedLog.body_content === "object" &&
+        selectedLog.body_content !== null &&
+        "_rawContent" in selectedLog.body_content
+      ) {
+        bodyText = String(selectedLog.body_content._rawContent ?? "");
+      } else if (typeof selectedLog.body_content === "object") {
+        bodyText = JSON.stringify(selectedLog.body_content, null, 2);
+      } else {
+        bodyText = String(selectedLog.body_content ?? "");
+      }
+
+      await copyToClipboard(bodyText);
+      setCopyStatus((prev) => ({ ...prev, body: true }));
+      setTimeout(
+        () => setCopyStatus((prev) => ({ ...prev, body: false })),
+        2000,
+      );
+    } catch (error) {
+      console.error("Failed to copy body:", error);
+    }
+  };
+
   return (
     <Sheet
       open={!!logId && selectedLogIndex !== -1}
@@ -128,8 +188,6 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                   variant="outline"
                   size={"xs"}
                   className="text-xs rounded-xs"
-                  onClick={goToNext}
-                  disabled={!canGoNext}
                   asChild
                 >
                   <SheetClose>
@@ -141,7 +199,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
             <div className="p-4 space-y-4 overflow-y-auto flex-grow">
               <div className="divide-y divide-dashed space-y-1 text-sm">
                 <div className="flex items-center justify-between py-2">
-                  <strong>Timestamp</strong>
+                  <span className="font-medium">Timestamp</span>
                   <time>
                     {format(
                       parseISO(selectedLog.created_at),
@@ -150,11 +208,11 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                   </time>
                 </div>
                 <div className="flex items-center justify-between py-2">
-                  <strong>Method</strong>
+                  <span className="font-medium">Method</span>
                   <span className="font-mono">{selectedLog.method}</span>
                 </div>
                 <div className="flex items-center justify-between py-2">
-                  <strong>Status</strong>
+                  <span className="font-medium">Status</span>
                   <span
                     className={cn(
                       "font-mono font-medium",
@@ -167,7 +225,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                   </span>
                 </div>
                 <div className="flex items-center justify-between py-2">
-                  <strong>Latency</strong>
+                  <span className="font-medium">Latency</span>
                   <span className="font-mono">
                     {selectedLog.latency >= 0
                       ? `${selectedLog.latency.toFixed(0)}ms`
@@ -175,7 +233,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                   </span>
                 </div>
                 <div className="flex items-center justify-between py-2">
-                  <strong>Region</strong>
+                  <span className="font-medium">Region</span>
                   <span className="font-mono">
                     {(selectedLog.region &&
                       getRegionNameFromCode(selectedLog.region)) ||
@@ -187,7 +245,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
               {selectedLog.error && (
                 <div className="text-sm">
                   <p>
-                    <strong>Error:</strong>
+                    <span>Error:</span>
                   </p>{" "}
                   <pre className="text-xs bg-red-50 dark:bg-red-900/30 p-2 mt-2 rounded-sm overflow-auto max-h-48 text-red-700 dark:text-red-300">
                     {selectedLog.error}
@@ -196,17 +254,39 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
               )}
 
               <div>
-                <strong className="text-sm">Headers</strong>
+                <div className="flex items-center justify-between">
+                  <span className="font-medium">Headers</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 px-2 text-xs"
+                    onClick={handleCopyHeaders}
+                    disabled={headersArray.length === 0}
+                  >
+                    {copyStatus.headers ? (
+                      <>
+                        <Check className="h-3 w-3" />
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-3 w-3" />
+                      </>
+                    )}
+                  </Button>
+                </div>
                 {headersArray.length > 0 ? (
-                  <div className="mt-2 overflow-auto">
+                  <div className="mt-2 overflow-auto border rounded">
                     <table className="w-full text-xs">
-                      <tbody className="divide-y divide-dashed">
+                      <tbody className="divide-y">
                         {headersArray.map(({ key, value }, index) => (
-                          <tr key={index} className="odd:bg-slate-50">
-                            <td className="py-1.5 font-mono text-left font-medium">
+                          <tr
+                            key={index}
+                            className="odd:bg-slate-50 dark:odd:bg-slate-900/30"
+                          >
+                            <td className="py-1.5 px-2 font-mono text-left font-medium">
                               {key}
                             </td>
-                            <td className="py-1.5 font-mono text-left break-all whitespace-pre-wrap">
+                            <td className="py-1.5 px-2 font-mono text-left break-all whitespace-pre-wrap">
                               {value}
                             </td>
                           </tr>
@@ -221,37 +301,91 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                 )}
               </div>
               <div>
-                <strong className="text-sm">Body Content</strong>
-                <pre className="text-xs bg-muted p-2 mt-2 rounded-sm overflow-auto max-h-96 font-mono">
-                  {(() => {
-                    try {
-                      if (
-                        selectedLog.body_content &&
-                        typeof selectedLog.body_content === "object" &&
-                        selectedLog.body_content !== null &&
-                        "_rawContent" in selectedLog.body_content
-                      ) {
-                        return String(
-                          selectedLog.body_content._rawContent ?? "",
+                <div className="flex items-center justify-between">
+                  <span className="font-medium">Body Content</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 px-2 text-xs"
+                    onClick={handleCopyBody}
+                    disabled={!selectedLog.body_content}
+                  >
+                    {copyStatus.body ? (
+                      <>
+                        <Check className="h-3 w-3" />
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-3 w-3" />
+                      </>
+                    )}
+                  </Button>
+                </div>
+                <div className="relative">
+                  <pre
+                    className={cn(
+                      "text-xs bg-muted p-2 mt-2 rounded font-mono border whitespace-pre-wrap break-words overflow-hidden",
+                      isBodyExpanded ? "max-h-none" : "max-h-32",
+                    )}
+                  >
+                    {(() => {
+                      try {
+                        if (
+                          selectedLog.body_content &&
+                          typeof selectedLog.body_content === "object" &&
+                          selectedLog.body_content !== null &&
+                          "_rawContent" in selectedLog.body_content
+                        ) {
+                          return (
+                            String(
+                              selectedLog.body_content._rawContent ?? "",
+                            ) || "No content"
+                          );
+                        }
+                        if (
+                          selectedLog.body_content &&
+                          typeof selectedLog.body_content === "object"
+                        ) {
+                          return JSON.stringify(
+                            selectedLog.body_content,
+                            null,
+                            2,
+                          );
+                        }
+                        return (
+                          String(selectedLog.body_content ?? "") || "No content"
                         );
+                      } catch (error) {
+                        console.error("Error rendering body content:", error);
+                        return "Error displaying content";
                       }
-                      if (
-                        selectedLog.body_content &&
-                        typeof selectedLog.body_content === "object"
-                      ) {
-                        return JSON.stringify(
-                          selectedLog.body_content,
-                          null,
-                          2,
-                        );
-                      }
-                      return String(selectedLog.body_content ?? "N/A");
-                    } catch (error) {
-                      console.error("Error rendering body content:", error);
-                      return "Error displaying content";
-                    }
-                  })()}
-                </pre>
+                    })()}
+                  </pre>
+                  {!isBodyExpanded && selectedLog.body_content && (
+                    <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-muted to-transparent flex items-end justify-center pb-1">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="h-6 px-2 text-xs bg-white"
+                        onClick={() => setIsBodyExpanded(true)}
+                      >
+                        View more
+                      </Button>
+                    </div>
+                  )}
+                  {isBodyExpanded && (
+                    <div className="mt-2 flex justify-center">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 px-2 text-xs"
+                        onClick={() => setIsBodyExpanded(false)}
+                      >
+                        View less
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </>

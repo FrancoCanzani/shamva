@@ -1,4 +1,4 @@
-import { AppSidebar } from "@/frontend/components/app-sidebar";
+import { DashboardNavbar } from "@/frontend/components/dashboard-navbar";
 import NotFoundPage from "@/frontend/components/pages/not-found-page";
 import { useAuth } from "@/frontend/lib/context/auth-context";
 import fetchWorkspaces from "@/frontend/lib/loaders/workspaces";
@@ -16,8 +16,8 @@ function DashboardLayout() {
   if (!isLoading && !user) throw redirect({ to: "/auth/login" });
 
   return (
-    <div className="flex h-screen w-full min-w-0 overflow-hidden">
-      <AppSidebar />
+    <div className="flex h-screen w-full min-w-0 flex-col overflow-hidden mx-auto">
+      <DashboardNavbar />
       <main className="flex flex-1 flex-col overflow-auto">
         <Outlet />
       </main>

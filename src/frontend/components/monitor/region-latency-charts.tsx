@@ -41,6 +41,8 @@ export default function RegionLatencyCharts({
               )
             : 0;
 
+        console.log(regionLogs);
+
         return (
           <div key={region}>
             <div className="mb-2 flex items-center justify-between">

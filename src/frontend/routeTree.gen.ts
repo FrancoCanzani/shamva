@@ -17,6 +17,7 @@ import { Route as AuthLoginImport } from './routes/auth/login'
 import { Route as StatusSlugIndexImport } from './routes/status/$slug/index'
 import { Route as DashboardWorkspacesIndexImport } from './routes/dashboard/workspaces/index'
 import { Route as DashboardMonitorsIndexImport } from './routes/dashboard/monitors/index'
+import { Route as DashboardLogsIndexImport } from './routes/dashboard/logs/index'
 import { Route as DashboardWorkspacesNewIndexImport } from './routes/dashboard/workspaces/new/index'
 import { Route as DashboardWorkspacesWorkspaceIdIndexImport } from './routes/dashboard/workspaces/$workspaceId/index'
 import { Route as DashboardMonitorsNewIndexImport } from './routes/dashboard/monitors/new/index'
@@ -66,6 +67,12 @@ const DashboardWorkspacesIndexRoute = DashboardWorkspacesIndexImport.update({
 const DashboardMonitorsIndexRoute = DashboardMonitorsIndexImport.update({
   id: '/monitors/',
   path: '/monitors/',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+
+const DashboardLogsIndexRoute = DashboardLogsIndexImport.update({
+  id: '/logs/',
+  path: '/logs/',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
 
@@ -182,6 +189,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth/login'
       preLoaderRoute: typeof AuthLoginImport
       parentRoute: typeof rootRoute
+    }
+    '/dashboard/logs/': {
+      id: '/dashboard/logs/'
+      path: '/logs'
+      fullPath: '/dashboard/logs'
+      preLoaderRoute: typeof DashboardLogsIndexImport
+      parentRoute: typeof DashboardRouteImport
     }
     '/dashboard/monitors/': {
       id: '/dashboard/monitors/'
@@ -301,6 +315,7 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 interface DashboardRouteRouteChildren {
+  DashboardLogsIndexRoute: typeof DashboardLogsIndexRoute
   DashboardMonitorsIndexRoute: typeof DashboardMonitorsIndexRoute
   DashboardWorkspacesIndexRoute: typeof DashboardWorkspacesIndexRoute
   DashboardWorkspaceNameLogsIndexRoute: typeof DashboardWorkspaceNameLogsIndexRoute
@@ -319,6 +334,7 @@ interface DashboardRouteRouteChildren {
 }
 
 const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
+  DashboardLogsIndexRoute: DashboardLogsIndexRoute,
   DashboardMonitorsIndexRoute: DashboardMonitorsIndexRoute,
   DashboardWorkspacesIndexRoute: DashboardWorkspacesIndexRoute,
   DashboardWorkspaceNameLogsIndexRoute: DashboardWorkspaceNameLogsIndexRoute,
@@ -352,6 +368,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/auth/login': typeof AuthLoginRoute
+  '/dashboard/logs': typeof DashboardLogsIndexRoute
   '/dashboard/monitors': typeof DashboardMonitorsIndexRoute
   '/dashboard/workspaces': typeof DashboardWorkspacesIndexRoute
   '/status/$slug': typeof StatusSlugIndexRoute
@@ -374,6 +391,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/auth/login': typeof AuthLoginRoute
+  '/dashboard/logs': typeof DashboardLogsIndexRoute
   '/dashboard/monitors': typeof DashboardMonitorsIndexRoute
   '/dashboard/workspaces': typeof DashboardWorkspacesIndexRoute
   '/status/$slug': typeof StatusSlugIndexRoute
@@ -397,6 +415,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/auth/login': typeof AuthLoginRoute
+  '/dashboard/logs/': typeof DashboardLogsIndexRoute
   '/dashboard/monitors/': typeof DashboardMonitorsIndexRoute
   '/dashboard/workspaces/': typeof DashboardWorkspacesIndexRoute
   '/status/$slug/': typeof StatusSlugIndexRoute
@@ -421,6 +440,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/auth/login'
+    | '/dashboard/logs'
     | '/dashboard/monitors'
     | '/dashboard/workspaces'
     | '/status/$slug'
@@ -442,6 +462,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/auth/login'
+    | '/dashboard/logs'
     | '/dashboard/monitors'
     | '/dashboard/workspaces'
     | '/status/$slug'
@@ -463,6 +484,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/auth/login'
+    | '/dashboard/logs/'
     | '/dashboard/monitors/'
     | '/dashboard/workspaces/'
     | '/status/$slug/'
@@ -518,6 +540,7 @@ export const routeTree = rootRoute
     "/dashboard": {
       "filePath": "dashboard/route.tsx",
       "children": [
+        "/dashboard/logs/",
         "/dashboard/monitors/",
         "/dashboard/workspaces/",
         "/dashboard/$workspaceName/logs/",
@@ -537,6 +560,10 @@ export const routeTree = rootRoute
     },
     "/auth/login": {
       "filePath": "auth/login.tsx"
+    },
+    "/dashboard/logs/": {
+      "filePath": "dashboard/logs/index.tsx",
+      "parent": "/dashboard"
     },
     "/dashboard/monitors/": {
       "filePath": "dashboard/monitors/index.tsx",

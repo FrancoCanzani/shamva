@@ -235,7 +235,16 @@ export default function MonitorPage() {
 
         <Separator />
         <div>
-          <h2 className="text-sm font-medium mb-4">Recent checks</h2>
+          <div className="w-full mb-4 flex items-center justify-between">
+            <h2 className="text-sm font-medium">Recent checks</h2>
+            <Link
+              to="/dashboard/$workspaceName/logs"
+              params={{ workspaceName: workspaceName }}
+              className="text-sm hover:underline"
+            >
+              View all logs
+            </Link>
+          </div>
           <RecentChecks logs={monitor.recent_logs} />
         </div>
       </div>

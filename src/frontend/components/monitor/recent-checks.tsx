@@ -4,8 +4,6 @@ import {
   getRegionNameFromCode,
   getStatusColor,
 } from "@/frontend/lib/utils";
-import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id";
-import { Link } from "@tanstack/react-router";
 import { format, parseISO } from "date-fns";
 import {
   Table,
@@ -25,8 +23,6 @@ export default function RecentChecks({
   logs,
   maxItems = 10,
 }: RecentChecksProps) {
-  const { workspaceName } = Route.useParams();
-
   const sortedLogs = [...logs].sort((a, b) => {
     if (!a.created_at) return 1;
     if (!b.created_at) return -1;
@@ -98,18 +94,6 @@ export default function RecentChecks({
           </TableBody>
         </Table>
       </div>
-
-      {sortedLogs.length > maxItems && (
-        <div className="w-full flex items-center justify-center py-6">
-          <Link
-            to="/dashboard/$workspaceName/logs"
-            params={{ workspaceName: workspaceName }}
-            className="text-sm text-muted-foreground hover:text-black hover:underline"
-          >
-            View all logs
-          </Link>
-        </div>
-      )}
     </div>
   );
 }

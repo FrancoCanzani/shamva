@@ -3,7 +3,7 @@ import type { Table } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { CalendarIcon, ChevronDown, ChevronRight, X } from "lucide-react";
 import * as React from "react";
-import { useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { getRegionNameFromCode } from "../lib/utils";
 import { Button } from "./ui/button";
 import { Calendar } from "./ui/calendar";
@@ -49,22 +49,22 @@ export function LogsDataTableFiltersSidebar({
   const [regionOpen, setRegionOpen] = React.useState(true);
   const [latencyOpen, setLatencyOpen] = React.useState(true);
 
-  const uniqueStatusCodes = React.useMemo(() => {
+  const uniqueStatusCodes = useMemo(() => {
     const codes = new Set(data.map((log) => log.status_code));
     return Array.from(codes).sort((a, b) => a - b);
   }, [data]);
 
-  const uniqueMethods = React.useMemo(() => {
+  const uniqueMethods = useMemo(() => {
     const methods = new Set(data.map((log) => log.method));
     return Array.from(methods).sort();
   }, [data]);
 
-  const uniqueRegions = React.useMemo(() => {
+  const uniqueRegions = useMemo(() => {
     const regions = new Set(data.map((log) => log.region).filter(Boolean));
     return Array.from(regions).sort();
   }, [data]);
 
-  const statusCodeCounts = React.useMemo(() => {
+  const statusCodeCounts = useMemo(() => {
     const counts: Record<number, number> = {};
     data.forEach((log) => {
       counts[log.status_code] = (counts[log.status_code] || 0) + 1;
@@ -72,7 +72,7 @@ export function LogsDataTableFiltersSidebar({
     return counts;
   }, [data]);
 
-  const methodCounts = React.useMemo(() => {
+  const methodCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     data.forEach((log) => {
       counts[log.method] = (counts[log.method] || 0) + 1;
@@ -80,7 +80,7 @@ export function LogsDataTableFiltersSidebar({
     return counts;
   }, [data]);
 
-  const regionCounts = React.useMemo(() => {
+  const regionCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     data.forEach((log) => {
       if (log.region) {
@@ -92,54 +92,91 @@ export function LogsDataTableFiltersSidebar({
 
   const urlFilter = table.getColumn("url")?.getFilterValue() as string;
 
-  useEffect(() => {
+  const applyDateFilter = useCallback(() => {
+    const column = table.getColumn("created_at");
+    if (!column) return;
+
     if (dateFrom || dateTo) {
-      table.getColumn("created_at")?.setFilterValue([dateFrom, dateTo]);
+      column.setFilterValue({
+        from: dateFrom,
+        to: dateTo,
+      });
     } else {
-      table.getColumn("created_at")?.setFilterValue(undefined);
+      column.setFilterValue(undefined);
     }
   }, [dateFrom, dateTo, table]);
 
-  React.useEffect(() => {
-    const min = minLatency ? Number.parseInt(minLatency) : undefined;
-    const max = maxLatency ? Number.parseInt(maxLatency) : undefined;
+  useEffect(() => {
+    applyDateFilter();
+  }, [applyDateFilter]);
+
+  const applyLatencyFilter = useCallback(() => {
+    const column = table.getColumn("latency");
+    if (!column) return;
+
+    const min = minLatency ? Number.parseInt(minLatency, 10) : undefined;
+    const max = maxLatency ? Number.parseInt(maxLatency, 10) : undefined;
 
     if (min !== undefined || max !== undefined) {
-      table
-        .getColumn("latency")
-        ?.setFilterValue([min || 0, max || Number.POSITIVE_INFINITY]);
+      column.setFilterValue({
+        min: min ?? 0,
+        max: max ?? Number.POSITIVE_INFINITY,
+      });
     } else {
-      table.getColumn("latency")?.setFilterValue(undefined);
+      column.setFilterValue(undefined);
     }
   }, [minLatency, maxLatency, table]);
 
   useEffect(() => {
+    applyLatencyFilter();
+  }, [applyLatencyFilter]);
+
+  const applyStatusCodeFilter = useCallback(() => {
+    const column = table.getColumn("status_code");
+    if (!column) return;
+
     if (selectedStatusCodes.size > 0) {
-      table
-        .getColumn("status_code")
-        ?.setFilterValue(Array.from(selectedStatusCodes));
+      column.setFilterValue(Array.from(selectedStatusCodes));
     } else {
-      table.getColumn("status_code")?.setFilterValue(undefined);
+      column.setFilterValue(undefined);
     }
   }, [selectedStatusCodes, table]);
 
   useEffect(() => {
+    applyStatusCodeFilter();
+  }, [applyStatusCodeFilter]);
+
+  const applyMethodFilter = useCallback(() => {
+    const column = table.getColumn("method");
+    if (!column) return;
+
     if (selectedMethods.size > 0) {
-      table.getColumn("method")?.setFilterValue(Array.from(selectedMethods));
+      column.setFilterValue(Array.from(selectedMethods));
     } else {
-      table.getColumn("method")?.setFilterValue(undefined);
+      column.setFilterValue(undefined);
     }
   }, [selectedMethods, table]);
 
   useEffect(() => {
+    applyMethodFilter();
+  }, [applyMethodFilter]);
+
+  const applyRegionFilter = useCallback(() => {
+    const column = table.getColumn("region");
+    if (!column) return;
+
     if (selectedRegions.size > 0) {
-      table.getColumn("region")?.setFilterValue(Array.from(selectedRegions));
+      column.setFilterValue(Array.from(selectedRegions));
     } else {
-      table.getColumn("region")?.setFilterValue(undefined);
+      column.setFilterValue(undefined);
     }
   }, [selectedRegions, table]);
 
-  const clearFilters = () => {
+  useEffect(() => {
+    applyRegionFilter();
+  }, [applyRegionFilter]);
+
+  const clearFilters = useCallback(() => {
     table.resetColumnFilters();
     setDateFrom(undefined);
     setDateTo(undefined);
@@ -148,44 +185,63 @@ export function LogsDataTableFiltersSidebar({
     setSelectedStatusCodes(new Set());
     setSelectedMethods(new Set());
     setSelectedRegions(new Set());
-  };
+  }, [table]);
 
   const hasActiveFilters = table.getState().columnFilters.length > 0;
 
-  const formatCount = (count: number) => {
+  const formatCount = useCallback((count: number) => {
     if (count >= 1000) return `${(count / 1000).toFixed(1)}k`;
     return count.toString();
-  };
+  }, []);
 
-  const handleStatusCodeChange = (statusCode: number, checked: boolean) => {
-    const newSelected = new Set(selectedStatusCodes);
-    if (checked) {
-      newSelected.add(statusCode);
-    } else {
-      newSelected.delete(statusCode);
-    }
-    setSelectedStatusCodes(newSelected);
-  };
+  const handleStatusCodeChange = useCallback(
+    (statusCode: number, checked: boolean) => {
+      setSelectedStatusCodes((prev) => {
+        const newSelected = new Set(prev);
+        if (checked) {
+          newSelected.add(statusCode);
+        } else {
+          newSelected.delete(statusCode);
+        }
+        return newSelected;
+      });
+    },
+    [],
+  );
 
-  const handleMethodChange = (method: string, checked: boolean) => {
-    const newSelected = new Set(selectedMethods);
-    if (checked) {
-      newSelected.add(method);
-    } else {
-      newSelected.delete(method);
-    }
-    setSelectedMethods(newSelected);
-  };
+  const handleMethodChange = useCallback((method: string, checked: boolean) => {
+    setSelectedMethods((prev) => {
+      const newSelected = new Set(prev);
+      if (checked) {
+        newSelected.add(method);
+      } else {
+        newSelected.delete(method);
+      }
+      return newSelected;
+    });
+  }, []);
 
-  const handleRegionChange = (region: string, checked: boolean) => {
-    const newSelected = new Set(selectedRegions);
-    if (checked) {
-      newSelected.add(region);
-    } else {
-      newSelected.delete(region);
-    }
-    setSelectedRegions(newSelected);
-  };
+  const handleRegionChange = useCallback((region: string, checked: boolean) => {
+    setSelectedRegions((prev) => {
+      const newSelected = new Set(prev);
+      if (checked) {
+        newSelected.add(region);
+      } else {
+        newSelected.delete(region);
+      }
+      return newSelected;
+    });
+  }, []);
+
+  const handleUrlFilterChange = useCallback(
+    (value: string) => {
+      const column = table.getColumn("url");
+      if (column) {
+        column.setFilterValue(value || undefined);
+      }
+    },
+    [table],
+  );
 
   return (
     <div className="w-80 border-r bg-background">
@@ -193,7 +249,7 @@ export function LogsDataTableFiltersSidebar({
         <div className="flex items-center justify-between h-12 p-4">
           <h2 className="font-medium">Filters</h2>
           {hasActiveFilters && (
-            <Button variant="ghost" size="xs" onClick={clearFilters}>
+            <Button variant="ghost" size="sm" onClick={clearFilters}>
               Clear all
               <X className="ml-1 h-4 w-4" />
             </Button>
@@ -208,7 +264,7 @@ export function LogsDataTableFiltersSidebar({
               <CollapsibleTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="flex items-center justify-between w-full h-auto"
+                  className="flex items-center justify-between w-full h-auto p-2"
                 >
                   <span className="font-medium">Time Range</span>
                   {timeRangeOpen ? (
@@ -278,7 +334,7 @@ export function LogsDataTableFiltersSidebar({
               <CollapsibleTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="flex items-center justify-between w-full h-auto"
+                  className="flex items-center justify-between w-full h-auto p-2"
                 >
                   <span className="font-medium">URL</span>
                   {urlOpen ? (
@@ -294,9 +350,7 @@ export function LogsDataTableFiltersSidebar({
                     placeholder="Filter URLs..."
                     value={urlFilter || ""}
                     onChange={(event) =>
-                      table
-                        .getColumn("url")
-                        ?.setFilterValue(event.target.value || undefined)
+                      handleUrlFilterChange(event.target.value)
                     }
                     className="w-full text-sm"
                   />
@@ -333,16 +387,16 @@ export function LogsDataTableFiltersSidebar({
                         id={`status-${statusCode}`}
                         checked={selectedStatusCodes.has(statusCode)}
                         onCheckedChange={(checked) =>
-                          handleStatusCodeChange(statusCode, checked as boolean)
+                          handleStatusCodeChange(statusCode, Boolean(checked))
                         }
                       />
                       <Label
                         htmlFor={`status-${statusCode}`}
-                        className="text-sm flex-1"
+                        className="text-sm flex-1 cursor-pointer"
                       >
                         {statusCode === -1 ? "ERR" : statusCode}
                       </Label>
-                      <span className="text-sm font-medium">
+                      <span className="text-xs text-muted-foreground font-medium">
                         {formatCount(statusCodeCounts[statusCode] || 0)}
                       </span>
                     </div>
@@ -377,16 +431,16 @@ export function LogsDataTableFiltersSidebar({
                         id={`method-${method}`}
                         checked={selectedMethods.has(method)}
                         onCheckedChange={(checked) =>
-                          handleMethodChange(method, checked as boolean)
+                          handleMethodChange(method, Boolean(checked))
                         }
                       />
                       <Label
                         htmlFor={`method-${method}`}
-                        className="text-sm flex-1"
+                        className="text-sm flex-1 cursor-pointer"
                       >
                         {method}
                       </Label>
-                      <span className="text-sm font-medium">
+                      <span className="text-xs text-muted-foreground font-medium">
                         {formatCount(methodCounts[method] || 0)}
                       </span>
                     </div>
@@ -421,16 +475,16 @@ export function LogsDataTableFiltersSidebar({
                         id={`region-${region}`}
                         checked={selectedRegions.has(region)}
                         onCheckedChange={(checked) =>
-                          handleRegionChange(region, checked as boolean)
+                          handleRegionChange(region, Boolean(checked))
                         }
                       />
                       <Label
                         htmlFor={`region-${region}`}
-                        className="text-sm flex-1"
+                        className="text-sm flex-1 cursor-pointer"
                       >
                         {getRegionNameFromCode(region) || region}
                       </Label>
-                      <span className="text-sm font-medium">
+                      <span className="text-xs text-muted-foreground font-medium">
                         {formatCount(regionCounts[region] || 0)}
                       </span>
                     </div>
@@ -471,6 +525,7 @@ export function LogsDataTableFiltersSidebar({
                           value={minLatency}
                           onChange={(e) => setMinLatency(e.target.value)}
                           className="text-sm"
+                          min="0"
                         />
                         <span className="text-xs text-muted-foreground">
                           ms
@@ -488,6 +543,7 @@ export function LogsDataTableFiltersSidebar({
                           value={maxLatency}
                           onChange={(e) => setMaxLatency(e.target.value)}
                           className="text-sm"
+                          min="0"
                         />
                         <span className="text-xs text-muted-foreground">
                           ms

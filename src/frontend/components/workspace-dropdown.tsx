@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "@tanstack/react-router";
-import { CheckIcon, ChevronsUpDown, PlusCircle } from "lucide-react";
+import { CheckIcon, ChevronsUpDown } from "lucide-react";
 import * as React from "react";
 import { useWorkspaces } from "../hooks/use-workspaces";
 import { Workspace } from "../lib/types";
@@ -26,8 +26,6 @@ export function WorkspaceDropdown({ workspaceName }: WorkspaceDropdownProps) {
 
   const location = useLocation();
 
-  console.log(location);
-
   const handleSelectWorkspace = (workspace: Workspace) => {
     setOpen(false);
     navigate({
@@ -48,6 +46,7 @@ export function WorkspaceDropdown({ workspaceName }: WorkspaceDropdownProps) {
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
+          size={"xs"}
           className="flex justify-between w-full max-w-[240px]"
           disabled={isLoading}
         >
@@ -58,7 +57,9 @@ export function WorkspaceDropdown({ workspaceName }: WorkspaceDropdownProps) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-[240px]">
-        <DropdownMenuLabel>Your workspaces</DropdownMenuLabel>
+        <DropdownMenuLabel className="text-xs">
+          Your workspaces
+        </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           {workspaces.length > 0 ? (
@@ -66,10 +67,11 @@ export function WorkspaceDropdown({ workspaceName }: WorkspaceDropdownProps) {
               <DropdownMenuItem
                 key={workspace.id}
                 onClick={() => handleSelectWorkspace(workspace)}
+                className="rounded text-xs"
               >
                 <span className="flex-1">{workspace.name}</span>
                 {location.pathname.split("/").includes(workspace.name) && (
-                  <CheckIcon className="h-4 w-4 ml-2" />
+                  <CheckIcon size={14} />
                 )}
               </DropdownMenuItem>
             ))
@@ -79,8 +81,7 @@ export function WorkspaceDropdown({ workspaceName }: WorkspaceDropdownProps) {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleCreateWorkspace}>
-          <PlusCircle className="h-4 w-4 mr-2" />
-          <span>Create new workspace</span>
+          <span className="text-xs">Create new workspace</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

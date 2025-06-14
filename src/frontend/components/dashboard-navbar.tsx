@@ -61,7 +61,7 @@ export function DashboardNavbar() {
             <Link
               to="/dashboard/$workspaceName/monitors"
               params={{ workspaceName: currentWorkspace.name }}
-              className="font-mono font-semibold text-2xl"
+              className="font-mono font-semibold text-xl"
             >
               Shamva
             </Link>
@@ -106,6 +106,7 @@ export function DashboardNavbar() {
           <div className="hidden md:block">
             <Button
               variant="outline"
+              size={"xs"}
               onClick={async () => {
                 await supabase.auth.signOut();
                 redirect({

@@ -21,7 +21,7 @@ import {
   getStatusTextColor,
 } from "../lib/utils";
 import { Route } from "../routes/dashboard/$workspaceName/logs";
-import { LogsDataTableFiltersSidebar } from "./logs-data-table-filters-sidebar";
+import { LogsFiltersSidebar } from "./logs-data-table-filters-sidebar";
 import LogsSheet from "./logs-sheet";
 import { Button } from "./ui/button";
 import {
@@ -79,6 +79,22 @@ export const columns: ColumnDef<Log>[] = [
         );
       }
     },
+    filterFn: (row, columnId, filterValue) => {
+      if (!filterValue?.from && !filterValue?.to) return true;
+
+      const dateString = row.getValue(columnId) as string;
+      const date = parseISO(dateString);
+
+      if (filterValue.from && filterValue.to) {
+        return date >= filterValue.from && date <= filterValue.to;
+      } else if (filterValue.from) {
+        return date >= filterValue.from;
+      } else if (filterValue.to) {
+        return date <= filterValue.to;
+      }
+
+      return true;
+    },
     size: 220,
     minSize: 220,
     sortingFn: "datetime",
@@ -88,7 +104,7 @@ export const columns: ColumnDef<Log>[] = [
     header: "Method",
     cell: ({ row }) => {
       const method = row.getValue("method") as string;
-      return <span className="text-sm font-mono">{method}</span>;
+      return <span className="text-sm font-mono font-medium">{method}</span>;
     },
     size: 70,
     minSize: 60,
@@ -145,6 +161,23 @@ export const columns: ColumnDef<Log>[] = [
       ) : (
         <span className="text-muted-foreground text-sm font-mono">N/A</span>
       );
+    },
+    filterFn: (row, columnId, filterValue) => {
+      if (!filterValue?.min && !filterValue?.max) return true;
+
+      const latency = row.getValue(columnId) as number;
+
+      if (typeof latency !== "number" || latency < 0) return false;
+
+      if (filterValue.min !== undefined && filterValue.max !== undefined) {
+        return latency >= filterValue.min && latency <= filterValue.max;
+      } else if (filterValue.min !== undefined) {
+        return latency >= filterValue.min;
+      } else if (filterValue.max !== undefined) {
+        return latency <= filterValue.max;
+      }
+
+      return true;
     },
     size: 80,
     minSize: 70,
@@ -219,9 +252,9 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
   });
 
   return (
-    <div className="flex h-screen w-full">
-      <LogsDataTableFiltersSidebar table={table} data={data} />{" "}
-      <div className="flex-1 flex flex-col min-w-0 overflow-auto">
+    <div className="flex w-full flex-1">
+      <LogsFiltersSidebar table={table} data={data} />{" "}
+      <div className="flex-1 flex flex-col min-w-0 overflow-y-scroll">
         <div className="flex-1 overflow-auto">
           <Table>
             <TableHeader className="sticky top-0 z-10 bg-background">
@@ -240,7 +273,7 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
                       key={header.id}
                       colSpan={header.colSpan}
                       className={cn(
-                        "px-2 py-1.5 h-auto relative select-none truncate text-sm font-medium",
+                        "px-2 py-1 h-auto relative select-none truncate text-sm font-medium",
                         "whitespace-nowrap text-muted-foreground",
                         "bg-background",
                         header.id === "status-indicator" && "w-6",
@@ -258,7 +291,7 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
                 </TableRow>
               ))}
             </TableHeader>
-            <TableBody>
+            <TableBody className="border-b border-dashed overflow-auto">
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
                   <TableRow
@@ -315,7 +348,7 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
           </Table>
         </div>
 
-        <div className="flex items-center justify-end p-2 border-t bg-background/95 backdrop-blur-sm">
+        <div className="flex items-center justify-end p-2 border-t">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             Page {table.getState().pagination.pageIndex + 1} of{" "}
             {table.getPageCount()}

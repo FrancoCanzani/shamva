@@ -2,10 +2,13 @@ import { PostgrestError } from "@supabase/supabase-js";
 import { DurableObject } from "cloudflare:workers";
 import type { EnvBindings } from "../../../bindings";
 import { createSupabaseClient } from "../lib/supabase/client";
+import { EmailService } from "../lib/email/service";
 import {
   CheckResult,
   InitializeCheckerDOPayload,
   MonitorConfig,
+  Incident,
+  MonitorEmailData,
 } from "../lib/types";
 import handleBodyParsing from "../lib/utils";
 
@@ -19,12 +22,14 @@ export class CheckerDurableObject extends DurableObject {
   ctx: DurableObjectState;
   env: EnvBindings;
   private readonly doId: string;
+  private emailService: EmailService;
 
   constructor(ctx: DurableObjectState, env: EnvBindings) {
     super(ctx, env);
     this.ctx = ctx;
     this.env = env;
     this.doId = ctx.id.toString();
+    this.emailService = new EmailService(env);
   }
 
   private async loadConfig(): Promise<MonitorConfig | null> {
@@ -179,6 +184,89 @@ export class CheckerDurableObject extends DurableObject {
     throw new Error("Max retry attempts exceeded");
   }
 
+  private async createIncident(
+    monitorId: string,
+    workspaceId: string,
+    region: string | null,
+  ): Promise<Incident | null> {
+    try {
+      const { data: incident, error } = await createSupabaseClient(this.env)
+        .from("incidents")
+        .insert({
+          monitor_id: monitorId,
+          workspace_id: workspaceId,
+          started_at: new Date().toISOString(),
+          regions_affected: region ? [region] : [],
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return incident;
+    } catch (error) {
+      console.error(`DO ${this.doId}: Failed to create incident:`, error);
+      return null;
+    }
+  }
+
+  private async updateIncident(
+    incidentId: string,
+    updates: Partial<Incident>,
+  ): Promise<void> {
+    try {
+      const { error } = await createSupabaseClient(this.env)
+        .from("incidents")
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", incidentId);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error(`DO ${this.doId}: Failed to update incident:`, error);
+    }
+  }
+
+  private async sendIncidentNotification(
+    incident: Incident,
+    monitorName: string,
+    errorMessage: string,
+    statusCode: number | null,
+    url: string,
+    userEmail: string,
+    userName: string,
+  ): Promise<void> {
+    if (this.env.NAME === "development") {
+      console.log("Skipping notification in development environment");
+      return;
+    }
+
+    try {
+      const emailData: MonitorEmailData = {
+        monitorId: incident.monitor_id,
+        monitorName,
+        url,
+        userEmail,
+        userName,
+        statusCode: statusCode ?? undefined,
+        errorMessage,
+        lastChecked: new Date().toISOString(),
+        region: incident.regions_affected[0] || "Unknown",
+      };
+
+      const success = await this.emailService.sendMonitorDownAlert(emailData);
+      
+      if (success) {
+        await this.updateIncident(incident.id, {
+          notified_at: new Date().toISOString(),
+        });
+      }
+    } catch (error) {
+      console.error(`DO ${this.doId}: Failed to send notification:`, error);
+    }
+  }
+
   private async processCheckResult(
     result: CheckResult,
   ): Promise<Record<string, string | number | null> | null> {
@@ -201,7 +289,48 @@ export class CheckerDurableObject extends DurableObject {
 
     if (isSuccess) {
       if (config.consecutiveFailures > 0) {
-        // TODO: notify user about reconnect
+        // Check if there's an active incident to resolve
+        const { data: activeIncident } = await createSupabaseClient(this.env)
+          .from("incidents")
+          .select("*")
+          .eq("monitor_id", config.monitorId)
+          .is("resolved_at", null)
+          .single();
+
+        if (activeIncident) {
+          // Update the incident with resolution
+          await this.updateIncident(activeIncident.id, {
+            resolved_at: new Date().toISOString(),
+            downtime_duration_ms: now - new Date(activeIncident.started_at).getTime(),
+          });
+
+          // Send recovery notification
+          const { data: monitor } = await createSupabaseClient(this.env)
+            .from("monitors")
+            .select("name, url, user_email, user_name")
+            .eq("id", config.monitorId)
+            .single();
+
+          if (monitor) {
+            const emailData: MonitorEmailData = {
+              monitorId: config.monitorId,
+              monitorName: monitor.name,
+              url: monitor.url,
+              userEmail: monitor.user_email,
+              userName: monitor.user_name,
+              statusCode: result.statusCode ?? undefined,
+              errorMessage: undefined,
+              lastChecked: new Date().toISOString(),
+              region: result.colo || "Unknown",
+            };
+
+            await this.emailService.sendMonitorRecoveredAlert(
+              emailData,
+              monitorStatusUpdate.last_success_at as string
+            );
+          }
+        }
+
         monitorStatusUpdate.status = "active";
         monitorStatusUpdate.error_message = null;
       }
@@ -210,9 +339,53 @@ export class CheckerDurableObject extends DurableObject {
       if (!monitorStatusUpdate.status) monitorStatusUpdate.status = "active";
     } else {
       newConsecutiveFailures++;
+      
       if (newConsecutiveFailures === MAX_CONSECUTIVE_FAILURES) {
-        // TODO: Notify user that the failure threshold has been reached
+        // Check if there's already an active incident
+        const { data: activeIncident } = await createSupabaseClient(this.env)
+          .from("incidents")
+          .select("*")
+          .eq("monitor_id", config.monitorId)
+          .is("resolved_at", null)
+          .single();
+
+        if (activeIncident) {
+          // Update existing incident with new region
+          if (result.colo && !activeIncident.regions_affected.includes(result.colo)) {
+            await this.updateIncident(activeIncident.id, {
+              regions_affected: [...activeIncident.regions_affected, result.colo],
+            });
+          }
+        } else {
+          // Create new incident only if there isn't an active one
+          const { data: monitor } = await createSupabaseClient(this.env)
+            .from("monitors")
+            .select("name, workspace_id, url, user_email, user_name")
+            .eq("id", config.monitorId)
+            .single();
+
+          if (monitor) {
+            const incident = await this.createIncident(
+              config.monitorId,
+              monitor.workspace_id,
+              result.colo
+            );
+
+            if (incident) {
+              await this.sendIncidentNotification(
+                incident,
+                monitor.name,
+                result.checkError ?? `HTTP status ${result.statusCode}`,
+                result.statusCode,
+                monitor.url,
+                monitor.user_email,
+                monitor.user_name
+              );
+            }
+          }
+        }
       }
+
       monitorStatusUpdate.last_failure_at = new Date(now).toISOString();
       monitorStatusUpdate.status = "error";
       monitorStatusUpdate.error_message =

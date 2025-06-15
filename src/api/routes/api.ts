@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import type { EnvBindings } from "../../../bindings";
 import { authMiddleware } from "../lib/middleware/auth-middleware";
+import { rateLimit } from "../lib/middleware/rate-limit-middleware";
 import { ApiVariables } from "../lib/types";
 import postCheck from "./check/post";
 import getLogs from "./logs/get";
@@ -25,10 +26,12 @@ const apiRoutes = new Hono<{
   Variables: ApiVariables;
 }>();
 
-apiRoutes.use("/api/*", authMiddleware);
+// Apply auth and rate limiting to all API routes
+apiRoutes.use("/api/*", authMiddleware, rateLimit());
 
+// Test endpoint
 apiRoutes.get("/api/test", (c) => {
-  return c.text("test");
+  return c.json({ status: "ok" });
 });
 
 // Workspace routes
@@ -52,6 +55,7 @@ apiRoutes.get("/api/status-page/:id", getStatusPage);
 apiRoutes.put("/api/status-page/:id", putStatusPage);
 apiRoutes.delete("/api/status-page/:id", deleteStatusPage);
 
+// Logs and check routes
 apiRoutes.get("/api/logs", getLogs);
 apiRoutes.post("/api/check", postCheck);
 

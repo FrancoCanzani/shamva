@@ -39,7 +39,7 @@ export default async function putMonitor(c: Context) {
     );
   }
 
-  const { name, url, method, headers, body, regions, interval } = result.data;
+  const { name, url, method, headers, body, regions, interval, slackWebhookUrl } = result.data;
   const supabase = createSupabaseClient(c.env);
 
   const { data: existingMonitor, error: fetchError } = await supabase
@@ -95,6 +95,7 @@ export default async function putMonitor(c: Context) {
       interval: finalInterval,
       regions,
       updated_at: new Date().toISOString(),
+      slack_webhook_url: slackWebhookUrl,
     };
 
     const { data: updatedMonitor, error: updateError } = await supabase

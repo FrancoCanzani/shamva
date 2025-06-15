@@ -19,6 +19,7 @@ export const MonitorsParamsSchema = z.object({
     .nullable()
     .optional(),
   workspaceId: z.string().uuid("Invalid workspace ID format"),
+  slackWebhookUrl: z.string().url({ message: "Invalid Slack webhook URL format" }).optional(),
 });
 
 export const MemberInviteSchema = z.object({

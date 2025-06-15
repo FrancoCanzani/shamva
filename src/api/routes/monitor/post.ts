@@ -41,6 +41,7 @@ export default async function postMonitor(c: Context) {
     regions,
     interval,
     workspaceId,
+    slackWebhookUrl,
   }: MonitorsParams = result.data;
   const userId = c.get("userId");
 
@@ -102,6 +103,7 @@ export default async function postMonitor(c: Context) {
           regions: regions,
           failure_count: 0,
           success_count: 0,
+          slack_webhook_url: slackWebhookUrl,
         },
       ])
       .select()

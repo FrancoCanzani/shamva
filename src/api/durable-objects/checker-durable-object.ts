@@ -3,6 +3,7 @@ import { DurableObject } from "cloudflare:workers";
 import type { EnvBindings } from "../../../bindings";
 import { createSupabaseClient } from "../lib/supabase/client";
 import { EmailService } from "../lib/email/service";
+import { SlackService } from "../lib/slack/service";
 import {
   CheckResult,
   InitializeCheckerDOPayload,
@@ -23,6 +24,7 @@ export class CheckerDurableObject extends DurableObject {
   env: EnvBindings;
   private readonly doId: string;
   private emailService: EmailService;
+  private slackService: SlackService;
 
   constructor(ctx: DurableObjectState, env: EnvBindings) {
     super(ctx, env);
@@ -30,6 +32,7 @@ export class CheckerDurableObject extends DurableObject {
     this.env = env;
     this.doId = ctx.id.toString();
     this.emailService = new EmailService(env);
+    this.slackService = new SlackService(env);
   }
 
   private async loadConfig(): Promise<MonitorConfig | null> {
@@ -236,6 +239,7 @@ export class CheckerDurableObject extends DurableObject {
     url: string,
     userEmail: string,
     userName: string,
+    slackWebhookUrl?: string,
   ): Promise<void> {
     if (this.env.NAME === "development") {
       console.log("Skipping notification in development environment");
@@ -255,9 +259,15 @@ export class CheckerDurableObject extends DurableObject {
         region: incident.regions_affected[0] || "Unknown",
       };
 
-      const success = await this.emailService.sendMonitorDownAlert(emailData);
+      const notificationPromises = [this.emailService.sendMonitorDownAlert(emailData)];
       
-      if (success) {
+      if (slackWebhookUrl) {
+        notificationPromises.push(this.slackService.sendMonitorDownAlert(emailData, slackWebhookUrl));
+      }
+
+      const results = await Promise.all(notificationPromises);
+      
+      if (results.some(success => success)) {
         await this.updateIncident(incident.id, {
           notified_at: new Date().toISOString(),
         });
@@ -307,7 +317,7 @@ export class CheckerDurableObject extends DurableObject {
           // Send recovery notification
           const { data: monitor } = await createSupabaseClient(this.env)
             .from("monitors")
-            .select("name, url, user_email, user_name")
+            .select("name, url, user_email, user_name, slack_webhook_url")
             .eq("id", config.monitorId)
             .single();
 
@@ -324,10 +334,24 @@ export class CheckerDurableObject extends DurableObject {
               region: result.colo || "Unknown",
             };
 
-            await this.emailService.sendMonitorRecoveredAlert(
-              emailData,
-              monitorStatusUpdate.last_success_at as string
-            );
+            const notificationPromises = [
+              this.emailService.sendMonitorRecoveredAlert(
+                emailData,
+                monitorStatusUpdate.last_success_at as string
+              ),
+            ];
+
+            if (monitor.slack_webhook_url) {
+              notificationPromises.push(
+                this.slackService.sendMonitorRecoveredAlert(
+                  emailData,
+                  monitorStatusUpdate.last_success_at as string,
+                  monitor.slack_webhook_url
+                )
+              );
+            }
+
+            await Promise.all(notificationPromises);
           }
         }
 

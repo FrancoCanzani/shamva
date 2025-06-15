@@ -67,6 +67,11 @@ export const MonitorFormSchema = z
             'Body must be a valid JSON string, e.g. {"key": "value"} or "text"',
         },
       ),
+    slackWebhookUrl: z
+      .string()
+      .trim()
+      .url("Please enter a valid Slack webhook URL")
+      .optional(),
   })
   .refine(
     (data) =>

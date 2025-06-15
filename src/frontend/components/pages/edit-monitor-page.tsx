@@ -117,7 +117,7 @@ export default function EditMonitorPage() {
   };
 
   return (
-    <div className="container max-w-4xl mx-auto p-4">
+    <div className="container max-w-6xl mx-auto p-4">
       <div className="space-y-4">
         <div>
           <h1 className="text-xl font-medium">Edit Monitor</h1>
@@ -127,7 +127,7 @@ export default function EditMonitorPage() {
         </div>
 
         <MonitorForm
-          initialValues={initialValues}
+          defaultValues={initialValues}
           onSubmit={handleSubmit}
           onCancel={handleCancel}
           isSubmitting={isSubmitting}

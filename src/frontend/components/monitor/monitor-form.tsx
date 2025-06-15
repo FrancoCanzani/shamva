@@ -9,6 +9,8 @@ import { Input } from "../ui/input"
 import { Label } from "../ui/label"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 import { Textarea } from "../ui/textarea"
+import MonitorFormSectionSelector from "./monitor-form-section-selector"
+import { Link } from "@tanstack/react-router"
 
 const checkIntervals = [
   { value: "60000", label: "1 minute" },
@@ -396,6 +398,8 @@ export default function MonitorForm({
 
         <div id="notifications" className="space-y-4">
           <h3 className="text-sm font-medium">Notifications</h3>
+          <p className="text-xs text-muted-foreground">
+                    * Every accepted user in your workspace will receive email notifications. Aditionaly, you can configure Slack notifications.     </p>
           <div className="space-y-4">
             <form.Field
               name="slackWebhookUrl"
@@ -413,8 +417,8 @@ export default function MonitorForm({
                   {field.state.meta.errors ? (
                     <p className="text-sm text-red-500">{field.state.meta.errors.join(", ")}</p>
                   ) : null}
-                  <p className="text-sm text-muted-foreground">
-                    Optional. Add a Slack webhook URL to receive notifications in your Slack channel.
+                  <p className="text-xs text-muted-foreground">
+                    Optional. Add a <Link className="underline font-medium text-primary" to="/dashboard/$workspaceName/monitors" params={{ workspaceName: "workspaceName" }}>Slack webhook URL</Link> to receive notifications in your Slack channel.
                   </p>
                 </div>
               )}
@@ -432,50 +436,7 @@ export default function MonitorForm({
         </div>
       </form>
 
-      <div className="w-48 flex-shrink-0">
-        <div className="sticky top-4">
-          <div className="border rounded p-4">
-            <h3 className="font-medium text-sm mb-3 text-muted-foreground">Sections</h3>
-            <nav className="space-y-2">
-              <button
-                type="button"
-                onClick={() => document.getElementById("basic-config")?.scrollIntoView({ behavior: "smooth" })}
-                className="block w-full text-left text-sm hover:font-medium transition-all duration-200 py-1"
-              >
-                Basic Configuration
-              </button>
-              <button
-                type="button"
-                onClick={() => document.getElementById("request-config")?.scrollIntoView({ behavior: "smooth" })}
-                className="block w-full text-left text-sm hover:font-medium transition-all duration-200 py-1"
-              >
-                Request Configuration
-              </button>
-              <button
-                type="button"
-                onClick={() => document.getElementById("monitoring-regions")?.scrollIntoView({ behavior: "smooth" })}
-                className="block w-full text-left text-sm hover:font-medium transition-all duration-200 py-1"
-              >
-                Monitoring Regions
-              </button>
-              <button
-                type="button"
-                onClick={() => document.getElementById("advanced-options")?.scrollIntoView({ behavior: "smooth" })}
-                className="block w-full text-left text-sm hover:font-medium transition-all duration-200 py-1"
-              >
-                Advanced Options
-              </button>
-              <button
-                type="button"
-                onClick={() => document.getElementById("notifications")?.scrollIntoView({ behavior: "smooth" })}
-                className="block w-full text-left text-sm hover:font-medium transition-all duration-200 py-1"
-              >
-                Notifications
-              </button>
-            </nav>
-          </div>
-        </div>
-      </div>
+     <MonitorFormSectionSelector/>
     </div>
   )
 }

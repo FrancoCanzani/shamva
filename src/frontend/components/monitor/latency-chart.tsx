@@ -4,6 +4,7 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  Cell,
   ReferenceLine,
   XAxis,
   YAxis,
@@ -19,6 +20,22 @@ interface LatencyChartProps {
   logs: Partial<Log>[];
   height?: number;
 }
+
+const getStatusColorValue = (status: number | unknown): string => {
+  if (typeof status !== "number") {
+    return "#9ca3af"; // gray-400
+  }
+  if (status >= 200 && status < 300) {
+    return "#10b981"; // green-500
+  } else if (status >= 300 && status < 400) {
+    return "#3b82f6"; // blue-500
+  } else if (status >= 400 && status < 500) {
+    return "#f59e0b"; // amber-500
+  } else if (status >= 500 || status < 0) {
+    return "#ef4444"; // red-500
+  }
+  return "#9ca3af"; // gray-400
+};
 
 export default function LatencyChart({
   logs,
@@ -37,6 +54,7 @@ export default function LatencyChart({
   const chartData = logs.map((log, index) => ({
     index,
     latency: log.latency || 0,
+    status: log.status_code,
     date: log.created_at ? new Date(log.created_at) : new Date(),
   }));
 
@@ -90,7 +108,14 @@ export default function LatencyChart({
             />
           }
         />
-        <Bar dataKey="latency" fill="#3b82f6" radius={[0, 0, 0, 0]} />
+        <Bar dataKey="latency" radius={[0, 0, 0, 0]}>
+          {chartData.map((entry, index) => (
+            <Cell
+              key={`cell-${index}`}
+              fill={getStatusColorValue(entry.status)}
+            />
+          ))}
+        </Bar>
         <ReferenceLine y={avgLatency} stroke="#62748e" strokeDasharray="3 3" />
       </BarChart>
     </ChartContainer>

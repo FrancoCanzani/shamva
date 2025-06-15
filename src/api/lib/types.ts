@@ -97,3 +97,16 @@ export interface CheckResult {
   checkError: string | null;
   colo: string | null;
 }
+
+export interface MonitorEmailData {
+  monitorId: string;
+  monitorName: string;
+  url: string;
+  userEmail: string;
+  userName?: string;
+  statusCode?: number;
+  errorMessage?: string;
+  downtime?: string;
+  lastChecked: string;
+  region?: string;
+}

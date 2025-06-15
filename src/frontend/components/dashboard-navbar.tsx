@@ -79,7 +79,7 @@ export function DashboardNavbar() {
                         to={item.to}
                         params={{ workspaceName: currentWorkspace.name }}
                         className={cn(
-                          "font-mono text-sm px-3 py-2 rounded-md hover:bg-accent",
+                          "font-mono text-sm px-2 py-1 rounded hover:bg-accent",
                           "data-[active=true]:bg-accent data-[active=true]:text-accent-foreground",
                         )}
                         activeProps={{ "data-active": "true" }}

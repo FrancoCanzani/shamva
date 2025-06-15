@@ -1,15 +1,15 @@
-import { Log } from "@/frontend/lib/types";
+import type { Log } from "@/frontend/lib/types";
 import { format } from "date-fns";
 import {
+  Bar,
+  BarChart,
   CartesianGrid,
-  Line,
-  LineChart,
   ReferenceLine,
   XAxis,
   YAxis,
 } from "recharts";
 import {
-  ChartConfig,
+  type ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
@@ -60,7 +60,7 @@ export default function LatencyChart({
       className="aspect-auto w-full"
       style={{ height: height }}
     >
-      <LineChart data={chartData}>
+      <BarChart data={chartData}>
         <CartesianGrid vertical={false} />
         <XAxis dataKey="index" tick={false} tickLine={false} axisLine={false} />
         <YAxis
@@ -90,16 +90,9 @@ export default function LatencyChart({
             />
           }
         />
-        <Line
-          dataKey="latency"
-          type="monotone"
-          stroke="#3b82f6"
-          strokeWidth={2}
-          dot={false}
-          activeDot={{ r: 4 }}
-        />
+        <Bar dataKey="latency" fill="#3b82f6" radius={[0, 0, 0, 0]} />
         <ReferenceLine y={avgLatency} stroke="#62748e" strokeDasharray="3 3" />
-      </LineChart>
+      </BarChart>
     </ChartContainer>
   );
 }

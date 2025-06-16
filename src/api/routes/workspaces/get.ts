@@ -1,8 +1,11 @@
+import { PostgrestError, PostgrestSingleResponse } from "@supabase/supabase-js";
 import { Context } from "hono";
 import { createSupabaseClient } from "../../lib/supabase/client";
+import { Workspace, WorkspaceMember } from "../../lib/types";
 
 export default async function getWorkspaces(c: Context) {
   const userId = c.get("userId");
+  const workspaceId = c.req.param("id");
 
   if (!userId) {
     return c.json(
@@ -11,42 +14,22 @@ export default async function getWorkspaces(c: Context) {
     );
   }
 
+  if (!workspaceId) {
+    return c.json(
+      { data: null, success: false, error: "Workspace ID is required" },
+      400,
+    );
+  }
+
   try {
     const supabase = createSupabaseClient(c.env);
 
-    const { data: memberWorkspaces, error: memberWorkspacesError } =
-      await supabase
-        .from("workspace_members")
-        .select("workspace_id")
-        .eq("user_id", userId)
-        .eq("invitation_status", "accepted")
-        .order("created_at", { ascending: false });
-
-    if (memberWorkspacesError) {
-      console.error(
-        "Error fetching user's workspace memberships:",
-        memberWorkspacesError,
-      );
-      return c.json(
-        {
-          success: false,
-          error: "Database error fetching workspace memberships",
-          details: memberWorkspacesError.message,
-        },
-        500,
-      );
-    }
-
-    const workspaceIds = memberWorkspaces.map((m) => m.workspace_id);
-
-    if (workspaceIds.length === 0) {
-      return c.json({
-        data: [],
-        success: true,
-      });
-    }
-
-    const { data: workspaces, error: workspacesError } = await supabase
+    const {
+      data,
+      error,
+    }: PostgrestSingleResponse<
+      Workspace & { workspace_members: WorkspaceMember[] | null }
+    > = await supabase
       .from("workspaces")
       .select(
         `
@@ -60,32 +43,62 @@ export default async function getWorkspaces(c: Context) {
         )
       `,
       )
-      .in("id", workspaceIds)
-      .order("created_at", { ascending: false });
+      .eq("id", workspaceId)
+      .single();
 
-    if (workspacesError) {
-      console.error("Error fetching workspaces:", workspacesError);
+    if (error) {
+      console.error(`Database error fetching workspace ${workspaceId}:`, error);
+
+      if ((error as PostgrestError).code === "PGRST116") {
+        return c.json(
+          { data: null, success: false, error: "Workspace not found" },
+          404,
+        );
+      }
       return c.json(
         {
+          data: null,
           success: false,
-          error: "Database error fetching workspaces",
-          details: workspacesError.message,
+          error: "Database error fetching workspace",
+          details: error.message,
         },
         500,
       );
     }
 
+    const isMember = data?.workspace_members?.some(
+      (member: WorkspaceMember) =>
+        member.user_id === userId && member.invitation_status === "accepted",
+    );
+
+    if (!data || !isMember) {
+      console.warn(
+        `Access denied to workspace ${workspaceId} for user ${userId}`,
+      );
+      return c.json(
+        {
+          data: null,
+          success: false,
+          error: "Workspace not found or access denied",
+        },
+        404,
+      );
+    }
+
     return c.json({
-      data: workspaces,
+      data: data,
       success: true,
+      error: null,
     });
-  } catch (error) {
-    console.error("Unexpected error fetching workspaces:", error);
+  } catch (err) {
+    console.error(`Unexpected error fetching workspace ${workspaceId}:`, err);
+    const errorDetails = err instanceof Error ? err.message : String(err);
     return c.json(
       {
+        data: null,
         success: false,
         error: "An unexpected error occurred",
-        details: error instanceof Error ? error.message : String(error),
+        details: errorDetails,
       },
       500,
     );

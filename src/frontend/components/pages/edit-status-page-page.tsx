@@ -59,7 +59,7 @@ export default function EditStatusPagePage() {
         workspaceId: statusPage.workspace_id,
       };
 
-      const response = await fetch(`/api/status-page/${id}`, {
+      const response = await fetch(`/api/status-pages/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

@@ -66,7 +66,7 @@ export default function NewStatusPage() {
         workspaceId: currentWorkspace.id,
       };
 
-      const response = await fetch("/api/status-page", {
+      const response = await fetch("/api/status-pages", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -32,7 +32,7 @@ export default function EditWorkspacePage() {
   };
 
   const handleDelete = async () => {
-    const response = await fetch(`/api/workspace/${workspace.id}`, {
+    const response = await fetch(`/api/workspaces/${workspace.id}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${session?.access_token}`,
@@ -63,7 +63,7 @@ export default function EditWorkspacePage() {
         creatorEmail: session.user.email,
       };
 
-      const response = await fetch(`/api/workspace/${workspace.id}`, {
+      const response = await fetch(`/api/workspaces/${workspace.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

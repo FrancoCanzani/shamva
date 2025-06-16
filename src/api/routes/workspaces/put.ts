@@ -31,7 +31,7 @@ const WorkspaceUpdateSchema = z.object({
   members: z.array(MemberUpdateSchema),
 });
 
-export default async function putWorkspace(c: Context) {
+export default async function putWorkspaces(c: Context) {
   const userId = c.get("userId");
   const workspaceId = c.req.param("id");
 

@@ -33,7 +33,7 @@ export default function NewWorkspacePage() {
         creatorEmail: session.user.email,
       };
 
-      const response = await fetch("/api/workspace", {
+      const response = await fetch("/api/workspaces", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

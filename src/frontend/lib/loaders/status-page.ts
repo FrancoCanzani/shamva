@@ -27,7 +27,7 @@ export default async function fetchStatusPage({
   const token = session.access_token;
 
   try {
-    const response = await fetch(`/api/status-page/${id}`, {
+    const response = await fetch(`/api/status-pages/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",

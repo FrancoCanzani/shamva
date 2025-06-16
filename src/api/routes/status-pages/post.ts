@@ -2,7 +2,7 @@ import { Context } from "hono";
 import { StatusPageSchema } from "../../lib/schemas";
 import { createSupabaseClient } from "../../lib/supabase/client";
 
-export default async function postStatusPage(c: Context) {
+export default async function postStatusPages(c: Context) {
   let rawBody: unknown;
   try {
     rawBody = await c.req.json();

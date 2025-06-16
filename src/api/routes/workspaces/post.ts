@@ -2,7 +2,7 @@ import { Context } from "hono";
 import { WorkspaceSchema } from "../../lib/schemas";
 import { createSupabaseClient } from "../../lib/supabase/client";
 
-export default async function postWorkspace(c: Context) {
+export default async function postWorkspaces(c: Context) {
   let rawBody: unknown;
   try {
     rawBody = await c.req.json();

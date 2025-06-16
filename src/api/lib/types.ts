@@ -46,7 +46,7 @@ export interface Monitor {
   body: Record<string, unknown> | string | null;
   region: string;
   interval: number;
-  status: "broken" | "active" | "maintenance" | "paused" | "warning" | "error";
+  status: "broken" | "active" | "maintenance" | "paused" | "error" | "degraded";
   error_message: string | null;
   name: string;
   regions: string[];

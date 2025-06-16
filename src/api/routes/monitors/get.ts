@@ -4,7 +4,7 @@ import { Log } from "../../lib/types";
 
 export default async function getMonitors(c: Context) {
   const userId = c.get("userId");
-  const workspaceId = c.req.query("workspaceId");
+  const monitorId = c.req.param("id");
 
   if (!userId) {
     return c.json(
@@ -13,9 +13,9 @@ export default async function getMonitors(c: Context) {
     );
   }
 
-  if (!workspaceId) {
+  if (!monitorId) {
     return c.json(
-      { data: null, success: false, error: "Workspace Id is missing" },
+      { data: null, success: false, error: "Monitor ID is required" },
       400,
     );
   }
@@ -23,50 +23,53 @@ export default async function getMonitors(c: Context) {
   try {
     const supabase = createSupabaseClient(c.env);
 
-    const { data: membership, error: membershipError } = await supabase
-      .from("workspace_members")
-      .select("role")
-      .eq("workspace_id", workspaceId)
-      .eq("user_id", userId)
-      .eq("invitation_status", "accepted")
-      .single();
-
-    if (membershipError || !membership) {
-      return c.json({
-        data: [],
-        success: true,
-        error: null,
-      });
-    }
-
-    const { data: monitors, error: monitorError } = await supabase
+    const { data: monitor, error: monitorError } = await supabase
       .from("monitors")
       .select("*")
-      .eq("workspace_id", workspaceId)
-      .order("created_at", { ascending: false });
+      .eq("id", monitorId)
+      .single();
 
     if (monitorError) {
-      console.error("Error fetching monitors from DB:", monitorError);
+      if (monitorError.code === "PGRST116") {
+        return c.json(
+          { data: null, success: false, error: "Monitor not found" },
+          404,
+        );
+      }
+
       return c.json(
         {
           data: null,
           success: false,
-          error: "Database error fetching monitors",
+          error: "Database error fetching monitor",
           details: monitorError.message,
         },
         500,
       );
     }
 
-    if (!monitors || monitors.length === 0) {
-      return c.json({
-        data: [],
-        success: true,
-        error: null,
-      });
+    if (!monitor) {
+      return c.json(
+        { data: null, success: false, error: "Monitor not found" },
+        404,
+      );
     }
 
-    const monitorIds = monitors.map((m) => m.id);
+    const { data: membership, error: membershipError } = await supabase
+      .from("workspace_members")
+      .select("role")
+      .eq("workspace_id", monitor.workspace_id)
+      .eq("user_id", userId)
+      .eq("invitation_status", "accepted")
+      .single();
+
+    if (membershipError || !membership) {
+      return c.json(
+        { data: null, success: false, error: "Monitor not found" },
+        404,
+      );
+    }
+
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     const thirtyDaysAgoISO = thirtyDaysAgo.toISOString();
@@ -74,36 +77,27 @@ export default async function getMonitors(c: Context) {
     const { data: recentLogs, error: logError } = await supabase
       .from("logs")
       .select("*")
-      .in("monitor_id", monitorIds)
+      .eq("monitor_id", monitorId)
       .gte("created_at", thirtyDaysAgoISO)
       .order("created_at", { ascending: false });
 
     if (logError) {
-      console.error(`Error fetching recent logs:`, logError);
+      console.error(
+        `Error fetching recent logs for monitor ${monitorId}:`,
+        logError,
+      );
+      monitor.recent_logs = [];
+    } else {
+      monitor.recent_logs = (recentLogs || []) as Log[];
     }
-
-    const logsByMonitorId = new Map<string, Partial<Log>[]>();
-    if (recentLogs) {
-      for (const log of recentLogs) {
-        if (!logsByMonitorId.has(log.monitor_id)) {
-          logsByMonitorId.set(log.monitor_id, []);
-        }
-        logsByMonitorId.get(log.monitor_id)!.push(log);
-      }
-    }
-
-    const monitorsWithLogs = monitors.map((monitor) => ({
-      ...monitor,
-      recent_logs: logsByMonitorId.get(monitor.id) || [],
-    }));
 
     return c.json({
-      data: monitorsWithLogs,
+      data: monitor,
       success: true,
       error: null,
     });
   } catch (err) {
-    console.error("Unexpected error fetching monitors:", err);
+    console.error(`Unexpected error fetching monitor ${monitorId}:`, err);
     const errorDetails = err instanceof Error ? err.message : String(err);
     return c.json(
       {

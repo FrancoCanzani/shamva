@@ -32,7 +32,7 @@ export default async function fetchWorkspace({
     });
   }
 
-  const response = await fetch(`/api/workspace/${params.workspaceId}`, {
+  const response = await fetch(`/api/workspaces/${params.workspaceId}`, {
     headers: {
       Authorization: `Bearer ${session.access_token}`,
     },

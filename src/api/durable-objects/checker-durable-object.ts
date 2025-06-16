@@ -260,29 +260,43 @@ export class CheckerDurableObject extends DurableObject {
             .single();
 
           if (activeIncident) {
-            await this.updateIncident(activeIncident.id, {
-              resolved_at: new Date(now).toISOString(),
-              downtime_duration_ms: now - new Date(activeIncident.started_at).getTime(),
-            });
-
+            // Get monitor with its regions
             const { data: monitor } = await this.supabase
               .from("monitors")
-              .select("*")
+              .select("regions")
               .eq("id", config.monitorId)
               .single();
 
-            if (monitor) {
-              const emailData: MonitorEmailData = {
-                monitorId: config.monitorId,
-                monitorName: monitor.name,
-                url: monitor.url,
-                statusCode: result.statusCode ?? undefined,
-                errorMessage: undefined,
-                lastChecked: new Date(now).toISOString(),
-                region: config.region || "Unknown",
-              };
+            // Check if all regions are now healthy by checking if all regions in the incident are resolved
+            const allRegionsHealthy = monitor?.regions.every((region: string) => 
+              !activeIncident.regions_affected.includes(region)
+            );
 
-              await this.sendNotifications(emailData, true, userEmails, monitor.slack_webhook_url);
+            if (allRegionsHealthy) {
+              await this.updateIncident(activeIncident.id, {
+                resolved_at: new Date(now).toISOString(),
+                downtime_duration_ms: now - new Date(activeIncident.started_at).getTime(),
+              });
+
+              const { data: monitor } = await this.supabase
+                .from("monitors")
+                .select("*")
+                .eq("id", config.monitorId)
+                .single();
+
+              if (monitor) {
+                const emailData: MonitorEmailData = {
+                  monitorId: config.monitorId,
+                  monitorName: monitor.name,
+                  url: monitor.url,
+                  statusCode: result.statusCode ?? undefined,
+                  errorMessage: undefined,
+                  lastChecked: new Date(now).toISOString(),
+                  region: config.region || "Unknown",
+                };
+
+                await this.sendNotifications(emailData, true, userEmails, monitor.slack_webhook_url);
+              }
             }
           }
 
@@ -342,12 +356,23 @@ export class CheckerDurableObject extends DurableObject {
                   });
                 }
               }
+            } else {
+              // Update the regions_affected array in the incident
+              const updatedRegions = [...new Set([...activeIncident.regions_affected, config.region])];
+              await this.updateIncident(activeIncident.id, {
+                regions_affected: updatedRegions,
+              });
             }
+
+            // Set monitor status based on number of affected regions
+            const affectedRegions = activeIncident?.regions_affected.length || 1;
+            const totalRegions = monitor.regions.length;
+            const newStatus = affectedRegions === totalRegions ? "error" : "degraded";
 
             await this.supabase
               .from("monitors")
               .update({
-                status: "error",
+                status: newStatus,
                 error_message: result.checkError ?? `HTTP status ${result.statusCode}`,
                 last_check_at: new Date(now).toISOString(),
                 last_failure_at: new Date(now).toISOString(),

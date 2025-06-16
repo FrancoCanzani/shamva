@@ -1,7 +1,7 @@
 import { Context } from "hono";
 import { createSupabaseClient } from "../../lib/supabase/client";
 
-export default async function deleteStatusPage(c: Context) {
+export default async function deleteStatusPages(c: Context) {
   const userId = c.get("userId");
   const statusPageId = c.req.param("id");
 

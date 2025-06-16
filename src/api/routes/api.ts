@@ -5,21 +5,21 @@ import { rateLimit } from "../lib/middleware/rate-limit-middleware";
 import { ApiVariables } from "../lib/types";
 import postCheck from "./check/post";
 import getLogs from "./logs/get";
-import deleteMonitor from "./monitor/delete";
-import getMonitor from "./monitor/get";
-import postMonitors from "./monitor/post";
-import putMonitor from "./monitor/put";
 import getMonitors from "./monitors/get";
-import deleteStatusPage from "./status-page/delete";
-import getStatusPage from "./status-page/get";
-import postStatusPage from "./status-page/post";
-import putStatusPage from "./status-page/put";
+import postMonitors from "./monitors/post";
+import putMonitors from "./monitors/put";
+import getAllMonitors from "./monitors/get-all";
 import getStatusPages from "./status-pages/get";
-import deleteWorkspace from "./workspace/delete";
-import getWorkspace from "./workspace/get";
-import postWorkspace from "./workspace/post";
-import putWorkspace from "./workspace/put";
+import postStatusPages from "./status-pages/post";
+import putStatusPages from "./status-pages/put";
+import getAllStatusPages from "./status-pages/get-all";
+import deleteWorkspaces from "./workspaces/delete";
 import getWorkspaces from "./workspaces/get";
+import postWorkspaces from "./workspaces/post";
+import putWorkspaces from "./workspaces/put";
+import getAllWorkspaces from "./workspaces/get-all";
+import deleteMonitors from "./monitors/delete";
+import deleteStatusPages from "./status-pages/delete";
 
 const apiRoutes = new Hono<{
   Bindings: EnvBindings;
@@ -35,25 +35,25 @@ apiRoutes.get("/api/test", (c) => {
 });
 
 // Workspace routes
-apiRoutes.get("/api/workspaces", getWorkspaces);
-apiRoutes.post("/api/workspace", postWorkspace);
-apiRoutes.get("/api/workspace/:id", getWorkspace);
-apiRoutes.put("/api/workspace/:id", putWorkspace);
-apiRoutes.delete("/api/workspace/:id", deleteWorkspace);
+apiRoutes.get("/api/workspaces", getAllWorkspaces);
+apiRoutes.post("/api/workspaces", postWorkspaces);
+apiRoutes.get("/api/workspaces/:id", getWorkspaces);
+apiRoutes.put("/api/workspaces/:id", putWorkspaces);
+apiRoutes.delete("/api/workspaces/:id", deleteWorkspaces);
 
 // Monitor routes
 apiRoutes.post("/api/monitors", postMonitors);
-apiRoutes.get("/api/monitors", getMonitors);
-apiRoutes.get("/api/monitors/:id", getMonitor);
-apiRoutes.put("/api/monitors/:id", putMonitor);
-apiRoutes.delete("/api/monitors/:id", deleteMonitor);
+apiRoutes.get("/api/monitors", getAllMonitors);
+apiRoutes.get("/api/monitors/:id", getMonitors);
+apiRoutes.put("/api/monitors/:id", putMonitors);
+apiRoutes.delete("/api/monitors/:id", deleteMonitors);
 
 // Status page routes
-apiRoutes.post("/api/status-page", postStatusPage);
-apiRoutes.get("/api/status-pages", getStatusPages);
-apiRoutes.get("/api/status-page/:id", getStatusPage);
-apiRoutes.put("/api/status-page/:id", putStatusPage);
-apiRoutes.delete("/api/status-page/:id", deleteStatusPage);
+apiRoutes.post("/api/status-pages", postStatusPages);
+apiRoutes.get("/api/status-pages", getAllStatusPages);
+apiRoutes.get("/api/status-pages/:id", getStatusPages);
+apiRoutes.put("/api/status-pages/:id", putStatusPages);
+apiRoutes.delete("/api/status-pages/:id", deleteStatusPages);
 
 // Logs and check routes
 apiRoutes.get("/api/logs", getLogs);

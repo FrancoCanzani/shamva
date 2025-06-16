@@ -7,7 +7,7 @@ function getStatusText(status: string) {
   switch (status) {
     case "active":
       return "OPERATIONAL";
-    case "warning":
+    case "degraded":
       return "DEGRADED";
     case "error":
     case "broken":

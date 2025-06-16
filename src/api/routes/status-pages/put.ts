@@ -2,7 +2,7 @@ import { Context } from "hono";
 import { StatusPageSchema } from "../../lib/schemas";
 import { createSupabaseClient } from "../../lib/supabase/client";
 
-export default async function putStatusPage(c: Context) {
+export default async function putStatusPages(c: Context) {
   const userId = c.get("userId");
   const statusPageId = c.req.param("id");
 

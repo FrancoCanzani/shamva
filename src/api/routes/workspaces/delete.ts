@@ -1,7 +1,7 @@
 import { Context } from "hono";
 import { createSupabaseClient } from "../../lib/supabase/client";
 
-export default async function deleteWorkspace(c: Context) {
+export default async function deleteWorkspaces(c: Context) {
   const userId = c.get("userId");
   const workspaceId = c.req.param("id");
 

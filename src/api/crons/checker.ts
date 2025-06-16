@@ -26,13 +26,16 @@ export async function handleCheckerCron(env: EnvBindings): Promise<void> {
     
   try {
     const { data: monitors, error } = await createSupabaseClient(env)
-      .from("monitors")
-      .select("*")
-      .eq("active", true)
-      .or(
-        `last_check_at.is.null,` + // Never checked
-        `extract(epoch from (now() - last_check_at)) >= interval` // Or enough time has passed
-      );
+    .from("monitors")
+    .select("*")
+    .or(
+      `last_check_at.is.null,` + // Never checked before
+      // Check if enough time has passed since last check:
+      // - Calculate seconds elapsed: extract(epoch from (now() - last_check_at))
+      // - Compare with monitor's interval setting (stored in seconds)
+      // - Only run if elapsed time >= interval (e.g., 300 seconds = 5 minutes)
+      `extract(epoch from (now() - last_check_at)) >= interval`
+    );
 
     if (error) {
       console.error("Failed to fetch monitors:", error);

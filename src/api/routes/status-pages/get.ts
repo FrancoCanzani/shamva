@@ -3,7 +3,7 @@ import { createSupabaseClient } from "../../lib/supabase/client";
 
 export default async function getStatusPages(c: Context) {
   const userId = c.get("userId");
-  const workspaceId = c.req.query("workspaceId");
+  const statusPageId = c.req.param("id");
 
   if (!userId) {
     return c.json(
@@ -12,72 +12,77 @@ export default async function getStatusPages(c: Context) {
     );
   }
 
+  if (!statusPageId) {
+    return c.json(
+      { data: null, success: false, error: "Status page ID is required" },
+      400,
+    );
+  }
+
   try {
     const supabase = createSupabaseClient(c.env);
 
-    let query = supabase.from("status_pages").select(`
+    const { data: statusPage, error: statusPageError } = await supabase
+      .from("status_pages")
+      .select(
+        `
         *,
         workspace:workspaces(id, name)
-      `);
+      `,
+      )
+      .eq("id", statusPageId)
+      .single();
 
-    if (workspaceId) {
-      // Check if user has access to this workspace
-      const { data: membership } = await supabase
-        .from("workspace_members")
-        .select("role")
-        .eq("workspace_id", workspaceId)
-        .eq("user_id", userId)
-        .single();
-
-      if (!membership) {
-        return c.json({ data: [], success: true, error: null }, 200);
+    if (statusPageError) {
+      if (statusPageError.code === "PGRST116") {
+        return c.json(
+          { data: null, success: false, error: "Status page not found" },
+          404,
+        );
       }
 
-      query = query.eq("workspace_id", workspaceId);
-    } else {
-      // Get all workspaces the user has access to
-      const { data: memberships } = await supabase
-        .from("workspace_members")
-        .select("workspace_id")
-        .eq("user_id", userId);
-
-      if (!memberships || memberships.length === 0) {
-        return c.json({
-          data: [],
-          success: true,
-          error: null,
-        });
-      }
-
-      const workspaceIds = memberships.map((m) => m.workspace_id);
-      query = query.in("workspace_id", workspaceIds);
-    }
-
-    const { data: statusPages, error: statusPagesError } = await query.order(
-      "created_at",
-      { ascending: false },
-    );
-
-    if (statusPagesError) {
-      console.error("Error fetching status pages from DB:", statusPagesError);
       return c.json(
         {
           data: null,
           success: false,
-          error: "Database error fetching status pages",
-          details: statusPagesError.message,
+          error: "Database error fetching status page",
+          details: statusPageError.message,
         },
         500,
       );
     }
 
+    if (!statusPage) {
+      return c.json(
+        { data: null, success: false, error: "Status page not found" },
+        404,
+      );
+    }
+
+    const { data: membership } = await supabase
+      .from("workspace_members")
+      .select("role")
+      .eq("workspace_id", statusPage.workspace_id)
+      .eq("user_id", userId)
+      .single();
+
+    if (!membership) {
+      return c.json(
+        { data: null, success: false, error: "Access denied" },
+        403,
+      );
+    }
+
     return c.json({
-      data: statusPages || [],
+      data: statusPage,
       success: true,
       error: null,
     });
   } catch (err) {
-    console.error("Unexpected error fetching status pages:", err);
+    console.error(
+      `Unexpected error fetching status page ${statusPageId}:`,
+      err,
+    );
     const errorDetails = err instanceof Error ? err.message : String(err);
     return c.json(
       {

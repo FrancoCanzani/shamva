@@ -21,6 +21,9 @@ async function getWorkspaceUsers(env: EnvBindings, workspaceId: string): Promise
 }
 
 export async function handleCheckerCron(env: EnvBindings): Promise<void> {
+
+    console.log("Checking monitors");
+    
   try {
     const { data: monitors, error } = await createSupabaseClient(env)
       .from("monitors")

@@ -15,7 +15,7 @@ export const rateLimit = () => {
     const windowStart = now - WINDOW_SIZE * 1000;
 
     try {
-      const requests = await c.env.LINKS.get(key, "json") as number[] || [];
+      const requests = await c.env.RATE_LIMITS.get(key, "json") as number[] || [];
       
       // Remove old requests
       const recentRequests = requests.filter(time => time > windowStart);
@@ -28,7 +28,7 @@ export const rateLimit = () => {
       }
 
       recentRequests.push(now);
-      await c.env.LINKS.put(key, JSON.stringify(recentRequests), {
+      await c.env.RATE_LIMITS.put(key, JSON.stringify(recentRequests), {
         expirationTtl: WINDOW_SIZE,
       });
 

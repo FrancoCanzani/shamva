@@ -1,5 +1,5 @@
 export interface EnvBindings {
-  LINKS: KVNamespace;
+  RATE_LIMITS: KVNamespace;
   ASSETS: Fetcher;
   VITE_SUPABASE_URL: string;
   VITE_SUPABASE_ANON_KEY: string;

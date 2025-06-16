@@ -1,4 +1,4 @@
-import { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
+import { SupabaseClient } from "@supabase/supabase-js";
 import { DurableObject } from "cloudflare:workers";
 import type { EnvBindings } from "../../../bindings";
 import { EmailService } from "../lib/email/service";
@@ -197,10 +197,11 @@ export class CheckerDurableObject extends DurableObject {
     method: string,
     region: string | null,
   ): Promise<void> {
+    console.log(`DO ${this.doId}: Attempting to log check result for monitor ${monitorId}`);
+    
     const logData = {
       user_id: userId,
       monitor_id: monitorId,
-      do_id: this.doId,
       url,
       status_code: result.statusCode,
       latency: result.latencyMs,
@@ -213,16 +214,47 @@ export class CheckerDurableObject extends DurableObject {
       region,
     };
 
-    try {
-      const { error } = await this.supabase
-        .from("monitor_logs")
-        .insert(logData);
+    console.log(`DO ${this.doId}: Log data prepared:`, {
+      monitorId,
+      userId,
+      statusCode: result.statusCode,
+      latency: result.latencyMs,
+      error: result.checkError,
+      region
+    });
 
-      if (error) throw error;
+    try {
+      console.log(`DO ${this.doId}: Attempting to insert log into monitor_logs table`);
+      const { data, error } = await this.supabase
+        .from("logs")
+        .insert(logData)
+        .select();
+
+      if (error) {
+        console.error(`DO ${this.doId}: Database error inserting log:`, {
+          error,
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
+        throw error;
+      }
+
+      console.log(`DO ${this.doId}: Successfully inserted log with ID:`, data?.[0]?.id);
     } catch (dbError: unknown) {
-      console.error(
-        `DO ${this.doId}: Failed DB log insert: ${(dbError as PostgrestError)?.message ?? String(dbError)}`,
-      );
+      const errorMessage = dbError instanceof Error ? dbError.message : String(dbError);
+      const errorDetails = dbError instanceof Error ? dbError.stack : undefined;
+      
+      console.error(`DO ${this.doId}: Failed to insert log:`, {
+        error: errorMessage,
+        details: errorDetails,
+        monitorId,
+        userId,
+        url,
+        method,
+        region
+      });
     }
   }
 

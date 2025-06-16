@@ -56,7 +56,7 @@ export interface Monitor {
   body: Record<string, unknown> | string | null;
   region: string;
   interval: number;
-  status: "broken" | "active" | "maintenance" | "paused" | "warning" | "error";
+  status: "broken" | "active" | "maintenance" | "paused" | "degraded" | "error";
   error_message: string | null;
   name: string;
   regions: string[];
@@ -67,7 +67,6 @@ export interface Log {
   id: string;
   user_id: string;
   monitor_id: string;
-  do_id: string;
   url: string;
   status_code: number;
   region: string;
@@ -124,7 +123,7 @@ export interface PublicMonitor {
   id: string;
   name: string;
   url: string;
-  status: "active" | "error" | "warning" | "maintenance" | "broken";
+  status: "active" | "error" | "degraded" | "maintenance" | "broken";
   uptime_percentage?: number;
   avg_response_time?: number;
   total_checks?: number;

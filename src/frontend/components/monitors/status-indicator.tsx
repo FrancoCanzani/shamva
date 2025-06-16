@@ -1,5 +1,5 @@
 interface StatusIndicatorProps {
-  status: "active" | "warning" | "error" | "initializing" | "broken";
+  status: "active" | "degraded" | "error" | "initializing" | "broken";
 }
 
 export function StatusIndicator({ status }: StatusIndicatorProps) {

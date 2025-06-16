@@ -51,10 +51,14 @@ export default {
   fetch: app.fetch,
 
   async scheduled(
-    // controller: ScheduledController,
+    // @ts-expect-error - Required by Cloudflare Workers API
+    controller: ScheduledController,
     env: EnvBindings,
+    // @ts-expect-error - Required by Cloudflare Workers API
     ctx: ExecutionContext,
-  ): Promise<void> {
-    ctx.waitUntil(handleCheckerCron(env));
+  ) {
+    console.log("Checking monitors cron");
+
+    await handleCheckerCron(env);
   },
 };

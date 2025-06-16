@@ -30,34 +30,36 @@ export interface InitializeCheckerDOPayload {
   body?: Record<string, unknown> | string | null;
 }
 
+export type Region = "wnam" | "enam" | "sam" | "weur" | "eeur" | "apac" | "oc" | "afr" | "me";
+
 export interface Monitor {
   id: string;
-  created_at: string;
-  updated_at: string;
+  workspace_id: string;
+  user_id: string;
   url: string;
   method: "GET" | "POST" | "HEAD";
-  headers: Record<string, string>;
+  interval: number;
+  regions: Region[];
+  headers: Record<string, string> | null;
+  body: Record<string, any> | null;
+  created_at: string;
+  updated_at: string;
   last_check_at: string | null;
   last_success_at: string | null;
   last_failure_at: string | null;
   failure_count: number;
   success_count: number;
-  user_id: string;
-  body: Record<string, unknown> | string | null;
-  region: string;
-  interval: number;
   status: "broken" | "active" | "maintenance" | "paused" | "error" | "degraded";
   error_message: string | null;
   name: string;
-  regions: string[];
+  slack_webhook_url: string | null;
   recent_logs: Partial<Log>[];
-}
+ }
 
 export interface Log {
   id: string;
   user_id: string;
   monitor_id: string;
-  do_id: string;
   url: string;
   status_code: number;
   region: string;

@@ -225,7 +225,6 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({
       monitor_id: false,
-      do_id: false,
     });
 
   const table = useReactTable({

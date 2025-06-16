@@ -1,8 +1,27 @@
-import { EnvBindings } from "../../../../bindings";
 import { MonitorEmailData } from "../types";
 
 export class SlackService {
-  constructor(env: EnvBindings) {}
+  constructor() {}
+
+  private calculateDowntime(
+    lastSuccessAt: string,
+    currentTime: Date,
+  ): string {
+    const lastSuccess = new Date(lastSuccessAt);
+    const diffMs = currentTime.getTime() - lastSuccess.getTime();
+
+    const minutes = Math.floor(diffMs / 60000);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (days > 0) {
+      return `${days}d ${hours % 24}h ${minutes % 60}m`;
+    } else if (hours > 0) {
+      return `${hours}h ${minutes % 60}m`;
+    } else {
+      return `${minutes}m`;
+    }
+  }
 
   private async sendMessage(webhookUrl: string, message: string): Promise<boolean> {
     try {
@@ -39,13 +58,14 @@ export class SlackService {
 
   async sendMonitorRecoveredAlert(
     data: MonitorEmailData,
-    lastSuccessAt: string | null,
+    lastSuccessAt: string,
     webhookUrl: string,
   ): Promise<boolean> {
+    const downtime = this.calculateDowntime(lastSuccessAt, new Date());
     const message = `✅ *Great News: ${data.monitorName} is Back Online*\n\n` +
       `• URL: ${data.url}\n` +
       `• Status: Online\n` +
-      (data.downtime ? `• Downtime: ${data.downtime}\n` : "") +
+      `• Downtime: ${downtime}\n` +
       `• Recovered At: ${new Date(data.lastChecked).toLocaleString()}\n` +
       (data.region ? `• Region: ${data.region}\n` : "") +
       `\nWe'll continue monitoring to ensure your service stays healthy.`;

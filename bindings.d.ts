@@ -9,4 +9,5 @@ export interface EnvBindings {
   DATABASE_URL: string;
   CHECKER_DURABLE_OBJECT: DurableObjectNamespace<CheckerDurableObject>;
   RESEND_API_KEY: string;
+  BROWSER: Fetcher;
 }

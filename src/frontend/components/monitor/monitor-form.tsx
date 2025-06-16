@@ -78,7 +78,7 @@ export default function MonitorForm({
       regions: defaultValues?.regions ?? [],
       headersString: defaultValues?.headers ? JSON.stringify(defaultValues.headers, null, 2) : "",
       bodyString: defaultValues?.body ? JSON.stringify(defaultValues.body, null, 2) : "",
-      slackWebhookUrl: defaultValues?.slack_webhook_url ?? "",
+      slackWebhookUrl: defaultValues?.slack_webhook_url || undefined,
     },
     onSubmit: async ({ value }) => {
       const headers = value.headersString ? JSON.parse(value.headersString) : undefined

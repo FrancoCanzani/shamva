@@ -41,8 +41,8 @@
   // Cron triggers for scheduled tasks
   "triggers": {
     "crons": [
-      // Run the Durable Object health check every 30 minutes
-      "*/30 * * * *",
+      // Run checks every minute
+      "* * * * *",
     ],
   },
 }

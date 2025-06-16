@@ -4,10 +4,10 @@ import { prettyJSON } from "hono/pretty-json";
 import { cors } from "hono/cors";
 import { secureHeaders } from "hono/secure-headers";
 import { EnvBindings } from "../../bindings";
-import { doHealthCheck } from "./crons/do-health-check";
 import { CheckerDurableObject } from "./durable-objects/checker-durable-object";
 import apiRoutes from "./routes/api";
 import getPublicStatusPage from "./routes/status/get";
+import { handleCheckerCron } from "./crons/checker";
 
 export { CheckerDurableObject };
 
@@ -51,10 +51,10 @@ export default {
   fetch: app.fetch,
 
   async scheduled(
-    controller: ScheduledController,
+    // controller: ScheduledController,
     env: EnvBindings,
     ctx: ExecutionContext,
-  ) {
-    ctx.waitUntil(doHealthCheck(env, controller.scheduledTime));
+  ): Promise<void> {
+    ctx.waitUntil(handleCheckerCron(env));
   },
 };

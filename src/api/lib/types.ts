@@ -78,6 +78,7 @@ export interface MonitorConfig {
   urlToCheck: string;
   monitorId: string;
   userId: string;
+  workspaceId: string;
   method: string;
   intervalMs: number;
   region: string | null;
@@ -85,7 +86,7 @@ export interface MonitorConfig {
   consecutiveFailures: number;
   lastStatusCode?: number;
   headers?: Record<string, string>;
-  body?: Record<string, unknown> | string | null;
+  body?: string | FormData | URLSearchParams;
 }
 
 export interface CheckResult {
@@ -102,13 +103,10 @@ export interface MonitorEmailData {
   monitorId: string;
   monitorName: string;
   url: string;
-  userEmail: string;
-  userName?: string;
   statusCode?: number;
   errorMessage?: string;
-  downtime?: string;
   lastChecked: string;
-  region?: string;
+  region: string;
 }
 
 export interface Incident {

@@ -1,4 +1,5 @@
 import { RouterProvider, createRouter } from "@tanstack/react-router";
+import { CatchBoundary } from "@tanstack/react-router";
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 import { routeTree } from "./routeTree.gen";
@@ -19,7 +20,9 @@ if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <StrictMode>
-      <RouterProvider router={router} />
+      <CatchBoundary getResetKey={() => window.location.pathname}>
+        <RouterProvider router={router} />
+      </CatchBoundary>
     </StrictMode>,
   );
 }

@@ -1,25 +1,22 @@
 import { render } from "@react-email/render";
-import { EnvBindings } from "../../../../bindings";
 import { MonitorEmailData } from "../types";
-import { createResendClient } from "./client";
 import { MonitorDownEmail } from "./templates/monitor-down-email";
 import { MonitorRecoveredEmail } from "./templates/monitor-recovered-email";
+import { Resend } from "resend";
 
 export class EmailService {
-  private resend;
+  private resend: Resend;
   private fromEmail: string;
 
-  constructor(env: EnvBindings) {
-    this.resend = createResendClient(env);
+  constructor(env: { RESEND_API_KEY: string }) {
+    this.resend = new Resend(env.RESEND_API_KEY);
     this.fromEmail = "alerts@shamva.io";
   }
 
   private calculateDowntime(
-    lastSuccessAt: string | null,
+    lastSuccessAt: string,
     currentTime: Date,
   ): string {
-    if (!lastSuccessAt) return "Unknown";
-
     const lastSuccess = new Date(lastSuccessAt);
     const diffMs = currentTime.getTime() - lastSuccess.getTime();
 
@@ -36,96 +33,63 @@ export class EmailService {
     }
   }
 
-  async sendMonitorDownAlert(data: MonitorEmailData): Promise<boolean> {
+  async sendMonitorDownAlert(
+    data: MonitorEmailData,
+    userEmails: string[],
+  ): Promise<boolean> {
     try {
       const emailHtml = await render(
         MonitorDownEmail({
           monitorName: data.monitorName,
           url: data.url,
-          userName: data.userName,
           statusCode: data.statusCode,
           errorMessage: data.errorMessage,
           lastChecked: data.lastChecked,
           region: data.region,
+          dashboardUrl: `https://shamva.io/dashboard/monitors/${data.monitorId}`,
         }),
       );
 
-      const emailText = await render(
-        MonitorDownEmail({
-          monitorName: data.monitorName,
-          url: data.url,
-          userName: data.userName,
-          statusCode: data.statusCode,
-          errorMessage: data.errorMessage,
-          lastChecked: data.lastChecked,
-          region: data.region,
-        }),
-        { plainText: true },
-      );
-
-      const result = await this.resend.emails.send({
+      await this.resend.emails.send({
         from: this.fromEmail,
-        to: [data.userEmail],
-        subject: `🚨 Monitor Alert: ${data.monitorName} is Down`,
+        to: userEmails,
+        subject: `🚨 ${data.monitorName} is down`,
         html: emailHtml,
-        text: emailText,
       });
-
-      console.log(`Monitor down email sent successfully: ${result.data?.id}`);
       return true;
     } catch (error) {
-      console.error("Failed to send monitor down email:", error);
+      console.error("Failed to send monitor down alert:", error);
       return false;
     }
   }
 
   async sendMonitorRecoveredAlert(
     data: MonitorEmailData,
-    lastSuccessAt: string | null,
+    lastSuccessAt: string,
+    userEmails: string[],
   ): Promise<boolean> {
     try {
-      const downtime = this.calculateDowntime(
-        lastSuccessAt,
-        new Date(data.lastChecked),
-      );
-
+      const downtime = this.calculateDowntime(lastSuccessAt, new Date());
       const emailHtml = await render(
         MonitorRecoveredEmail({
           monitorName: data.monitorName,
           url: data.url,
-          userName: data.userName,
           downtime,
           lastChecked: data.lastChecked,
           region: data.region,
+          dashboardUrl: `https://shamva.io/dashboard/monitors/${data.monitorId}`,
         }),
       );
 
-      const emailText = await render(
-        MonitorRecoveredEmail({
-          monitorName: data.monitorName,
-          url: data.url,
-          userName: data.userName,
-          downtime,
-          lastChecked: data.lastChecked,
-          region: data.region,
-        }),
-        { plainText: true },
-      );
-
-      const result = await this.resend.emails.send({
+      await this.resend.emails.send({
         from: this.fromEmail,
-        to: [data.userEmail],
-        subject: `✅ Good News: ${data.monitorName} is Back Online`,
+        to: userEmails,
+        subject: `✅ ${data.monitorName} is back up`,
         html: emailHtml,
-        text: emailText,
       });
-
-      console.log(
-        `Monitor recovered email sent successfully: ${result.data?.id}`,
-      );
       return true;
     } catch (error) {
-      console.error("Failed to send monitor recovered email:", error);
+      console.error("Failed to send monitor recovered alert:", error);
       return false;
     }
   }
@@ -136,15 +100,13 @@ export class EmailService {
         monitorId: "test-123",
         monitorName: "Test Monitor",
         url: "https://example.com",
-        userEmail,
-        userName: "Test User",
         statusCode: 500,
         errorMessage: "Internal Server Error",
         lastChecked: new Date().toISOString(),
         region: "us-east-1",
       };
 
-      return await this.sendMonitorDownAlert(testData);
+      return await this.sendMonitorDownAlert(testData, [userEmail]);
     } catch (error) {
       console.error("Failed to send test email:", error);
       return false;

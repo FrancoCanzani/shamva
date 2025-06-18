@@ -57,7 +57,6 @@ export default {
     // @ts-expect-error - Required by Cloudflare Workers API
     ctx: ExecutionContext,
   ) {
-    console.log("Checking monitors cron");
 
     await handleCheckerCron(env);
   },

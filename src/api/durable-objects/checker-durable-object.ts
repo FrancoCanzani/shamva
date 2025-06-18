@@ -162,7 +162,6 @@ export class CheckerDurableObject extends DurableObject {
     slackWebhookUrl?: string,
   ): Promise<boolean> {
     if (this.env.NAME === "development") {
-      console.log("Skipping notification in development environment");
       return true;
     }
 
@@ -197,7 +196,6 @@ export class CheckerDurableObject extends DurableObject {
     method: string,
     region: string | null,
   ): Promise<void> {
-    console.log(`DO ${this.doId}: Attempting to log check result for monitor ${monitorId}`);
     
     const logData = {
       user_id: userId,
@@ -214,17 +212,7 @@ export class CheckerDurableObject extends DurableObject {
       region,
     };
 
-    console.log(`DO ${this.doId}: Log data prepared:`, {
-      monitorId,
-      userId,
-      statusCode: result.statusCode,
-      latency: result.latencyMs,
-      error: result.checkError,
-      region
-    });
-
     try {
-      console.log(`DO ${this.doId}: Attempting to insert log into monitor_logs table`);
       const { data, error } = await this.supabase
         .from("logs")
         .insert(logData)
@@ -241,7 +229,6 @@ export class CheckerDurableObject extends DurableObject {
         throw error;
       }
 
-      console.log(`DO ${this.doId}: Successfully inserted log with ID:`, data?.[0]?.id);
     } catch (dbError: unknown) {
       const errorMessage = dbError instanceof Error ? dbError.message : String(dbError);
       const errorDetails = dbError instanceof Error ? dbError.stack : undefined;

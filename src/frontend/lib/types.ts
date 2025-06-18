@@ -161,4 +161,5 @@ export interface Incident {
   regions_affected: string[];
   created_at: string;
   updated_at: string;
+  monitors?: Partial<Monitor>;
 }

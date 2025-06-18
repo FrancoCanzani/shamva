@@ -24,6 +24,7 @@ export default async function getIncident(c: Context) {
           id,
           name,
           url,
+          error_message,
           workspace_id
         )
       `)

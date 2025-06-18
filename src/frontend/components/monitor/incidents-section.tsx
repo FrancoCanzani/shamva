@@ -1,130 +1,76 @@
-import { Incident } from "@/frontend/lib/types";
-import { cn, getRegionFlags } from "@/frontend/lib/utils";
-import { formatDistanceToNowStrict, parseISO } from "date-fns";
-import { CheckCircle, ExternalLink, MoreHorizontal } from "lucide-react";
-import { Link } from "@tanstack/react-router";
-import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
-import { Separator } from "../ui/separator";
-import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id";
+import type { Incident } from "@/frontend/lib/types"
+import { getRegionFlags } from "@/frontend/lib/utils"
+import { formatDistanceToNowStrict, parseISO } from "date-fns"
+import {  ArrowRight } from "lucide-react"
+import { Link } from "@tanstack/react-router"
+import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id"
+import { cn } from "@/frontend/lib/utils"
 
-export default function IncidentsSection({ incidents }: {incidents: Partial<Incident>[]}) {
-  const { workspaceName } = Route.useParams();
+export default function IncidentsSection({ incidents }: { incidents: Partial<Incident>[] }) {
+  const { workspaceName } = Route.useParams()
 
   const getIncidentStatus = (incident: Partial<Incident>) => {
     if (incident.resolved_at) {
-      return { status: "resolved", label: "Resolved", color: "bg-emerald-500" };
+      return { status: "resolved", label: "Resolved", color: "text-green-700" }
     }
     if (incident.acknowledged_at) {
-      return { status: "acknowledged", label: "Acknowledged", color: "bg-amber-500" };
+      return { status: "acknowledged", label: "Acknowledged", color: "text-orange-700" }
     }
-    return { status: "active", label: "Active", color: "bg-red-500" };
-  };
-
-  const getDuration = (startedAt: string, resolvedAt?: string | null) => {
-    const start = parseISO(startedAt);
-    const end = resolvedAt ? parseISO(resolvedAt) : new Date();
-    return formatDistanceToNowStrict(start, { addSuffix: false });
-  };
+    return { status: "active", label: "Active", color: "text-red-700" }
+  }
 
   if (incidents.length === 0) {
     return (
       <div>
         <h2 className="text-sm font-medium mb-4">Incidents</h2>
-        <div className="border-dashed">
-          <div className="pt-6">
-            <div className="text-center text-muted-foreground">
-              <CheckCircle className="mx-auto h-8 w-8 mb-2 opacity-50" />
-              <p className="text-sm">No incidents reported</p>
-            </div>
-          </div>
+        <div className="border border-dashed p-8">
+            <p className="text-sm text-center text-muted-foreground">No incidents reported</p>
         </div>
       </div>
-    );
+    )
   }
 
   return (
     <div>
       <h2 className="text-sm font-medium mb-4">Incidents</h2>
-      <div className="space-y-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
         {incidents.map((incident) => {
-          const status = getIncidentStatus(incident);
-          const duration = getDuration(incident.started_at!, incident.resolved_at);
-          
+          const status = getIncidentStatus(incident)
+
           return (
-            <Link to="/dashboard/$workspaceName/incidents/$id" params={{ workspaceName, id: incident.id! }} key={incident.id} className="group hover:shadow-sm transition-shadow">
-              <div className="pb-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className={cn("w-2 h-2 rounded-full", status.color)} />
-                    <div>
-                      <div className="text-sm font-medium">
-                        {status.label} Incident
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Started {formatDistanceToNowStrict(parseISO(incident.started_at!), { addSuffix: true })}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className="text-xs font-normal">
-                      {duration}
-                    </Badge>
-                    {incident.screenshot_url && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={() => window.open(incident.screenshot_url!, "_blank")}
-                      >
-                        <ExternalLink className="h-3 w-3" />
-                      </Button>
-                    )}
-                    <Link
-                    to="/dashboard/$workspaceName/incidents/$id"
-                    params={{
-                      workspaceName,
-                      id: incident.id!,
-                    }}
-                      className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <MoreHorizontal className="h-3 w-3" />
-                    </Link>
-                  </div>
+            <Link
+              to="/dashboard/$workspaceName/incidents/$id"
+              params={{ workspaceName, id: incident.id! }}
+              key={incident.id}
+              className="group block border border-dashed p-2 hover:bg-slate-50 transition-colors"
+            >
+              <div className="flex items-start justify-between mb-3">
+                  <div className="min-w-0">
+                    <div className={cn("text-sm font-medium text-foreground", status.color, {
+                      "animate-pulse": status.status === "active"
+                    })}>{status.label} Incident</div>
+              
                 </div>
-              </div>
-              <div className="pt-0">
-                <div className="space-y-2">
-                  {incident.regions_affected && incident.regions_affected.length > 0 && (
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-muted-foreground">Regions affected:</span>
-                      <span>{getRegionFlags(incident.regions_affected)}</span>
-                    </div>
-                  )}
-                  
-                  {incident.downtime_duration_ms && (
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-muted-foreground">Total downtime:</span>
-                      <span>{Math.round(incident.downtime_duration_ms / 1000 / 60)} minutes</span>
-                    </div>
-                  )}
-                  
-                  {incident.post_mortem && (
-                    <>
-                      <Separator className="my-2" />
-                      <div>
-                        <p className="text-xs text-muted-foreground line-clamp-2">
-                          {incident.post_mortem}
-                        </p>
-                      </div>
-                    </>
-                  )}
+                  <p className="text-xs text-muted-foreground">
+                      Started {formatDistanceToNowStrict(parseISO(incident.started_at!), { addSuffix: true })}
+                  </p>
                 </div>
+
+              <div className="flex items-center justify-between">
+                {incident.regions_affected && incident.regions_affected.length > 0 && (
+                  <div className="flex items-center justify-between text-xs gap-x-1.5">
+                    <span className="text-muted-foreground">Regions affected:</span>
+                    <span className="font-medium">{getRegionFlags(incident.regions_affected)}</span>
+                  </div>
+                )}
+
+              <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+
               </div>
             </Link>
-          );
+          )
         })}
       </div>
     </div>
-  );
-} 
+  )
+}

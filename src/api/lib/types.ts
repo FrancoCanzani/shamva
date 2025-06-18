@@ -54,7 +54,8 @@ export interface Monitor {
   name: string;
   slack_webhook_url: string | null;
   recent_logs: Partial<Log>[];
- }
+  incidents: Partial<Incident>[];
+}
 
 export interface Log {
   id: string;

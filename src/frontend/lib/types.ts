@@ -61,6 +61,7 @@ export interface Monitor {
   name: string;
   regions: string[];
   recent_logs: Partial<Log>[];
+  incidents: Partial<Incident>[];
 }
 
 export interface Log {
@@ -144,4 +145,20 @@ export interface PublicStatusPageData {
 
 export interface PasswordRequiredResponse {
   requiresPassword: true;
+}
+
+export interface Incident {
+  id: string;
+  monitor_id: string;
+  workspace_id: string;
+  started_at: string;
+  notified_at: string | null;
+  acknowledged_at: string | null;
+  resolved_at: string | null;
+  screenshot_url: string | null;
+  post_mortem: string | null;
+  downtime_duration_ms: number | null;
+  regions_affected: string[];
+  created_at: string;
+  updated_at: string;
 }

@@ -20,6 +20,9 @@ import putWorkspaces from "./workspaces/put";
 import getAllWorkspaces from "./workspaces/get-all";
 import deleteMonitors from "./monitors/delete";
 import deleteStatusPages from "./status-pages/delete";
+import getAllIncidents from "./incidents/get-all";
+import getIncident from "./incidents/get";
+import putIncident from "./incidents/put";
 
 const apiRoutes = new Hono<{
   Bindings: EnvBindings;
@@ -58,5 +61,10 @@ apiRoutes.delete("/api/status-pages/:id", deleteStatusPages);
 // Logs and check routes
 apiRoutes.get("/api/logs", getLogs);
 apiRoutes.post("/api/check", postCheck);
+
+// Incident routes
+apiRoutes.get("/api/incidents", getAllIncidents);
+apiRoutes.get("/api/incidents/:id", getIncident);
+apiRoutes.put("/api/incidents/:id", putIncident);
 
 export default apiRoutes;

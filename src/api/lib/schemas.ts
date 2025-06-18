@@ -77,3 +77,9 @@ export const StatusPageSchema = z.object({
   }),
   workspaceId: z.string().uuid("Invalid workspace ID format"),
 });
+
+export const IncidentUpdateSchema = z.object({
+  acknowledged_at: z.string().datetime().optional(),
+  resolved_at: z.string().datetime().optional(),
+  post_mortem: z.string().max(2000, "Post-mortem cannot exceed 2000 characters").optional(),
+});

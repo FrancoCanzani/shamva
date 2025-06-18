@@ -1,6 +1,6 @@
 import { Context } from "hono";
 import { createSupabaseClient } from "../../lib/supabase/client";
-import { Log } from "../../lib/types";
+import { Log, Incident } from "../../lib/types";
 
 export default async function getMonitors(c: Context) {
   const userId = c.get("userId");
@@ -89,6 +89,23 @@ export default async function getMonitors(c: Context) {
       monitor.recent_logs = [];
     } else {
       monitor.recent_logs = (recentLogs || []) as Log[];
+    }
+
+    const { data: incidents, error: incidentError } = await supabase
+      .from("incidents")
+      .select("*")
+      .eq("monitor_id", monitorId)
+      .gte("created_at", thirtyDaysAgoISO)
+      .order("created_at", { ascending: false });
+
+    if (incidentError) {
+      console.error(
+        `Error fetching incidents for monitor ${monitorId}:`,
+        incidentError,
+      );
+      monitor.incidents = [];
+    } else {
+      monitor.incidents = (incidents || []) as Incident[];
     }
 
     return c.json({

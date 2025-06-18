@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Separator } from "../ui/separator";
+import IncidentsSection from "../monitor/incidents-section";
 
 const PERIOD_OPTIONS = [
   { value: 7, label: "Last 7 days" },
@@ -228,6 +229,10 @@ export default function MonitorPage() {
 
         <Separator />
 
+        <IncidentsSection incidents={monitor.incidents || []}  />
+
+        <Separator />
+
         <div>
           <h2 className="text-sm font-medium mb-4">Latency Trends by Region</h2>
           <RegionLatencyCharts logs={filteredLogs} height={36} />
@@ -247,6 +252,8 @@ export default function MonitorPage() {
           </div>
           <RecentChecks logs={monitor.recent_logs} />
         </div>
+
+
       </div>
     </div>
   );

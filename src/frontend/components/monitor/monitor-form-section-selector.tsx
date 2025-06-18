@@ -1,6 +1,6 @@
 export default function MonitorFormSectionSelector() {
     return(
-        <div className="w-48 flex-shrink-0">
+        <div className="w-48 flex-shrink-0 hidden lg:block">
         <div className="sticky top-4">
           <div className="border border-dashed rounded p-4">
             <h3 className="font-medium text-sm mb-3 text-muted-foreground">Sections</h3>

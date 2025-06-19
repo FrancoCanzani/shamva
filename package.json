@@ -5,13 +5,13 @@
   "private": true,
   "devDependencies": {
     "@types/bun": "latest",
-    "turbo": "latest"
+    "turbo": "^2.5.4"
   },
   "peerDependencies": {
     "typescript": "^5"
-  },  
-   "packageManager": "bun@1.2.0",
-   "workspaces": [
+  },
+  "packageManager": "bun@1.2.0",
+  "workspaces": [
     "apps/*",
     "packages/*"
   ],

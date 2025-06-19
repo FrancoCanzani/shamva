@@ -1,0 +1,34 @@
+# Developer Guide
+
+Welcome to the Shamva developer documentation! This guide will help you understand the codebase, run the project locally, and contribute effectively.
+
+## Architecture Overview
+- **Monorepo**: Managed with multiple apps (web, docs) and shared packages.
+- **Frontend**: React + Vite, using TanStack Router and Radix UI.
+- **Backend/API**: Hono (TypeScript) running on Cloudflare Workers.
+- **Database**: Supabase for storage and authentication.
+- **Docs**: Built with [vocs](https://vocs.dev/).
+
+## Local Development
+1. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+2. **Start the web app**:
+   ```bash
+   npm run dev --workspace=web
+   ```
+3. **Start the docs site**:
+   ```bash
+   npm run dev --workspace=docs
+   ```
+4. **Environment**: Configure `.dev.vars` and `wrangler.jsonc` for local Cloudflare Workers.
+
+## Contribution Guidelines
+- Fork the repo and create a feature branch.
+- Follow the existing code style (ESLint, Prettier).
+- Write clear commit messages.
+- Add tests or documentation for new features.
+- Open a pull request and describe your changes.
+
+For more details, see the [Monorepo Structure](/monorepo-structure) page. 

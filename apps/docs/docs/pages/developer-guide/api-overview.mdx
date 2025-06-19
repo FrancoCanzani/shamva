@@ -1,0 +1,24 @@
+# API Overview
+
+The Shamva API lets you interact with monitors, workspaces, status pages, and more. Here's how it works:
+
+## Structure
+- All API routes start with `/api/` (e.g., `/api/monitors`)
+- RESTful: Use `GET`, `POST`, `PUT`, `DELETE` for actions
+
+## Authentication
+- Most routes require an `Authorization` header with your token
+- Example: `Authorization: Bearer YOUR_TOKEN`
+
+## Example Request
+```bash
+curl -H "Authorization: Bearer YOUR_TOKEN" https://your-shamva-instance.com/api/monitors
+```
+
+## Main Endpoints
+- `/api/monitors` – Manage monitors
+- `/api/workspaces` – Manage workspaces
+- `/api/status-pages` – Manage status pages
+- `/api/incidents` – View and update incidents
+
+See the codebase for more details or try the endpoints with a tool like Postman! 

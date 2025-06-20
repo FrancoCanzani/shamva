@@ -19,7 +19,7 @@ interface WorkspaceDropdownProps {
 }
 
 export function WorkspaceDropdown({ workspaceName }: WorkspaceDropdownProps) {
-  const { workspaces, currentWorkspace, isLoading } =
+  const { workspaces, currentWorkspace, isLoading, setCurrentWorkspace } =
     useWorkspaces(workspaceName);
   const navigate = useNavigate();
   const [open, setOpen] = React.useState(false);
@@ -28,12 +28,8 @@ export function WorkspaceDropdown({ workspaceName }: WorkspaceDropdownProps) {
 
   const handleSelectWorkspace = (workspace: Workspace) => {
     setOpen(false);
-    navigate({
-      to: "/dashboard/$workspaceName/monitors",
-      params: {
-        workspaceName: workspace.name,
-      },
-    });
+    setCurrentWorkspace(workspace);
+    // Navigation is now handled automatically by the context
   };
 
   const handleCreateWorkspace = () => {

@@ -1,5 +1,5 @@
 {
-  "name": "vite-react-template",
+  "name": "web",
   "description": "A template for building a React application with Vite, Hono, and Cloudflare Workers",
   "version": "0.0.0",
   "cloudflare": {

@@ -4,6 +4,7 @@ import { Toaster } from "sonner";
 import NotFoundPage from "../components/pages/not-found-page";
 import { SidebarProvider } from "../components/ui/sidebar";
 import { AuthProvider } from "../lib/context/auth-context";
+import { WorkspaceProvider } from "../lib/context/workspace-context";
 
 const queryClient = new QueryClient();
 
@@ -15,8 +16,10 @@ export const Route = createRootRoute({
       <AuthProvider>
         <SidebarProvider>
           <QueryClientProvider client={queryClient}>
-            <Outlet />
-            <Toaster />
+            <WorkspaceProvider>
+              <Outlet />
+              <Toaster />
+            </WorkspaceProvider>
           </QueryClientProvider>
         </SidebarProvider>
       </AuthProvider>

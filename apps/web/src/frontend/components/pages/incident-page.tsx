@@ -133,10 +133,10 @@ export default function IncidentPage() {
           to="/dashboard/$workspaceName/monitors/$id"
           params={{ workspaceName, id: incident.monitor_id }}
           search={{ days: 30 }}
-          className="inline-flex items-center gap-1 text-gray-600 hover:text-gray-900 transition-colors font-mono text-xs tracking-wide"
+          className="flex items-center justify-start text-xs gap-1 text-muted-foreground"
         >
-          <ArrowLeft className="h-3 w-3" />
-          BACK TO MONITOR
+          <ArrowLeft className="size-3" />
+          <span className="hover:underline">Back to monitors</span>
         </Link>
 
         <div className="border border-dashed border-gray-400 p-6">
@@ -212,7 +212,7 @@ export default function IncidentPage() {
         <div className="border border-dashed border-gray-400 p-6 bg-white">
           <h2 className="text-sm font-bold mb-6 text-gray-900 font-mono tracking-wide">TIMELINE</h2>
           <div className="space-y-4">
-            {timelineEvents.map((event, index) => (
+            {timelineEvents.map((event) => (
               <div key={event.id} className="relative">
                 <div className="flex gap-4">
                   <div className="flex-1 min-w-0 pb-4">

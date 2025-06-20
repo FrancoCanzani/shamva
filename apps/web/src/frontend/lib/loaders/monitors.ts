@@ -55,7 +55,7 @@ export async function fetchMonitors({
 
     if (workspaceResponse.status === 401) {
       console.log(
-        "API returned 401 fetching workspaces, redirecting to login.",
+        "API returned 401 fetching workspaces, redirecting to login."
       );
       throw redirect({
         to: "/auth/login",
@@ -68,10 +68,10 @@ export async function fetchMonitors({
       const errorText = await workspaceResponse.text();
       console.error(
         `Failed to fetch workspaces: ${workspaceResponse.status} ${workspaceResponse.statusText}`,
-        errorText,
+        errorText
       );
       throw new Error(
-        `Failed to fetch workspaces (Status: ${workspaceResponse.status})`,
+        `Failed to fetch workspaces (Status: ${workspaceResponse.status})`
       );
     }
 
@@ -82,21 +82,21 @@ export async function fetchMonitors({
       console.error(
         "API Error fetching workspaces:",
         workspaceResult.error,
-        workspaceResult.details,
+        workspaceResult.details
       );
       throw new Error(
-        workspaceResult.error || "Failed to fetch workspaces from API",
+        workspaceResult.error || "Failed to fetch workspaces from API"
       );
     }
 
     const allWorkspaces = workspaceResult.data;
     const targetWorkspace = allWorkspaces.find(
-      (ws) => ws.name === workspaceName,
+      (ws) => ws.name === workspaceName
     );
 
     if (!targetWorkspace) {
       console.warn(
-        `Workspace with name "${workspaceName}" not found, redirecting.`,
+        `Workspace with name "${workspaceName}" not found, redirecting.`
       );
       throw redirect({
         to: "/dashboard/workspaces/new",
@@ -114,7 +114,7 @@ export async function fetchMonitors({
           "Content-Type": "application/json",
         },
         signal: abortController?.signal,
-      },
+      }
     );
 
     if (monitorsResponse.status === 401) {
@@ -130,10 +130,10 @@ export async function fetchMonitors({
       const errorText = await monitorsResponse.text();
       console.error(
         `Failed to fetch monitors: ${monitorsResponse.status} ${monitorsResponse.statusText}`,
-        errorText,
+        errorText
       );
       throw new Error(
-        `Failed to fetch monitors (Status: ${monitorsResponse.status})`,
+        `Failed to fetch monitors (Status: ${monitorsResponse.status})`
       );
     }
 
@@ -144,10 +144,10 @@ export async function fetchMonitors({
       console.error(
         "API Error fetching monitors:",
         monitorsResult.error,
-        monitorsResult.details,
+        monitorsResult.details
       );
       throw new Error(
-        monitorsResult.error || "Failed to fetch monitors from API",
+        monitorsResult.error || "Failed to fetch monitors from API"
       );
     }
 

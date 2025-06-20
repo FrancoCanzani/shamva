@@ -23,6 +23,6 @@ if (!rootElement.innerHTML) {
       <CatchBoundary getResetKey={() => window.location.pathname}>
         <RouterProvider router={router} />
       </CatchBoundary>
-    </StrictMode>,
+    </StrictMode>
   );
 }

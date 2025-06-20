@@ -25,7 +25,7 @@ function getOverallStatus(monitors: PublicMonitor[]) {
   }
 
   const hasError = monitors.some(
-    (m) => m.status === "error" || m.status === "broken",
+    (m) => m.status === "error" || m.status === "broken"
   );
   const hasMaintenance = monitors.some((m) => m.status === "maintenance");
 
@@ -56,13 +56,13 @@ export default function StatusPage() {
       .filter((m: PublicMonitor) => m.uptime_percentage !== undefined)
       .reduce(
         (sum: number, m: PublicMonitor) => sum + (m.uptime_percentage || 0),
-        0,
+        0
       ) /
     Math.max(
       data.monitors.filter(
-        (m: PublicMonitor) => m.uptime_percentage !== undefined,
+        (m: PublicMonitor) => m.uptime_percentage !== undefined
       ).length,
-      1,
+      1
     );
 
   return (
@@ -179,8 +179,8 @@ export default function StatusPage() {
                       {Math.round(
                         data.monitors.reduce(
                           (sum, m) => sum + (m.avg_response_time || 0),
-                          0,
-                        ) / data.monitors.length,
+                          0
+                        ) / data.monitors.length
                       )}
                       MS
                     </div>

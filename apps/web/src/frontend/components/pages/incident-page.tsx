@@ -3,9 +3,10 @@ import { Route } from "@/frontend/routes/dashboard/$workspaceName/incidents/$id"
 import { Link, useRouter } from "@tanstack/react-router"
 import { useMutation } from "@tanstack/react-query"
 import { formatDistanceToNowStrict, parseISO, format } from "date-fns"
-import { ArrowLeft, Bold, Italic, List, LinkIcon } from "lucide-react"
+import { ArrowLeft, HelpCircle } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/frontend/components/ui/button"
+import { Popover, PopoverContent, PopoverTrigger } from "@/frontend/components/ui/popover"
 import { PostMortemEditor } from "../incidents/post-mortem-editor"
 import type { Incident } from "@/frontend/lib/types"
 
@@ -69,7 +70,11 @@ export default function IncidentPage() {
       return { status: "resolved", label: "Resolved", color: "bg-green-600" }
     }
     if (incident.acknowledged_at) {
-      return { status: "acknowledged", label: "Acknowledged", color: "bg-yellow-600" }
+      return {
+        status: "acknowledged",
+        label: "Acknowledged",
+        color: "bg-yellow-600",
+      }
     }
     return { status: "active", label: "Active", color: "bg-red-600" }
   }
@@ -127,7 +132,7 @@ export default function IncidentPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen">
       <div className="max-w-4xl mx-auto p-4 space-y-6">
         <Link
           to="/dashboard/$workspaceName/monitors/$id"
@@ -136,18 +141,28 @@ export default function IncidentPage() {
           className="flex items-center justify-start text-xs gap-1 text-muted-foreground"
         >
           <ArrowLeft className="size-3" />
-          <span className="hover:underline">Back to monitors</span>
+          <span className="hover:underline">Back to Monitor</span>
         </Link>
 
         <div className="border border-dashed p-4">
           <div className="flex items-start justify-between mb-4">
-              <div>
-                <h1 className="text-xl font-medium tracking-tight font-mono mb-2">
-                  {status.label.toUpperCase()} INCIDENT
-                </h1>
-                  <p className="text-sm font-mono">
-                    STARTED {formatEventTime(incident.started_at).toUpperCase()} ({duration.toUpperCase()})
-                  </p>
+            <div className="space-y-3">
+              <h1 className="text-xl uppercase font-medium tracking-tight font-mono">
+                {status.label.toUpperCase()} incident
+              </h1>
+
+              {incident.regions_affected && incident.regions_affected.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-xs text-muted-foreground uppercase tracking-wide">
+                    Affected regions:
+                  </span>
+                  <div className="flex items-center gap-1">{getRegionFlags(incident.regions_affected)}</div>
+                </div>
+              )}
+
+              <p className="text-xs font-mono text-muted-foreground">
+                STARTED {formatEventTime(incident.started_at).toUpperCase()} ({duration.toUpperCase()})
+              </p>
             </div>
 
             <div className="flex items-center gap-3">
@@ -156,9 +171,9 @@ export default function IncidentPage() {
                   onClick={() => acknowledgeMutation.mutate()}
                   disabled={acknowledgeMutation.isPending}
                   size="xs"
-                  className="font-mono text-xs"
+                  variant={"outline"}
                 >
-                  {acknowledgeMutation.isPending ? "ACKNOWLEDGING..." : "ACKNOWLEDGE"}
+                  {acknowledgeMutation.isPending ? "Acknowledging..." : "Acknowledge"}
                 </Button>
               )}
               {status.status === "acknowledged" && (
@@ -168,45 +183,35 @@ export default function IncidentPage() {
                   size="sm"
                   className="bg-green-600 hover:bg-green-700 text-white font-mono tracking-wide text-xs px-4 py-2"
                 >
-                  {resolveMutation.isPending ? "RESOLVING..." : "RESOLVE"}
+                  {resolveMutation.isPending ? "Resolving..." : "Resolve"}
                 </Button>
               )}
             </div>
           </div>
 
           {incident.monitors?.error_message && (
-            <div className="border border-dashed border-red-300 p-3 bg-red-50 mb-3">
-              <p className="text-red-700 text-xs font-mono tracking-wide">
+            <div className="border border-dashed border-red-300 dark:border-red-900 p-3 bg-red-50 dark:bg-background">
+              <p className="text-red-900 text-xs font-mono tracking-wide">
                 ERROR: {incident.monitors.error_message.toUpperCase()}
               </p>
             </div>
           )}
-
-          {incident.regions_affected && incident.regions_affected.length > 0 && (
-            <div className="inline-block border border-dashed border-gray-300 px-2 py-1 bg-gray-50">
-              <span className="text-gray-500 font-mono text-xs tracking-wide mr-2">REGIONS:</span>
-              <span className="font-bold text-gray-900 text-xs">{getRegionFlags(incident.regions_affected)}</span>
-            </div>
-          )}
         </div>
+      
 
         <div className="border border-dashed p-4">
-          <h2 className="text-sm font-bold mb-6 text-gray-900 font-mono tracking-wide">TIMELINE</h2>
-          <div className="space-y-4">
+          <h2 className="text-sm font-medium mb-4 font-mono">TIMELINE</h2>
+          <div className="space-y-3">
             {timelineEvents.map((event) => (
               <div key={event.id} className="relative">
                 <div className="flex gap-4">
-                  <div className="flex-1 min-w-0 pb-4">
-                    <div className="border border-dashed border-gray-300 p-4 bg-gray-50">
-                      <div className="flex items-start gap-4 mb-2">
-                        <span className="text-xs text-gray-500 font-mono tracking-wide whitespace-nowrap">
-                          {formatEventTime(event.time).toUpperCase()}
-                        </span>
-                        <h3 className="font-bold text-gray-900 text-xs font-mono tracking-wide">
-                          {event.title.toUpperCase()}
-                        </h3>
+                  <div className="flex-1 min-w-0 pb-2">
+                    <div className="border border-dashed p-2">
+                      <div className="flex items-start gap-x-2 mb-2">
+                        <span className="text-xs font-mono whitespace-nowrap">{formatEventTime(event.time)}</span>
+                        <h3 className="font-medium text-xs font-mono">{event.title}</h3>
                       </div>
-                      <p className="text-gray-600 text-xs leading-relaxed ml-20">{event.description}</p>
+                      <p className="text-xs">{event.description}</p>
                     </div>
                   </div>
                 </div>
@@ -215,49 +220,45 @@ export default function IncidentPage() {
           </div>
         </div>
 
-        <div className="border border-dashed border-gray-400 p-4 bg-amber-50">
-          <div className="flex items-start gap-3">
-            <div className="w-2 h-2 bg-amber-600 mt-2 flex-shrink-0" />
-            <div className="space-y-2">
-              <h3 className="font-bold text-gray-900 text-sm font-mono tracking-wide">WHAT IS A POST-MORTEM?</h3>
-              <p className="text-gray-700 text-xs leading-relaxed">
-                A post-mortem is a detailed analysis written for your team that explains what happened, why it happened, 
-                what was done to resolve it, and how to prevent similar incidents in the future. This is an internal document 
-                that helps your team learn from incidents and improve your systems.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="border border-dashed border-gray-400 p-6 bg-white">
+        <div className="border border-dashed p-4">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-bold text-gray-900 font-mono tracking-wide">POST-MORTEM</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-sm font-medium font-mono">POST-MORTEM</h2>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button size="xs" variant="outline" className="h-5 w-5 p-0">
+                    <HelpCircle className="size-3" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-70 p-2.5">
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-xs">What is a Post-Mortem?</h4>
+                    <p className="text-xs text-muted-foreground">
+                      A post-mortem is a detailed analysis of an incident after it has occurred. It helps teams
+                      understand what happened, why it happened, and how to prevent similar issues in the future. This
+                      document will be shared with your team and can be made public to communicate with users about the
+                      incident.
+                    </p>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
             <Button
               onClick={() => postMortemMutation.mutate()}
               disabled={postMortemMutation.isPending}
-              size="sm"
-              className="bg-gray-900 hover:bg-gray-800 text-white font-mono tracking-wide text-xs px-4 py-2"
+              size="xs"
+              variant={"outline"}
             >
-              {postMortemMutation.isPending ? "SAVING..." : "SAVE POST-MORTEM"}
+              {postMortemMutation.isPending ? "Saving..." : "Save Post-Mortem"}
             </Button>
           </div>
 
-          <div className="mb-4 flex items-center gap-2 border-b border-dashed border-gray-300 pb-2">
-            <Button variant="outline" size="sm" className="p-1">
-              <Bold className="h-3 w-3" />
-            </Button>
-            <Button variant="outline" size="sm" className="p-1">
-              <Italic className="h-3 w-3" />
-            </Button>
-            <Button variant="outline" size="sm" className="p-1">
-              <List className="h-3 w-3" />
-            </Button>
-            <Button variant="outline" size="sm" className="p-1">
-              <LinkIcon className="h-3 w-3" />
-            </Button>
-          </div>
-
-          <PostMortemEditor content={incident.post_mortem || ""} onChange={() => {}} />
+          <PostMortemEditor
+            content={incident.post_mortem || ""}
+            onChange={(content) => {
+              incident.post_mortem = content
+            }}
+          />
         </div>
       </div>
     </div>

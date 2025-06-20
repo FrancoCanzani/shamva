@@ -29,7 +29,7 @@ export default function MonitorsTableRowAvailabilityDisplay({
                 ? "text-red-600"
                 : availability.percentage < 100 && availability.total > 0
                   ? "text-yellow-600"
-                  : "text-gray-700",
+                  : "text-gray-700"
             )}
           >
             {formattedPercentage}

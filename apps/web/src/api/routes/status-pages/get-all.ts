@@ -8,7 +8,7 @@ export default async function getAllStatusPages(c: Context) {
   if (!userId) {
     return c.json(
       { data: null, success: false, error: "User not authenticated" },
-      401,
+      401
     );
   }
 
@@ -55,7 +55,7 @@ export default async function getAllStatusPages(c: Context) {
 
     const { data: statusPages, error: statusPagesError } = await query.order(
       "created_at",
-      { ascending: false },
+      { ascending: false }
     );
 
     if (statusPagesError) {
@@ -67,7 +67,7 @@ export default async function getAllStatusPages(c: Context) {
           error: "Database error fetching status pages",
           details: statusPagesError.message,
         },
-        500,
+        500
       );
     }
 
@@ -86,7 +86,7 @@ export default async function getAllStatusPages(c: Context) {
         error: "An unexpected error occurred",
         details: errorDetails,
       },
-      500,
+      500
     );
   }
 }

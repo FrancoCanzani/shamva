@@ -52,10 +52,10 @@ export default async function fetchStatusPage({
       const errorText = await response.text();
       console.error(
         `Failed to fetch status page ${id}: ${response.status} ${response.statusText}`,
-        errorText,
+        errorText
       );
       throw new Error(
-        `Failed to fetch status page (Status: ${response.status})`,
+        `Failed to fetch status page (Status: ${response.status})`
       );
     }
 
@@ -65,7 +65,7 @@ export default async function fetchStatusPage({
       console.error(
         `API Error fetching status page ${id}:`,
         result.error,
-        result.details,
+        result.details
       );
       throw new Error(result.error || `Failed to fetch status page ${id}`);
     }

@@ -8,14 +8,14 @@ export default async function getLogs(c: Context): Promise<Response> {
   if (!userId) {
     return c.json(
       { data: null, success: false, error: "User not authenticated" },
-      401,
+      401
     );
   }
 
   if (!workspaceId) {
     return c.json(
       { data: null, success: false, error: "Workspace ID is required" },
-      400,
+      400
     );
   }
 
@@ -37,12 +37,12 @@ export default async function getLogs(c: Context): Promise<Response> {
             success: false,
             error: "Workspace not found or user not a member",
           },
-          404,
+          404
         );
       }
       console.error(
         "Error checking workspace membership for logs:",
-        membershipError,
+        membershipError
       );
       return c.json(
         {
@@ -50,7 +50,7 @@ export default async function getLogs(c: Context): Promise<Response> {
           success: false,
           error: "Unauthorized to access logs in this workspace",
         },
-        403,
+        403
       );
     }
 
@@ -62,7 +62,7 @@ export default async function getLogs(c: Context): Promise<Response> {
     if (monitorsError) {
       console.error(
         "Error fetching monitor IDs for workspace logs:",
-        monitorsError,
+        monitorsError
       );
       return c.json(
         {
@@ -70,7 +70,7 @@ export default async function getLogs(c: Context): Promise<Response> {
           success: false,
           error: "Database error fetching monitors for logs",
         },
-        500,
+        500
       );
     }
 
@@ -87,7 +87,7 @@ export default async function getLogs(c: Context): Promise<Response> {
     const { data: logs, error: logError } = await supabase
       .from("logs")
       .select(
-        "id, monitor_id, created_at, status_code, latency, error, region, method, headers, body_content, url, user_id",
+        "id, monitor_id, created_at, status_code, latency, error, region, method, headers, body_content, url, user_id"
       )
       .in("monitor_id", monitorIds)
       .gte("created_at", sevenDaysAgoISO)
@@ -98,7 +98,7 @@ export default async function getLogs(c: Context): Promise<Response> {
     if (logError) {
       console.error(
         `Error fetching logs for workspace ${workspaceId}:`,
-        logError,
+        logError
       );
       return c.json(
         {
@@ -107,7 +107,7 @@ export default async function getLogs(c: Context): Promise<Response> {
           error: "Database error fetching logs",
           details: logError.message,
         },
-        500,
+        500
       );
     }
 
@@ -115,7 +115,7 @@ export default async function getLogs(c: Context): Promise<Response> {
   } catch (unexpectedError) {
     console.error(
       `Unexpected error getting logs for workspace ${workspaceId}:`,
-      unexpectedError,
+      unexpectedError
     );
     const errorDetails =
       unexpectedError instanceof Error
@@ -128,7 +128,7 @@ export default async function getLogs(c: Context): Promise<Response> {
         error: "An unexpected error occurred while fetching logs",
         details: errorDetails,
       },
-      500,
+      500
     );
   }
 }

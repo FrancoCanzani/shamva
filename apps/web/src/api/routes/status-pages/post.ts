@@ -9,7 +9,7 @@ export default async function postStatusPages(c: Context) {
   } catch {
     return c.json(
       { success: false, error: "Invalid JSON payload provided." },
-      400,
+      400
     );
   }
 
@@ -23,7 +23,7 @@ export default async function postStatusPages(c: Context) {
         error: "Request parameter validation failed.",
         details: result.error.flatten(),
       },
-      400,
+      400
     );
   }
 
@@ -60,7 +60,7 @@ export default async function postStatusPages(c: Context) {
         error:
           "You do not have permission to create status pages in this workspace.",
       },
-      403,
+      403
     );
   }
 
@@ -71,7 +71,7 @@ export default async function postStatusPages(c: Context) {
         error:
           "Viewers cannot create status pages. Contact a workspace admin or member.",
       },
-      403,
+      403
     );
   }
 
@@ -88,7 +88,7 @@ export default async function postStatusPages(c: Context) {
         success: false,
         error: "A status page with this slug already exists in this workspace.",
       },
-      400,
+      400
     );
   }
 
@@ -135,7 +135,7 @@ export default async function postStatusPages(c: Context) {
         error: "Failed to create status page.",
         details: String(error),
       },
-      500,
+      500
     );
   }
 }

@@ -47,7 +47,7 @@ export default function NewWorkspacePage() {
       if (!response.ok) {
         console.error("Error response from API:", result);
         throw new Error(
-          result.error || `Failed to create workspace (${response.status})`,
+          result.error || `Failed to create workspace (${response.status})`
         );
       }
 
@@ -60,7 +60,7 @@ export default function NewWorkspacePage() {
     } catch (error) {
       console.error("Error creating workspace:", error);
       toast.error(
-        error instanceof Error ? error.message : "An unexpected error occurred",
+        error instanceof Error ? error.message : "An unexpected error occurred"
       );
       throw error;
     } finally {

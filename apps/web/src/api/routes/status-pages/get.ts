@@ -8,14 +8,14 @@ export default async function getStatusPages(c: Context) {
   if (!userId) {
     return c.json(
       { data: null, success: false, error: "User not authenticated" },
-      401,
+      401
     );
   }
 
   if (!statusPageId) {
     return c.json(
       { data: null, success: false, error: "Status page ID is required" },
-      400,
+      400
     );
   }
 
@@ -28,7 +28,7 @@ export default async function getStatusPages(c: Context) {
         `
         *,
         workspace:workspaces(id, name)
-      `,
+      `
       )
       .eq("id", statusPageId)
       .single();
@@ -37,7 +37,7 @@ export default async function getStatusPages(c: Context) {
       if (statusPageError.code === "PGRST116") {
         return c.json(
           { data: null, success: false, error: "Status page not found" },
-          404,
+          404
         );
       }
 
@@ -48,14 +48,14 @@ export default async function getStatusPages(c: Context) {
           error: "Database error fetching status page",
           details: statusPageError.message,
         },
-        500,
+        500
       );
     }
 
     if (!statusPage) {
       return c.json(
         { data: null, success: false, error: "Status page not found" },
-        404,
+        404
       );
     }
 
@@ -69,7 +69,7 @@ export default async function getStatusPages(c: Context) {
     if (!membership) {
       return c.json(
         { data: null, success: false, error: "Access denied" },
-        403,
+        403
       );
     }
 
@@ -81,7 +81,7 @@ export default async function getStatusPages(c: Context) {
   } catch (err) {
     console.error(
       `Unexpected error fetching status page ${statusPageId}:`,
-      err,
+      err
     );
     const errorDetails = err instanceof Error ? err.message : String(err);
     return c.json(
@@ -91,7 +91,7 @@ export default async function getStatusPages(c: Context) {
         error: "An unexpected error occurred",
         details: errorDetails,
       },
-      500,
+      500
     );
   }
 }

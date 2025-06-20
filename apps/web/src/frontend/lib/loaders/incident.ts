@@ -6,7 +6,10 @@ interface LoadIncidentParams {
   abortController: AbortController;
 }
 
-export default async function loadIncident({ params, abortController }: LoadIncidentParams): Promise<Incident> {
+export default async function loadIncident({
+  params,
+  abortController,
+}: LoadIncidentParams): Promise<Incident> {
   const {
     data: { session },
     error: sessionError,
@@ -27,6 +30,6 @@ export default async function loadIncident({ params, abortController }: LoadInci
     throw new Error("Failed to fetch incident");
   }
 
-  const data = await response.json() as { data: Incident };
+  const data = (await response.json()) as { data: Incident };
   return data.data;
-} 
+}

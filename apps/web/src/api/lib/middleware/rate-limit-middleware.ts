@@ -15,16 +15,22 @@ export const rateLimit = () => {
     const windowStart = now - WINDOW_SIZE * 1000;
 
     try {
-      const requests = await c.env.RATE_LIMITS.get(key, "json") as number[] || [];
-      
+      const requests =
+        ((await c.env.RATE_LIMITS.get(key, "json")) as number[]) || [];
+
       // Remove old requests
-      const recentRequests = requests.filter(time => time > windowStart);
-      
+      const recentRequests = requests.filter((time) => time > windowStart);
+
       if (recentRequests.length >= MAX_REQUESTS) {
-        return c.json({
-          error: "Rate limit exceeded",
-          retryAfter: Math.ceil((recentRequests[0] + WINDOW_SIZE * 1000 - now) / 1000),
-        }, 429);
+        return c.json(
+          {
+            error: "Rate limit exceeded",
+            retryAfter: Math.ceil(
+              (recentRequests[0] + WINDOW_SIZE * 1000 - now) / 1000
+            ),
+          },
+          429
+        );
       }
 
       recentRequests.push(now);
@@ -33,13 +39,19 @@ export const rateLimit = () => {
       });
 
       c.header("X-RateLimit-Limit", MAX_REQUESTS.toString());
-      c.header("X-RateLimit-Remaining", (MAX_REQUESTS - recentRequests.length).toString());
-      c.header("X-RateLimit-Reset", Math.ceil(windowStart / 1000 + WINDOW_SIZE).toString());
+      c.header(
+        "X-RateLimit-Remaining",
+        (MAX_REQUESTS - recentRequests.length).toString()
+      );
+      c.header(
+        "X-RateLimit-Reset",
+        Math.ceil(windowStart / 1000 + WINDOW_SIZE).toString()
+      );
 
       await next();
     } catch (error) {
       console.error("Rate limit error:", error);
-      await next(); 
+      await next();
     }
   };
-}; 
+};

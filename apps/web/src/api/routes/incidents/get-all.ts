@@ -30,14 +30,16 @@ export default async function getAllIncidents(c: Context) {
   try {
     const { data: incidents, error: fetchError } = await supabase
       .from("incidents")
-      .select(`
+      .select(
+        `
         *,
         monitors (
           id,
           name,
           url
         )
-      `)
+      `
+      )
       .eq("workspace_id", workspaceId)
       .order("created_at", { ascending: false });
 
@@ -49,7 +51,7 @@ export default async function getAllIncidents(c: Context) {
           error: "Failed to fetch incidents",
           details: fetchError.message,
         },
-        500,
+        500
       );
     }
 
@@ -65,7 +67,7 @@ export default async function getAllIncidents(c: Context) {
         error: "Failed to fetch incidents",
         details: String(error),
       },
-      500,
+      500
     );
   }
-} 
+}

@@ -9,5 +9,5 @@ export const Route = createFileRoute("/dashboard/$workspaceName/status-pages/")(
       fetchStatusPages({ params, abortController }),
     component: StatusPagesPage,
     pendingComponent: Loading,
-  },
+  }
 );

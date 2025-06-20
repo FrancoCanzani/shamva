@@ -25,7 +25,7 @@ export default function RegionLatencyCharts({
 
   const perRegionHeight = Math.max(
     height,
-    Object.keys(groupedLogs).length > 0 ? 120 : height,
+    Object.keys(groupedLogs).length > 0 ? 120 : height
   );
 
   return (
@@ -37,7 +37,7 @@ export default function RegionLatencyCharts({
         const avgLatency =
           regionLogs.length > 0
             ? Math.round(
-                latencies.reduce((sum, lat) => sum + lat, 0) / latencies.length,
+                latencies.reduce((sum, lat) => sum + lat, 0) / latencies.length
               )
             : 0;
 

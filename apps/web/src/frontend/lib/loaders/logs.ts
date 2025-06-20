@@ -37,7 +37,7 @@ export async function fetchLogs({
 
   if (!workspaceNameFromParams) {
     console.warn(
-      "Workspace name missing from route parameters, redirecting to workspace creation.",
+      "Workspace name missing from route parameters, redirecting to workspace creation."
     );
     throw redirect({
       to: "/dashboard/workspaces/new",
@@ -56,7 +56,7 @@ export async function fetchLogs({
 
     if (workspaceResponse.status === 401) {
       console.log(
-        "API returned 401 fetching workspaces for logs, redirecting to login.",
+        "API returned 401 fetching workspaces for logs, redirecting to login."
       );
       throw redirect({
         to: "/auth/login",
@@ -69,10 +69,10 @@ export async function fetchLogs({
       const errorText = await workspaceResponse.text();
       console.error(
         `Failed to fetch workspaces for logs: ${workspaceResponse.status} ${workspaceResponse.statusText}`,
-        errorText,
+        errorText
       );
       throw new Error(
-        `Failed to fetch workspaces for logs (Status: ${workspaceResponse.status})`,
+        `Failed to fetch workspaces for logs (Status: ${workspaceResponse.status})`
       );
     }
 
@@ -83,21 +83,21 @@ export async function fetchLogs({
       console.error(
         "API Error fetching workspaces for logs:",
         workspaceResult.error,
-        workspaceResult.details,
+        workspaceResult.details
       );
       throw new Error(
-        workspaceResult.error || "Failed to fetch workspaces from API for logs",
+        workspaceResult.error || "Failed to fetch workspaces from API for logs"
       );
     }
 
     const allWorkspaces = workspaceResult.data;
     const targetWorkspace = allWorkspaces.find(
-      (ws) => ws.name === workspaceNameFromParams,
+      (ws) => ws.name === workspaceNameFromParams
     );
 
     if (!targetWorkspace) {
       console.warn(
-        `Workspace with name "${workspaceNameFromParams}" not found for logs, redirecting.`,
+        `Workspace with name "${workspaceNameFromParams}" not found for logs, redirecting.`
       );
       throw redirect({
         to: "/dashboard/workspaces/new",
@@ -128,7 +128,7 @@ export async function fetchLogs({
       const errorText = await logsResponse.text();
       console.error(
         `Failed to fetch logs: ${logsResponse.status} ${logsResponse.statusText}`,
-        errorText,
+        errorText
       );
       throw new Error(`Failed to fetch logs (Status: ${logsResponse.status})`);
     }
@@ -139,7 +139,7 @@ export async function fetchLogs({
       console.error(
         "API Error fetching logs:",
         logsResult.error,
-        logsResult.details,
+        logsResult.details
       );
       throw new Error(logsResult.error || "Failed to fetch logs from API");
     }

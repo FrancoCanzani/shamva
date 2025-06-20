@@ -3,15 +3,19 @@
 Setting up a monitor in Shamva helps you keep track of your website or app. Here's a step-by-step guide to creating your first monitor, with explanations for each setting.
 
 ## Step 1: Log In
+
 Go to Shamva and log in with your account. If you don't have one, sign up or ask your workspace admin to invite you.
 
 ## Step 2: Create a Workspace
+
 A workspace is a group for your monitors. Click "New Workspace" and give it a name (for example, "My Project" or "Team Website").
 
 ## Step 3: Add a Monitor
+
 Find the button that says "Add Monitor" or "New Monitor." Click it to open the monitor form.
 
 ## Step 4: Fill Out the Monitor Form
+
 - **Monitor Name**: Give your monitor a name you'll recognize (like "Main Website" or "API Health").
 - **URL to Monitor**: Enter the full web address you want to check (for example, `https://mywebsite.com`). Make sure it's correct—typos will cause errors.
 - **Method**: Choose how Shamva should check your site. "GET" is most common for websites. Use "POST" or "HEAD" for special cases.
@@ -22,9 +26,11 @@ Find the button that says "Add Monitor" or "New Monitor." Click it to open the m
 - **Slack Webhook URL (optional)**: Paste your Slack webhook URL here if you want to receive notifications in Slack. (See the Notifications and Alerts guide for how to get this URL.)
 
 ## Step 5: Save and Start Monitoring
+
 Click "Save" or "Create." Your monitor will start checking your website right away.
 
 ## Troubleshooting Tips
+
 - Double-check the URL for typos or missing `https://`.
 - If you use custom headers or a request body, make sure they are valid JSON.
 - If you don't receive notifications, check your email address or Slack webhook URL.
@@ -33,22 +39,26 @@ Click "Save" or "Create." Your monitor will start checking your website right aw
 If you need more help, ask your workspace admin or check the other guides in this documentation.
 
 **Method**: This tells Shamva what kind of request to make to your website. You can choose:
-  - **GET**: The most common method. GET asks your website for a page or data, just like a regular visitor. Use this for most websites and APIs.
-  - **POST**: Sends data to your website, often used for forms or APIs that create or update something. Only use POST if you know your endpoint expects it (for example, submitting a form or triggering an action).
-  - **HEAD**: Like GET, but only asks for the headers (not the full page). Useful for checking if a page exists without downloading the whole thing.
+
+- **GET**: The most common method. GET asks your website for a page or data, just like a regular visitor. Use this for most websites and APIs.
+- **POST**: Sends data to your website, often used for forms or APIs that create or update something. Only use POST if you know your endpoint expects it (for example, submitting a form or triggering an action).
+- **HEAD**: Like GET, but only asks for the headers (not the full page). Useful for checking if a page exists without downloading the whole thing.
 
 **Examples:**
+
 - Use **GET** for `https://mywebsite.com` or `https://api.example.com/data`.
 - Use **POST** for `https://api.example.com/submit` if you need to send data (and fill out the Request Body field).
 - Use **HEAD** if you just want to check if a file or page is available.
 
 **Check Interval**: This controls how often Shamva checks your site. Options usually include every 1, 5, 10, 15, 30, or 60 minutes.
+
 - **Short intervals (1-5 minutes)**: You'll get alerts faster if something goes wrong, but it uses more monitoring resources and could increase costs or rate limits on your site.
 - **Longer intervals (10-60 minutes)**: Fewer checks, less resource usage, but slower to alert you if there's a problem.
 
 **Recommendations:**
+
 - For critical sites (e.g., production websites, APIs): Use 1-5 minutes.
 - For less important or staging sites: Use 10-30 minutes.
 - For personal or low-traffic sites: 15-60 minutes is usually enough.
 
-If you're not sure, start with 5 minutes. You can always adjust later based on your needs and plan limits. 
+If you're not sure, start with 5 minutes. You can always adjust later based on your needs and plan limits.

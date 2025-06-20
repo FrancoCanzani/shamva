@@ -52,7 +52,7 @@ export default async function fetchMonitor({
       const errorText = await response.text();
       console.error(
         `Failed to fetch monitor ${id}: ${response.status} ${response.statusText}`,
-        errorText,
+        errorText
       );
       throw new Error(`Failed to fetch monitor (Status: ${response.status})`);
     }
@@ -63,7 +63,7 @@ export default async function fetchMonitor({
       console.error(
         `API Error fetching monitor ${id}:`,
         result.error,
-        result.details,
+        result.details
       );
       throw new Error(result.error || `Failed to fetch monitor ${id}`);
     }

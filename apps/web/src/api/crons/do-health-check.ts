@@ -4,7 +4,7 @@ import { InitializeCheckerDOPayload } from "../lib/types";
 
 export async function doHealthCheck(env: EnvBindings, scheduledTime: number) {
   console.log(
-    `Running scheduled DO health check: ${new Date(scheduledTime).toISOString()}`,
+    `Running scheduled DO health check: ${new Date(scheduledTime).toISOString()}`
   );
 
   const supabase = createSupabaseClient(env);
@@ -24,7 +24,7 @@ export async function doHealthCheck(env: EnvBindings, scheduledTime: number) {
         headers,
         body,
         monitor_checkers(id, region, do_id, status, last_check_at, error_message)
-      `,
+      `
       )
       .eq("status", "active");
 
@@ -53,7 +53,7 @@ export async function doHealthCheck(env: EnvBindings, scheduledTime: number) {
     for (const monitor of monitors) {
       if (recoveryAttempts >= MAX_RECOVERY_PER_RUN) {
         console.log(
-          `Reached maximum recovery attempts (${MAX_RECOVERY_PER_RUN}), will continue in next run`,
+          `Reached maximum recovery attempts (${MAX_RECOVERY_PER_RUN}), will continue in next run`
         );
         break;
       }
@@ -73,7 +73,7 @@ export async function doHealthCheck(env: EnvBindings, scheduledTime: number) {
         if (needsRecovery) {
           monitorHasIssues = true;
           console.log(
-            `Monitor ${monitor.id} needs recovery for region ${region}: ${checker ? checker.status : "missing"}`,
+            `Monitor ${monitor.id} needs recovery for region ${region}: ${checker ? checker.status : "missing"}`
           );
 
           if (recoveryAttempts >= MAX_RECOVERY_PER_RUN) continue;
@@ -131,19 +131,19 @@ export async function doHealthCheck(env: EnvBindings, scheduledTime: number) {
             if (!response.ok) {
               const errorText = await response.text();
               throw new Error(
-                `DO init failed (Region: ${region}, Status: ${response.status}): ${errorText}`,
+                `DO init failed (Region: ${region}, Status: ${response.status}): ${errorText}`
               );
             }
 
             console.log(
-              `Successfully recovered DO for monitor ${monitor.id} in region ${region}`,
+              `Successfully recovered DO for monitor ${monitor.id} in region ${region}`
             );
             stats.dosRecreated++;
             recoveryAttempts++;
           } catch (error) {
             console.error(
               `Error recovering DO for monitor ${monitor.id} in region ${region}:`,
-              error,
+              error
             );
             stats.recoveryErrors++;
 

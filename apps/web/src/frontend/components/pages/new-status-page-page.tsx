@@ -57,7 +57,7 @@ export default function NewStatusPage() {
 
       if (!currentWorkspace?.id) {
         throw new Error(
-          "No workspace selected. Please select a workspace first.",
+          "No workspace selected. Please select a workspace first."
         );
       }
 
@@ -80,7 +80,7 @@ export default function NewStatusPage() {
       if (!response.ok) {
         console.error("Error response from API:", result);
         throw new Error(
-          result.error || `Failed to create status page (${response.status})`,
+          result.error || `Failed to create status page (${response.status})`
         );
       }
 
@@ -92,7 +92,7 @@ export default function NewStatusPage() {
     } catch (error) {
       console.error("Error creating status page:", error);
       toast.error(
-        error instanceof Error ? error.message : "An unexpected error occurred",
+        error instanceof Error ? error.message : "An unexpected error occurred"
       );
       throw error;
     } finally {

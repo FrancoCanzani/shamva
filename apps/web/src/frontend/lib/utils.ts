@@ -73,7 +73,7 @@ export function getRegionNameFromCode(regionCode: string): string {
 }
 
 const regionFlagMap = new Map(
-  monitoringRegions.map((region) => [region.value, region.flag]),
+  monitoringRegions.map((region) => [region.value, region.flag])
 );
 
 export function getRegionFlags(regionCodes: string[]): string {
@@ -108,13 +108,13 @@ export function groupLogsByRegion(logs: Partial<Log>[]) {
   });
 
   return Object.fromEntries(
-    Object.entries(regionGroups).filter((entry) => entry[1].length > 0),
+    Object.entries(regionGroups).filter((entry) => entry[1].length > 0)
   );
 }
 
 export function calculatePercentile(
   values: number[],
-  percentile: number,
+  percentile: number
 ): number {
   if (values.length === 0) return 0;
 

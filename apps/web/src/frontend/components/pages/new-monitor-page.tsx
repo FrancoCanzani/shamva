@@ -27,7 +27,7 @@ export default function NewMonitorPage() {
 
       if (!currentWorkspace?.id) {
         throw new Error(
-          "No workspace selected. Please select a workspace first.",
+          "No workspace selected. Please select a workspace first."
         );
       }
 
@@ -81,7 +81,7 @@ export default function NewMonitorPage() {
       if (!response.ok) {
         console.error("Error response from API:", result);
         throw new Error(
-          result.error || `Failed to create monitor (${response.status})`,
+          result.error || `Failed to create monitor (${response.status})`
         );
       }
 
@@ -94,7 +94,7 @@ export default function NewMonitorPage() {
     } catch (error) {
       console.error("Error creating monitor:", error);
       toast.error(
-        error instanceof Error ? error.message : "An unexpected error occurred",
+        error instanceof Error ? error.message : "An unexpected error occurred"
       );
       throw error;
     } finally {

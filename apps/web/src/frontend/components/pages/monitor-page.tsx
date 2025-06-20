@@ -187,13 +187,13 @@ export default function MonitorPage() {
                 <span
                   className={cn(
                     "absolute inline-flex h-full w-full animate-ping -full duration-[2000ms]",
-                    getStatusColor(sortedLogs[0]?.status_code),
+                    getStatusColor(sortedLogs[0]?.status_code)
                   )}
                 ></span>
                 <span
                   className={cn(
                     "absolute inline-flex h-2 w-2 -full bg-red-500",
-                    getStatusColor(sortedLogs[0]?.status_code),
+                    getStatusColor(sortedLogs[0]?.status_code)
                   )}
                 ></span>
               </span>
@@ -229,7 +229,7 @@ export default function MonitorPage() {
 
         <Separator />
 
-        <IncidentsSection incidents={monitor.incidents || []}  />
+        <IncidentsSection incidents={monitor.incidents || []} />
 
         <Separator />
 
@@ -252,8 +252,6 @@ export default function MonitorPage() {
           </div>
           <RecentChecks logs={monitor.recent_logs} />
         </div>
-
-
       </div>
     </div>
   );

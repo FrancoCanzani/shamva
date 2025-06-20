@@ -20,7 +20,7 @@ export default async function putStatusPages(c: Context) {
   } catch {
     return c.json(
       { success: false, error: "Invalid JSON payload provided." },
-      400,
+      400
     );
   }
 
@@ -34,7 +34,7 @@ export default async function putStatusPages(c: Context) {
         error: "Request parameter validation failed.",
         details: result.error.flatten(),
       },
-      400,
+      400
     );
   }
 
@@ -60,7 +60,7 @@ export default async function putStatusPages(c: Context) {
         error: "Database error fetching status page",
         details: fetchError.message,
       },
-      500,
+      500
     );
   }
 
@@ -95,7 +95,7 @@ export default async function putStatusPages(c: Context) {
           error:
             "A status page with this slug already exists in this workspace.",
         },
-        400,
+        400
       );
     }
   }
@@ -127,7 +127,7 @@ export default async function putStatusPages(c: Context) {
           error: "Failed to update status page",
           details: updateError.message,
         },
-        500,
+        500
       );
     }
 
@@ -144,7 +144,7 @@ export default async function putStatusPages(c: Context) {
         error: "Failed to update status page",
         details: errorDetails,
       },
-      500,
+      500
     );
   }
 }

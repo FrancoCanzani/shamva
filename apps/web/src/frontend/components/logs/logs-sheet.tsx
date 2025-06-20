@@ -4,9 +4,12 @@ import { format, parseISO } from "date-fns";
 import { Check, ChevronDown, ChevronUp, Copy, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Log } from "@/frontend/lib/types";
-import { cn,  copyToClipboard,
+import {
+  cn,
+  copyToClipboard,
   getRegionNameFromCode,
-  getStatusTextColor, } from "@/frontend/lib/utils";
+  getStatusTextColor,
+} from "@/frontend/lib/utils";
 import { Button } from "../ui/button";
 import {
   Sheet,
@@ -108,7 +111,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
       setCopyStatus((prev) => ({ ...prev, headers: true }));
       setTimeout(
         () => setCopyStatus((prev) => ({ ...prev, headers: false })),
-        2000,
+        2000
       );
     } catch (error) {
       console.error("Failed to copy headers:", error);
@@ -136,7 +139,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
       setCopyStatus((prev) => ({ ...prev, body: true }));
       setTimeout(
         () => setCopyStatus((prev) => ({ ...prev, body: false })),
-        2000,
+        2000
       );
     } catch (error) {
       console.error("Failed to copy body:", error);
@@ -200,7 +203,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                   <time>
                     {format(
                       parseISO(selectedLog.created_at),
-                      "LLL dd, y HH:mm:ss",
+                      "LLL dd, y HH:mm:ss"
                     )}
                   </time>
                 </div>
@@ -213,7 +216,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                   <span
                     className={cn(
                       "font-mono font-medium",
-                      getStatusTextColor(selectedLog.status_code),
+                      getStatusTextColor(selectedLog.status_code)
                     )}
                   >
                     {selectedLog.status_code === -1
@@ -322,7 +325,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                   <pre
                     className={cn(
                       "text-xs bg-muted p-2 mt-2  font-mono border whitespace-pre-wrap break-words overflow-hidden",
-                      isBodyExpanded ? "max-h-none" : "max-h-32",
+                      isBodyExpanded ? "max-h-none" : "max-h-32"
                     )}
                   >
                     {(() => {
@@ -335,7 +338,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                         ) {
                           return (
                             String(
-                              selectedLog.body_content._rawContent ?? "",
+                              selectedLog.body_content._rawContent ?? ""
                             ) || "No content"
                           );
                         }
@@ -346,7 +349,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                           return JSON.stringify(
                             selectedLog.body_content,
                             null,
-                            2,
+                            2
                           );
                         }
                         return (

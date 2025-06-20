@@ -3,7 +3,7 @@
 const MAX_BODY_SIZE_BYTES = 10000;
 
 export default async function handleBodyParsing(
-  response: Response,
+  response: Response
 ): Promise<any> {
   let bodyContent: any = null;
   const contentType = response.headers.get("content-type") ?? "";

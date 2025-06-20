@@ -40,7 +40,7 @@ export class CheckerDurableObject extends DurableObject {
     urlToCheck: string,
     method: string,
     customHeaders?: Record<string, string>,
-    customBody?: string | URLSearchParams | FormData | null,
+    customBody?: string | URLSearchParams | FormData | null
   ): Promise<CheckResult> {
     const checkStartTime = performance.now();
     const result: CheckResult = {
@@ -104,7 +104,7 @@ export class CheckerDurableObject extends DurableObject {
   private async createIncident(
     monitorId: string,
     region: string | null,
-    url: string,
+    url: string
   ): Promise<Incident | null> {
     try {
       const { data: incident, error } = await this.supabase
@@ -138,7 +138,7 @@ export class CheckerDurableObject extends DurableObject {
 
   private async updateIncident(
     incidentId: string,
-    updates: Partial<Incident>,
+    updates: Partial<Incident>
   ): Promise<void> {
     try {
       const { error } = await this.supabase
@@ -159,7 +159,7 @@ export class CheckerDurableObject extends DurableObject {
     emailData: MonitorEmailData,
     isRecovery: boolean,
     userEmails: string[],
-    slackWebhookUrl?: string,
+    slackWebhookUrl?: string
   ): Promise<boolean> {
     if (this.env.NAME === "development") {
       return true;
@@ -168,15 +168,23 @@ export class CheckerDurableObject extends DurableObject {
     try {
       const notificationPromises = [
         isRecovery
-          ? this.emailService.sendMonitorRecoveredAlert(emailData, emailData.lastChecked, userEmails)
+          ? this.emailService.sendMonitorRecoveredAlert(
+              emailData,
+              emailData.lastChecked,
+              userEmails
+            )
           : this.emailService.sendMonitorDownAlert(emailData, userEmails),
       ];
 
       if (slackWebhookUrl) {
         notificationPromises.push(
           isRecovery
-            ? this.slackService.sendMonitorRecoveredAlert(emailData, emailData.lastChecked, slackWebhookUrl)
-            : this.slackService.sendMonitorDownAlert(emailData, slackWebhookUrl),
+            ? this.slackService.sendMonitorRecoveredAlert(
+                emailData,
+                emailData.lastChecked,
+                slackWebhookUrl
+              )
+            : this.slackService.sendMonitorDownAlert(emailData, slackWebhookUrl)
         );
       }
 
@@ -194,9 +202,8 @@ export class CheckerDurableObject extends DurableObject {
     url: string,
     result: CheckResult,
     method: string,
-    region: string | null,
+    region: string | null
   ): Promise<void> {
-    
     const logData = {
       user_id: userId,
       monitor_id: monitorId,
@@ -224,15 +231,15 @@ export class CheckerDurableObject extends DurableObject {
           code: error.code,
           message: error.message,
           details: error.details,
-          hint: error.hint
+          hint: error.hint,
         });
         throw error;
       }
-
     } catch (dbError: unknown) {
-      const errorMessage = dbError instanceof Error ? dbError.message : String(dbError);
+      const errorMessage =
+        dbError instanceof Error ? dbError.message : String(dbError);
       const errorDetails = dbError instanceof Error ? dbError.stack : undefined;
-      
+
       console.error(`DO ${this.doId}: Failed to insert log:`, {
         error: errorMessage,
         details: errorDetails,
@@ -240,7 +247,7 @@ export class CheckerDurableObject extends DurableObject {
         userId,
         url,
         method,
-        region
+        region,
       });
     }
   }
@@ -250,12 +257,13 @@ export class CheckerDurableObject extends DurableObject {
 
     if (request.method === "POST" && url.pathname === "/check") {
       try {
-        const { userEmails, ...config } = await request.json() as MonitorConfig & { userEmails: string[] };
+        const { userEmails, ...config } =
+          (await request.json()) as MonitorConfig & { userEmails: string[] };
         const result = await this.performCheck(
           config.urlToCheck,
           config.method,
           config.headers,
-          config.body,
+          config.body
         );
 
         await this.logCheckResult(
@@ -264,10 +272,13 @@ export class CheckerDurableObject extends DurableObject {
           config.urlToCheck,
           result,
           config.method,
-          config.region,
+          config.region
         );
 
-        const isSuccess = result.ok === true && result.statusCode !== null && result.statusCode < 400;
+        const isSuccess =
+          result.ok === true &&
+          result.statusCode !== null &&
+          result.statusCode < 400;
         const now = Date.now();
 
         if (isSuccess) {
@@ -287,14 +298,16 @@ export class CheckerDurableObject extends DurableObject {
               .single();
 
             // Check if all regions are now healthy by checking if all regions in the incident are resolved
-            const allRegionsHealthy = monitor?.regions.every((region: string) => 
-              !activeIncident.regions_affected.includes(region)
+            const allRegionsHealthy = monitor?.regions.every(
+              (region: string) =>
+                !activeIncident.regions_affected.includes(region)
             );
 
             if (allRegionsHealthy) {
               await this.updateIncident(activeIncident.id, {
                 resolved_at: new Date(now).toISOString(),
-                downtime_duration_ms: now - new Date(activeIncident.started_at).getTime(),
+                downtime_duration_ms:
+                  now - new Date(activeIncident.started_at).getTime(),
               });
 
               const { data: monitor } = await this.supabase
@@ -314,7 +327,12 @@ export class CheckerDurableObject extends DurableObject {
                   region: config.region || "Unknown",
                 };
 
-                await this.sendNotifications(emailData, true, userEmails, monitor.slack_webhook_url);
+                await this.sendNotifications(
+                  emailData,
+                  true,
+                  userEmails,
+                  monitor.slack_webhook_url
+                );
               }
             }
           }
@@ -357,7 +375,8 @@ export class CheckerDurableObject extends DurableObject {
                   monitorName: monitor.name,
                   url: monitor.url,
                   statusCode: result.statusCode ?? undefined,
-                  errorMessage: result.checkError ?? `HTTP status ${result.statusCode}`,
+                  errorMessage:
+                    result.checkError ?? `HTTP status ${result.statusCode}`,
                   lastChecked: new Date(now).toISOString(),
                   region: config.region || "Unknown",
                 };
@@ -377,22 +396,27 @@ export class CheckerDurableObject extends DurableObject {
               }
             } else {
               // Update the regions_affected array in the incident
-              const updatedRegions = [...new Set([...activeIncident.regions_affected, config.region])];
+              const updatedRegions = [
+                ...new Set([...activeIncident.regions_affected, config.region]),
+              ];
               await this.updateIncident(activeIncident.id, {
                 regions_affected: updatedRegions,
               });
             }
 
             // Set monitor status based on number of affected regions
-            const affectedRegions = activeIncident?.regions_affected.length || 1;
+            const affectedRegions =
+              activeIncident?.regions_affected.length || 1;
             const totalRegions = monitor.regions.length;
-            const newStatus = affectedRegions === totalRegions ? "error" : "degraded";
+            const newStatus =
+              affectedRegions === totalRegions ? "error" : "degraded";
 
             await this.supabase
               .from("monitors")
               .update({
                 status: newStatus,
-                error_message: result.checkError ?? `HTTP status ${result.statusCode}`,
+                error_message:
+                  result.checkError ?? `HTTP status ${result.statusCode}`,
                 last_check_at: new Date(now).toISOString(),
                 last_failure_at: new Date(now).toISOString(),
                 updated_at: new Date(now).toISOString(),
@@ -415,7 +439,7 @@ export class CheckerDurableObject extends DurableObject {
           {
             status: 500,
             headers: { "Content-Type": "application/json" },
-          },
+          }
         );
       }
     }

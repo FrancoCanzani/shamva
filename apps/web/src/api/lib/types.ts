@@ -30,7 +30,16 @@ export interface InitializeCheckerDOPayload {
   body?: Record<string, unknown> | string | null;
 }
 
-export type Region = "wnam" | "enam" | "sam" | "weur" | "eeur" | "apac" | "oc" | "afr" | "me";
+export type Region =
+  | "wnam"
+  | "enam"
+  | "sam"
+  | "weur"
+  | "eeur"
+  | "apac"
+  | "oc"
+  | "afr"
+  | "me";
 
 export interface Monitor {
   id: string;

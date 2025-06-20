@@ -13,10 +13,7 @@ export class EmailService {
     this.fromEmail = "alerts@shamva.io";
   }
 
-  private calculateDowntime(
-    lastSuccessAt: string,
-    currentTime: Date,
-  ): string {
+  private calculateDowntime(lastSuccessAt: string, currentTime: Date): string {
     const lastSuccess = new Date(lastSuccessAt);
     const diffMs = currentTime.getTime() - lastSuccess.getTime();
 
@@ -35,7 +32,7 @@ export class EmailService {
 
   async sendMonitorDownAlert(
     data: MonitorEmailData,
-    userEmails: string[],
+    userEmails: string[]
   ): Promise<boolean> {
     try {
       const emailHtml = await render(
@@ -47,7 +44,7 @@ export class EmailService {
           lastChecked: data.lastChecked,
           region: data.region,
           dashboardUrl: `https://shamva.io/dashboard/monitors/${data.monitorId}`,
-        }),
+        })
       );
 
       await this.resend.emails.send({
@@ -66,7 +63,7 @@ export class EmailService {
   async sendMonitorRecoveredAlert(
     data: MonitorEmailData,
     lastSuccessAt: string,
-    userEmails: string[],
+    userEmails: string[]
   ): Promise<boolean> {
     try {
       const downtime = this.calculateDowntime(lastSuccessAt, new Date());
@@ -78,7 +75,7 @@ export class EmailService {
           lastChecked: data.lastChecked,
           region: data.region,
           dashboardUrl: `https://shamva.io/dashboard/monitors/${data.monitorId}`,
-        }),
+        })
       );
 
       await this.resend.emails.send({

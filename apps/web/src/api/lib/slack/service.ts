@@ -3,10 +3,7 @@ import { MonitorEmailData } from "../types";
 export class SlackService {
   constructor() {}
 
-  private calculateDowntime(
-    lastSuccessAt: string,
-    currentTime: Date,
-  ): string {
+  private calculateDowntime(lastSuccessAt: string, currentTime: Date): string {
     const lastSuccess = new Date(lastSuccessAt);
     const diffMs = currentTime.getTime() - lastSuccess.getTime();
 
@@ -23,7 +20,10 @@ export class SlackService {
     }
   }
 
-  private async sendMessage(webhookUrl: string, message: string): Promise<boolean> {
+  private async sendMessage(
+    webhookUrl: string,
+    message: string
+  ): Promise<boolean> {
     try {
       const response = await fetch(webhookUrl, {
         method: "POST",
@@ -44,8 +44,12 @@ export class SlackService {
     }
   }
 
-  async sendMonitorDownAlert(data: MonitorEmailData, webhookUrl: string): Promise<boolean> {
-    const message = `🚨 *Monitor Alert: ${data.monitorName} is Down*\n\n` +
+  async sendMonitorDownAlert(
+    data: MonitorEmailData,
+    webhookUrl: string
+  ): Promise<boolean> {
+    const message =
+      `🚨 *Monitor Alert: ${data.monitorName} is Down*\n\n` +
       `• URL: ${data.url}\n` +
       `• Status: ${data.statusCode ? `HTTP ${data.statusCode}` : "Connection Failed"}\n` +
       `• Error: ${data.errorMessage}\n` +
@@ -59,10 +63,11 @@ export class SlackService {
   async sendMonitorRecoveredAlert(
     data: MonitorEmailData,
     lastSuccessAt: string,
-    webhookUrl: string,
+    webhookUrl: string
   ): Promise<boolean> {
     const downtime = this.calculateDowntime(lastSuccessAt, new Date());
-    const message = `✅ *Great News: ${data.monitorName} is Back Online*\n\n` +
+    const message =
+      `✅ *Great News: ${data.monitorName} is Back Online*\n\n` +
       `• URL: ${data.url}\n` +
       `• Status: Online\n` +
       `• Downtime: ${downtime}\n` +
@@ -72,4 +77,4 @@ export class SlackService {
 
     return this.sendMessage(webhookUrl, message);
   }
-} 
+}

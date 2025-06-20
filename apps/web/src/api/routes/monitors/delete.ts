@@ -32,7 +32,7 @@ export default async function deleteMonitors(c: Context) {
         error: "Database error fetching monitor",
         details: fetchError.message,
       },
-      500,
+      500
     );
   }
 
@@ -70,7 +70,7 @@ export default async function deleteMonitors(c: Context) {
           error: "Failed to delete monitor",
           details: deleteError.message,
         },
-        500,
+        500
       );
     }
 
@@ -85,7 +85,7 @@ export default async function deleteMonitors(c: Context) {
         error: "Failed to delete monitor",
         details: String(error),
       },
-      500,
+      500
     );
   }
 }

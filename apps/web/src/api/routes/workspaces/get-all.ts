@@ -7,7 +7,7 @@ export default async function getAllWorkspaces(c: Context) {
   if (!userId) {
     return c.json(
       { data: null, success: false, error: "User not authenticated" },
-      401,
+      401
     );
   }
 
@@ -25,7 +25,7 @@ export default async function getAllWorkspaces(c: Context) {
     if (memberWorkspacesError) {
       console.error(
         "Error fetching user's workspace memberships:",
-        memberWorkspacesError,
+        memberWorkspacesError
       );
       return c.json(
         {
@@ -33,7 +33,7 @@ export default async function getAllWorkspaces(c: Context) {
           error: "Database error fetching workspace memberships",
           details: memberWorkspacesError.message,
         },
-        500,
+        500
       );
     }
 
@@ -58,7 +58,7 @@ export default async function getAllWorkspaces(c: Context) {
           invitation_email,
           invitation_status
         )
-      `,
+      `
       )
       .in("id", workspaceIds)
       .order("created_at", { ascending: false });
@@ -71,7 +71,7 @@ export default async function getAllWorkspaces(c: Context) {
           error: "Database error fetching workspaces",
           details: workspacesError.message,
         },
-        500,
+        500
       );
     }
 
@@ -87,7 +87,7 @@ export default async function getAllWorkspaces(c: Context) {
         error: "An unexpected error occurred",
         details: error instanceof Error ? error.message : String(error),
       },
-      500,
+      500
     );
   }
 }

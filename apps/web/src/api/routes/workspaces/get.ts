@@ -10,14 +10,14 @@ export default async function getWorkspaces(c: Context) {
   if (!userId) {
     return c.json(
       { data: null, success: false, error: "User not authenticated" },
-      401,
+      401
     );
   }
 
   if (!workspaceId) {
     return c.json(
       { data: null, success: false, error: "Workspace ID is required" },
-      400,
+      400
     );
   }
 
@@ -41,7 +41,7 @@ export default async function getWorkspaces(c: Context) {
           invitation_email,
           invitation_status
         )
-      `,
+      `
       )
       .eq("id", workspaceId)
       .single();
@@ -52,7 +52,7 @@ export default async function getWorkspaces(c: Context) {
       if ((error as PostgrestError).code === "PGRST116") {
         return c.json(
           { data: null, success: false, error: "Workspace not found" },
-          404,
+          404
         );
       }
       return c.json(
@@ -62,18 +62,18 @@ export default async function getWorkspaces(c: Context) {
           error: "Database error fetching workspace",
           details: error.message,
         },
-        500,
+        500
       );
     }
 
     const isMember = data?.workspace_members?.some(
       (member: WorkspaceMember) =>
-        member.user_id === userId && member.invitation_status === "accepted",
+        member.user_id === userId && member.invitation_status === "accepted"
     );
 
     if (!data || !isMember) {
       console.warn(
-        `Access denied to workspace ${workspaceId} for user ${userId}`,
+        `Access denied to workspace ${workspaceId} for user ${userId}`
       );
       return c.json(
         {
@@ -81,7 +81,7 @@ export default async function getWorkspaces(c: Context) {
           success: false,
           error: "Workspace not found or access denied",
         },
-        404,
+        404
       );
     }
 
@@ -100,7 +100,7 @@ export default async function getWorkspaces(c: Context) {
         error: "An unexpected error occurred",
         details: errorDetails,
       },
-      500,
+      500
     );
   }
 }

@@ -13,7 +13,7 @@ export default defineConfig({
       routesDirectory: path.resolve(__dirname, "./src/frontend/routes"),
       generatedRouteTree: path.resolve(
         __dirname,
-        "./src/frontend/routeTree.gen.ts",
+        "./src/frontend/routeTree.gen.ts"
       ),
     }),
     react(),

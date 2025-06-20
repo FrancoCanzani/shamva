@@ -51,7 +51,7 @@ export function DashboardNavbar() {
         disabled: !currentWorkspace,
       },
     ],
-    [currentWorkspace],
+    [currentWorkspace]
   );
 
   return (
@@ -81,7 +81,7 @@ export function DashboardNavbar() {
                         params={{ workspaceName: currentWorkspace.name }}
                         className={cn(
                           "font-mono text-sm px-2 py-1 hover:bg-accent",
-                          "data-[active=true]:bg-accent data-[active=true]:text-accent-foreground",
+                          "data-[active=true]:bg-accent data-[active=true]:text-accent-foreground"
                         )}
                         activeProps={{ "data-active": "true" }}
                       >

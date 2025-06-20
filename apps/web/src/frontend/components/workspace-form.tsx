@@ -94,7 +94,7 @@ export default function WorkspaceForm({
       toast.success("Workspace deleted successfully");
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to delete workspace",
+        error instanceof Error ? error.message : "Failed to delete workspace"
       );
     } finally {
       setIsDeleting(false);
@@ -117,7 +117,7 @@ export default function WorkspaceForm({
               if (!initialValues?.name) {
                 const nameExists = workspaces?.some(
                   (workspace) =>
-                    workspace.name.toLowerCase() === value.toLowerCase(),
+                    workspace.name.toLowerCase() === value.toLowerCase()
                 );
 
                 if (nameExists) {
@@ -246,7 +246,7 @@ export default function WorkspaceForm({
                       if (
                         membersApi.state.value?.some(
                           (member: MemberInvite) =>
-                            member.email === newMemberEmail,
+                            member.email === newMemberEmail
                         )
                       ) {
                         toast.error("This member has already been added.");
@@ -303,7 +303,7 @@ export default function WorkspaceForm({
                             <X className="size-4" />
                           </Button>
                         </div>
-                      ),
+                      )
                     )}
                   </div>
                 </div>

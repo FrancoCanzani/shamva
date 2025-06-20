@@ -46,7 +46,7 @@ export default async function fetchWorkspace({
       throw new Error("Workspace not found or access denied");
     }
     throw new Error(
-      err.error || `Failed to fetch workspace (${response.status})`,
+      err.error || `Failed to fetch workspace (${response.status})`
     );
   }
 
@@ -55,7 +55,7 @@ export default async function fetchWorkspace({
   if (!result.success || !result.data) {
     console.error("API Result indicates failure or no data:", result);
     throw new Error(
-      result.error || "Failed to fetch workspace: API reported failure",
+      result.error || "Failed to fetch workspace: API reported failure"
     );
   }
 

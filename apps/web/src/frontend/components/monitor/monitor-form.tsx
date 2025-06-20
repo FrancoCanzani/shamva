@@ -1,16 +1,23 @@
-import { monitoringRegions } from "@/frontend/lib/constants"
-import { MonitorFormSchema } from "@/frontend/lib/schemas"
-import { cn } from "@/frontend/lib/utils"
-import { useForm } from "@tanstack/react-form"
-import { Check } from "lucide-react"
-import { z } from "zod"
-import { Button } from "../ui/button"
-import { Input } from "../ui/input"
-import { Label } from "../ui/label"
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
-import { Textarea } from "../ui/textarea"
-import MonitorFormSectionSelector from "./monitor-form-section-selector"
-import { Link } from "@tanstack/react-router"
+import { monitoringRegions } from "@/frontend/lib/constants";
+import { MonitorFormSchema } from "@/frontend/lib/schemas";
+import { cn } from "@/frontend/lib/utils";
+import { useForm } from "@tanstack/react-form";
+import { Check } from "lucide-react";
+import { z } from "zod";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { Textarea } from "../ui/textarea";
+import MonitorFormSectionSelector from "./monitor-form-section-selector";
+import { Link } from "@tanstack/react-router";
 
 const checkIntervals = [
   { value: "60000", label: "1 minute" },
@@ -19,47 +26,55 @@ const checkIntervals = [
   { value: "900000", label: "15 minutes" },
   { value: "1800000", label: "30 minutes" },
   { value: "3600000", label: "1 hour" },
-]
+];
 
 const regionsByContinent = monitoringRegions.reduce(
   (acc, region) => {
     if (!acc[region.continent]) {
-      acc[region.continent] = []
+      acc[region.continent] = [];
     }
-    acc[region.continent].push(region)
-    return acc
+    acc[region.continent].push(region);
+    return acc;
   },
-  {} as Record<string, typeof monitoringRegions>,
-)
+  {} as Record<string, typeof monitoringRegions>
+);
 
-const continentOrder = ["North America", "South America", "Europe", "Africa", "Middle East", "Asia-Pacific", "Oceania"]
+const continentOrder = [
+  "North America",
+  "South America",
+  "Europe",
+  "Africa",
+  "Middle East",
+  "Asia-Pacific",
+  "Oceania",
+];
 
-export type MonitorFormValues = z.infer<typeof MonitorFormSchema>
+export type MonitorFormValues = z.infer<typeof MonitorFormSchema>;
 
 interface MonitorFormProps {
   onSubmit: (values: {
-    name: string
-    url: string
-    method: "GET" | "POST" | "HEAD"
-    interval: number
-    regions: string[]
-    headers?: Record<string, string>
-    body?: Record<string, unknown> | string
-    slackWebhookUrl?: string
-  }) => Promise<void>
-  onCancel?: () => void
-  isSubmitting?: boolean
-  submitLabel?: string
+    name: string;
+    url: string;
+    method: "GET" | "POST" | "HEAD";
+    interval: number;
+    regions: string[];
+    headers?: Record<string, string>;
+    body?: Record<string, unknown> | string;
+    slackWebhookUrl?: string;
+  }) => Promise<void>;
+  onCancel?: () => void;
+  isSubmitting?: boolean;
+  submitLabel?: string;
   defaultValues?: Partial<{
-    name: string
-    url: string
-    method: "GET" | "POST" | "HEAD"
-    interval: number
-    regions: string[]
-    headers: Record<string, string>
-    body: Record<string, unknown> | string
-    slack_webhook_url: string
-  }>
+    name: string;
+    url: string;
+    method: "GET" | "POST" | "HEAD";
+    interval: number;
+    regions: string[];
+    headers: Record<string, string>;
+    body: Record<string, unknown> | string;
+    slack_webhook_url: string;
+  }>;
 }
 
 export default function MonitorForm({
@@ -76,13 +91,19 @@ export default function MonitorForm({
       method: defaultValues?.method ?? "GET",
       interval: defaultValues?.interval ?? 300000,
       regions: defaultValues?.regions ?? [],
-      headersString: defaultValues?.headers ? JSON.stringify(defaultValues.headers, null, 2) : "",
-      bodyString: defaultValues?.body ? JSON.stringify(defaultValues.body, null, 2) : "",
+      headersString: defaultValues?.headers
+        ? JSON.stringify(defaultValues.headers, null, 2)
+        : "",
+      bodyString: defaultValues?.body
+        ? JSON.stringify(defaultValues.body, null, 2)
+        : "",
       slackWebhookUrl: defaultValues?.slack_webhook_url || undefined,
     },
     onSubmit: async ({ value }) => {
-      const headers = value.headersString ? JSON.parse(value.headersString) : undefined
-      const body = value.bodyString ? JSON.parse(value.bodyString) : undefined
+      const headers = value.headersString
+        ? JSON.parse(value.headersString)
+        : undefined;
+      const body = value.bodyString ? JSON.parse(value.bodyString) : undefined;
 
       await onSubmit({
         name: value.name,
@@ -93,38 +114,38 @@ export default function MonitorForm({
         headers,
         body,
         slackWebhookUrl: value.slackWebhookUrl,
-      })
+      });
     },
     validators: {
       onChange: ({ value }) => {
         try {
-          MonitorFormSchema.parse(value)
-          return undefined
+          MonitorFormSchema.parse(value);
+          return undefined;
         } catch (error) {
           if (error instanceof z.ZodError) {
-            const fieldErrors: Record<string, string> = {}
+            const fieldErrors: Record<string, string> = {};
             error.errors.forEach((err) => {
-              const path = err.path.join(".")
-              fieldErrors[path] = err.message
-            })
+              const path = err.path.join(".");
+              fieldErrors[path] = err.message;
+            });
 
             return {
               fields: fieldErrors,
-            }
+            };
           }
-          return { form: "Invalid form data" }
+          return { form: "Invalid form data" };
         }
       },
     },
-  })
+  });
 
   return (
     <div className="flex gap-8">
       <form
         onSubmit={(e) => {
-          e.preventDefault()
-          e.stopPropagation()
-          form.handleSubmit()
+          e.preventDefault();
+          e.stopPropagation();
+          form.handleSubmit();
         }}
         className="flex-1 space-y-8"
       >
@@ -143,10 +164,16 @@ export default function MonitorForm({
                       onChange={(e) => field.handleChange(e.target.value)}
                       onBlur={field.handleBlur}
                       placeholder="Example API"
-                      className={field.state.meta.errors?.length ? "border-destructive" : ""}
+                      className={
+                        field.state.meta.errors?.length
+                          ? "border-destructive"
+                          : ""
+                      }
                     />
                     {field.state.meta.errors?.length > 0 && (
-                      <p className="text-sm text-destructive">{field.state.meta.errors[0]}</p>
+                      <p className="text-sm text-destructive">
+                        {field.state.meta.errors[0]}
+                      </p>
                     )}
                   </>
                 )}
@@ -159,24 +186,34 @@ export default function MonitorForm({
                   <>
                     <Label htmlFor="interval">Check interval</Label>
                     <Select
-                      onValueChange={(value) => field.handleChange(Number.parseInt(value, 10))}
+                      onValueChange={(value) =>
+                        field.handleChange(Number.parseInt(value, 10))
+                      }
                       value={field.state.value.toString()}
                       onOpenChange={() => {
                         if (!field.state.meta.isTouched) {
-                          field.handleBlur()
+                          field.handleBlur();
                         }
                       }}
                     >
                       <SelectTrigger
                         id="interval"
-                        className={cn("w-full", field.state.meta.errors?.length ? "border-destructive" : "")}
+                        className={cn(
+                          "w-full",
+                          field.state.meta.errors?.length
+                            ? "border-destructive"
+                            : ""
+                        )}
                       >
                         <SelectValue placeholder="Select interval" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
                           {checkIntervals.map((interval) => (
-                            <SelectItem key={interval.value} value={interval.value}>
+                            <SelectItem
+                              key={interval.value}
+                              value={interval.value}
+                            >
                               {interval.label}
                             </SelectItem>
                           ))}
@@ -184,7 +221,9 @@ export default function MonitorForm({
                       </SelectContent>
                     </Select>
                     {field.state.meta.errors?.length > 0 && (
-                      <p className="text-sm text-destructive">{field.state.meta.errors[0]}</p>
+                      <p className="text-sm text-destructive">
+                        {field.state.meta.errors[0]}
+                      </p>
                     )}
                   </>
                 )}
@@ -202,17 +241,23 @@ export default function MonitorForm({
                   <>
                     <Label htmlFor="method">Method</Label>
                     <Select
-                      onValueChange={(value) => field.handleChange(value as "GET" | "POST" | "HEAD")}
+                      onValueChange={(value) =>
+                        field.handleChange(value as "GET" | "POST" | "HEAD")
+                      }
                       value={field.state.value}
                       onOpenChange={() => {
                         if (!field.state.meta.isTouched) {
-                          field.handleBlur()
+                          field.handleBlur();
                         }
                       }}
                     >
                       <SelectTrigger
                         id="method"
-                        className={field.state.meta.errors?.length ? "border-destructive" : ""}
+                        className={
+                          field.state.meta.errors?.length
+                            ? "border-destructive"
+                            : ""
+                        }
                       >
                         <SelectValue placeholder="Select a method" />
                       </SelectTrigger>
@@ -225,7 +270,9 @@ export default function MonitorForm({
                       </SelectContent>
                     </Select>
                     {field.state.meta.errors?.length > 0 && (
-                      <p className="text-sm text-destructive">{field.state.meta.errors[0]}</p>
+                      <p className="text-sm text-destructive">
+                        {field.state.meta.errors[0]}
+                      </p>
                     )}
                   </>
                 )}
@@ -244,10 +291,16 @@ export default function MonitorForm({
                       onChange={(e) => field.handleChange(e.target.value)}
                       onBlur={field.handleBlur}
                       placeholder="https://example.com/api"
-                      className={field.state.meta.errors?.length ? "border-destructive" : ""}
+                      className={
+                        field.state.meta.errors?.length
+                          ? "border-destructive"
+                          : ""
+                      }
                     />
                     {field.state.meta.errors?.length > 0 && (
-                      <p className="text-sm text-destructive">{field.state.meta.errors[0]}</p>
+                      <p className="text-sm text-destructive">
+                        {field.state.meta.errors[0]}
+                      </p>
                     )}
                   </>
                 )}
@@ -270,66 +323,84 @@ export default function MonitorForm({
                     </span>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    * Regions are a best effort and not a guarantee. Monitors will not necessarily be instantiated in
-                    the hinted region, but instead instantiated in a data center selected to minimize latency.
+                    * Regions are a best effort and not a guarantee. Monitors
+                    will not necessarily be instantiated in the hinted region,
+                    but instead instantiated in a data center selected to
+                    minimize latency.
                   </p>
                 </div>
 
                 <div className="border  border-dashed p-2">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {continentOrder.map((continent) => {
-                      const regions = regionsByContinent[continent] || []
-                      if (regions.length === 0) return null
+                      const regions = regionsByContinent[continent] || [];
+                      if (regions.length === 0) return null;
 
                       return (
                         <div key={continent} className="space-y-2">
                           <h3 className="font-medium text-sm">{continent}</h3>
                           <div className="grid gap-2">
                             {regions.map((region) => {
-                              const isSelected = field.state.value.includes(region.value)
+                              const isSelected = field.state.value.includes(
+                                region.value
+                              );
 
                               return (
                                 <div
                                   key={region.value}
                                   className={`flex items-center justify-between p-2 border  cursor-pointer hover:bg-slate-50 transition-colors ${
-                                    isSelected ? "border-primary bg-slate-50" : ""
+                                    isSelected
+                                      ? "border-primary bg-slate-50"
+                                      : ""
                                   }`}
                                   onClick={() => {
                                     const newRegions = isSelected
-                                      ? field.state.value.filter((r) => r !== region.value)
-                                      : [...field.state.value, region.value]
-                                    field.handleChange(newRegions)
+                                      ? field.state.value.filter(
+                                          (r) => r !== region.value
+                                        )
+                                      : [...field.state.value, region.value];
+                                    field.handleChange(newRegions);
                                   }}
                                   role="checkbox"
                                   aria-checked={isSelected}
                                   tabIndex={0}
                                   onKeyDown={(e) => {
                                     if (e.key === " " || e.key === "Enter") {
-                                      e.preventDefault()
+                                      e.preventDefault();
                                       const newRegions = isSelected
-                                        ? field.state.value.filter((r) => r !== region.value)
-                                        : [...field.state.value, region.value]
-                                      field.handleChange(newRegions)
+                                        ? field.state.value.filter(
+                                            (r) => r !== region.value
+                                          )
+                                        : [...field.state.value, region.value];
+                                      field.handleChange(newRegions);
                                     }
                                   }}
                                 >
                                   <div className="flex items-center gap-2">
-                                    <span className="text-sm leading-none">{region.flag}</span>
-                                    <span className="text-xs">{region.label}</span>
+                                    <span className="text-sm leading-none">
+                                      {region.flag}
+                                    </span>
+                                    <span className="text-xs">
+                                      {region.label}
+                                    </span>
                                   </div>
-                                  {isSelected && <Check className="h-4 w-4 text-primary" />}
+                                  {isSelected && (
+                                    <Check className="h-4 w-4 text-primary" />
+                                  )}
                                 </div>
-                              )
+                              );
                             })}
                           </div>
                         </div>
-                      )
+                      );
                     })}
                   </div>
                 </div>
 
                 {field.state.meta.errors?.length > 0 && (
-                  <p className="text-sm text-destructive">{field.state.meta.errors[0]}</p>
+                  <p className="text-sm text-destructive">
+                    {field.state.meta.errors[0]}
+                  </p>
                 )}
               </>
             )}
@@ -353,12 +424,21 @@ export default function MonitorForm({
                       onBlur={field.handleBlur}
                       placeholder='{"Authorization": "Bearer token", "Content-Type": "application/json"}'
                       rows={8}
-                      className={cn("text-sm", field.state.meta.errors?.length ? "border-destructive" : "")}
+                      className={cn(
+                        "text-sm",
+                        field.state.meta.errors?.length
+                          ? "border-destructive"
+                          : ""
+                      )}
                     />
                     {field.state.meta.errors?.length > 0 && (
-                      <p className="text-sm text-destructive">{field.state.meta.errors[0]}</p>
+                      <p className="text-sm text-destructive">
+                        {field.state.meta.errors[0]}
+                      </p>
                     )}
-                    <p className="text-xs text-muted-foreground">Enter headers as a valid JSON object</p>
+                    <p className="text-xs text-muted-foreground">
+                      Enter headers as a valid JSON object
+                    </p>
                   </>
                 )}
               </form.Field>
@@ -371,7 +451,9 @@ export default function MonitorForm({
                     <form.Field name="bodyString">
                       {(field) => (
                         <>
-                          <Label htmlFor="bodyString">Request Body (JSON String)</Label>
+                          <Label htmlFor="bodyString">
+                            Request Body (JSON String)
+                          </Label>
                           <Textarea
                             id="bodyString"
                             name="bodyString"
@@ -380,12 +462,21 @@ export default function MonitorForm({
                             onBlur={field.handleBlur}
                             placeholder='{"key": "value"}'
                             rows={8}
-                            className={cn("text-sm", field.state.meta.errors?.length ? "border-destructive" : "")}
+                            className={cn(
+                              "text-sm",
+                              field.state.meta.errors?.length
+                                ? "border-destructive"
+                                : ""
+                            )}
                           />
                           {field.state.meta.errors?.length > 0 && (
-                            <p className="text-sm text-destructive">{field.state.meta.errors[0]}</p>
+                            <p className="text-sm text-destructive">
+                              {field.state.meta.errors[0]}
+                            </p>
                           )}
-                          <p className="text-xs text-muted-foreground">Only applicable for POST requests</p>
+                          <p className="text-xs text-muted-foreground">
+                            Only applicable for POST requests
+                          </p>
                         </>
                       )}
                     </form.Field>
@@ -399,7 +490,10 @@ export default function MonitorForm({
         <div id="notifications" className="space-y-4">
           <h3 className="text-sm font-medium">Notifications</h3>
           <p className="text-xs text-muted-foreground">
-                    * Every accepted user in your workspace will receive email notifications. Aditionaly, you can configure Slack notifications.     </p>
+            * Every accepted user in your workspace will receive email
+            notifications. Aditionaly, you can configure Slack
+            notifications.{" "}
+          </p>
           <div className="space-y-4">
             <form.Field
               name="slackWebhookUrl"
@@ -415,10 +509,20 @@ export default function MonitorForm({
                     placeholder="https://hooks.slack.com/services/..."
                   />
                   {field.state.meta.errors ? (
-                    <p className="text-sm text-red-500">{field.state.meta.errors.join(", ")}</p>
+                    <p className="text-sm text-red-500">
+                      {field.state.meta.errors.join(", ")}
+                    </p>
                   ) : null}
                   <p className="text-xs text-muted-foreground">
-                    Optional. Add a <Link className="underline font-medium text-primary" to="/dashboard/$workspaceName/monitors" params={{ workspaceName: "workspaceName" }}>Slack webhook URL</Link> to receive notifications in your Slack channel.
+                    Optional. Add a{" "}
+                    <Link
+                      className="underline font-medium text-primary"
+                      to="/dashboard/$workspaceName/monitors"
+                      params={{ workspaceName: "workspaceName" }}
+                    >
+                      Slack webhook URL
+                    </Link>{" "}
+                    to receive notifications in your Slack channel.
                   </p>
                 </div>
               )}
@@ -436,7 +540,7 @@ export default function MonitorForm({
         </div>
       </form>
 
-     <MonitorFormSectionSelector/>
+      <MonitorFormSectionSelector />
     </div>
-  )
+  );
 }

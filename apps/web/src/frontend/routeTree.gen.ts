@@ -10,282 +10,282 @@
 
 // Import Routes
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as DashboardRouteImport } from './routes/dashboard/route'
-import { Route as IndexImport } from './routes/index'
-import { Route as AuthLoginImport } from './routes/auth/login'
-import { Route as StatusSlugIndexImport } from './routes/status/$slug/index'
-import { Route as DashboardWorkspacesIndexImport } from './routes/dashboard/workspaces/index'
-import { Route as DashboardLogsIndexImport } from './routes/dashboard/logs/index'
-import { Route as DashboardWorkspacesNewIndexImport } from './routes/dashboard/workspaces/new/index'
-import { Route as DashboardWorkspacesWorkspaceIdIndexImport } from './routes/dashboard/workspaces/$workspaceId/index'
-import { Route as DashboardWorkspaceNameStatusPagesIndexImport } from './routes/dashboard/$workspaceName/status-pages/index'
-import { Route as DashboardWorkspaceNameMonitorsIndexImport } from './routes/dashboard/$workspaceName/monitors/index'
-import { Route as DashboardWorkspaceNameLogsIndexImport } from './routes/dashboard/$workspaceName/logs/index'
-import { Route as DashboardWorkspaceNameStatusPagesNewIndexImport } from './routes/dashboard/$workspaceName/status-pages/new/index'
-import { Route as DashboardWorkspaceNameMonitorsNewIndexImport } from './routes/dashboard/$workspaceName/monitors/new/index'
-import { Route as DashboardWorkspaceNameMonitorsIdIndexImport } from './routes/dashboard/$workspaceName/monitors/$id/index'
-import { Route as DashboardWorkspaceNameIncidentsIdIndexImport } from './routes/dashboard/$workspaceName/incidents/$id/index'
-import { Route as DashboardWorkspaceNameStatusPagesIdEditIndexImport } from './routes/dashboard/$workspaceName/status-pages/$id/edit/index'
-import { Route as DashboardWorkspaceNameMonitorsIdEditIndexImport } from './routes/dashboard/$workspaceName/monitors/$id/edit/index'
+import { Route as rootRoute } from "./routes/__root";
+import { Route as DashboardRouteImport } from "./routes/dashboard/route";
+import { Route as IndexImport } from "./routes/index";
+import { Route as AuthLoginImport } from "./routes/auth/login";
+import { Route as StatusSlugIndexImport } from "./routes/status/$slug/index";
+import { Route as DashboardWorkspacesIndexImport } from "./routes/dashboard/workspaces/index";
+import { Route as DashboardLogsIndexImport } from "./routes/dashboard/logs/index";
+import { Route as DashboardWorkspacesNewIndexImport } from "./routes/dashboard/workspaces/new/index";
+import { Route as DashboardWorkspacesWorkspaceIdIndexImport } from "./routes/dashboard/workspaces/$workspaceId/index";
+import { Route as DashboardWorkspaceNameStatusPagesIndexImport } from "./routes/dashboard/$workspaceName/status-pages/index";
+import { Route as DashboardWorkspaceNameMonitorsIndexImport } from "./routes/dashboard/$workspaceName/monitors/index";
+import { Route as DashboardWorkspaceNameLogsIndexImport } from "./routes/dashboard/$workspaceName/logs/index";
+import { Route as DashboardWorkspaceNameStatusPagesNewIndexImport } from "./routes/dashboard/$workspaceName/status-pages/new/index";
+import { Route as DashboardWorkspaceNameMonitorsNewIndexImport } from "./routes/dashboard/$workspaceName/monitors/new/index";
+import { Route as DashboardWorkspaceNameMonitorsIdIndexImport } from "./routes/dashboard/$workspaceName/monitors/$id/index";
+import { Route as DashboardWorkspaceNameIncidentsIdIndexImport } from "./routes/dashboard/$workspaceName/incidents/$id/index";
+import { Route as DashboardWorkspaceNameStatusPagesIdEditIndexImport } from "./routes/dashboard/$workspaceName/status-pages/$id/edit/index";
+import { Route as DashboardWorkspaceNameMonitorsIdEditIndexImport } from "./routes/dashboard/$workspaceName/monitors/$id/edit/index";
 
 // Create/Update Routes
 
 const DashboardRouteRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
+  id: "/dashboard",
+  path: "/dashboard",
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const IndexRoute = IndexImport.update({
-  id: '/',
-  path: '/',
+  id: "/",
+  path: "/",
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const AuthLoginRoute = AuthLoginImport.update({
-  id: '/auth/login',
-  path: '/auth/login',
+  id: "/auth/login",
+  path: "/auth/login",
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const StatusSlugIndexRoute = StatusSlugIndexImport.update({
-  id: '/status/$slug/',
-  path: '/status/$slug/',
+  id: "/status/$slug/",
+  path: "/status/$slug/",
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const DashboardWorkspacesIndexRoute = DashboardWorkspacesIndexImport.update({
-  id: '/workspaces/',
-  path: '/workspaces/',
+  id: "/workspaces/",
+  path: "/workspaces/",
   getParentRoute: () => DashboardRouteRoute,
-} as any)
+} as any);
 
 const DashboardLogsIndexRoute = DashboardLogsIndexImport.update({
-  id: '/logs/',
-  path: '/logs/',
+  id: "/logs/",
+  path: "/logs/",
   getParentRoute: () => DashboardRouteRoute,
-} as any)
+} as any);
 
 const DashboardWorkspacesNewIndexRoute =
   DashboardWorkspacesNewIndexImport.update({
-    id: '/workspaces/new/',
-    path: '/workspaces/new/',
+    id: "/workspaces/new/",
+    path: "/workspaces/new/",
     getParentRoute: () => DashboardRouteRoute,
-  } as any)
+  } as any);
 
 const DashboardWorkspacesWorkspaceIdIndexRoute =
   DashboardWorkspacesWorkspaceIdIndexImport.update({
-    id: '/workspaces/$workspaceId/',
-    path: '/workspaces/$workspaceId/',
+    id: "/workspaces/$workspaceId/",
+    path: "/workspaces/$workspaceId/",
     getParentRoute: () => DashboardRouteRoute,
-  } as any)
+  } as any);
 
 const DashboardWorkspaceNameStatusPagesIndexRoute =
   DashboardWorkspaceNameStatusPagesIndexImport.update({
-    id: '/$workspaceName/status-pages/',
-    path: '/$workspaceName/status-pages/',
+    id: "/$workspaceName/status-pages/",
+    path: "/$workspaceName/status-pages/",
     getParentRoute: () => DashboardRouteRoute,
-  } as any)
+  } as any);
 
 const DashboardWorkspaceNameMonitorsIndexRoute =
   DashboardWorkspaceNameMonitorsIndexImport.update({
-    id: '/$workspaceName/monitors/',
-    path: '/$workspaceName/monitors/',
+    id: "/$workspaceName/monitors/",
+    path: "/$workspaceName/monitors/",
     getParentRoute: () => DashboardRouteRoute,
-  } as any)
+  } as any);
 
 const DashboardWorkspaceNameLogsIndexRoute =
   DashboardWorkspaceNameLogsIndexImport.update({
-    id: '/$workspaceName/logs/',
-    path: '/$workspaceName/logs/',
+    id: "/$workspaceName/logs/",
+    path: "/$workspaceName/logs/",
     getParentRoute: () => DashboardRouteRoute,
-  } as any)
+  } as any);
 
 const DashboardWorkspaceNameStatusPagesNewIndexRoute =
   DashboardWorkspaceNameStatusPagesNewIndexImport.update({
-    id: '/$workspaceName/status-pages/new/',
-    path: '/$workspaceName/status-pages/new/',
+    id: "/$workspaceName/status-pages/new/",
+    path: "/$workspaceName/status-pages/new/",
     getParentRoute: () => DashboardRouteRoute,
-  } as any)
+  } as any);
 
 const DashboardWorkspaceNameMonitorsNewIndexRoute =
   DashboardWorkspaceNameMonitorsNewIndexImport.update({
-    id: '/$workspaceName/monitors/new/',
-    path: '/$workspaceName/monitors/new/',
+    id: "/$workspaceName/monitors/new/",
+    path: "/$workspaceName/monitors/new/",
     getParentRoute: () => DashboardRouteRoute,
-  } as any)
+  } as any);
 
 const DashboardWorkspaceNameMonitorsIdIndexRoute =
   DashboardWorkspaceNameMonitorsIdIndexImport.update({
-    id: '/$workspaceName/monitors/$id/',
-    path: '/$workspaceName/monitors/$id/',
+    id: "/$workspaceName/monitors/$id/",
+    path: "/$workspaceName/monitors/$id/",
     getParentRoute: () => DashboardRouteRoute,
-  } as any)
+  } as any);
 
 const DashboardWorkspaceNameIncidentsIdIndexRoute =
   DashboardWorkspaceNameIncidentsIdIndexImport.update({
-    id: '/$workspaceName/incidents/$id/',
-    path: '/$workspaceName/incidents/$id/',
+    id: "/$workspaceName/incidents/$id/",
+    path: "/$workspaceName/incidents/$id/",
     getParentRoute: () => DashboardRouteRoute,
-  } as any)
+  } as any);
 
 const DashboardWorkspaceNameStatusPagesIdEditIndexRoute =
   DashboardWorkspaceNameStatusPagesIdEditIndexImport.update({
-    id: '/$workspaceName/status-pages/$id/edit/',
-    path: '/$workspaceName/status-pages/$id/edit/',
+    id: "/$workspaceName/status-pages/$id/edit/",
+    path: "/$workspaceName/status-pages/$id/edit/",
     getParentRoute: () => DashboardRouteRoute,
-  } as any)
+  } as any);
 
 const DashboardWorkspaceNameMonitorsIdEditIndexRoute =
   DashboardWorkspaceNameMonitorsIdEditIndexImport.update({
-    id: '/$workspaceName/monitors/$id/edit/',
-    path: '/$workspaceName/monitors/$id/edit/',
+    id: "/$workspaceName/monitors/$id/edit/",
+    path: "/$workspaceName/monitors/$id/edit/",
     getParentRoute: () => DashboardRouteRoute,
-  } as any)
+  } as any);
 
 // Populate the FileRoutesByPath interface
 
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRoute
-    }
-    '/auth/login': {
-      id: '/auth/login'
-      path: '/auth/login'
-      fullPath: '/auth/login'
-      preLoaderRoute: typeof AuthLoginImport
-      parentRoute: typeof rootRoute
-    }
-    '/dashboard/logs/': {
-      id: '/dashboard/logs/'
-      path: '/logs'
-      fullPath: '/dashboard/logs'
-      preLoaderRoute: typeof DashboardLogsIndexImport
-      parentRoute: typeof DashboardRouteImport
-    }
-    '/dashboard/workspaces/': {
-      id: '/dashboard/workspaces/'
-      path: '/workspaces'
-      fullPath: '/dashboard/workspaces'
-      preLoaderRoute: typeof DashboardWorkspacesIndexImport
-      parentRoute: typeof DashboardRouteImport
-    }
-    '/status/$slug/': {
-      id: '/status/$slug/'
-      path: '/status/$slug'
-      fullPath: '/status/$slug'
-      preLoaderRoute: typeof StatusSlugIndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/dashboard/$workspaceName/logs/': {
-      id: '/dashboard/$workspaceName/logs/'
-      path: '/$workspaceName/logs'
-      fullPath: '/dashboard/$workspaceName/logs'
-      preLoaderRoute: typeof DashboardWorkspaceNameLogsIndexImport
-      parentRoute: typeof DashboardRouteImport
-    }
-    '/dashboard/$workspaceName/monitors/': {
-      id: '/dashboard/$workspaceName/monitors/'
-      path: '/$workspaceName/monitors'
-      fullPath: '/dashboard/$workspaceName/monitors'
-      preLoaderRoute: typeof DashboardWorkspaceNameMonitorsIndexImport
-      parentRoute: typeof DashboardRouteImport
-    }
-    '/dashboard/$workspaceName/status-pages/': {
-      id: '/dashboard/$workspaceName/status-pages/'
-      path: '/$workspaceName/status-pages'
-      fullPath: '/dashboard/$workspaceName/status-pages'
-      preLoaderRoute: typeof DashboardWorkspaceNameStatusPagesIndexImport
-      parentRoute: typeof DashboardRouteImport
-    }
-    '/dashboard/workspaces/$workspaceId/': {
-      id: '/dashboard/workspaces/$workspaceId/'
-      path: '/workspaces/$workspaceId'
-      fullPath: '/dashboard/workspaces/$workspaceId'
-      preLoaderRoute: typeof DashboardWorkspacesWorkspaceIdIndexImport
-      parentRoute: typeof DashboardRouteImport
-    }
-    '/dashboard/workspaces/new/': {
-      id: '/dashboard/workspaces/new/'
-      path: '/workspaces/new'
-      fullPath: '/dashboard/workspaces/new'
-      preLoaderRoute: typeof DashboardWorkspacesNewIndexImport
-      parentRoute: typeof DashboardRouteImport
-    }
-    '/dashboard/$workspaceName/incidents/$id/': {
-      id: '/dashboard/$workspaceName/incidents/$id/'
-      path: '/$workspaceName/incidents/$id'
-      fullPath: '/dashboard/$workspaceName/incidents/$id'
-      preLoaderRoute: typeof DashboardWorkspaceNameIncidentsIdIndexImport
-      parentRoute: typeof DashboardRouteImport
-    }
-    '/dashboard/$workspaceName/monitors/$id/': {
-      id: '/dashboard/$workspaceName/monitors/$id/'
-      path: '/$workspaceName/monitors/$id'
-      fullPath: '/dashboard/$workspaceName/monitors/$id'
-      preLoaderRoute: typeof DashboardWorkspaceNameMonitorsIdIndexImport
-      parentRoute: typeof DashboardRouteImport
-    }
-    '/dashboard/$workspaceName/monitors/new/': {
-      id: '/dashboard/$workspaceName/monitors/new/'
-      path: '/$workspaceName/monitors/new'
-      fullPath: '/dashboard/$workspaceName/monitors/new'
-      preLoaderRoute: typeof DashboardWorkspaceNameMonitorsNewIndexImport
-      parentRoute: typeof DashboardRouteImport
-    }
-    '/dashboard/$workspaceName/status-pages/new/': {
-      id: '/dashboard/$workspaceName/status-pages/new/'
-      path: '/$workspaceName/status-pages/new'
-      fullPath: '/dashboard/$workspaceName/status-pages/new'
-      preLoaderRoute: typeof DashboardWorkspaceNameStatusPagesNewIndexImport
-      parentRoute: typeof DashboardRouteImport
-    }
-    '/dashboard/$workspaceName/monitors/$id/edit/': {
-      id: '/dashboard/$workspaceName/monitors/$id/edit/'
-      path: '/$workspaceName/monitors/$id/edit'
-      fullPath: '/dashboard/$workspaceName/monitors/$id/edit'
-      preLoaderRoute: typeof DashboardWorkspaceNameMonitorsIdEditIndexImport
-      parentRoute: typeof DashboardRouteImport
-    }
-    '/dashboard/$workspaceName/status-pages/$id/edit/': {
-      id: '/dashboard/$workspaceName/status-pages/$id/edit/'
-      path: '/$workspaceName/status-pages/$id/edit'
-      fullPath: '/dashboard/$workspaceName/status-pages/$id/edit'
-      preLoaderRoute: typeof DashboardWorkspaceNameStatusPagesIdEditIndexImport
-      parentRoute: typeof DashboardRouteImport
-    }
+    "/": {
+      id: "/";
+      path: "/";
+      fullPath: "/";
+      preLoaderRoute: typeof IndexImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/dashboard": {
+      id: "/dashboard";
+      path: "/dashboard";
+      fullPath: "/dashboard";
+      preLoaderRoute: typeof DashboardRouteImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/auth/login": {
+      id: "/auth/login";
+      path: "/auth/login";
+      fullPath: "/auth/login";
+      preLoaderRoute: typeof AuthLoginImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/dashboard/logs/": {
+      id: "/dashboard/logs/";
+      path: "/logs";
+      fullPath: "/dashboard/logs";
+      preLoaderRoute: typeof DashboardLogsIndexImport;
+      parentRoute: typeof DashboardRouteImport;
+    };
+    "/dashboard/workspaces/": {
+      id: "/dashboard/workspaces/";
+      path: "/workspaces";
+      fullPath: "/dashboard/workspaces";
+      preLoaderRoute: typeof DashboardWorkspacesIndexImport;
+      parentRoute: typeof DashboardRouteImport;
+    };
+    "/status/$slug/": {
+      id: "/status/$slug/";
+      path: "/status/$slug";
+      fullPath: "/status/$slug";
+      preLoaderRoute: typeof StatusSlugIndexImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/dashboard/$workspaceName/logs/": {
+      id: "/dashboard/$workspaceName/logs/";
+      path: "/$workspaceName/logs";
+      fullPath: "/dashboard/$workspaceName/logs";
+      preLoaderRoute: typeof DashboardWorkspaceNameLogsIndexImport;
+      parentRoute: typeof DashboardRouteImport;
+    };
+    "/dashboard/$workspaceName/monitors/": {
+      id: "/dashboard/$workspaceName/monitors/";
+      path: "/$workspaceName/monitors";
+      fullPath: "/dashboard/$workspaceName/monitors";
+      preLoaderRoute: typeof DashboardWorkspaceNameMonitorsIndexImport;
+      parentRoute: typeof DashboardRouteImport;
+    };
+    "/dashboard/$workspaceName/status-pages/": {
+      id: "/dashboard/$workspaceName/status-pages/";
+      path: "/$workspaceName/status-pages";
+      fullPath: "/dashboard/$workspaceName/status-pages";
+      preLoaderRoute: typeof DashboardWorkspaceNameStatusPagesIndexImport;
+      parentRoute: typeof DashboardRouteImport;
+    };
+    "/dashboard/workspaces/$workspaceId/": {
+      id: "/dashboard/workspaces/$workspaceId/";
+      path: "/workspaces/$workspaceId";
+      fullPath: "/dashboard/workspaces/$workspaceId";
+      preLoaderRoute: typeof DashboardWorkspacesWorkspaceIdIndexImport;
+      parentRoute: typeof DashboardRouteImport;
+    };
+    "/dashboard/workspaces/new/": {
+      id: "/dashboard/workspaces/new/";
+      path: "/workspaces/new";
+      fullPath: "/dashboard/workspaces/new";
+      preLoaderRoute: typeof DashboardWorkspacesNewIndexImport;
+      parentRoute: typeof DashboardRouteImport;
+    };
+    "/dashboard/$workspaceName/incidents/$id/": {
+      id: "/dashboard/$workspaceName/incidents/$id/";
+      path: "/$workspaceName/incidents/$id";
+      fullPath: "/dashboard/$workspaceName/incidents/$id";
+      preLoaderRoute: typeof DashboardWorkspaceNameIncidentsIdIndexImport;
+      parentRoute: typeof DashboardRouteImport;
+    };
+    "/dashboard/$workspaceName/monitors/$id/": {
+      id: "/dashboard/$workspaceName/monitors/$id/";
+      path: "/$workspaceName/monitors/$id";
+      fullPath: "/dashboard/$workspaceName/monitors/$id";
+      preLoaderRoute: typeof DashboardWorkspaceNameMonitorsIdIndexImport;
+      parentRoute: typeof DashboardRouteImport;
+    };
+    "/dashboard/$workspaceName/monitors/new/": {
+      id: "/dashboard/$workspaceName/monitors/new/";
+      path: "/$workspaceName/monitors/new";
+      fullPath: "/dashboard/$workspaceName/monitors/new";
+      preLoaderRoute: typeof DashboardWorkspaceNameMonitorsNewIndexImport;
+      parentRoute: typeof DashboardRouteImport;
+    };
+    "/dashboard/$workspaceName/status-pages/new/": {
+      id: "/dashboard/$workspaceName/status-pages/new/";
+      path: "/$workspaceName/status-pages/new";
+      fullPath: "/dashboard/$workspaceName/status-pages/new";
+      preLoaderRoute: typeof DashboardWorkspaceNameStatusPagesNewIndexImport;
+      parentRoute: typeof DashboardRouteImport;
+    };
+    "/dashboard/$workspaceName/monitors/$id/edit/": {
+      id: "/dashboard/$workspaceName/monitors/$id/edit/";
+      path: "/$workspaceName/monitors/$id/edit";
+      fullPath: "/dashboard/$workspaceName/monitors/$id/edit";
+      preLoaderRoute: typeof DashboardWorkspaceNameMonitorsIdEditIndexImport;
+      parentRoute: typeof DashboardRouteImport;
+    };
+    "/dashboard/$workspaceName/status-pages/$id/edit/": {
+      id: "/dashboard/$workspaceName/status-pages/$id/edit/";
+      path: "/$workspaceName/status-pages/$id/edit";
+      fullPath: "/dashboard/$workspaceName/status-pages/$id/edit";
+      preLoaderRoute: typeof DashboardWorkspaceNameStatusPagesIdEditIndexImport;
+      parentRoute: typeof DashboardRouteImport;
+    };
   }
 }
 
 // Create and export the route tree
 
 interface DashboardRouteRouteChildren {
-  DashboardLogsIndexRoute: typeof DashboardLogsIndexRoute
-  DashboardWorkspacesIndexRoute: typeof DashboardWorkspacesIndexRoute
-  DashboardWorkspaceNameLogsIndexRoute: typeof DashboardWorkspaceNameLogsIndexRoute
-  DashboardWorkspaceNameMonitorsIndexRoute: typeof DashboardWorkspaceNameMonitorsIndexRoute
-  DashboardWorkspaceNameStatusPagesIndexRoute: typeof DashboardWorkspaceNameStatusPagesIndexRoute
-  DashboardWorkspacesWorkspaceIdIndexRoute: typeof DashboardWorkspacesWorkspaceIdIndexRoute
-  DashboardWorkspacesNewIndexRoute: typeof DashboardWorkspacesNewIndexRoute
-  DashboardWorkspaceNameIncidentsIdIndexRoute: typeof DashboardWorkspaceNameIncidentsIdIndexRoute
-  DashboardWorkspaceNameMonitorsIdIndexRoute: typeof DashboardWorkspaceNameMonitorsIdIndexRoute
-  DashboardWorkspaceNameMonitorsNewIndexRoute: typeof DashboardWorkspaceNameMonitorsNewIndexRoute
-  DashboardWorkspaceNameStatusPagesNewIndexRoute: typeof DashboardWorkspaceNameStatusPagesNewIndexRoute
-  DashboardWorkspaceNameMonitorsIdEditIndexRoute: typeof DashboardWorkspaceNameMonitorsIdEditIndexRoute
-  DashboardWorkspaceNameStatusPagesIdEditIndexRoute: typeof DashboardWorkspaceNameStatusPagesIdEditIndexRoute
+  DashboardLogsIndexRoute: typeof DashboardLogsIndexRoute;
+  DashboardWorkspacesIndexRoute: typeof DashboardWorkspacesIndexRoute;
+  DashboardWorkspaceNameLogsIndexRoute: typeof DashboardWorkspaceNameLogsIndexRoute;
+  DashboardWorkspaceNameMonitorsIndexRoute: typeof DashboardWorkspaceNameMonitorsIndexRoute;
+  DashboardWorkspaceNameStatusPagesIndexRoute: typeof DashboardWorkspaceNameStatusPagesIndexRoute;
+  DashboardWorkspacesWorkspaceIdIndexRoute: typeof DashboardWorkspacesWorkspaceIdIndexRoute;
+  DashboardWorkspacesNewIndexRoute: typeof DashboardWorkspacesNewIndexRoute;
+  DashboardWorkspaceNameIncidentsIdIndexRoute: typeof DashboardWorkspaceNameIncidentsIdIndexRoute;
+  DashboardWorkspaceNameMonitorsIdIndexRoute: typeof DashboardWorkspaceNameMonitorsIdIndexRoute;
+  DashboardWorkspaceNameMonitorsNewIndexRoute: typeof DashboardWorkspaceNameMonitorsNewIndexRoute;
+  DashboardWorkspaceNameStatusPagesNewIndexRoute: typeof DashboardWorkspaceNameStatusPagesNewIndexRoute;
+  DashboardWorkspaceNameMonitorsIdEditIndexRoute: typeof DashboardWorkspaceNameMonitorsIdEditIndexRoute;
+  DashboardWorkspaceNameStatusPagesIdEditIndexRoute: typeof DashboardWorkspaceNameStatusPagesIdEditIndexRoute;
 }
 
 const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
@@ -311,139 +311,139 @@ const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
     DashboardWorkspaceNameMonitorsIdEditIndexRoute,
   DashboardWorkspaceNameStatusPagesIdEditIndexRoute:
     DashboardWorkspaceNameStatusPagesIdEditIndexRoute,
-}
+};
 
 const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
-  DashboardRouteRouteChildren,
-)
+  DashboardRouteRouteChildren
+);
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRouteRouteWithChildren
-  '/auth/login': typeof AuthLoginRoute
-  '/dashboard/logs': typeof DashboardLogsIndexRoute
-  '/dashboard/workspaces': typeof DashboardWorkspacesIndexRoute
-  '/status/$slug': typeof StatusSlugIndexRoute
-  '/dashboard/$workspaceName/logs': typeof DashboardWorkspaceNameLogsIndexRoute
-  '/dashboard/$workspaceName/monitors': typeof DashboardWorkspaceNameMonitorsIndexRoute
-  '/dashboard/$workspaceName/status-pages': typeof DashboardWorkspaceNameStatusPagesIndexRoute
-  '/dashboard/workspaces/$workspaceId': typeof DashboardWorkspacesWorkspaceIdIndexRoute
-  '/dashboard/workspaces/new': typeof DashboardWorkspacesNewIndexRoute
-  '/dashboard/$workspaceName/incidents/$id': typeof DashboardWorkspaceNameIncidentsIdIndexRoute
-  '/dashboard/$workspaceName/monitors/$id': typeof DashboardWorkspaceNameMonitorsIdIndexRoute
-  '/dashboard/$workspaceName/monitors/new': typeof DashboardWorkspaceNameMonitorsNewIndexRoute
-  '/dashboard/$workspaceName/status-pages/new': typeof DashboardWorkspaceNameStatusPagesNewIndexRoute
-  '/dashboard/$workspaceName/monitors/$id/edit': typeof DashboardWorkspaceNameMonitorsIdEditIndexRoute
-  '/dashboard/$workspaceName/status-pages/$id/edit': typeof DashboardWorkspaceNameStatusPagesIdEditIndexRoute
+  "/": typeof IndexRoute;
+  "/dashboard": typeof DashboardRouteRouteWithChildren;
+  "/auth/login": typeof AuthLoginRoute;
+  "/dashboard/logs": typeof DashboardLogsIndexRoute;
+  "/dashboard/workspaces": typeof DashboardWorkspacesIndexRoute;
+  "/status/$slug": typeof StatusSlugIndexRoute;
+  "/dashboard/$workspaceName/logs": typeof DashboardWorkspaceNameLogsIndexRoute;
+  "/dashboard/$workspaceName/monitors": typeof DashboardWorkspaceNameMonitorsIndexRoute;
+  "/dashboard/$workspaceName/status-pages": typeof DashboardWorkspaceNameStatusPagesIndexRoute;
+  "/dashboard/workspaces/$workspaceId": typeof DashboardWorkspacesWorkspaceIdIndexRoute;
+  "/dashboard/workspaces/new": typeof DashboardWorkspacesNewIndexRoute;
+  "/dashboard/$workspaceName/incidents/$id": typeof DashboardWorkspaceNameIncidentsIdIndexRoute;
+  "/dashboard/$workspaceName/monitors/$id": typeof DashboardWorkspaceNameMonitorsIdIndexRoute;
+  "/dashboard/$workspaceName/monitors/new": typeof DashboardWorkspaceNameMonitorsNewIndexRoute;
+  "/dashboard/$workspaceName/status-pages/new": typeof DashboardWorkspaceNameStatusPagesNewIndexRoute;
+  "/dashboard/$workspaceName/monitors/$id/edit": typeof DashboardWorkspaceNameMonitorsIdEditIndexRoute;
+  "/dashboard/$workspaceName/status-pages/$id/edit": typeof DashboardWorkspaceNameStatusPagesIdEditIndexRoute;
 }
 
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRouteRouteWithChildren
-  '/auth/login': typeof AuthLoginRoute
-  '/dashboard/logs': typeof DashboardLogsIndexRoute
-  '/dashboard/workspaces': typeof DashboardWorkspacesIndexRoute
-  '/status/$slug': typeof StatusSlugIndexRoute
-  '/dashboard/$workspaceName/logs': typeof DashboardWorkspaceNameLogsIndexRoute
-  '/dashboard/$workspaceName/monitors': typeof DashboardWorkspaceNameMonitorsIndexRoute
-  '/dashboard/$workspaceName/status-pages': typeof DashboardWorkspaceNameStatusPagesIndexRoute
-  '/dashboard/workspaces/$workspaceId': typeof DashboardWorkspacesWorkspaceIdIndexRoute
-  '/dashboard/workspaces/new': typeof DashboardWorkspacesNewIndexRoute
-  '/dashboard/$workspaceName/incidents/$id': typeof DashboardWorkspaceNameIncidentsIdIndexRoute
-  '/dashboard/$workspaceName/monitors/$id': typeof DashboardWorkspaceNameMonitorsIdIndexRoute
-  '/dashboard/$workspaceName/monitors/new': typeof DashboardWorkspaceNameMonitorsNewIndexRoute
-  '/dashboard/$workspaceName/status-pages/new': typeof DashboardWorkspaceNameStatusPagesNewIndexRoute
-  '/dashboard/$workspaceName/monitors/$id/edit': typeof DashboardWorkspaceNameMonitorsIdEditIndexRoute
-  '/dashboard/$workspaceName/status-pages/$id/edit': typeof DashboardWorkspaceNameStatusPagesIdEditIndexRoute
+  "/": typeof IndexRoute;
+  "/dashboard": typeof DashboardRouteRouteWithChildren;
+  "/auth/login": typeof AuthLoginRoute;
+  "/dashboard/logs": typeof DashboardLogsIndexRoute;
+  "/dashboard/workspaces": typeof DashboardWorkspacesIndexRoute;
+  "/status/$slug": typeof StatusSlugIndexRoute;
+  "/dashboard/$workspaceName/logs": typeof DashboardWorkspaceNameLogsIndexRoute;
+  "/dashboard/$workspaceName/monitors": typeof DashboardWorkspaceNameMonitorsIndexRoute;
+  "/dashboard/$workspaceName/status-pages": typeof DashboardWorkspaceNameStatusPagesIndexRoute;
+  "/dashboard/workspaces/$workspaceId": typeof DashboardWorkspacesWorkspaceIdIndexRoute;
+  "/dashboard/workspaces/new": typeof DashboardWorkspacesNewIndexRoute;
+  "/dashboard/$workspaceName/incidents/$id": typeof DashboardWorkspaceNameIncidentsIdIndexRoute;
+  "/dashboard/$workspaceName/monitors/$id": typeof DashboardWorkspaceNameMonitorsIdIndexRoute;
+  "/dashboard/$workspaceName/monitors/new": typeof DashboardWorkspaceNameMonitorsNewIndexRoute;
+  "/dashboard/$workspaceName/status-pages/new": typeof DashboardWorkspaceNameStatusPagesNewIndexRoute;
+  "/dashboard/$workspaceName/monitors/$id/edit": typeof DashboardWorkspaceNameMonitorsIdEditIndexRoute;
+  "/dashboard/$workspaceName/status-pages/$id/edit": typeof DashboardWorkspaceNameStatusPagesIdEditIndexRoute;
 }
 
 export interface FileRoutesById {
-  __root__: typeof rootRoute
-  '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRouteRouteWithChildren
-  '/auth/login': typeof AuthLoginRoute
-  '/dashboard/logs/': typeof DashboardLogsIndexRoute
-  '/dashboard/workspaces/': typeof DashboardWorkspacesIndexRoute
-  '/status/$slug/': typeof StatusSlugIndexRoute
-  '/dashboard/$workspaceName/logs/': typeof DashboardWorkspaceNameLogsIndexRoute
-  '/dashboard/$workspaceName/monitors/': typeof DashboardWorkspaceNameMonitorsIndexRoute
-  '/dashboard/$workspaceName/status-pages/': typeof DashboardWorkspaceNameStatusPagesIndexRoute
-  '/dashboard/workspaces/$workspaceId/': typeof DashboardWorkspacesWorkspaceIdIndexRoute
-  '/dashboard/workspaces/new/': typeof DashboardWorkspacesNewIndexRoute
-  '/dashboard/$workspaceName/incidents/$id/': typeof DashboardWorkspaceNameIncidentsIdIndexRoute
-  '/dashboard/$workspaceName/monitors/$id/': typeof DashboardWorkspaceNameMonitorsIdIndexRoute
-  '/dashboard/$workspaceName/monitors/new/': typeof DashboardWorkspaceNameMonitorsNewIndexRoute
-  '/dashboard/$workspaceName/status-pages/new/': typeof DashboardWorkspaceNameStatusPagesNewIndexRoute
-  '/dashboard/$workspaceName/monitors/$id/edit/': typeof DashboardWorkspaceNameMonitorsIdEditIndexRoute
-  '/dashboard/$workspaceName/status-pages/$id/edit/': typeof DashboardWorkspaceNameStatusPagesIdEditIndexRoute
+  __root__: typeof rootRoute;
+  "/": typeof IndexRoute;
+  "/dashboard": typeof DashboardRouteRouteWithChildren;
+  "/auth/login": typeof AuthLoginRoute;
+  "/dashboard/logs/": typeof DashboardLogsIndexRoute;
+  "/dashboard/workspaces/": typeof DashboardWorkspacesIndexRoute;
+  "/status/$slug/": typeof StatusSlugIndexRoute;
+  "/dashboard/$workspaceName/logs/": typeof DashboardWorkspaceNameLogsIndexRoute;
+  "/dashboard/$workspaceName/monitors/": typeof DashboardWorkspaceNameMonitorsIndexRoute;
+  "/dashboard/$workspaceName/status-pages/": typeof DashboardWorkspaceNameStatusPagesIndexRoute;
+  "/dashboard/workspaces/$workspaceId/": typeof DashboardWorkspacesWorkspaceIdIndexRoute;
+  "/dashboard/workspaces/new/": typeof DashboardWorkspacesNewIndexRoute;
+  "/dashboard/$workspaceName/incidents/$id/": typeof DashboardWorkspaceNameIncidentsIdIndexRoute;
+  "/dashboard/$workspaceName/monitors/$id/": typeof DashboardWorkspaceNameMonitorsIdIndexRoute;
+  "/dashboard/$workspaceName/monitors/new/": typeof DashboardWorkspaceNameMonitorsNewIndexRoute;
+  "/dashboard/$workspaceName/status-pages/new/": typeof DashboardWorkspaceNameStatusPagesNewIndexRoute;
+  "/dashboard/$workspaceName/monitors/$id/edit/": typeof DashboardWorkspaceNameMonitorsIdEditIndexRoute;
+  "/dashboard/$workspaceName/status-pages/$id/edit/": typeof DashboardWorkspaceNameStatusPagesIdEditIndexRoute;
 }
 
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
+  fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
-    | '/'
-    | '/dashboard'
-    | '/auth/login'
-    | '/dashboard/logs'
-    | '/dashboard/workspaces'
-    | '/status/$slug'
-    | '/dashboard/$workspaceName/logs'
-    | '/dashboard/$workspaceName/monitors'
-    | '/dashboard/$workspaceName/status-pages'
-    | '/dashboard/workspaces/$workspaceId'
-    | '/dashboard/workspaces/new'
-    | '/dashboard/$workspaceName/incidents/$id'
-    | '/dashboard/$workspaceName/monitors/$id'
-    | '/dashboard/$workspaceName/monitors/new'
-    | '/dashboard/$workspaceName/status-pages/new'
-    | '/dashboard/$workspaceName/monitors/$id/edit'
-    | '/dashboard/$workspaceName/status-pages/$id/edit'
-  fileRoutesByTo: FileRoutesByTo
+    | "/"
+    | "/dashboard"
+    | "/auth/login"
+    | "/dashboard/logs"
+    | "/dashboard/workspaces"
+    | "/status/$slug"
+    | "/dashboard/$workspaceName/logs"
+    | "/dashboard/$workspaceName/monitors"
+    | "/dashboard/$workspaceName/status-pages"
+    | "/dashboard/workspaces/$workspaceId"
+    | "/dashboard/workspaces/new"
+    | "/dashboard/$workspaceName/incidents/$id"
+    | "/dashboard/$workspaceName/monitors/$id"
+    | "/dashboard/$workspaceName/monitors/new"
+    | "/dashboard/$workspaceName/status-pages/new"
+    | "/dashboard/$workspaceName/monitors/$id/edit"
+    | "/dashboard/$workspaceName/status-pages/$id/edit";
+  fileRoutesByTo: FileRoutesByTo;
   to:
-    | '/'
-    | '/dashboard'
-    | '/auth/login'
-    | '/dashboard/logs'
-    | '/dashboard/workspaces'
-    | '/status/$slug'
-    | '/dashboard/$workspaceName/logs'
-    | '/dashboard/$workspaceName/monitors'
-    | '/dashboard/$workspaceName/status-pages'
-    | '/dashboard/workspaces/$workspaceId'
-    | '/dashboard/workspaces/new'
-    | '/dashboard/$workspaceName/incidents/$id'
-    | '/dashboard/$workspaceName/monitors/$id'
-    | '/dashboard/$workspaceName/monitors/new'
-    | '/dashboard/$workspaceName/status-pages/new'
-    | '/dashboard/$workspaceName/monitors/$id/edit'
-    | '/dashboard/$workspaceName/status-pages/$id/edit'
+    | "/"
+    | "/dashboard"
+    | "/auth/login"
+    | "/dashboard/logs"
+    | "/dashboard/workspaces"
+    | "/status/$slug"
+    | "/dashboard/$workspaceName/logs"
+    | "/dashboard/$workspaceName/monitors"
+    | "/dashboard/$workspaceName/status-pages"
+    | "/dashboard/workspaces/$workspaceId"
+    | "/dashboard/workspaces/new"
+    | "/dashboard/$workspaceName/incidents/$id"
+    | "/dashboard/$workspaceName/monitors/$id"
+    | "/dashboard/$workspaceName/monitors/new"
+    | "/dashboard/$workspaceName/status-pages/new"
+    | "/dashboard/$workspaceName/monitors/$id/edit"
+    | "/dashboard/$workspaceName/status-pages/$id/edit";
   id:
-    | '__root__'
-    | '/'
-    | '/dashboard'
-    | '/auth/login'
-    | '/dashboard/logs/'
-    | '/dashboard/workspaces/'
-    | '/status/$slug/'
-    | '/dashboard/$workspaceName/logs/'
-    | '/dashboard/$workspaceName/monitors/'
-    | '/dashboard/$workspaceName/status-pages/'
-    | '/dashboard/workspaces/$workspaceId/'
-    | '/dashboard/workspaces/new/'
-    | '/dashboard/$workspaceName/incidents/$id/'
-    | '/dashboard/$workspaceName/monitors/$id/'
-    | '/dashboard/$workspaceName/monitors/new/'
-    | '/dashboard/$workspaceName/status-pages/new/'
-    | '/dashboard/$workspaceName/monitors/$id/edit/'
-    | '/dashboard/$workspaceName/status-pages/$id/edit/'
-  fileRoutesById: FileRoutesById
+    | "__root__"
+    | "/"
+    | "/dashboard"
+    | "/auth/login"
+    | "/dashboard/logs/"
+    | "/dashboard/workspaces/"
+    | "/status/$slug/"
+    | "/dashboard/$workspaceName/logs/"
+    | "/dashboard/$workspaceName/monitors/"
+    | "/dashboard/$workspaceName/status-pages/"
+    | "/dashboard/workspaces/$workspaceId/"
+    | "/dashboard/workspaces/new/"
+    | "/dashboard/$workspaceName/incidents/$id/"
+    | "/dashboard/$workspaceName/monitors/$id/"
+    | "/dashboard/$workspaceName/monitors/new/"
+    | "/dashboard/$workspaceName/status-pages/new/"
+    | "/dashboard/$workspaceName/monitors/$id/edit/"
+    | "/dashboard/$workspaceName/status-pages/$id/edit/";
+  fileRoutesById: FileRoutesById;
 }
 
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
-  AuthLoginRoute: typeof AuthLoginRoute
-  StatusSlugIndexRoute: typeof StatusSlugIndexRoute
+  IndexRoute: typeof IndexRoute;
+  DashboardRouteRoute: typeof DashboardRouteRouteWithChildren;
+  AuthLoginRoute: typeof AuthLoginRoute;
+  StatusSlugIndexRoute: typeof StatusSlugIndexRoute;
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -451,11 +451,11 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
   AuthLoginRoute: AuthLoginRoute,
   StatusSlugIndexRoute: StatusSlugIndexRoute,
-}
+};
 
 export const routeTree = rootRoute
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+  ._addFileTypes<FileRouteTypes>();
 
 /* ROUTE_MANIFEST_START
 {

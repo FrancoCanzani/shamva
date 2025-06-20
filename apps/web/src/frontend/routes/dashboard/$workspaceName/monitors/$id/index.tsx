@@ -13,5 +13,5 @@ export const Route = createFileRoute("/dashboard/$workspaceName/monitors/$id/")(
     validateSearch: (search) => MonitorSearchSchema.parse(search),
     loader: ({ params, abortController }) =>
       fetchMonitor({ params, abortController }),
-  },
+  }
 );

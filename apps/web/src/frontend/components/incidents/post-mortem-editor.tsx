@@ -1,67 +1,169 @@
-import { useEditor, EditorContent } from "@tiptap/react"
-import StarterKit from "@tiptap/starter-kit"
-import { Button } from "@/frontend/components/ui/button"
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import {
+  Bold,
+  Italic,
+  List,
+  ListOrdered,
+  Heading1,
+  Heading2,
+  Heading3,
+  Quote,
+  Code,
+  Undo,
+  Redo,
+  Strikethrough,
+} from "lucide-react";
+import { Button } from "@/frontend/components/ui/button";
+import { Separator } from "@/frontend/components/ui/separator";
+import { cn } from "@/frontend/lib/utils";
 
 interface PostMortemEditorProps {
-  content: string
-  onChange: (content: string) => void
+  content: string;
+  onChange: (content: string) => void;
 }
 
 export function PostMortemEditor({ content, onChange }: PostMortemEditorProps) {
   const editor = useEditor({
-    extensions: [StarterKit],
+    extensions: [
+      StarterKit.configure({
+        heading: {
+          levels: [1, 2, 3],
+        },
+      }),
+    ],
     content,
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML())
+      onChange(editor.getHTML());
     },
     editorProps: {
       attributes: {
-        class: "prose prose-sm max-w-none focus:outline-none min-h-[300px] p-4 border border-dashed",
+        class:
+          "prose prose-sm max-w-none focus:outline-none min-h-[300px] p-4 border border-dashed",
       },
     },
-  })
+  });
 
   if (!editor) {
-    return null
+    return null;
   }
+
+  const toolbarItems = [
+    {
+      icon: Undo,
+      onClick: () => editor.chain().focus().undo().run(),
+      disabled: !editor.can().undo(),
+      tooltip: "Undo",
+    },
+    {
+      icon: Redo,
+      onClick: () => editor.chain().focus().redo().run(),
+      disabled: !editor.can().redo(),
+      tooltip: "Redo",
+    },
+    { separator: true },
+    {
+      icon: Heading1,
+      onClick: () => editor.chain().focus().toggleHeading({ level: 1 }).run(),
+      active: editor.isActive("heading", { level: 1 }),
+      tooltip: "Heading 1",
+    },
+    {
+      icon: Heading2,
+      onClick: () => editor.chain().focus().toggleHeading({ level: 2 }).run(),
+      active: editor.isActive("heading", { level: 2 }),
+      tooltip: "Heading 2",
+    },
+    {
+      icon: Heading3,
+      onClick: () => editor.chain().focus().toggleHeading({ level: 3 }).run(),
+      active: editor.isActive("heading", { level: 3 }),
+      tooltip: "Heading 3",
+    },
+    { separator: true },
+    {
+      icon: Bold,
+      onClick: () => editor.chain().focus().toggleBold().run(),
+      active: editor.isActive("bold"),
+      tooltip: "Bold",
+    },
+    {
+      icon: Italic,
+      onClick: () => editor.chain().focus().toggleItalic().run(),
+      active: editor.isActive("italic"),
+      tooltip: "Italic",
+    },
+    {
+      icon: Strikethrough,
+      onClick: () => editor.chain().focus().toggleStrike().run(),
+      active: editor.isActive("strike"),
+      tooltip: "Strikethrough",
+    },
+    { separator: true },
+    {
+      icon: List,
+      onClick: () => editor.chain().focus().toggleBulletList().run(),
+      active: editor.isActive("bulletList"),
+      tooltip: "Bullet List",
+    },
+    {
+      icon: ListOrdered,
+      onClick: () => editor.chain().focus().toggleOrderedList().run(),
+      active: editor.isActive("orderedList"),
+      tooltip: "Numbered List",
+    },
+    { separator: true },
+    {
+      icon: Quote,
+      onClick: () => editor.chain().focus().toggleBlockquote().run(),
+      active: editor.isActive("blockquote"),
+      tooltip: "Quote",
+    },
+    {
+      icon: Code,
+      onClick: () => editor.chain().focus().toggleCodeBlock().run(),
+      active: editor.isActive("codeBlock"),
+      tooltip: "Code Block",
+    },
+  ];
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center gap-2 border border-dashed p-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => editor.chain().focus().toggleBold().run()}
-          className={editor.isActive("bold") ? "bg-muted" : ""}
-        >
-          Bold
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => editor.chain().focus().toggleItalic().run()}
-          className={editor.isActive("italic") ? "bg-muted" : ""}
-        >
-          Italic
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
-          className={editor.isActive("bulletList") ? "bg-muted" : ""}
-        >
-          List
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          className={editor.isActive("orderedList") ? "bg-muted" : ""}
-        >
-          Numbered
-        </Button>
+      <div className="flex items-center gap-1 border border-dashed p-2 bg-gray-50 dark:bg-background">
+        {toolbarItems.map((item, index) => {
+          if (item.separator) {
+            return (
+              <Separator
+                key={`separator-${index}`}
+                orientation="vertical"
+                className="h-6"
+              />
+            );
+          }
+
+          const Icon = item.icon;
+          if (!Icon) return null;
+
+          return (
+            <Button
+              key={index}
+              variant="ghost"
+              size="sm"
+              onClick={item.onClick}
+              disabled={item.disabled}
+              className={cn(
+                "h-8 w-8 p-0",
+                item.active && "bg-muted text-foreground",
+                item.disabled && "opacity-50 cursor-not-allowed"
+              )}
+              title={item.tooltip}
+            >
+              <Icon className="h-4 w-4" />
+            </Button>
+          );
+        })}
       </div>
       <EditorContent editor={editor} />
     </div>
-  )
+  );
 }

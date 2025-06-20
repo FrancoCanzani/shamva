@@ -11,7 +11,7 @@ export class ScreenshotService {
 
   async takeAndStoreScreenshot(
     url: string,
-    incidentId: string,
+    incidentId: string
   ): Promise<string | null> {
     try {
       // Take screenshot using Puppeteer

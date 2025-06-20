@@ -1,10 +1,7 @@
 import { Context } from "hono";
 import { MonitorsParamsSchema } from "../../lib/schemas";
 import { createSupabaseClient } from "../../lib/supabase/client";
-import {
-  Monitor,
-  MonitorsParams,
-} from "../../lib/types";
+import { Monitor, MonitorsParams } from "../../lib/types";
 
 export default async function postMonitors(c: Context) {
   let rawBody: unknown;
@@ -13,7 +10,7 @@ export default async function postMonitors(c: Context) {
   } catch {
     return c.json(
       { success: false, error: "Invalid JSON payload provided." },
-      400,
+      400
     );
   }
 
@@ -27,7 +24,7 @@ export default async function postMonitors(c: Context) {
         error: "Request parameter validation failed.",
         details: result.error.flatten(),
       },
-      400,
+      400
     );
   }
 
@@ -68,7 +65,7 @@ export default async function postMonitors(c: Context) {
         error:
           "You do not have permission to create monitors in this workspace.",
       },
-      403,
+      403
     );
   }
 
@@ -79,7 +76,7 @@ export default async function postMonitors(c: Context) {
         error:
           "Viewers cannot create monitors. Contact a workspace admin or member.",
       },
-      403,
+      403
     );
   }
 
@@ -111,7 +108,7 @@ export default async function postMonitors(c: Context) {
     if (insertError) {
       console.error("Supabase monitor insert error:", insertError);
       throw new Error(
-        `Failed to create monitor record: ${insertError.message}`,
+        `Failed to create monitor record: ${insertError.message}`
       );
     }
 
@@ -122,7 +119,7 @@ export default async function postMonitors(c: Context) {
     createdMonitor = data as Monitor;
 
     console.log(
-      `Monitor record created in database. ID: ${createdMonitor!.id}`,
+      `Monitor record created in database. ID: ${createdMonitor!.id}`
     );
 
     return c.json({
@@ -138,7 +135,7 @@ export default async function postMonitors(c: Context) {
         error: "Failed to create monitor in database.",
         details: String(error),
       },
-      500,
+      500
     );
   }
 }

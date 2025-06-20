@@ -9,7 +9,7 @@ export default async function getPublicStatusPage(c: Context) {
   if (!slug) {
     return c.json(
       { data: null, success: false, error: "Status page slug is required" },
-      400,
+      400
     );
   }
 
@@ -26,7 +26,7 @@ export default async function getPublicStatusPage(c: Context) {
       if (statusPageError.code === "PGRST116") {
         return c.json(
           { data: null, success: false, error: "Status page not found" },
-          404,
+          404
         );
       }
 
@@ -37,21 +37,21 @@ export default async function getPublicStatusPage(c: Context) {
           error: "Database error fetching status page",
           details: statusPageError.message,
         },
-        500,
+        500
       );
     }
 
     if (!statusPage) {
       return c.json(
         { data: null, success: false, error: "Status page not found" },
-        404,
+        404
       );
     }
 
     if (!statusPage.is_public) {
       return c.json(
         { data: null, success: false, error: "Status page is not public" },
-        403,
+        403
       );
     }
 
@@ -63,7 +63,7 @@ export default async function getPublicStatusPage(c: Context) {
             success: false,
             error: "Password required",
           },
-          401,
+          401
         );
       }
     }
@@ -81,7 +81,7 @@ export default async function getPublicStatusPage(c: Context) {
           error: "Error fetching monitor data",
           details: monitorsError.message,
         },
-        500,
+        500
       );
     }
 
@@ -113,13 +113,11 @@ export default async function getPublicStatusPage(c: Context) {
           const logs = logsByMonitorId.get(monitor.id) || [];
 
           const validLogs = logs.filter(
-            (log: Partial<Log>) => typeof log.status_code === "number",
+            (log: Partial<Log>) => typeof log.status_code === "number"
           );
           const successfulLogs = validLogs.filter(
             (log: Partial<Log>) =>
-              log.status_code &&
-              log.status_code >= 200 &&
-              log.status_code < 300,
+              log.status_code && log.status_code >= 200 && log.status_code < 300
           );
 
           const uptimePercentage =
@@ -149,13 +147,13 @@ export default async function getPublicStatusPage(c: Context) {
             });
 
             const dayValidLogs = dayLogs.filter(
-              (log: Partial<Log>) => typeof log.status_code === "number",
+              (log: Partial<Log>) => typeof log.status_code === "number"
             );
             const daySuccessfulLogs = dayValidLogs.filter(
               (log: Partial<Log>) =>
                 log.status_code &&
                 log.status_code >= 200 &&
-                log.status_code < 300,
+                log.status_code < 300
             );
 
             const dayUptimePercentage =
@@ -203,7 +201,7 @@ export default async function getPublicStatusPage(c: Context) {
         error: "An unexpected error occurred",
         details: errorDetails,
       },
-      500,
+      500
     );
   }
 }

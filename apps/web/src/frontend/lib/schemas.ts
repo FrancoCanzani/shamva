@@ -20,7 +20,7 @@ export const MonitorFormSchema = z
           validIntervals.includes(val as (typeof validIntervals)[number]),
         {
           message: "Please select a valid check interval",
-        },
+        }
       ),
     regions: z.array(z.string()).min(1, {
       message: "Please select at least one monitoring region",
@@ -46,7 +46,7 @@ export const MonitorFormSchema = z
         {
           message:
             'Headers must be a valid JSON object string, e.g. {"key": "value"}',
-        },
+        }
       ),
     bodyString: z
       .string()
@@ -65,7 +65,7 @@ export const MonitorFormSchema = z
         {
           message:
             'Body must be a valid JSON string, e.g. {"key": "value"} or "text"',
-        },
+        }
       ),
     slackWebhookUrl: z
       .string()
@@ -79,7 +79,7 @@ export const MonitorFormSchema = z
     {
       message: "Request body is only applicable for POST method",
       path: ["bodyString"],
-    },
+    }
   );
 
 export const MemberInviteSchema = z.object({
@@ -99,7 +99,7 @@ export const WorkspaceSchema = z.object({
     .max(100, "Workspace name cannot exceed 100 characters")
     .regex(
       /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-      "Workspace name must be URL-friendly (lowercase letters, numbers, and hyphens, no leading/trailing/consecutive hyphens)",
+      "Workspace name must be URL-friendly (lowercase letters, numbers, and hyphens, no leading/trailing/consecutive hyphens)"
     ),
   description: z
     .string()
@@ -115,7 +115,7 @@ export const StatusPageSchema = z.object({
     .max(50, "Slug cannot exceed 50 characters")
     .regex(
       /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-      "Slug must be URL-friendly (lowercase letters, numbers, and hyphens, no leading/trailing/consecutive hyphens)",
+      "Slug must be URL-friendly (lowercase letters, numbers, and hyphens, no leading/trailing/consecutive hyphens)"
     ),
   title: z
     .string()

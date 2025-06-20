@@ -22,7 +22,7 @@ const WorkspaceUpdateSchema = z.object({
     .max(100, "Workspace name cannot exceed 100 characters")
     .regex(
       /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-      "Workspace name must be URL-friendly (lowercase letters, numbers, and hyphens, no leading/trailing/consecutive hyphens)",
+      "Workspace name must be URL-friendly (lowercase letters, numbers, and hyphens, no leading/trailing/consecutive hyphens)"
     ),
   description: z
     .string()
@@ -51,7 +51,7 @@ export default async function putWorkspaces(c: Context) {
   } catch {
     return c.json(
       { success: false, error: "Invalid JSON payload provided." },
-      400,
+      400
     );
   }
 
@@ -65,7 +65,7 @@ export default async function putWorkspaces(c: Context) {
         error: "Request parameter validation failed.",
         details: result.error.flatten(),
       },
-      400,
+      400
     );
   }
 
@@ -89,7 +89,7 @@ export default async function putWorkspaces(c: Context) {
         success: false,
         error: "You do not have permission to edit this workspace.",
       },
-      403,
+      403
     );
   }
 
@@ -102,16 +102,16 @@ export default async function putWorkspaces(c: Context) {
     console.error("Error fetching current members:", currentMembersError);
     return c.json(
       { success: false, error: "Database error fetching current members." },
-      500,
+      500
     );
   }
 
   const currentMembersMap = new Map(currentMembers?.map((m) => [m.id, m]));
   const currentMembersByEmail = new Map(
-    currentMembers?.map((m) => [m.invitation_email, m]),
+    currentMembers?.map((m) => [m.invitation_email, m])
   );
   const updatedMembersMap = new Map(
-    updatedMembers.filter((m) => m.id).map((m) => [m.id, m]),
+    updatedMembers.filter((m) => m.id).map((m) => [m.id, m])
   );
 
   const memberUpdates = [];
@@ -130,7 +130,7 @@ export default async function putWorkspaces(c: Context) {
       }
     } else {
       const existingMemberWithEmail = currentMembersByEmail.get(
-        updatedMember.email,
+        updatedMember.email
       );
 
       if (!existingMemberWithEmail) {
@@ -150,7 +150,7 @@ export default async function putWorkspaces(c: Context) {
         });
       } else {
         console.warn(
-          `Attempted to re-invite or add existing member ${updatedMember.email} to workspace ${workspaceId}. Existing member ID: ${existingMemberWithEmail.id}`,
+          `Attempted to re-invite or add existing member ${updatedMember.email} to workspace ${workspaceId}. Existing member ID: ${existingMemberWithEmail.id}`
         );
       }
     }
@@ -168,7 +168,7 @@ export default async function putWorkspaces(c: Context) {
           currentMember.invitation_status === "accepted"
         ) {
           const remainingAcceptedAdmins = updatedMembers.filter(
-            (m) => m.role === "admin" && m.invitation_status === "accepted",
+            (m) => m.role === "admin" && m.invitation_status === "accepted"
           ).length;
           const totalAcceptedMembers =
             currentMembers?.filter((m) => m.invitation_status === "accepted")
@@ -176,7 +176,7 @@ export default async function putWorkspaces(c: Context) {
 
           if (remainingAcceptedAdmins === 0 && totalAcceptedMembers > 1) {
             console.warn(
-              `Attempted to remove last admin ${currentMember.invitation_email || currentMember.user_id} from workspace ${workspaceId}`,
+              `Attempted to remove last admin ${currentMember.invitation_email || currentMember.user_id} from workspace ${workspaceId}`
             );
             return c.json(
               {
@@ -184,7 +184,7 @@ export default async function putWorkspaces(c: Context) {
                 error:
                   "Cannot remove the last accepted admin from a workspace with multiple accepted members.",
               },
-              400,
+              400
             );
           }
         }
@@ -198,7 +198,7 @@ export default async function putWorkspaces(c: Context) {
               .length || 0;
           if (totalAcceptedMembers > 1) {
             console.warn(
-              `Attempted to remove current user ${userId} from workspace ${workspaceId} via member deletion.`,
+              `Attempted to remove current user ${userId} from workspace ${workspaceId} via member deletion.`
             );
             return c.json(
               {
@@ -206,7 +206,7 @@ export default async function putWorkspaces(c: Context) {
                 error:
                   "Cannot remove your own membership from a workspace with other accepted members. Use the 'Leave Workspace' option.",
               },
-              400,
+              400
             );
           }
         }
@@ -229,7 +229,7 @@ export default async function putWorkspaces(c: Context) {
     if (workspaceUpdateError) {
       console.error("Error updating workspace details:", workspaceUpdateError);
       throw new Error(
-        `Failed to update workspace details: ${workspaceUpdateError.message}`,
+        `Failed to update workspace details: ${workspaceUpdateError.message}`
       );
     }
 
@@ -241,7 +241,7 @@ export default async function putWorkspaces(c: Context) {
       if (updateMembersError) {
         console.error("Error updating workspace members:", updateMembersError);
         throw new Error(
-          `Failed to update workspace members: ${updateMembersError.message}`,
+          `Failed to update workspace members: ${updateMembersError.message}`
         );
       }
     }
@@ -254,15 +254,15 @@ export default async function putWorkspaces(c: Context) {
       if (insertMembersError) {
         console.error(
           "Error inserting new workspace members:",
-          insertMembersError,
+          insertMembersError
         );
         throw new Error(
-          `Failed to invite new workspace members: ${insertMembersError.message}`,
+          `Failed to invite new workspace members: ${insertMembersError.message}`
         );
       }
 
       console.log(
-        `Invited ${memberInserts.length} new members to workspace ${workspaceId}`,
+        `Invited ${memberInserts.length} new members to workspace ${workspaceId}`
       );
     }
 
@@ -276,7 +276,7 @@ export default async function putWorkspaces(c: Context) {
       if (deleteMembersError) {
         console.error("Error deleting workspace members:", deleteMembersError);
         throw new Error(
-          `Failed to remove workspace members: ${deleteMembersError.message}`,
+          `Failed to remove workspace members: ${deleteMembersError.message}`
         );
       }
     }
@@ -293,7 +293,7 @@ export default async function putWorkspaces(c: Context) {
           invitation_email,
           invitation_status
         )
-      `,
+      `
       )
       .eq("id", workspaceId)
       .eq("workspace_members.user_id", userId)
@@ -307,7 +307,7 @@ export default async function putWorkspaces(c: Context) {
           error: "Workspace updated, but failed to fetch latest data.",
           details: fetchUpdatedError.message,
         },
-        200,
+        200
       );
     }
 
@@ -319,7 +319,7 @@ export default async function putWorkspaces(c: Context) {
     if (countError) {
       console.error(
         `Error counting monitors for workspace ${workspaceId} after update:`,
-        countError,
+        countError
       );
     }
 
@@ -335,7 +335,7 @@ export default async function putWorkspaces(c: Context) {
         error: "An unexpected error occurred during workspace update.",
         details: error instanceof Error ? error.message : String(error),
       },
-      500,
+      500
     );
   }
 }

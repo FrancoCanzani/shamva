@@ -73,7 +73,7 @@ export default function EditStatusPagePage() {
       if (!response.ok) {
         console.error("Error response from API:", result);
         throw new Error(
-          result.error || `Failed to update status page (${response.status})`,
+          result.error || `Failed to update status page (${response.status})`
         );
       }
 
@@ -85,7 +85,7 @@ export default function EditStatusPagePage() {
     } catch (error) {
       console.error("Error updating status page:", error);
       toast.error(
-        error instanceof Error ? error.message : "An unexpected error occurred",
+        error instanceof Error ? error.message : "An unexpected error occurred"
       );
       throw error;
     } finally {

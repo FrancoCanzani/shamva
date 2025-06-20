@@ -19,7 +19,10 @@ export const MonitorsParamsSchema = z.object({
     .nullable()
     .optional(),
   workspaceId: z.string().uuid("Invalid workspace ID format"),
-  slackWebhookUrl: z.string().url({ message: "Invalid Slack webhook URL format" }).optional(),
+  slackWebhookUrl: z
+    .string()
+    .url({ message: "Invalid Slack webhook URL format" })
+    .optional(),
 });
 
 export const MemberInviteSchema = z.object({
@@ -39,7 +42,7 @@ export const WorkspaceSchema = z.object({
     .max(100, "Workspace name cannot exceed 100 characters")
     .regex(
       /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-      "Workspace name must be URL-friendly (lowercase letters, numbers, and hyphens, no leading/trailing/consecutive hyphens)",
+      "Workspace name must be URL-friendly (lowercase letters, numbers, and hyphens, no leading/trailing/consecutive hyphens)"
     ),
   description: z
     .string()
@@ -56,7 +59,7 @@ export const StatusPageSchema = z.object({
     .max(50, "Slug cannot exceed 50 characters")
     .regex(
       /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-      "Slug must be URL-friendly (lowercase letters, numbers, and hyphens, no leading/trailing/consecutive hyphens)",
+      "Slug must be URL-friendly (lowercase letters, numbers, and hyphens, no leading/trailing/consecutive hyphens)"
     ),
   title: z
     .string()
@@ -81,5 +84,8 @@ export const StatusPageSchema = z.object({
 export const IncidentUpdateSchema = z.object({
   acknowledged_at: z.string().datetime().optional(),
   resolved_at: z.string().datetime().optional(),
-  post_mortem: z.string().max(2000, "Post-mortem cannot exceed 2000 characters").optional(),
+  post_mortem: z
+    .string()
+    .max(2000, "Post-mortem cannot exceed 2000 characters")
+    .optional(),
 });

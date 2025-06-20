@@ -9,7 +9,7 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
     (log) =>
       typeof log.status_code === "number" &&
       log.status_code >= 200 &&
-      log.status_code < 300,
+      log.status_code < 300
   ).length;
 
   const recentTotalCount = logs.length;
@@ -48,7 +48,7 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
                     ? "text-green-700"
                     : recentSuccessRate >= 90
                       ? "text-yellow-500"
-                      : "text-red-700",
+                      : "text-red-700"
                 )}
               >
                 {formatRate(recentSuccessRate)}

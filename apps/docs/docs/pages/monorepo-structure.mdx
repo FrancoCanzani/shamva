@@ -13,14 +13,16 @@ shamva/
 ```
 
 ## Directory Explanations
+
 - **apps/web**: The main application. Contains frontend (React) and backend (Hono API) code.
 - **apps/docs**: The documentation site, built with vocs.
 - **package.json**: Manages dependencies for the whole monorepo.
 - **tsconfig.json**: TypeScript configuration shared across apps.
 
 ## How Apps Interact
+
 - The **web** app exposes both a frontend and an API (via Hono) on Cloudflare Workers.
 - The **docs** app is a static site for user and developer documentation.
 - Shared code and types can be added to a `packages/` directory if needed for future growth.
 
-For more details on contributing, see the [Developer Guide](/developer-guide) page. 
+For more details on contributing, see the [Developer Guide](/developer-guide) page.

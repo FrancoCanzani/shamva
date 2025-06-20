@@ -20,7 +20,7 @@ export default async function putMonitors(c: Context) {
   } catch {
     return c.json(
       { success: false, error: "Invalid JSON payload provided." },
-      400,
+      400
     );
   }
 
@@ -33,11 +33,20 @@ export default async function putMonitors(c: Context) {
         error: "Request parameter validation failed.",
         details: result.error.flatten(),
       },
-      400,
+      400
     );
   }
 
-  const { name, url, method, headers, body, regions, interval, slackWebhookUrl } = result.data;
+  const {
+    name,
+    url,
+    method,
+    headers,
+    body,
+    regions,
+    interval,
+    slackWebhookUrl,
+  } = result.data;
   const supabase = createSupabaseClient(c.env);
 
   const { data: existingMonitor, error: fetchError } = await supabase
@@ -57,7 +66,7 @@ export default async function putMonitors(c: Context) {
         error: "Database error fetching monitor",
         details: fetchError.message,
       },
-      500,
+      500
     );
   }
 
@@ -111,7 +120,7 @@ export default async function putMonitors(c: Context) {
           error: "Failed to update monitor",
           details: updateError.message,
         },
-        500,
+        500
       );
     }
 
@@ -127,7 +136,7 @@ export default async function putMonitors(c: Context) {
         error: "Failed to update monitor",
         details: String(error),
       },
-      500,
+      500
     );
   }
 }

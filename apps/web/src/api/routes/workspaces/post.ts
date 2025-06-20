@@ -10,7 +10,7 @@ export default async function postWorkspaces(c: Context) {
   } catch {
     return c.json(
       { success: false, error: "Invalid JSON payload provided." },
-      400,
+      400
     );
   }
 
@@ -23,7 +23,7 @@ export default async function postWorkspaces(c: Context) {
         error: "Request parameter validation failed.",
         details: result.error.flatten(),
       },
-      400,
+      400
     );
   }
 
@@ -54,7 +54,7 @@ export default async function postWorkspaces(c: Context) {
           error: "Failed to create workspace",
           details: workspaceError.message,
         },
-        500,
+        500
       );
     }
 
@@ -79,13 +79,13 @@ export default async function postWorkspaces(c: Context) {
           error: "Failed to add creator to workspace",
           details: memberError.message,
         },
-        500,
+        500
       );
     }
 
     console.log(
       "Admin member added successfully, proceeding with invitations for:",
-      members,
+      members
     );
 
     const memberPromises = members.map((member) =>
@@ -100,7 +100,7 @@ export default async function postWorkspaces(c: Context) {
           invited_by: userId,
         })
         .select()
-        .single(),
+        .single()
     );
 
     try {
@@ -120,7 +120,7 @@ export default async function postWorkspaces(c: Context) {
             invitation_status,
             invited_by
           )
-        `,
+        `
         )
         .eq("id", workspace.id);
 
@@ -144,7 +144,7 @@ export default async function postWorkspaces(c: Context) {
         error: "Failed to create workspace",
         details: error instanceof Error ? error.message : String(error),
       },
-      500,
+      500
     );
   }
 }

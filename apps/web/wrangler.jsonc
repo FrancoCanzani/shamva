@@ -30,14 +30,12 @@
     ],
   },
 
-"kv_namespaces": [
+  "kv_namespaces": [
     {
       "binding": "RATE_LIMITS",
-      "id": "e3e8cc8aeb5945eaaee13f7468cc54fd"
-    }
-  ]
-,
-
+      "id": "e3e8cc8aeb5945eaaee13f7468cc54fd",
+    },
+  ],
   // Durable Object migration settings
   "migrations": [
     {

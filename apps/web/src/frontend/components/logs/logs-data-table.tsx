@@ -220,7 +220,7 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
     { id: "created_at", desc: true },
   ]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    [],
+    []
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({
@@ -264,7 +264,7 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
                     "hover:bg-transparent",
                     "[&>*]:border-t-0 [&>*]:border-b",
                     "[&>:not(:last-child)]:border-r",
-                    "border-border",
+                    "border-border"
                   )}
                 >
                   {headerGroup.headers.map((header) => (
@@ -275,7 +275,7 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
                         "px-2 py-1 h-auto relative select-none truncate text-sm font-medium",
                         "whitespace-nowrap text-muted-foreground",
                         "bg-background",
-                        header.id === "status-indicator" && "w-6",
+                        header.id === "status-indicator" && "w-6"
                       )}
                       style={{ width: header.getSize() }}
                     >
@@ -283,7 +283,7 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext(),
+                            header.getContext()
                           )}
                     </TableHead>
                   ))}
@@ -304,7 +304,7 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
                       "data-[state=selected]:bg-blue-100 dark:data-[state=selected]:bg-blue-900/40",
                       "data-[state=selected]:hover:!bg-blue-200/80 dark:data-[state=selected]:hover:!bg-blue-800/60",
                       !getStatusRowClass(row.original.status_code) &&
-                        "even:bg-slate-50/50 dark:even:bg-slate-900/20 hover:bg-slate-100 dark:hover:bg-slate-800/50",
+                        "even:bg-slate-50/50 dark:even:bg-slate-900/20 hover:bg-slate-100 dark:hover:bg-slate-800/50"
                     )}
                     onClick={() => {
                       navigate({
@@ -321,13 +321,13 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
                         key={cell.id}
                         className={cn(
                           "px-2 py-1.5 whitespace-nowrap border-r last:border-r-0 border-border/50",
-                          cell.column.id === "status-indicator" && "w-6 p-1",
+                          cell.column.id === "status-indicator" && "w-6 p-1"
                         )}
                         style={{ width: cell.column.getSize() }}
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext(),
+                          cell.getContext()
                         )}
                       </TableCell>
                     ))}

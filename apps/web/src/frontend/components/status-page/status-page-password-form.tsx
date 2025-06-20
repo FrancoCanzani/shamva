@@ -23,7 +23,7 @@ export default function StatusPagePasswordForm({
 
     try {
       const response = await fetch(
-        `/status/${slug}?password=${encodeURIComponent(password)}`,
+        `/status/${slug}?password=${encodeURIComponent(password)}`
       );
 
       if (!response.ok) {

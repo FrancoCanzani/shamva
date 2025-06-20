@@ -54,7 +54,7 @@ export async function fetchStatusPages({
 
     if (workspaceResponse.status === 401) {
       console.log(
-        "API returned 401 fetching workspaces, redirecting to login.",
+        "API returned 401 fetching workspaces, redirecting to login."
       );
       throw redirect({
         to: "/auth/login",
@@ -65,7 +65,7 @@ export async function fetchStatusPages({
 
     if (!workspaceResponse.ok) {
       throw new Error(
-        `Failed to fetch workspaces (Status: ${workspaceResponse.status})`,
+        `Failed to fetch workspaces (Status: ${workspaceResponse.status})`
       );
     }
 
@@ -74,17 +74,17 @@ export async function fetchStatusPages({
 
     if (!workspaceResult.success || !workspaceResult.data) {
       throw new Error(
-        workspaceResult.error || "Failed to fetch workspaces from API",
+        workspaceResult.error || "Failed to fetch workspaces from API"
       );
     }
 
     const targetWorkspace = workspaceResult.data.find(
-      (ws) => ws.name === workspaceName,
+      (ws) => ws.name === workspaceName
     );
 
     if (!targetWorkspace) {
       console.warn(
-        `Workspace with name "${workspaceName}" not found, redirecting.`,
+        `Workspace with name "${workspaceName}" not found, redirecting.`
       );
       throw redirect({
         to: "/dashboard/workspaces/new",
@@ -100,12 +100,12 @@ export async function fetchStatusPages({
           "Content-Type": "application/json",
         },
         signal: abortController?.signal,
-      },
+      }
     );
 
     if (!statusPagesResponse.ok) {
       throw new Error(
-        `Failed to fetch status pages (Status: ${statusPagesResponse.status})`,
+        `Failed to fetch status pages (Status: ${statusPagesResponse.status})`
       );
     }
 
@@ -114,7 +114,7 @@ export async function fetchStatusPages({
 
     if (!statusPagesResult.success || !statusPagesResult.data) {
       throw new Error(
-        statusPagesResult.error || "Failed to fetch status pages from API",
+        statusPagesResult.error || "Failed to fetch status pages from API"
       );
     }
 

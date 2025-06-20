@@ -9,14 +9,14 @@ export default async function getMonitors(c: Context) {
   if (!userId) {
     return c.json(
       { data: null, success: false, error: "User not authenticated" },
-      401,
+      401
     );
   }
 
   if (!monitorId) {
     return c.json(
       { data: null, success: false, error: "Monitor ID is required" },
-      400,
+      400
     );
   }
 
@@ -33,7 +33,7 @@ export default async function getMonitors(c: Context) {
       if (monitorError.code === "PGRST116") {
         return c.json(
           { data: null, success: false, error: "Monitor not found" },
-          404,
+          404
         );
       }
 
@@ -44,14 +44,14 @@ export default async function getMonitors(c: Context) {
           error: "Database error fetching monitor",
           details: monitorError.message,
         },
-        500,
+        500
       );
     }
 
     if (!monitor) {
       return c.json(
         { data: null, success: false, error: "Monitor not found" },
-        404,
+        404
       );
     }
 
@@ -66,7 +66,7 @@ export default async function getMonitors(c: Context) {
     if (membershipError || !membership) {
       return c.json(
         { data: null, success: false, error: "Monitor not found" },
-        404,
+        404
       );
     }
 
@@ -84,7 +84,7 @@ export default async function getMonitors(c: Context) {
     if (logError) {
       console.error(
         `Error fetching recent logs for monitor ${monitorId}:`,
-        logError,
+        logError
       );
       monitor.recent_logs = [];
     } else {
@@ -101,7 +101,7 @@ export default async function getMonitors(c: Context) {
     if (incidentError) {
       console.error(
         `Error fetching incidents for monitor ${monitorId}:`,
-        incidentError,
+        incidentError
       );
       monitor.incidents = [];
     } else {
@@ -123,7 +123,7 @@ export default async function getMonitors(c: Context) {
         error: "An unexpected error occurred",
         details: errorDetails,
       },
-      500,
+      500
     );
   }
 }

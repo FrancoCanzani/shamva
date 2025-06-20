@@ -17,24 +17,35 @@ const app = new Hono<{ Bindings: EnvBindings }>();
 app.use(logger());
 app.use(prettyJSON());
 app.use(secureHeaders());
-app.use(cors({
-  origin: process.env.NODE_ENV === "development" 
-    ? ["http://localhost:3000", "http://localhost:5173"]
-    : ["https://shamva.dev", "https://*.shamva.dev"],
-  allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowHeaders: ["Content-Type", "Authorization"],
-  exposeHeaders: ["Content-Length", "X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset"],
-  maxAge: 600,
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin:
+      process.env.NODE_ENV === "development"
+        ? ["http://localhost:3000", "http://localhost:5173"]
+        : ["https://shamva.dev", "https://*.shamva.dev"],
+    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowHeaders: ["Content-Type", "Authorization"],
+    exposeHeaders: [
+      "Content-Length",
+      "X-RateLimit-Limit",
+      "X-RateLimit-Remaining",
+      "X-RateLimit-Reset",
+    ],
+    maxAge: 600,
+    credentials: true,
+  })
+);
 
 // Global error handler
 app.onError((err, c) => {
   console.error("Global error:", err);
-  return c.json({
-    error: "Internal server error",
-    message: process.env.NODE_ENV === "development" ? err.message : undefined
-  }, 500);
+  return c.json(
+    {
+      error: "Internal server error",
+      message: process.env.NODE_ENV === "development" ? err.message : undefined,
+    },
+    500
+  );
 });
 
 // Routes
@@ -55,9 +66,8 @@ export default {
     controller: ScheduledController,
     env: EnvBindings,
     // @ts-expect-error - Required by Cloudflare Workers API
-    ctx: ExecutionContext,
+    ctx: ExecutionContext
   ) {
-
     await handleCheckerCron(env);
   },
 };

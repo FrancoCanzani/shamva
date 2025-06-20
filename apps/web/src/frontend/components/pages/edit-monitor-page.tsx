@@ -76,7 +76,7 @@ export default function EditMonitorPage() {
       if (!response.ok) {
         console.error("Error response from API:", result);
         throw new Error(
-          result.error || `Failed to update monitor (${response.status})`,
+          result.error || `Failed to update monitor (${response.status})`
         );
       }
 
@@ -89,7 +89,7 @@ export default function EditMonitorPage() {
     } catch (error) {
       console.error("Error updating monitor:", error);
       toast.error(
-        error instanceof Error ? error.message : "An unexpected error occurred",
+        error instanceof Error ? error.message : "An unexpected error occurred"
       );
       throw error;
     } finally {

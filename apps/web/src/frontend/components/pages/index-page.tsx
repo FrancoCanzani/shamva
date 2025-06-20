@@ -74,15 +74,22 @@ export default function IndexPage() {
             <span className="text-blue-600">Like Never Before</span>
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Shamva provides real-time monitoring, instant alerts, and comprehensive
-            incident management to keep your services running smoothly.
+            Shamva provides real-time monitoring, instant alerts, and
+            comprehensive incident management to keep your services running
+            smoothly.
           </p>
           <div className="flex justify-center space-x-4">
             <Button size="lg" asChild>
               <Link to="/auth/login">Start Monitoring</Link>
             </Button>
             <Button size="lg" variant="outline" asChild>
-              <a href="https://github.com/your-org/shamva" target="_blank" rel="noopener noreferrer">View Source</a>
+              <a
+                href="https://github.com/your-org/shamva"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                View Source
+              </a>
             </Button>
           </div>
         </main>
@@ -94,8 +101,8 @@ export default function IndexPage() {
               Everything You Need for Reliable Monitoring
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              From simple uptime checks to complex incident management, Shamva has
-              you covered.
+              From simple uptime checks to complex incident management, Shamva
+              has you covered.
             </p>
           </div>
 
@@ -203,10 +210,17 @@ export default function IndexPage() {
               <div className="w-6 h-6 bg-blue-600  flex items-center justify-center">
                 <Heart className="w-4 h-4 text-white" />
               </div>
-              <span className="text-lg font-semibold text-gray-900">Shamva</span>
+              <span className="text-lg font-semibold text-gray-900">
+                Shamva
+              </span>
             </div>
             <div className="flex items-center space-x-6 text-sm text-gray-600">
-              <a href="https://github.com/your-org/shamva" target="_blank" rel="noopener noreferrer" className="hover:text-gray-900">
+              <a
+                href="https://github.com/your-org/shamva"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-gray-900"
+              >
                 Documentation
               </a>
               <Link to="/auth/login" className="hover:text-gray-900">

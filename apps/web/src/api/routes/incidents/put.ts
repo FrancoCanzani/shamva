@@ -20,7 +20,7 @@ export default async function putIncident(c: Context) {
   } catch {
     return c.json(
       { success: false, error: "Invalid JSON payload provided." },
-      400,
+      400
     );
   }
 
@@ -33,7 +33,7 @@ export default async function putIncident(c: Context) {
         error: "Request parameter validation failed.",
         details: result.error.flatten(),
       },
-      400,
+      400
     );
   }
 
@@ -42,7 +42,8 @@ export default async function putIncident(c: Context) {
 
   const { data: existingIncident, error: fetchError } = await supabase
     .from("incidents")
-    .select(`
+    .select(
+      `
       *,
       monitors (
         id,
@@ -50,7 +51,8 @@ export default async function putIncident(c: Context) {
         url,
         workspace_id
       )
-    `)
+    `
+    )
     .eq("id", incidentId)
     .single();
 
@@ -65,7 +67,7 @@ export default async function putIncident(c: Context) {
         error: "Database error fetching incident",
         details: fetchError.message,
       },
-      500,
+      500
     );
   }
 
@@ -108,7 +110,8 @@ export default async function putIncident(c: Context) {
       .from("incidents")
       .update(updateData)
       .eq("id", incidentId)
-      .select(`
+      .select(
+        `
         *,
         monitors (
           id,
@@ -116,7 +119,8 @@ export default async function putIncident(c: Context) {
           url,
           workspace_id
         )
-      `)
+      `
+      )
       .single();
 
     if (updateError) {
@@ -127,7 +131,7 @@ export default async function putIncident(c: Context) {
           error: "Failed to update incident",
           details: updateError.message,
         },
-        500,
+        500
       );
     }
 
@@ -143,7 +147,7 @@ export default async function putIncident(c: Context) {
         error: "Failed to update incident",
         details: String(error),
       },
-      500,
+      500
     );
   }
-} 
+}

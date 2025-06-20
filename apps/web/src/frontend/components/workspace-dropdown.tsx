@@ -70,7 +70,9 @@ export function WorkspaceDropdown({ workspaceName }: WorkspaceDropdownProps) {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link to="/dashboard/workspaces/new" className="text-xs">Create new workspace</Link>
+          <Link to="/dashboard/workspaces/new" className="text-xs">
+            Create new workspace
+          </Link>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

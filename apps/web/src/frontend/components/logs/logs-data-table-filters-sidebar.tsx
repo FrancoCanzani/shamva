@@ -38,7 +38,7 @@ export function LogsFiltersSidebar({ table, data }: LogsFiltersSidebarProps) {
     data.forEach((log) => {
       statusCodes.set(
         log.status_code,
-        (statusCodes.get(log.status_code) || 0) + 1,
+        (statusCodes.get(log.status_code) || 0) + 1
       );
       methods.set(log.method, (methods.get(log.method) || 0) + 1);
       if (log.region) {
@@ -83,7 +83,7 @@ export function LogsFiltersSidebar({ table, data }: LogsFiltersSidebarProps) {
     const column = table.getColumn("created_at");
     if (column) {
       column.setFilterValue(
-        dateFrom || dateTo ? { from: dateFrom, to: dateTo } : undefined,
+        dateFrom || dateTo ? { from: dateFrom, to: dateTo } : undefined
       );
     }
   }, [dateFrom, dateTo, table]);
@@ -119,7 +119,7 @@ export function LogsFiltersSidebar({ table, data }: LogsFiltersSidebarProps) {
   const handleFilterChange = (
     columnKey: string,
     value: string | number,
-    checked: boolean,
+    checked: boolean
   ) => {
     const column = table.getColumn(columnKey);
     if (!column) return;
@@ -266,7 +266,7 @@ export function LogsFiltersSidebar({ table, data }: LogsFiltersSidebarProps) {
                             handleFilterChange(
                               group.key,
                               item.value,
-                              Boolean(checked),
+                              Boolean(checked)
                             )
                           }
                         />

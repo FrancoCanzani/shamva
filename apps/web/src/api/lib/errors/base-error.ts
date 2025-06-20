@@ -48,7 +48,7 @@ export class BaseError extends Error {
       userId?: string | null;
       metadata?: Record<string, unknown> | null;
       cause?: Error;
-    },
+    }
   ) {
     super(message);
     this.name = this.constructor.name;
@@ -118,7 +118,7 @@ export class BaseError extends Error {
       errorCode?: string;
       category?: ErrorCategory;
       severity?: ErrorSeverity;
-    } = {},
+    } = {}
   ): BaseError {
     const defaultCode = fallbackOptions.errorCode ?? "UNKNOWN_ERROR";
     const defaultCategory = fallbackOptions.category ?? "UNKNOWN";

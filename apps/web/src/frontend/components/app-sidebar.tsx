@@ -44,7 +44,7 @@ export function AppSidebar() {
         disabled: !currentWorkspace,
       },
     ],
-    [currentWorkspace],
+    [currentWorkspace]
   );
 
   return (

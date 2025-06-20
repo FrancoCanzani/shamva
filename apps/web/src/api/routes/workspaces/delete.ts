@@ -8,14 +8,14 @@ export default async function deleteWorkspaces(c: Context) {
   if (!userId) {
     return c.json(
       { data: null, success: false, error: "User not authenticated" },
-      401,
+      401
     );
   }
 
   if (!workspaceId) {
     return c.json(
       { data: null, success: false, error: "Workspace ID is required" },
-      400,
+      400
     );
   }
 
@@ -35,20 +35,20 @@ export default async function deleteWorkspaces(c: Context) {
       userMembership.role !== "admin"
     ) {
       console.warn(
-        `Attempted workspace deletion by non-admin user ${userId} for workspace ${workspaceId}`,
+        `Attempted workspace deletion by non-admin user ${userId} for workspace ${workspaceId}`
       );
       return c.json(
         {
           success: false,
           error: "You do not have permission to delete this workspace.",
         },
-        403,
+        403
       );
     }
   } catch (error) {
     console.error(
       `Database error checking workspace admin status for ${workspaceId}:`,
-      error,
+      error
     );
     return c.json(
       {
@@ -56,7 +56,7 @@ export default async function deleteWorkspaces(c: Context) {
         error: "Database error checking permissions.",
         details: error instanceof Error ? error.message : String(error),
       },
-      500,
+      500
     );
   }
 
@@ -69,14 +69,14 @@ export default async function deleteWorkspaces(c: Context) {
     if (monitorsError) {
       console.error(
         `Error fetching monitors for workspace ${workspaceId} during deletion:`,
-        monitorsError,
+        monitorsError
       );
       // continue with deletion even if fetching monitors fails, as we can still attempt to delete DB records
     }
 
     if (monitors && monitors.length > 0) {
       console.log(
-        `Found ${monitors.length} monitors in workspace ${workspaceId} to delete.`,
+        `Found ${monitors.length} monitors in workspace ${workspaceId} to delete.`
       );
 
       for (const monitor of monitors) {
@@ -88,7 +88,7 @@ export default async function deleteWorkspaces(c: Context) {
         if (checkersError) {
           console.error(
             `Error fetching monitor checkers for monitor ${monitor.id}:`,
-            checkersError,
+            checkersError
           );
           continue;
         }
@@ -99,7 +99,7 @@ export default async function deleteWorkspaces(c: Context) {
 
             try {
               const doId = c.env.CHECKER_DURABLE_OBJECT.idFromString(
-                checker.do_id,
+                checker.do_id
               );
               const doStub = c.env.CHECKER_DURABLE_OBJECT.get(doId, {
                 locationHint: checker.region,
@@ -118,7 +118,7 @@ export default async function deleteWorkspaces(c: Context) {
             } catch (doError) {
               console.error(
                 `Error cleaning up DO ${checker.do_id} for monitor ${monitor.id}:`,
-                doError,
+                doError
               );
             }
           }
@@ -128,7 +128,7 @@ export default async function deleteWorkspaces(c: Context) {
   } catch (error) {
     console.error(
       `Unexpected error during DO cleanup phase for workspace ${workspaceId}:`,
-      error,
+      error
     );
   }
 
@@ -142,7 +142,7 @@ export default async function deleteWorkspaces(c: Context) {
     if (deleteMonitorsError) {
       console.error(
         `Database error deleting monitors for workspace ${workspaceId}:`,
-        deleteMonitorsError,
+        deleteMonitorsError
       );
     }
 
@@ -154,7 +154,7 @@ export default async function deleteWorkspaces(c: Context) {
     if (deleteMembersError) {
       console.error(
         `Database error deleting members for workspace ${workspaceId}:`,
-        deleteMembersError,
+        deleteMembersError
       );
     }
 
@@ -167,16 +167,16 @@ export default async function deleteWorkspaces(c: Context) {
     if (deleteWorkspaceError) {
       console.error(
         `Database error deleting workspace ${workspaceId}:`,
-        deleteWorkspaceError,
+        deleteWorkspaceError
       );
 
       if (deleteWorkspaceError.code === "PGRST116") {
         console.warn(
-          `Workspace ${workspaceId} not found during deletion attempt.`,
+          `Workspace ${workspaceId} not found during deletion attempt.`
         );
         return c.json(
           { success: false, error: "Workspace not found or already deleted." },
-          404,
+          404
         );
       }
 
@@ -186,7 +186,7 @@ export default async function deleteWorkspaces(c: Context) {
           error: "Failed to delete workspace.",
           details: deleteWorkspaceError.message,
         },
-        500,
+        500
       );
     }
 
@@ -199,7 +199,7 @@ export default async function deleteWorkspaces(c: Context) {
   } catch (unexpectedError) {
     console.error(
       `Unexpected error during workspace deletion ${workspaceId}:`,
-      unexpectedError,
+      unexpectedError
     );
     return c.json(
       {
@@ -210,7 +210,7 @@ export default async function deleteWorkspaces(c: Context) {
             ? unexpectedError.message
             : String(unexpectedError),
       },
-      500,
+      500
     );
   }
 }

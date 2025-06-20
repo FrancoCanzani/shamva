@@ -21,12 +21,12 @@ import MonitorsTableRowAvailabilityDisplay from "./monitors-table-row-availabili
 
 const calculateAvailability = (
   logs: Partial<Log>[],
-  hours: number,
+  hours: number
 ): { percentage: number; success: number; total: number } => {
   const now = new Date();
   const timeLimit = subHours(now, hours);
   const relevantLogs = logs.filter(
-    (log) => log.created_at && isAfter(parseISO(log.created_at), timeLimit),
+    (log) => log.created_at && isAfter(parseISO(log.created_at), timeLimit)
   );
 
   if (relevantLogs.length === 0) {
@@ -35,7 +35,7 @@ const calculateAvailability = (
 
   // Only count logs with valid status code
   const validLogs = relevantLogs.filter(
-    (log) => typeof log.status_code === "number",
+    (log) => typeof log.status_code === "number"
   );
 
   if (validLogs.length === 0) {
@@ -43,7 +43,7 @@ const calculateAvailability = (
   }
 
   const successCount = validLogs.filter(
-    (log) => log.status_code && log.status_code >= 200 && log.status_code < 300,
+    (log) => log.status_code && log.status_code >= 200 && log.status_code < 300
   ).length;
 
   const totalCount = validLogs.length;
@@ -57,7 +57,7 @@ const calculateAverageLatency = (logs: Partial<Log>[]): number | null => {
     .map((log) => log.latency)
     .filter(
       (latency): latency is number =>
-        typeof latency === "number" && latency >= 0,
+        typeof latency === "number" && latency >= 0
     );
 
   if (validLatencies.length === 0) {

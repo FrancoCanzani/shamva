@@ -9,14 +9,14 @@ export default async function getAllMonitors(c: Context) {
   if (!userId) {
     return c.json(
       { data: null, success: false, error: "User not authenticated" },
-      401,
+      401
     );
   }
 
   if (!workspaceId) {
     return c.json(
       { data: null, success: false, error: "Workspace Id is missing" },
-      400,
+      400
     );
   }
 
@@ -54,7 +54,7 @@ export default async function getAllMonitors(c: Context) {
           error: "Database error fetching monitors",
           details: monitorError.message,
         },
-        500,
+        500
       );
     }
 
@@ -112,7 +112,7 @@ export default async function getAllMonitors(c: Context) {
         error: "An unexpected error occurred",
         details: errorDetails,
       },
-      500,
+      500
     );
   }
 }

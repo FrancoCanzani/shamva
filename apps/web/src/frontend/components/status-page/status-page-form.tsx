@@ -132,7 +132,7 @@ export default function StatusPageForm({
                         "-l-none",
                         field.state.meta.errors?.length
                           ? "border-destructive"
-                          : "",
+                          : ""
                       )}
                     />
                   </div>
@@ -300,7 +300,7 @@ export default function StatusPageForm({
                           onClick={() => {
                             const newMonitors = isSelected
                               ? field.state.value.filter(
-                                  (id) => id !== monitor.id,
+                                  (id) => id !== monitor.id
                                 )
                               : [...field.state.value, monitor.id];
                             field.handleChange(newMonitors);
@@ -313,7 +313,7 @@ export default function StatusPageForm({
                               e.preventDefault();
                               const newMonitors = isSelected
                                 ? field.state.value.filter(
-                                    (id) => id !== monitor.id,
+                                    (id) => id !== monitor.id
                                   )
                                 : [...field.state.value, monitor.id];
                               field.handleChange(newMonitors);

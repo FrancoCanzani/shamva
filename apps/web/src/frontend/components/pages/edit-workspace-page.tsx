@@ -77,7 +77,7 @@ export default function EditWorkspacePage() {
       if (!response.ok) {
         console.error("Error response from API:", result);
         throw new Error(
-          result.error || `Failed to update workspace (${response.status})`,
+          result.error || `Failed to update workspace (${response.status})`
         );
       }
       return result;
@@ -91,7 +91,7 @@ export default function EditWorkspacePage() {
     onError: (error) => {
       console.error("Error updating workspace:", error);
       toast.error(
-        error.message || "An unexpected error occurred during update",
+        error.message || "An unexpected error occurred during update"
       );
     },
   });

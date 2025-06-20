@@ -2,7 +2,7 @@ import { useWorkspaces as useWorkspacesContext } from "../lib/context/workspace-
 
 export function useWorkspaces(workspaceName?: string) {
   const context = useWorkspacesContext();
-  
+
   const currentWorkspace = workspaceName
     ? context.workspaces.find((w) => w.name === workspaceName)
     : context.currentWorkspace;

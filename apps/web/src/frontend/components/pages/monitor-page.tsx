@@ -186,13 +186,13 @@ export default function MonitorPage() {
               <span className="relative flex h-2 w-2">
                 <span
                   className={cn(
-                    "absolute inline-flex h-full w-full animate-ping rounded-full duration-[2000ms]",
+                    "absolute inline-flex h-full w-full animate-ping -full duration-[2000ms]",
                     getStatusColor(sortedLogs[0]?.status_code),
                   )}
                 ></span>
                 <span
                   className={cn(
-                    "absolute inline-flex h-2 w-2 rounded-full bg-red-500",
+                    "absolute inline-flex h-2 w-2 -full bg-red-500",
                     getStatusColor(sortedLogs[0]?.status_code),
                   )}
                 ></span>

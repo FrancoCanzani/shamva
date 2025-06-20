@@ -42,7 +42,7 @@ export default function IndexPage() {
         <header className="py-8">
           <nav className="flex justify-between items-center">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-blue-600  flex items-center justify-center">
                 <Heart className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold text-gray-900">Shamva</span>
@@ -100,8 +100,8 @@ export default function IndexPage() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+            <div className="bg-white p-6  shadow-sm border">
+              <div className="w-12 h-12 bg-blue-100  flex items-center justify-center mb-4">
                 <Monitor className="w-6 h-6 text-blue-600" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -113,8 +113,8 @@ export default function IndexPage() {
               </p>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+            <div className="bg-white p-6  shadow-sm border">
+              <div className="w-12 h-12 bg-green-100  flex items-center justify-center mb-4">
                 <Bell className="w-6 h-6 text-green-600" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -126,8 +126,8 @@ export default function IndexPage() {
               </p>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+            <div className="bg-white p-6  shadow-sm border">
+              <div className="w-12 h-12 bg-purple-100  flex items-center justify-center mb-4">
                 <BarChart3 className="w-6 h-6 text-purple-600" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -139,8 +139,8 @@ export default function IndexPage() {
               </p>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
-              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+            <div className="bg-white p-6  shadow-sm border">
+              <div className="w-12 h-12 bg-orange-100  flex items-center justify-center mb-4">
                 <Clock className="w-6 h-6 text-orange-600" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -152,8 +152,8 @@ export default function IndexPage() {
               </p>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
-              <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
+            <div className="bg-white p-6  shadow-sm border">
+              <div className="w-12 h-12 bg-indigo-100  flex items-center justify-center mb-4">
                 <Globe className="w-6 h-6 text-indigo-600" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -165,8 +165,8 @@ export default function IndexPage() {
               </p>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
-              <div className="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center mb-4">
+            <div className="bg-white p-6  shadow-sm border">
+              <div className="w-12 h-12 bg-teal-100  flex items-center justify-center mb-4">
                 <Users className="w-6 h-6 text-teal-600" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -182,7 +182,7 @@ export default function IndexPage() {
 
         {/* CTA Section */}
         <section className="py-20 text-center">
-          <div className="bg-blue-600 rounded-2xl p-12 text-white">
+          <div className="bg-blue-600 -2xl p-12 text-white">
             <h2 className="text-3xl font-bold mb-4">
               Ready to Start Monitoring?
             </h2>
@@ -200,7 +200,7 @@ export default function IndexPage() {
         <footer className="py-12 border-t border-gray-200">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-2">
-              <div className="w-6 h-6 bg-blue-600 rounded flex items-center justify-center">
+              <div className="w-6 h-6 bg-blue-600  flex items-center justify-center">
                 <Heart className="w-4 h-4 text-white" />
               </div>
               <span className="text-lg font-semibold text-gray-900">Shamva</span>

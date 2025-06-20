@@ -273,7 +273,7 @@ export default function WorkspaceForm({
               </div>
 
               {(membersApi.state.value?.length ?? 0) > 0 && (
-                <div className="mt-4 rounded border p-2">
+                <div className="mt-4  border p-2">
                   <h3 className="text-sm font-medium text-muted-foreground">
                     Pending Invitations
                   </h3>

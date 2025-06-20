@@ -92,7 +92,7 @@ export default function LatencyChart({
           cursor={false}
           content={
             <ChartTooltipContent
-              className="rounded"
+              className=""
               labelFormatter={(_, payload) => {
                 if (!payload || !payload.length) return "";
                 const item = payload[0];

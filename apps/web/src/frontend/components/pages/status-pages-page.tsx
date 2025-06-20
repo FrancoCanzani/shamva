@@ -33,13 +33,13 @@ export default function StatusPagesPage() {
           {statusPages.map((statusPage) => (
             <div
               key={statusPage.id}
-              className="border rounded border-dashed p-4 hover:bg-slate-50"
+              className="border border-dashed p-4 hover:bg-slate-50"
             >
               <div className="flex justify-between items-start">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <h3 className="font-medium">{statusPage.title}</h3>
-                    <span className="text-xs bg-muted px-2 py-1 rounded">
+                    <span className="text-xs bg-muted px-2 py-1">
                       /{statusPage.slug}
                     </span>
                   </div>

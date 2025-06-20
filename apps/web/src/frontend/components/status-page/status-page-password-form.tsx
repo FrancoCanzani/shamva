@@ -79,7 +79,7 @@ export default function StatusPagePasswordForm({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Password"
-                  className="mt-2  border-black rounded-none focus:ring-0 focus:border-black"
+                  className="mt-2  border-black -none focus:ring-0 focus:border-black"
                   required
                 />
               </div>
@@ -93,7 +93,7 @@ export default function StatusPagePasswordForm({
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-black text-white rounded-none text-xs uppercase  hover:bg-gray-800"
+                className="w-full bg-black text-white -none text-xs uppercase  hover:bg-gray-800"
               >
                 {loading ? "VERIFYING..." : "ACCESS STATUS PAGE"}
               </Button>

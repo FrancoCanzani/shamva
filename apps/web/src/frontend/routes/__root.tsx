@@ -5,6 +5,7 @@ import NotFoundPage from "../components/pages/not-found-page";
 import { SidebarProvider } from "../components/ui/sidebar";
 import { AuthProvider } from "../lib/context/auth-context";
 import { WorkspaceProvider } from "../lib/context/workspace-context";
+import { ThemeProvider } from "../lib/context/theme-context";
 
 const queryClient = new QueryClient();
 
@@ -13,16 +14,18 @@ export const Route = createRootRoute({
 
   component: () => (
     <>
-      <AuthProvider>
-        <SidebarProvider>
-          <QueryClientProvider client={queryClient}>
-            <WorkspaceProvider>
-              <Outlet />
-              <Toaster />
-            </WorkspaceProvider>
-          </QueryClientProvider>
-        </SidebarProvider>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <SidebarProvider>
+            <QueryClientProvider client={queryClient}>
+              <WorkspaceProvider>
+                <Outlet />
+                <Toaster />
+              </WorkspaceProvider>
+            </QueryClientProvider>
+          </SidebarProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </>
   ),
 });

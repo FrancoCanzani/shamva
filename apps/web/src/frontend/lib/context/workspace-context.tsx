@@ -47,7 +47,7 @@ async function fetchWorkspaces() {
 }
 
 const CURRENT_WORKSPACE_KEY = 'shamva-current-workspace'
-const CURRENT_SECTION_KEY = 'shamva-current-section'
+const LAST_LOCATION_KEY = 'shamva-last-location'
 
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate()
@@ -74,31 +74,6 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     return workspaces.find(w => w.id === currentWorkspaceId) || null
   }, [workspaces, currentWorkspaceId])
 
-  // Get current section from URL
-  const getCurrentSection = useCallback(() => {
-    const pathParts = location.pathname.split('/')
-    const workspaceIndex = pathParts.findIndex(part => part === '$workspaceName' || workspaces.some(w => w.name === part))
-    
-    if (workspaceIndex !== -1 && pathParts[workspaceIndex + 1]) {
-      return pathParts[workspaceIndex + 1]
-    }
-    
-    return 'monitors' 
-  }, [location.pathname, workspaces])
-
-  const saveCurrentSection = useCallback((section: string) => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(CURRENT_SECTION_KEY, section)
-    }
-  }, [])
-
-  const getSavedSection = useCallback(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem(CURRENT_SECTION_KEY) || 'monitors'
-    }
-    return 'monitors'
-  }, [])
-
   const setCurrentWorkspace = useCallback((workspace: Workspace | null) => {
     const workspaceId = workspace?.id || null
     setCurrentWorkspaceId(workspaceId)
@@ -106,21 +81,24 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     if (typeof window !== 'undefined') {
       if (workspaceId) {
         localStorage.setItem(CURRENT_WORKSPACE_KEY, workspaceId)
+        // Save current location before changing workspace
+        localStorage.setItem(LAST_LOCATION_KEY, location.pathname)
       } else {
         localStorage.removeItem(CURRENT_WORKSPACE_KEY)
       }
     }
 
     if (workspace) {
-      const currentSection = getCurrentSection()
-      saveCurrentSection(currentSection)
+      // Navigate to the last saved location or default to monitors
+      const lastLocation = localStorage.getItem(LAST_LOCATION_KEY)
+      const defaultPath = `/dashboard/${workspace.name}/monitors`
+      const targetPath = lastLocation && lastLocation.includes('/dashboard/') && !lastLocation.includes('/workspaces') 
+        ? lastLocation.replace(/\/dashboard\/[^\/]+/, `/dashboard/${workspace.name}`)
+        : defaultPath
       
-      navigate({
-        to: `/dashboard/$workspaceName/${currentSection}`,
-        params: { workspaceName: workspace.name }
-      })
+      navigate({ to: targetPath })
     }
-  }, [navigate, getCurrentSection, saveCurrentSection])
+  }, [navigate, location.pathname])
 
   useEffect(() => {
     if (!query.isLoading && workspaces.length === 0) {
@@ -133,21 +111,6 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       setCurrentWorkspace(workspaces.length > 0 ? workspaces[0] : null)
     }
   }, [workspaces, currentWorkspaceId, setCurrentWorkspace])
-
-  useEffect(() => {
-    if (currentWorkspace && !query.isLoading) {
-      const pathParts = location.pathname.split('/')
-      const isInWorkspaceRoute = pathParts.includes(currentWorkspace.name)
-      
-      if (!isInWorkspaceRoute && location.pathname.startsWith('/dashboard')) {
-        const savedSection = getSavedSection()
-        navigate({
-          to: `/dashboard/$workspaceName/${savedSection}`,
-          params: { workspaceName: currentWorkspace.name }
-        })
-      }
-    }
-  }, [currentWorkspace, location.pathname, query.isLoading, navigate, getSavedSection])
 
   const value = useMemo(() => ({
     workspaces,

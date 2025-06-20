@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import { CheckIcon, ChevronsUpDown } from "lucide-react";
 import * as React from "react";
 import { useWorkspaces } from "../hooks/use-workspaces";
@@ -21,7 +21,6 @@ interface WorkspaceDropdownProps {
 export function WorkspaceDropdown({ workspaceName }: WorkspaceDropdownProps) {
   const { workspaces, currentWorkspace, isLoading, setCurrentWorkspace } =
     useWorkspaces(workspaceName);
-  const navigate = useNavigate();
   const [open, setOpen] = React.useState(false);
 
   const location = useLocation();
@@ -29,12 +28,6 @@ export function WorkspaceDropdown({ workspaceName }: WorkspaceDropdownProps) {
   const handleSelectWorkspace = (workspace: Workspace) => {
     setOpen(false);
     setCurrentWorkspace(workspace);
-    // Navigation is now handled automatically by the context
-  };
-
-  const handleCreateWorkspace = () => {
-    navigate({ to: "/dashboard/workspaces/new" });
-    setOpen(false);
   };
 
   return (
@@ -63,7 +56,7 @@ export function WorkspaceDropdown({ workspaceName }: WorkspaceDropdownProps) {
               <DropdownMenuItem
                 key={workspace.id}
                 onClick={() => handleSelectWorkspace(workspace)}
-                className="rounded text-xs"
+                className="text-xs"
               >
                 <span className="flex-1">{workspace.name}</span>
                 {location.pathname.split("/").includes(workspace.name) && (
@@ -76,8 +69,8 @@ export function WorkspaceDropdown({ workspaceName }: WorkspaceDropdownProps) {
           )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleCreateWorkspace}>
-          <span className="text-xs">Create new workspace</span>
+        <DropdownMenuItem asChild>
+          <Link to="/dashboard/workspaces/new" className="text-xs">Create new workspace</Link>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

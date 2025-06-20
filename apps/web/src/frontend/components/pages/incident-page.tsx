@@ -1,4 +1,4 @@
-import { cn, getRegionFlags } from "@/frontend/lib/utils"
+import { getRegionFlags } from "@/frontend/lib/utils"
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/incidents/$id"
 import { Link, useRouter } from "@tanstack/react-router"
 import { useMutation } from "@tanstack/react-query"
@@ -139,29 +139,24 @@ export default function IncidentPage() {
           <span className="hover:underline">Back to monitors</span>
         </Link>
 
-        <div className="border border-dashed border-gray-400 p-6">
+        <div className="border border-dashed p-4">
           <div className="flex items-start justify-between mb-4">
-            <div className="flex items-start gap-3">
-              <div className={cn("w-3 h-3 mt-1", status.color)} />
               <div>
-                <h1 className="text-xl font-bold tracking-tight text-gray-900 font-mono mb-2">
+                <h1 className="text-xl font-medium tracking-tight font-mono mb-2">
                   {status.label.toUpperCase()} INCIDENT
                 </h1>
-                <div className="space-y-1">
-                  <p className="text-gray-600 text-sm font-mono">
-                    STARTED {formatEventTime(incident.started_at).toUpperCase()}
+                  <p className="text-sm font-mono">
+                    STARTED {formatEventTime(incident.started_at).toUpperCase()} ({duration.toUpperCase()})
                   </p>
-                  <p className="text-gray-600 text-sm font-mono">DURATION {duration.toUpperCase()}</p>
-                </div>
-              </div>
             </div>
+
             <div className="flex items-center gap-3">
               {status.status === "active" && (
                 <Button
                   onClick={() => acknowledgeMutation.mutate()}
                   disabled={acknowledgeMutation.isPending}
-                  size="sm"
-                  className="bg-yellow-600 hover:bg-yellow-700 text-white font-mono tracking-wide text-xs px-4 py-2"
+                  size="xs"
+                  className="font-mono text-xs"
                 >
                   {acknowledgeMutation.isPending ? "ACKNOWLEDGING..." : "ACKNOWLEDGE"}
                 </Button>
@@ -195,21 +190,7 @@ export default function IncidentPage() {
           )}
         </div>
 
-        {/* Incident Explanation */}
-        <div className="border border-dashed border-gray-400 p-4 bg-blue-50">
-          <div className="flex items-start gap-3">
-            <div className="w-2 h-2 bg-blue-600 mt-2 flex-shrink-0" />
-            <div className="space-y-2">
-              <h3 className="font-bold text-gray-900 text-sm font-mono tracking-wide">WHAT IS AN INCIDENT?</h3>
-              <p className="text-gray-700 text-xs leading-relaxed">
-                An incident occurs when your monitor detects that your service is down, experiencing errors, or not responding as expected. 
-                This page tracks the complete lifecycle of the incident from detection to resolution, including all actions taken by your team.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="border border-dashed border-gray-400 p-6 bg-white">
+        <div className="border border-dashed p-4">
           <h2 className="text-sm font-bold mb-6 text-gray-900 font-mono tracking-wide">TIMELINE</h2>
           <div className="space-y-4">
             {timelineEvents.map((event) => (
@@ -234,7 +215,6 @@ export default function IncidentPage() {
           </div>
         </div>
 
-        {/* Post-mortem Explanation */}
         <div className="border border-dashed border-gray-400 p-4 bg-amber-50">
           <div className="flex items-start gap-3">
             <div className="w-2 h-2 bg-amber-600 mt-2 flex-shrink-0" />

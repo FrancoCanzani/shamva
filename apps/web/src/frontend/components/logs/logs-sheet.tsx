@@ -165,7 +165,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                 <Button
                   variant="outline"
                   size={"xs"}
-                  className="text-xs rounded-xs"
+                  className="text-xs"
                   onClick={goToPrevious}
                   disabled={!canGoPrevious}
                 >
@@ -174,7 +174,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                 <Button
                   variant="outline"
                   size={"xs"}
-                  className="text-xs rounded-xs"
+                  className="text-xs"
                   onClick={goToNext}
                   disabled={!canGoNext}
                 >
@@ -184,7 +184,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                 <Button
                   variant="outline"
                   size={"xs"}
-                  className="text-xs rounded-xs"
+                  className="text-xs"
                   asChild
                 >
                   <SheetClose>
@@ -244,7 +244,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                   <p>
                     <span>Error:</span>
                   </p>{" "}
-                  <pre className="text-xs bg-red-50 dark:bg-red-900/30 p-2 mt-2 rounded-sm overflow-auto max-h-48 text-red-700 dark:text-red-300">
+                  <pre className="text-xs bg-red-50 dark:bg-red-900/30 p-2 mt-2 overflow-auto max-h-48 text-red-700 dark:text-red-300">
                     {selectedLog.error}
                   </pre>
                 </div>
@@ -272,7 +272,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                   </Button>
                 </div>
                 {headersArray.length > 0 ? (
-                  <div className="mt-2 overflow-auto border rounded">
+                  <div className="mt-2 overflow-auto border ">
                     <table className="w-full text-xs">
                       <tbody className="divide-y">
                         {headersArray.map(({ key, value }, index) => (
@@ -292,7 +292,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                     </table>
                   </div>
                 ) : (
-                  <div className="text-xs bg-muted p-2 mt-2 rounded-sm text-center text-muted-foreground">
+                  <div className="text-xs bg-muted p-2 mt-2 text-center text-muted-foreground">
                     No headers available
                   </div>
                 )}
@@ -321,7 +321,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                 <div className="relative">
                   <pre
                     className={cn(
-                      "text-xs bg-muted p-2 mt-2 rounded font-mono border whitespace-pre-wrap break-words overflow-hidden",
+                      "text-xs bg-muted p-2 mt-2  font-mono border whitespace-pre-wrap break-words overflow-hidden",
                       isBodyExpanded ? "max-h-none" : "max-h-32",
                     )}
                   >

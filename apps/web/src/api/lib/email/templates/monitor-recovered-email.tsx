@@ -39,9 +39,9 @@ export const MonitorRecoveredEmail = ({
       <Preview>{previewText}</Preview>
       <Tailwind>
         <Body className="bg-white my-auto mx-auto font-sans">
-          <Container className="border border-solid border-[#eaeaea] rounded my-[40px] mx-auto p-[20px] w-[465px]">
+          <Container className="border border-solid border-[#eaeaea]  my-[40px] mx-auto p-[20px] w-[465px]">
             <Section className="mt-[32px]">
-              <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mb-4">
+              <div className="w-8 h-8 bg-green-500 -full flex items-center justify-center mb-4">
                 <span className="text-white text-sm font-bold">✓</span>
               </div>
             </Section>
@@ -59,7 +59,7 @@ export const MonitorRecoveredEmail = ({
               now responding normally.
             </Text>
 
-            <Section className="bg-green-50 rounded-lg p-4 my-4">
+            <Section className="bg-green-50  p-4 my-4">
               <Text className="text-black text-[14px] leading-[24px] m-0 mb-2">
                 <strong>URL:</strong> {url}
               </Text>
@@ -87,7 +87,7 @@ export const MonitorRecoveredEmail = ({
 
             <Section className="text-center mt-[32px] mb-[32px]">
               <Link
-                className="bg-[#000000] rounded text-white text-[12px] font-semibold no-underline text-center px-5 py-3 inline-block"
+                className="bg-[#000000]  text-white text-[12px] font-semibold no-underline text-center px-5 py-3 inline-block"
                 href={dashboardUrl}
               >
                 View Dashboard

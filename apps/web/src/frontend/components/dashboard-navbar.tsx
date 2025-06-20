@@ -19,6 +19,7 @@ import {
   NavigationMenuList,
 } from "./ui/navigation-menu";
 import { WorkspaceDropdown } from "./workspace-dropdown";
+import { ThemeToggle } from "./ui/theme-toggle";
 
 export function DashboardNavbar() {
   const { workspaceName } = useParams({ strict: false });
@@ -79,7 +80,7 @@ export function DashboardNavbar() {
                         to={item.to}
                         params={{ workspaceName: currentWorkspace.name }}
                         className={cn(
-                          "font-mono text-sm px-2 py-1 rounded hover:bg-accent",
+                          "font-mono text-sm px-2 py-1 hover:bg-accent",
                           "data-[active=true]:bg-accent data-[active=true]:text-accent-foreground",
                         )}
                         activeProps={{ "data-active": "true" }}
@@ -101,6 +102,10 @@ export function DashboardNavbar() {
         <div className="flex items-center gap-4">
           <div className="hidden md:block">
             <WorkspaceDropdown />
+          </div>
+
+          <div className="hidden md:block">
+            <ThemeToggle />
           </div>
 
           <div className="hidden md:block">
@@ -134,6 +139,11 @@ export function DashboardNavbar() {
 
               <div className="p-2">
                 <WorkspaceDropdown />
+              </div>
+              <DropdownMenuSeparator />
+
+              <div className="px-2 py-1.5">
+                <ThemeToggle />
               </div>
               <DropdownMenuSeparator />
 

@@ -23,7 +23,7 @@ export default function WorkspacesPage() {
       <Separator />
 
       {workspaces.length === 0 ? (
-        <div className="rounded border p-6 text-center text-sm space-y-2">
+        <div className="border p-6 text-center text-sm space-y-2">
           <p className="text-muted-foreground">
             No workspaces found. Create one to get started.
           </p>
@@ -36,7 +36,7 @@ export default function WorkspacesPage() {
             return (
               <div
                 key={workspace.id}
-                className="space-y-4 rounded border border-dashed p-4"
+                className="space-y-4 border border-dashed p-4"
               >
                 <div className="flex justify-between items-center">
                   <div>
@@ -70,7 +70,7 @@ export default function WorkspacesPage() {
                       No members yet.
                     </p>
                   ) : (
-                    <div className="rounded border-dashed border px-2 py-1.5">
+                    <div className=" border-dashed border px-2 py-1.5">
                       {members.map((member, index) => (
                         <div
                           key={member.id}

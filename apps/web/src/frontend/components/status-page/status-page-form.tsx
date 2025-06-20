@@ -118,7 +118,7 @@ export default function StatusPageForm({
                 <>
                   <Label htmlFor="slug">URL Slug</Label>
                   <div className="flex">
-                    <span className="inline-flex items-center px-3 rounded-l border border-r-0 border-input bg-muted text-muted-foreground text-sm">
+                    <span className="inline-flex items-center px-3 -l border border-r-0 border-input bg-muted text-muted-foreground text-sm">
                       /status/
                     </span>
                     <Input
@@ -129,7 +129,7 @@ export default function StatusPageForm({
                       onBlur={field.handleBlur}
                       placeholder="my-service"
                       className={cn(
-                        "rounded-l-none",
+                        "-l-none",
                         field.state.meta.errors?.length
                           ? "border-destructive"
                           : "",
@@ -186,7 +186,7 @@ export default function StatusPageForm({
                   id="showValues"
                   checked={field.state.value}
                   onChange={(e) => field.handleChange(e.target.checked)}
-                  className="rounded border-input"
+                  className=" border-input"
                 />
                 <Label htmlFor="showValues" className="text-sm">
                   Show response times and uptime percentages
@@ -206,7 +206,7 @@ export default function StatusPageForm({
                   id="isPublic"
                   checked={field.state.value}
                   onChange={(e) => field.handleChange(e.target.checked)}
-                  className="rounded border-input"
+                  className=" border-input"
                 />
                 <Label htmlFor="isPublic" className="text-sm">
                   Make status page publicly accessible
@@ -280,7 +280,7 @@ export default function StatusPageForm({
                 </span>
               </div>
 
-              <div className="border rounded border-dashed p-4">
+              <div className="border  border-dashed p-4">
                 {availableMonitors.length === 0 ? (
                   <p className="text-sm text-muted-foreground text-center py-4">
                     No monitors available in this workspace. Create some
@@ -294,7 +294,7 @@ export default function StatusPageForm({
                       return (
                         <div
                           key={monitor.id}
-                          className={`flex items-center justify-between p-3 border rounded cursor-pointer hover:bg-slate-50 transition-colors ${
+                          className={`flex items-center justify-between p-3 border  cursor-pointer hover:bg-slate-50 transition-colors ${
                             isSelected ? "border-primary bg-slate-50" : ""
                           }`}
                           onClick={() => {

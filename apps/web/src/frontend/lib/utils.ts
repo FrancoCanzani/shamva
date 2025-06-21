@@ -131,7 +131,9 @@ export function calculatePercentile(
   }
 }
 
-export const getLatencyColor = (latency: number) => {
+export const getLatencyColor = (latency: number | null): string => {
+  if (latency === null || latency < 0)
+    return "text-slate-200 dark:text-slate-800";
   if (latency < 200) return "text-green-700";
   if (latency < 500) return "text-yellow-500";
   if (latency < 1000) return "text-red-500";

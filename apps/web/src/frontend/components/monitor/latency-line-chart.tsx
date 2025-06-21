@@ -95,7 +95,7 @@ export default function LatencyLineChart({
   } satisfies ChartConfig;
 
   return (
-    <ChartContainer config={chartConfig} className="w-full" style={{ height }}>
+    <ChartContainer config={chartConfig} className="w-full max-h-80" style={{ height }}>
       <LineChart
         data={dailyData}
         margin={{ top: 5, right: 20, left: -10, bottom: 5 }}

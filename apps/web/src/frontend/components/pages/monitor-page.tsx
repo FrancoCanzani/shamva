@@ -182,11 +182,11 @@ export default function MonitorPage() {
       <div className="flex flex-1 flex-col overflow-y-auto space-y-8">
         <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-6">
           <div className="flex items-center gap-3">
-            <button>
+            <div className="pl-1">
               <span className="relative flex h-2 w-2">
                 <span
                   className={cn(
-                    "absolute inline-flex h-full w-full animate-ping -full duration-[2000ms]",
+                    "absolute inline-flex h-full w-full animate-ping duration-[2000ms]",
                     getStatusColor(sortedLogs[0]?.status_code)
                   )}
                 ></span>
@@ -197,7 +197,7 @@ export default function MonitorPage() {
                   )}
                 ></span>
               </span>
-            </button>
+            </div>
             <span className={cn("font-medium capitalize")}>
               {monitor.status}
             </span>

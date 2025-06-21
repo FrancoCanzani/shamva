@@ -53,7 +53,7 @@ const createHeatmapData = (logs: Partial<Log>[]) => {
 
 const getLatencyColor = (latency: number | null): string => {
   if (latency === null || latency < 0)
-    return "bg-slate-200 dark:bg-slate-800";
+    return "bg-carbon-200 dark:bg-carbon-800";
   if (latency < 100) return "bg-green-400/80";
   if (latency < 250) return "bg-green-500/80";
   if (latency < 500) return "bg-yellow-400/80";

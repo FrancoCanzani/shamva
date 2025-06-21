@@ -30,23 +30,38 @@ export default async function fetchWorkspaces({
     });
   }
 
-  const token = session.access_token;
-  const response = await fetch("/api/workspaces", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    signal: abortController?.signal,
-  });
+  try {
+    const token = session.access_token;
+    const response = await fetch("/api/workspaces", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      signal: abortController?.signal,
+    });
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch workspaces");
+    if (!response.ok) {
+      if (response.status === 401) {
+        throw redirect({
+          to: "/auth/login",
+          search: { redirect: "/dashboard/workspaces" },
+          throw: true,
+        });
+      }
+      throw new Error("Failed to fetch workspaces");
+    }
+
+    const result: ApiResponse<Workspace[]> = await response.json();
+
+    if (!result.success) {
+      throw new Error(result.error || "Failed to fetch workspaces");
+    }
+
+    return result.data ?? [];
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("Failed to fetch")) {
+      console.error("Error fetching workspaces:", error);
+      throw new Error("Failed to fetch workspaces");
+    }
+    throw error;
   }
-
-  const result: ApiResponse<Workspace[]> = await response.json();
-
-  if (!result.success) {
-    throw new Error(result.error || "Failed to fetch workspaces");
-  }
-
-  return result.data ?? [];
 }

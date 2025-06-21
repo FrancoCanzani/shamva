@@ -1,31 +1,17 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createRootRoute, Outlet } from "@tanstack/react-router";
-import { Toaster } from "sonner";
 import NotFoundPage from "../components/pages/not-found-page";
-import { SidebarProvider } from "../components/ui/sidebar";
-import { AuthProvider } from "../lib/context/auth-context";
-import { WorkspaceProvider } from "../lib/context/workspace-context";
-import { ThemeProvider } from "../lib/context/theme-context";
-
-const queryClient = new QueryClient();
+import { ErrorBoundary } from "../components/error-boundary";
+import { Providers } from "../components/providers";
 
 export const Route = createRootRoute({
   notFoundComponent: NotFoundPage,
 
+
   component: () => (
-    <>
-      <ThemeProvider>
-        <AuthProvider>
-          <SidebarProvider>
-            <QueryClientProvider client={queryClient}>
-              <WorkspaceProvider>
-                <Outlet />
-                <Toaster />
-              </WorkspaceProvider>
-            </QueryClientProvider>
-          </SidebarProvider>
-        </AuthProvider>
-      </ThemeProvider>
-    </>
+    <ErrorBoundary>
+      <Providers>
+        <Outlet />
+      </Providers>
+    </ErrorBoundary>
   ),
 });

@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useCallback,
   useMemo,
+  useState,
 } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useLocation } from "@tanstack/react-router";
@@ -35,7 +36,7 @@ async function fetchWorkspaces() {
   }
 
   if (!session?.access_token) {
-    throw new Error("No authentication session");
+    return [];
   }
 
   const response = await fetch("/api/workspaces", {
@@ -60,6 +61,7 @@ const LAST_LOCATION_KEY = "shamva-last-location";
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   const [currentWorkspaceId, setCurrentWorkspaceId] = React.useState<
     string | null
@@ -70,10 +72,27 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     return null;
   });
 
+  // Check authentication status
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session?.access_token);
+    };
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsAuthenticated(!!session?.access_token);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   const query = useQuery({
     queryKey: ["workspaces"],
     queryFn: fetchWorkspaces,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: false, // Don't retry on authentication errors
+    enabled: isAuthenticated === true, // Only run query when authenticated
   });
 
   const workspaces = query.data ?? [];
@@ -120,10 +139,14 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   );
 
   useEffect(() => {
-    if (!query.isLoading && workspaces.length === 0) {
-      navigate({ to: "/dashboard/workspaces/new" });
+    // Only redirect to create workspace if we're authenticated and have no workspaces
+    if (isAuthenticated && !query.isLoading && workspaces.length === 0 && !query.error) {
+      // Only redirect if we're not already on the workspaces page
+      if (!location.pathname.includes("/workspaces")) {
+        navigate({ to: "/dashboard/workspaces/new" });
+      }
     }
-  }, [workspaces.length, query.isLoading, navigate]);
+  }, [isAuthenticated, workspaces.length, query.isLoading, query.error, navigate, location.pathname]);
 
   useEffect(() => {
     if (
@@ -139,7 +162,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       workspaces,
       currentWorkspace,
       setCurrentWorkspace,
-      isLoading: query.isLoading,
+      isLoading: isAuthenticated === null || query.isLoading,
       error: query.error ? (query.error as Error).message : null,
       refetch: query.refetch,
     }),
@@ -147,6 +170,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       workspaces,
       currentWorkspace,
       setCurrentWorkspace,
+      isAuthenticated,
       query.isLoading,
       query.error,
       query.refetch,

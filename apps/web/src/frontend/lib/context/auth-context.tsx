@@ -1,5 +1,6 @@
 import type { Session, User } from "@supabase/supabase-js";
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { redirect } from "@tanstack/react-router";
 import { supabase } from "../supabase";
 
 type AuthContextType = {
@@ -7,7 +8,6 @@ type AuthContextType = {
   session: Session | null;
   isLoading: boolean;
   signOut: () => Promise<void>;
-  // Add signIn, signUp methods if you want them accessible via context
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,10 +29,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       setIsLoading(false);
+
+      // Redirect to origin when user signs out
+      if (event === "SIGNED_OUT") {
+        redirect({ to: "/" });
+      }
     });
 
     return () => {

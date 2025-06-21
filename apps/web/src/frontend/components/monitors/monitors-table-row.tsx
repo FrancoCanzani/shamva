@@ -152,7 +152,7 @@ export default function MonitorsTableRow({ monitor }: MonitorRowProps) {
   return (
     <TableRow
       key={monitor.id}
-      className="group hover:bg-slate-50 transition-colors border-dashed"
+      className="group hover:bg-slate-50 dark:hover:bg-carbon-800 transition-colors border-dashed"
     >
       <TableCell className="w-8">
         <div

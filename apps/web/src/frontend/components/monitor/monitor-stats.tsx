@@ -33,7 +33,7 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        <div className="border border-dashed p-2 hover:bg-slate-50">
+        <div className="border border-dashed p-2 hover:bg-slate-50 hover:dark:bg-carbon-800">
           <h3 className="text-sm font-medium text-muted-foreground mb-2">
             Success Rate
           </h3>
@@ -57,7 +57,7 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
           </div>
         </div>
 
-        <div className="border border-dashed p-2 hover:bg-slate-50">
+        <div className="border border-dashed p-2 hover:bg-slate-50 hover:dark:bg-carbon-800">
           <h3 className="text-sm font-medium text-muted-foreground mb-2">
             Total Checks
           </h3>
@@ -72,7 +72,7 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
           </div>
         </div>
 
-        <div className="border border-dashed p-2 hover:bg-slate-50">
+        <div className="border border-dashed p-2 hover:bg-slate-50 hover:dark:bg-carbon-800">
           <h3 className="text-sm font-medium text-muted-foreground mb-2">
             Successes
           </h3>
@@ -96,7 +96,7 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
           </div>
         </div>
 
-        <div className="border border-dashed p-2 hover:bg-slate-50">
+        <div className="border border-dashed p-2 hover:bg-slate-50 hover:dark:bg-carbon-800">
           <h3 className="text-sm font-medium text-muted-foreground mb-2">
             Failures
           </h3>
@@ -122,7 +122,7 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        <div className="border border-dashed p-2 hover:bg-slate-50">
+        <div className="border border-dashed p-2 hover:bg-slate-50 hover:dark:bg-carbon-800">
           <h3 className="text-sm font-medium text-muted-foreground mb-2">
             P50 Latency
           </h3>
@@ -139,7 +139,7 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
           </div>
         </div>
 
-        <div className="border border-dashed p-2 hover:bg-slate-50">
+        <div className="border border-dashed p-2 hover:bg-slate-50 hover:dark:bg-carbon-800">
           <h3 className="text-sm font-medium text-muted-foreground mb-2">
             P75 Latency
           </h3>
@@ -158,7 +158,7 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
           </div>
         </div>
 
-        <div className="border border-dashed p-2 hover:bg-slate-50">
+        <div className="border border-dashed p-2 hover:bg-slate-50 hover:dark:bg-carbon-800">
           <h3 className="text-sm font-medium text-muted-foreground mb-2">
             P95 Latency
           </h3>
@@ -177,7 +177,7 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
           </div>
         </div>
 
-        <div className="border border-dashed p-2 hover:bg-slate-50">
+        <div className="border border-dashed p-2 hover:bg-slate-50 hover:dark:bg-carbon-800">
           <h3 className="text-sm font-medium text-muted-foreground mb-2">
             P99 Latency
           </h3>

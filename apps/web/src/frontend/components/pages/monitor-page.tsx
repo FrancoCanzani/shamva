@@ -233,10 +233,7 @@ export default function MonitorPage() {
 
         <Separator />
 
-        <div>
-          <h2 className="text-sm font-medium mb-4">Latency Trends by Region</h2>
-          <RegionLatencyCharts logs={filteredLogs} height={36} />
-        </div>
+        <RegionLatencyCharts logs={filteredLogs} height={36} />
 
         <Separator />
         <div>

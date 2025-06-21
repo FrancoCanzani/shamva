@@ -58,7 +58,7 @@ export default function RecentChecks({
             {displayLogs.map((log, index) => (
               <TableRow
                 key={log.id || index}
-                className="hover:bg-slate-50 border-dashed"
+                className="hover:bg-slate-50 dark:hover:bg-carbon-800 border-dashed"
               >
                 <TableCell className="py-2">
                   <div

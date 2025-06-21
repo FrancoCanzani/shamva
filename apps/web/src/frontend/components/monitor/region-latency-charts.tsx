@@ -1,6 +1,6 @@
 import { Log } from "@/frontend/lib/types";
 import { getRegionNameFromCode, groupLogsByRegion } from "@/frontend/lib/utils";
-import LatencyChart from "./latency-chart";
+import LatencyChartsTabs from "./latency-charts-tabs";
 
 interface RegionLatencyChartsProps {
   logs: Partial<Log>[];
@@ -9,7 +9,7 @@ interface RegionLatencyChartsProps {
 
 export default function RegionLatencyCharts({
   logs,
-  height = 36,
+  height = 80,
 }: RegionLatencyChartsProps) {
   const groupedLogs = groupLogsByRegion(logs);
 
@@ -23,17 +23,20 @@ export default function RegionLatencyCharts({
     );
   }
 
-  const perRegionHeight = Math.max(
-    height,
-    Object.keys(groupedLogs).length > 0 ? 120 : height
-  );
+  const perRegionHeight = height - 40;
 
   return (
+    <div>
+    <h2 className="text-sm font-medium mb-4">Latency Trends by Region</h2>
+
     <div className="w-full space-y-6">
       {Object.entries(groupedLogs).map(([region, regionLogs]) => {
         const latencies = regionLogs.map((log) => log.latency || 0);
-        const maxLatency = Math.max(...latencies);
-        const minLatency = Math.min(...latencies);
+        const maxLatency = Math.max(...latencies, 0);
+        const minLatency =
+          latencies.length > 0
+            ? Math.min(...latencies.filter((l) => l > 0))
+            : 0;
         const avgLatency =
           regionLogs.length > 0
             ? Math.round(
@@ -41,24 +44,23 @@ export default function RegionLatencyCharts({
               )
             : 0;
 
-        console.log(regionLogs);
-
         return (
           <div key={region}>
             <div className="mb-2 flex items-center justify-between">
               <h3 className="text-xs font-medium">
                 {getRegionNameFromCode(region)}
               </h3>
-              <div className="text-xs text-slate-500 space-x-3">
+              <div className="text-xs text-muted-foreground space-x-3">
                 <span className="font-medium">Min: {minLatency}ms</span>
                 <span className="font-medium">Avg: {avgLatency}ms</span>
                 <span className="font-medium">Max: {maxLatency}ms</span>
               </div>
             </div>
-            <LatencyChart logs={regionLogs} height={perRegionHeight} />
+            <LatencyChartsTabs logs={regionLogs} height={perRegionHeight} />
           </div>
         );
       })}
+    </div>
     </div>
   );
 }

@@ -13,7 +13,7 @@ export function MonitorsTable({ monitors }: { monitors: Monitor[] }) {
     <div className="overflow-auto">
       <Table>
         <TableHeader className="">
-          <TableRow className="border-b border-dashed font-mono border-gray-200 dark:border-gray-700">
+          <TableRow className="border-b border-dashed font-mono">
             <TableHead className="w-8"></TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Name</TableHead>

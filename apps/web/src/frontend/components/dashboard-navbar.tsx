@@ -62,12 +62,12 @@ export function DashboardNavbar() {
             <Link
               to="/dashboard/$workspaceName/monitors"
               params={{ workspaceName: currentWorkspace.name }}
-              className="font-mono font-semibold text-xl"
+              className="font-mono uppercase tracking-tight font-medium text-xl"
             >
               Shamva
             </Link>
           ) : (
-            <span className="font-semibold text-2xl font-mono">Shamva</span>
+            <span className="font-medium text-2xl font-mono">Shamva</span>
           )}
 
           <NavigationMenu className="hidden md:flex">

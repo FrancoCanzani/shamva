@@ -52,7 +52,7 @@ export default function IncidentsSection({
               to="/dashboard/$workspaceName/incidents/$id"
               params={{ workspaceName, id: incident.id! }}
               key={incident.id}
-              className="group block border border-dashed p-2 hover:bg-slate-50 transition-colors"
+              className="group block border border-dashed p-2 hover:bg-slate-50 dark:hover:bg-carbon-800 transition-colors"
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="min-w-0">

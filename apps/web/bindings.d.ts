@@ -10,4 +10,5 @@ export interface EnvBindings {
   CHECKER_DURABLE_OBJECT: DurableObjectNamespace<CheckerDurableObject>;
   RESEND_API_KEY: string;
   BROWSER: Fetcher;
+  CLOUDFLARE_ACCOUNT_ID: string;
 }

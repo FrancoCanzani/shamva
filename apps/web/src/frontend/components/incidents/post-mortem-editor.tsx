@@ -129,7 +129,7 @@ export function PostMortemEditor({ content, onChange }: PostMortemEditorProps) {
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center gap-1 border border-dashed p-2 bg-gray-50 dark:bg-background">
+      <div className="flex items-center gap-1 border border-dashed p-2 overflow-auto bg-gray-50 dark:bg-background">
         {toolbarItems.map((item, index) => {
           if (item.separator) {
             return (

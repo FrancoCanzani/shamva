@@ -1,5 +1,5 @@
 import type { Log } from "@/frontend/lib/types";
-import { format, startOfDay } from "date-fns";
+import { format, startOfDay, startOfHour, differenceInDays } from "date-fns";
 import {
   LineChart,
   Line,
@@ -35,6 +35,39 @@ const getPercentile = (data: number[], percentile: number): number => {
   );
 };
 
+const groupLogsByHour = (logs: Partial<Log>[]) => {
+  const hourlyGroups = new Map<string, Partial<Log>[]>();
+
+  logs.forEach((log) => {
+    if (!log.created_at) return;
+    const date = startOfHour(new Date(log.created_at));
+    const dateKey = format(date, "yyyy-MM-dd-HH");
+    if (!hourlyGroups.has(dateKey)) {
+      hourlyGroups.set(dateKey, []);
+    }
+    hourlyGroups.get(dateKey)!.push(log);
+  });
+
+  return Array.from(hourlyGroups.entries())
+    .map(([dateKey, hourLogs]) => {
+      const latencies = hourLogs
+        .map((log) => log.latency || 0)
+        .filter((l) => l > 0);
+      if (latencies.length === 0) return null;
+
+      const avg = Math.round(
+        latencies.reduce((sum, lat) => sum + lat, 0) / latencies.length
+      );
+      const median = getPercentile(latencies, 50);
+      const p95 = getPercentile(latencies, 95);
+      const p99 = getPercentile(latencies, 99);
+
+      return { date: dateKey, avg, median, p95, p99 };
+    })
+    .filter((entry): entry is NonNullable<typeof entry> => entry !== null)
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+};
+
 const groupLogsByDay = (logs: Partial<Log>[]) => {
   const dailyGroups = new Map<string, Partial<Log>[]>();
 
@@ -68,13 +101,38 @@ const groupLogsByDay = (logs: Partial<Log>[]) => {
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 };
 
+const groupLogsByTime = (logs: Partial<Log>[]) => {
+  if (logs.length === 0) return [];
+
+  const dates = logs
+    .map((log) => log.created_at)
+    .filter((date): date is string => !!date)
+    .map((date) => new Date(date))
+    .sort((a, b) => a.getTime() - b.getTime());
+
+  if (dates.length === 0) return [];
+
+  const firstDate = dates[0];
+  const lastDate = dates[dates.length - 1];
+  const daysDifference = differenceInDays(lastDate, firstDate);
+
+  // If there's only one day or less than 24 hours of data, group by hour
+  if (daysDifference === 0) {
+    return groupLogsByHour(logs);
+  }
+
+  // Otherwise, group by day
+  return groupLogsByDay(logs);
+};
+
 export default function LatencyLineChart({
   logs,
   height = 200,
 }: LatencyLineChartProps) {
-  const dailyData = groupLogsByDay(logs);
+  const chartData = groupLogsByTime(logs);
+  const isHourlyData = chartData.length > 0 && chartData[0].date.includes('-');
 
-  if (dailyData.length === 0) {
+  if (chartData.length === 0) {
     return (
       <div
         className="flex items-center justify-center h-full p-4"
@@ -97,13 +155,24 @@ export default function LatencyLineChart({
   return (
     <ChartContainer config={chartConfig} className="w-full max-h-80" style={{ height }}>
       <LineChart
-        data={dailyData}
+        data={chartData}
         margin={{ top: 5, right: 20, left: -10, bottom: 5 }}
       >
         <CartesianGrid vertical={false} />
         <XAxis
           dataKey="date"
-          tickFormatter={(value) => format(new Date(value), "MMM d")}
+          tickFormatter={(value) => {
+            if (isHourlyData) {
+              const parts = value.split('-');
+              if (parts.length === 4) {
+                const hour = parts[3];
+                return `${hour}:00`;
+              }
+              return value; 
+            } else {
+              return format(new Date(value), "MMM d");
+            }
+          }}
           tickLine={false}
           axisLine={false}
           tickMargin={8}
@@ -111,17 +180,37 @@ export default function LatencyLineChart({
         <YAxis
           tickLine={false}
           axisLine={false}
-          tickMargin={2}
+          tickMargin={0}
           tickFormatter={(value) => `${value}ms`}
         />
         <ChartTooltip
           content={
             <ChartTooltipContent
-              labelFormatter={(label) => format(new Date(label), "MMM d, yyyy")}
-              formatter={(value, name) => [
-                `${value}ms`,
-                chartConfig[name as keyof typeof chartConfig].label,
-              ]}
+              labelFormatter={(label) => {
+                try {
+                  if (isHourlyData) {
+                    const parts = label.split('-');
+                    if (parts.length === 4) {
+                      const [year, month, day, hour] = parts;
+                      const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour));
+                      if (isNaN(date.getTime())) {
+                        return label; 
+                      }
+                      return format(date, "MMM d, yyyy - HH:00");
+                    }
+                    return label; 
+                  } else {
+                    const date = new Date(label);
+                    if (isNaN(date.getTime())) {
+                      return label; 
+                    }
+                    return format(date, "MMM d, yyyy");
+                  }
+                } catch (error) {
+                  console.error('Error formatting date label:', error, label);
+                  return label; 
+                }
+              }}
             />
           }
         />

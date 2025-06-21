@@ -1,6 +1,6 @@
 import { Log } from "@/frontend/lib/types";
 import { getRegionNameFromCode, groupLogsByRegion } from "@/frontend/lib/utils";
-import LatencyChartsTabs from "./latency-charts-tabs";
+import LatencyLineChart from "./latency-line-chart";
 
 interface RegionLatencyChartsProps {
   logs: Partial<Log>[];
@@ -56,7 +56,7 @@ export default function RegionLatencyCharts({
                 <span className="font-medium">Max: {maxLatency}ms</span>
               </div>
             </div>
-            <LatencyChartsTabs logs={regionLogs} height={perRegionHeight} />
+            <LatencyLineChart logs={regionLogs} height={perRegionHeight} />
           </div>
         );
       })}

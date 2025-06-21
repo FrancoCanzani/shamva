@@ -196,8 +196,8 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                 </Button>
               </div>
             </SheetHeader>
-            <div className="p-4 space-y-4 overflow-y-auto flex-grow">
-              <div className="divide-y divide-dashed space-y-1 text-sm">
+            <div className="p-4 space-y-4 overflow-y-auto flex-grow flex flex-col">
+              <div className="divide-y divide-dashed space-y-1 text-sm flex-shrink-0">
                 <div className="flex items-center justify-between py-2">
                   <span className="font-medium">Timestamp</span>
                   <time>
@@ -243,7 +243,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
               </div>
 
               {selectedLog.error && (
-                <div className="text-sm">
+                <div className="text-sm flex-shrink-0">
                   <p>
                     <span>Error:</span>
                   </p>{" "}
@@ -253,7 +253,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                 </div>
               )}
 
-              <div>
+              <div className="flex-shrink-0">
                 <div className="flex items-center justify-between">
                   <span className="font-medium">Headers</span>
                   <Button
@@ -281,7 +281,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                         {headersArray.map(({ key, value }, index) => (
                           <tr
                             key={index}
-                            className="odd:bg-slate-50 dark:odd:bg-slate-900/30"
+                            className="odd:bg-carbon-50 dark:odd:bg-carbon-800"
                           >
                             <td className="py-1.5 px-2 font-mono text-left font-medium">
                               {key}
@@ -300,8 +300,8 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                   </div>
                 )}
               </div>
-              <div>
-                <div className="flex items-center justify-between">
+              <div className="flex flex-col flex-grow min-h-0">
+                <div className="flex items-center justify-between flex-shrink-0">
                   <span className="font-medium">Body Content</span>
                   <Button
                     variant="ghost"
@@ -321,12 +321,9 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                     )}
                   </Button>
                 </div>
-                <div className="relative">
+                <div className="relative flex-grow min-h-0 flex flex-col">
                   <pre
-                    className={cn(
-                      "text-xs bg-muted p-2 mt-2  font-mono border whitespace-pre-wrap break-words overflow-hidden",
-                      isBodyExpanded ? "max-h-none" : "max-h-32"
-                    )}
+                    className="text-xs bg-carbon-50 dark:bg-carbon-800 overflow-auto p-2 mt-2 font-mono border whitespace-pre-wrap break-words flex-grow"  
                   >
                     {(() => {
                       try {
@@ -361,30 +358,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                       }
                     })()}
                   </pre>
-                  {!isBodyExpanded && selectedLog.body_content && (
-                    <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-muted to-transparent flex items-end justify-center pb-1">
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        className="h-6 px-2 text-xs bg-white"
-                        onClick={() => setIsBodyExpanded(true)}
-                      >
-                        View more
-                      </Button>
-                    </div>
-                  )}
-                  {isBodyExpanded && (
-                    <div className="mt-2 flex justify-center">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 px-2 text-xs"
-                        onClick={() => setIsBodyExpanded(false)}
-                      >
-                        View less
-                      </Button>
-                    </div>
-                  )}
+
                 </div>
               </div>
             </div>

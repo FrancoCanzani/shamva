@@ -72,11 +72,11 @@ const getStatusColorForCheck = (log: Partial<Log> | undefined): string => {
   if (!log) return "bg-gray-200";
 
   if (typeof log.status_code !== "number") {
-    return log.error ? "bg-red-500" : "bg-gray-400";
+    return log.error ? "bg-red-700" : "bg-gray-700";
   }
 
-  if (log.status_code >= 200 && log.status_code < 300) return "bg-green-500";
-  return "bg-red-500";
+  if (log.status_code >= 200 && log.status_code < 300) return "bg-green-700";
+  return "bg-red-700";
 };
 
 const getStatusText = (log: Partial<Log> | undefined): string => {

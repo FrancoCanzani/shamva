@@ -41,13 +41,13 @@ export const getStatusTextColor = (status: number | unknown): string => {
     return "text-slate-700 dark:text-slate-300";
   }
   if (status >= 200 && status < 300) {
-    return "text-green-700 dark:text-green-200";
+    return "text-green-700 dark:text-green-700";
   } else if (status >= 300 && status < 400) {
-    return "text-blue-700 dark:text-blue-300";
+    return "text-blue-700 dark:text-blue-700";
   } else if (status >= 400 && status < 500) {
-    return "text-orange-400 dark:text-orange-500";
+    return "text-orange-400 dark:text-orange-700";
   } else if (status >= 500 || status < 0) {
-    return "text-red-700 dark:text-red-300";
+    return "text-red-700 dark:text-red-700";
   }
   return "text-slate-700 dark:text-slate-300";
 };
@@ -57,11 +57,11 @@ export const getStatusRowClass = (status: number | unknown): string => {
     return "";
   }
   if (status >= 200 && status < 300) {
-    return "hover:bg-slate-100 dark:hover:bg-slate-800/50";
+    return "hover:bg-slate-100 dark:hover:bg-carbon-800";
   } else if (status >= 300 && status < 400) {
     return "bg-blue-50 dark:bg-blue-900/20 hover:!bg-blue-100/80 dark:hover:!bg-blue-800/40";
   } else if (status >= 400 && status < 500) {
-    return "bg-orange-50/80 dark:bg-orange-900/20 hover:!bg-orange-100/80 dark:hover:!bg-orange-800/40";
+    return "bg-orange-50/80 dark:bg-orange-900/20 hover:bg-orange-100/80 dark:hover:bg-orange-900/10";
   } else if (status >= 500 || status < 0) {
     return "bg-red-50 dark:bg-red-900/20 hover:!bg-red-100/80 dark:hover:!bg-red-800/40";
   }

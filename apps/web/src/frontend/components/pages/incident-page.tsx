@@ -9,17 +9,25 @@ import { Button } from "@/frontend/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/frontend/components/ui/popover"
 import { PostMortemEditor } from "../incidents/post-mortem-editor"
 import type { Incident } from "@/frontend/lib/types"
+import { useAuth } from "@/frontend/lib/context/auth-context"
 
 export default function IncidentPage() {
   const { workspaceName, id } = Route.useParams()
   const incident = Route.useLoaderData() as Incident
   const router = useRouter()
+  const { session } = useAuth()
 
   const acknowledgeMutation = useMutation({
     mutationFn: async () => {
+      if (!session?.access_token) {
+        throw new Error("Authentication error. Please log in again.")
+      }
       const response = await fetch(`/api/incidents/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`
+        },
         body: JSON.stringify({ acknowledged_at: new Date().toISOString() }),
       })
       if (!response.ok) throw new Error("Failed to acknowledge incident")
@@ -33,9 +41,15 @@ export default function IncidentPage() {
 
   const resolveMutation = useMutation({
     mutationFn: async () => {
+      if (!session?.access_token) {
+        throw new Error("Authentication error. Please log in again.")
+      }
       const response = await fetch(`/api/incidents/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`
+        },
         body: JSON.stringify({ resolved_at: new Date().toISOString() }),
       })
       if (!response.ok) throw new Error("Failed to resolve incident")
@@ -49,9 +63,15 @@ export default function IncidentPage() {
 
   const postMortemMutation = useMutation({
     mutationFn: async () => {
+      if (!session?.access_token) {
+        throw new Error("Authentication error. Please log in again.")
+      }
       const response = await fetch(`/api/incidents/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`
+        },
         body: JSON.stringify({ post_mortem: incident.post_mortem || "" }),
       })
       if (!response.ok) throw new Error("Failed to save post-mortem")

@@ -26,10 +26,10 @@ export default function MonitorsTableRowAvailabilityDisplay({
             className={cn(
               "text-sm font-medium font-mono",
               availability.percentage < 95 && availability.total > 0
-                ? "text-red-600"
+                ? "text-red-700 dark:text-red-300"
                 : availability.percentage < 100 && availability.total > 0
-                  ? "text-yellow-600"
-                  : "text-gray-700"
+                  ? "text-yellow-700 dark:text-yellow-300"
+                  : "text-slate-700 dark:text-slate-300"
             )}
           >
             {formattedPercentage}

@@ -161,7 +161,7 @@ export default function MonitorsTableRow({ monitor }: MonitorRowProps) {
         />
       </TableCell>
       <TableCell>
-        <span className="capitalize text-muted-foreground">
+        <span className="capitalize">
           {monitor.status}
         </span>
       </TableCell>

@@ -22,23 +22,23 @@ export async function copyToClipboard(text: string): Promise<void> {
 
 export const getStatusColor = (status: number | unknown): string => {
   if (typeof status !== "number") {
-    return "bg-gray-200 dark:bg-gray-700";
+    return "bg-slate-200 dark:bg-slate-700";
   }
   if (status >= 200 && status < 300) {
-    return "bg-gray-200 dark:bg-gray-700";
+    return "bg-green-700 dark:bg-green-700";
   } else if (status >= 300 && status < 400) {
-    return "bg-blue-200 dark:bg-blue-700";
+    return "bg-blue-700 dark:bg-blue-700";
   } else if (status >= 400 && status < 500) {
-    return "bg-red-200 dark:bg-red-700";
+    return "bg-red-700 dark:bg-red-700";
   } else if (status >= 500 || status < 0) {
-    return "bg-red-200 dark:bg-red-700";
+    return "bg-red-700 dark:bg-red-700";
   }
-  return "bg-gray-200 dark:bg-gray-700";
+  return "bg-slate-200 dark:bg-slate-700";
 };
 
 export const getStatusTextColor = (status: number | unknown): string => {
   if (typeof status !== "number") {
-    return "text-gray-700 dark:text-gray-300";
+    return "text-slate-700 dark:text-slate-300";
   }
   if (status >= 200 && status < 300) {
     return "text-green-700 dark:text-green-200";
@@ -49,7 +49,7 @@ export const getStatusTextColor = (status: number | unknown): string => {
   } else if (status >= 500 || status < 0) {
     return "text-red-700 dark:text-red-300";
   }
-  return "text-gray-700 dark:text-gray-300";
+  return "text-slate-700 dark:text-slate-300";
 };
 
 export const getStatusRowClass = (status: number | unknown): string => {

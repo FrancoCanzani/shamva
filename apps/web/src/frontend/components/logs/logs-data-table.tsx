@@ -104,7 +104,16 @@ export const columns: ColumnDef<Log>[] = [
     header: "Method",
     cell: ({ row }) => {
       const method = row.getValue("method") as string;
-      return <span className="text-sm font-mono font-medium">{method}</span>;
+      const checkType = row.original.check_type;
+      
+      // Check if this is a TCP check
+      const isTcpCheck = checkType === "tcp";
+      
+      return (
+        <span className="text-sm font-mono font-medium">
+          {isTcpCheck ? "TCP" : method}
+        </span>
+      );
     },
     size: 70,
     minSize: 60,
@@ -114,10 +123,22 @@ export const columns: ColumnDef<Log>[] = [
     header: "URL Monitored",
     cell: ({ row }) => {
       const url = row.getValue("url") as string;
+      const checkType = row.original.check_type;
+      
+      // Check if this is a TCP check
+      const isTcpCheck = checkType === "tcp";
+      
       return (
-        <span className="text-sm font-medium" title={url}>
-          {url}
-        </span>
+        <div className="flex items-center space-x-2">
+          {isTcpCheck && (
+            <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded font-medium">
+              TCP
+            </span>
+          )}
+          <span className="text-sm font-medium" title={url}>
+            {url}
+          </span>
+        </div>
       );
     },
     size: 250,
@@ -133,10 +154,10 @@ export const columns: ColumnDef<Log>[] = [
       </button>
     ),
     cell: ({ row }) => {
-      const status = row.getValue("status_code") as number;
+      const status = row.getValue("status_code") as number | null;
       return (
         <span className={cn("font-mono text-sm", getStatusTextColor(status))}>
-          {status === -1 ? "ERR" : status}
+          {status === null || status === -1 ? "ERR" : status}
         </span>
       );
     },

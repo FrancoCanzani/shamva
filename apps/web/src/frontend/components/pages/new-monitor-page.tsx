@@ -58,7 +58,9 @@ export default function NewMonitorPage() {
 
       const monitorRequest = {
         name: formData.name,
-        url: formData.url,
+        checkType: formData.checkType,
+        url: formData.checkType === "http" ? formData.url : "",
+        tcpHostPort: formData.checkType === "tcp" ? formData.tcpHostPort : "",
         method: formData.method,
         interval: formData.interval,
         regions: formData.regions,

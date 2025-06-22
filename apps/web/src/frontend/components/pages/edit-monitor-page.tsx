@@ -53,7 +53,9 @@ export default function EditMonitorPage() {
 
       const monitorRequest = {
         name: formData.name,
-        url: formData.url,
+        checkType: formData.checkType,
+        url: formData.checkType === "http" ? formData.url : "",
+        tcpHostPort: formData.checkType === "tcp" ? formData.tcpHostPort : "",
         method: formData.method,
         interval: formData.interval,
         regions: formData.regions,
@@ -106,7 +108,9 @@ export default function EditMonitorPage() {
 
   const initialValues: MonitorFormValues = {
     name: monitor.name,
-    url: monitor.url,
+    checkType: monitor.check_type,
+    url: monitor.url || "",
+    tcpHostPort: monitor.tcp_host_port || "",
     method: monitor.method as "GET" | "POST" | "HEAD",
     interval: monitor.interval,
     regions: monitor.regions,

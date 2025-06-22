@@ -1,5 +1,6 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { DurableObject } from "cloudflare:workers";
+import { connect } from "cloudflare:sockets";
 import type { EnvBindings } from "../../../bindings";
 import { EmailService } from "../lib/email/service";
 import { ScreenshotService } from "../lib/screenshot/service";
@@ -14,6 +15,7 @@ import {
 import handleBodyParsing from "../lib/utils";
 
 const FETCH_TIMEOUT_MS = 30 * 1000;
+const TCP_TIMEOUT_MS = 10 * 1000;
 const USER_AGENT = "Shamva-Checker/1.0";
 
 export class CheckerDurableObject extends DurableObject {
@@ -36,9 +38,52 @@ export class CheckerDurableObject extends DurableObject {
     this.supabase = createSupabaseClient(env);
   }
 
-  private async performCheck(
+  private async performTcpCheck(hostPort: string): Promise<CheckResult> {
+    const checkStartTime = performance.now();
+    const result: CheckResult = {
+      ok: false,
+      statusCode: null,
+      latencyMs: null,
+      headers: null,
+      bodyContent: null,
+      checkError: null,
+      colo: null,
+    };
+
+    try {
+      const [hostname, portStr] = hostPort.split(":");
+      const port = parseInt(portStr, 10);
+
+      if (!hostname || !port || port < 1 || port > 65535) {
+        throw new Error("Invalid host:port format");
+      }
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), TCP_TIMEOUT_MS);
+
+      const socket = connect({ hostname, port });
+      
+      await socket.opened;
+      clearTimeout(timeoutId);
+
+      result.latencyMs = performance.now() - checkStartTime;
+      result.ok = true;
+
+      socket.close();
+    } catch (error: unknown) {
+      result.latencyMs = performance.now() - checkStartTime;
+      result.checkError =
+        error instanceof Error && error.name === "AbortError"
+          ? "TCP connection timeout"
+          : String(error);
+    }
+
+    return result;
+  }
+
+  private async performHttpCheck(
     urlToCheck: string,
-    method: string,
+    method?: string,
     customHeaders?: Record<string, string>,
     customBody?: string | URLSearchParams | FormData | null
   ): Promise<CheckResult> {
@@ -63,7 +108,7 @@ export class CheckerDurableObject extends DurableObject {
       };
 
       const requestOptions: RequestInit = {
-        method,
+        method: method || "GET",
         redirect: "manual",
         headers: requestHeaders,
         signal: controller.signal,
@@ -104,7 +149,8 @@ export class CheckerDurableObject extends DurableObject {
   private async createIncident(
     monitorId: string,
     region: string | null,
-    url: string
+    url: string,
+    checkType?: "http" | "tcp"
   ): Promise<Incident | null> {
     try {
       const { data: incident, error } = await this.supabase
@@ -120,12 +166,14 @@ export class CheckerDurableObject extends DurableObject {
       if (error) throw error;
 
       if (incident) {
-        const screenshotUrl =
-          await this.screenshotService.takeAndStoreScreenshot(url, incident.id);
-        if (screenshotUrl) {
-          await this.updateIncident(incident.id, {
-            screenshot_url: screenshotUrl,
-          });
+        if (checkType !== "tcp") {
+          const screenshotUrl =
+            await this.screenshotService.takeAndStoreScreenshot(url, incident.id);
+          if (screenshotUrl) {
+            await this.updateIncident(incident.id, {
+              screenshot_url: screenshotUrl,
+            });
+          }
         }
       }
 
@@ -201,9 +249,20 @@ export class CheckerDurableObject extends DurableObject {
     userId: string,
     url: string,
     result: CheckResult,
-    method: string,
-    region: string | null
+    method: string | null,
+    region: string,
+    checkType?: "http" | "tcp",
+    tcpHostPort?: string
   ): Promise<void> {
+    let tcpHost: string | undefined;
+    let tcpPort: number | undefined;
+    
+    if (checkType === "tcp" && tcpHostPort) {
+      const [hostname, portStr] = tcpHostPort.split(":");
+      tcpHost = hostname;
+      tcpPort = parseInt(portStr, 10);
+    }
+
     const logData = {
       user_id: userId,
       monitor_id: monitorId,
@@ -213,14 +272,16 @@ export class CheckerDurableObject extends DurableObject {
       headers: result.headers,
       body_content: result.bodyContent,
       error: result.checkError,
+      method: method,
+      region: region,
+      check_type: checkType,
       colo: result.colo,
-      method,
-      created_at: new Date().toISOString(),
-      region,
+      tcp_host: tcpHost,
+      tcp_port: tcpPort,
     };
 
     try {
-      const { data, error } = await this.supabase
+      const { error } = await this.supabase
         .from("logs")
         .insert(logData)
         .select();
@@ -259,26 +320,36 @@ export class CheckerDurableObject extends DurableObject {
       try {
         const { userEmails, ...config } =
           (await request.json()) as MonitorConfig & { userEmails: string[] };
-        const result = await this.performCheck(
-          config.urlToCheck,
-          config.method,
-          config.headers,
-          config.body
-        );
+        
+        let result: CheckResult;
+        
+        if (config.checkType === "tcp" && config.tcpHostPort) {
+          result = await this.performTcpCheck(config.tcpHostPort);
+        } else {
+          result = await this.performHttpCheck(
+            config.urlToCheck,
+            config.method,
+            config.headers,
+            config.body
+          );
+        }
 
+        const targetUrl = config.checkType === "tcp" ? config.tcpHostPort! : config.urlToCheck;
+        
         await this.logCheckResult(
           config.monitorId,
           config.userId,
-          config.urlToCheck,
+          targetUrl,
           result,
-          config.method,
-          config.region
+          config.method || null,
+          config.region,
+          config.checkType,
+          config.tcpHostPort
         );
 
-        const isSuccess =
-          result.ok === true &&
-          result.statusCode !== null &&
-          result.statusCode < 400;
+        const isSuccess = config.checkType === "tcp" 
+          ? result.ok === true  // For TCP, only check if connection was successful
+          : result.ok === true && result.statusCode !== null && result.statusCode < 400; // For HTTP, check status code too
         const now = Date.now();
 
         if (isSuccess) {
@@ -320,9 +391,11 @@ export class CheckerDurableObject extends DurableObject {
                 const emailData: MonitorEmailData = {
                   monitorId: config.monitorId,
                   monitorName: monitor.name,
-                  url: monitor.url,
+                  url: monitor.url || monitor.tcp_host_port || targetUrl,
                   statusCode: result.statusCode ?? undefined,
-                  errorMessage: undefined,
+                  errorMessage: config.checkType === "tcp" 
+                    ? result.checkError ?? "TCP connection failed"
+                    : result.checkError ?? `HTTP status ${result.statusCode}`,
                   lastChecked: new Date(now).toISOString(),
                   region: config.region || "Unknown",
                 };
@@ -366,17 +439,19 @@ export class CheckerDurableObject extends DurableObject {
               const incident = await this.createIncident(
                 config.monitorId,
                 config.region,
-                config.urlToCheck
+                targetUrl,
+                config.checkType
               );
 
               if (incident) {
                 const emailData: MonitorEmailData = {
                   monitorId: config.monitorId,
                   monitorName: monitor.name,
-                  url: monitor.url,
+                  url: monitor.url || monitor.tcp_host_port || targetUrl,
                   statusCode: result.statusCode ?? undefined,
-                  errorMessage:
-                    result.checkError ?? `HTTP status ${result.statusCode}`,
+                  errorMessage: config.checkType === "tcp" 
+                    ? result.checkError ?? "TCP connection failed"
+                    : result.checkError ?? `HTTP status ${result.statusCode}`,
                   lastChecked: new Date(now).toISOString(),
                   region: config.region || "Unknown",
                 };
@@ -415,8 +490,9 @@ export class CheckerDurableObject extends DurableObject {
               .from("monitors")
               .update({
                 status: newStatus,
-                error_message:
-                  result.checkError ?? `HTTP status ${result.statusCode}`,
+                error_message: config.checkType === "tcp"
+                  ? result.checkError ?? "TCP connection failed"
+                  : result.checkError ?? `HTTP status ${result.statusCode}`,
                 last_check_at: new Date(now).toISOString(),
                 last_failure_at: new Date(now).toISOString(),
                 updated_at: new Date(now).toISOString(),

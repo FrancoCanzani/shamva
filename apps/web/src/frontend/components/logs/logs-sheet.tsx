@@ -30,7 +30,6 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
     headers: false,
     body: false,
   });
-  const [isBodyExpanded, setIsBodyExpanded] = useState(false);
 
   const sortedFilteredRows = table.getRowModel().rows;
 
@@ -219,7 +218,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                       getStatusTextColor(selectedLog.status_code)
                     )}
                   >
-                    {selectedLog.status_code === -1
+                    {selectedLog.status_code === null || selectedLog.status_code === -1
                       ? "ERR"
                       : selectedLog.status_code}
                   </span>
@@ -250,6 +249,37 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                   <pre className="text-xs bg-red-50 dark:bg-red-900/30 p-2 mt-2 overflow-auto max-h-48 text-red-700 dark:text-red-300">
                     {selectedLog.error}
                   </pre>
+                </div>
+              )}
+
+              {/* TCP Check Information */}
+              {selectedLog.check_type === "tcp" && selectedLog.tcp_host && selectedLog.tcp_port && (
+                <div className="text-sm flex-shrink-0">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">TCP Check Details</span>
+                  </div>
+                  <div className="mt-2 bg-blue-50 dark:bg-blue-900/30 p-3 border border-blue-200 dark:border-blue-800 rounded">
+                    <div className="space-y-1 text-xs">
+                      <div className="flex justify-between">
+                        <span className="font-medium text-blue-700 dark:text-blue-300">Host:</span>
+                        <span className="font-mono text-blue-700 dark:text-blue-300">
+                          {selectedLog.tcp_host}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-medium text-blue-700 dark:text-blue-300">Port:</span>
+                        <span className="font-mono text-blue-700 dark:text-blue-300">
+                          {selectedLog.tcp_port}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-medium text-blue-700 dark:text-blue-300">Host:Port:</span>
+                        <span className="font-mono text-blue-700 dark:text-blue-300">
+                          {selectedLog.tcp_host}:{selectedLog.tcp_port}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 

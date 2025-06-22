@@ -165,16 +165,13 @@ export default function MonitorPage() {
       </div>
       <div className="flex items-center justify-between gap-4 py-4 flex-shrink-0">
         <div className="flex items-center justify-start gap-1">
-          <h1 className="flex-1 font-medium">{monitor.name || monitor.url}</h1>
+          <h1 className="flex-1 font-medium">
+            {monitor.name || (monitor.check_type === "tcp" ? monitor.tcp_host_port : monitor.url)}
+          </h1>
           {monitor.name && (
-            <a
-              href={monitor.url}
-              className="text-xs hover:underline text-muted-foreground"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {monitor.url}
-            </a>
+            <span className="text-xs text-muted-foreground">
+              {monitor.check_type === "tcp" ? monitor.tcp_host_port : monitor.url}
+            </span>
           )}
         </div>
       </div>

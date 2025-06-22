@@ -1,7 +1,7 @@
 import { Context } from "hono";
 import { MonitorsParamsSchema } from "../../lib/schemas";
 import { createSupabaseClient } from "../../lib/supabase/client";
-import { Monitor, MonitorsParams } from "../../lib/types";
+import { MonitorsParams } from "../../lib/types";
 
 export default async function postMonitors(c: Context) {
   let rawBody: unknown;
@@ -30,7 +30,9 @@ export default async function postMonitors(c: Context) {
 
   const {
     name,
+    checkType,
     url,
+    tcpHostPort,
     method,
     headers,
     body,
@@ -80,25 +82,23 @@ export default async function postMonitors(c: Context) {
     );
   }
 
-  let createdMonitor: Monitor | null = null;
-
   try {
     const { data, error: insertError } = await supabase
       .from("monitors")
       .insert([
         {
           name: name,
+          check_type: checkType,
           url: url,
+          tcp_host_port: tcpHostPort,
           method: method,
           headers: headers ?? {},
           body: body,
           user_id: userId,
           workspace_id: workspaceId,
           interval: interval ?? 5 * 60000,
-          status: "active",
+          status: "initializing",
           regions: regions,
-          failure_count: 0,
-          success_count: 0,
           slack_webhook_url: slackWebhookUrl,
         },
       ])
@@ -116,14 +116,13 @@ export default async function postMonitors(c: Context) {
       throw new Error("Failed to create monitor record: No data returned.");
     }
 
-    createdMonitor = data as Monitor;
 
     console.log(
-      `Monitor record created in database. ID: ${createdMonitor!.id}`
+      `Monitor record created in database. ID: ${data.id}`
     );
 
     return c.json({
-      data: createdMonitor,
+      data: data,
       success: true,
     });
   } catch (error) {

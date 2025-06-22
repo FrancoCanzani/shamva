@@ -143,11 +143,12 @@ export default function MonitorsCard({ monitor, workspaceName }: MonitorCardProp
                 className={cn("w-2 h-2", getStatusColor(mostRecentLog?.status_code))}
                 title={`Status: ${mostRecentLog?.status_code ?? "Unknown"}`}
               />
-              <span className="text-sm font-medium truncate">{monitor.name ?? monitor.url}</span>
+              <span className="text-sm font-medium truncate">
+                {monitor.name ?? (monitor.check_type === "tcp" ? monitor.tcp_host_port : monitor.url)}
+              </span>
               <span className="text-xs text-muted-foreground capitalize hidden sm:inline">{monitor.status}</span>
             </div>
-
-              <span className="text-xs text-muted-foreground">Last checked {lastCheck}</span>
+            <span className="text-xs text-muted-foreground">Last checked {lastCheck}</span>
           </div>
 
           <div className="flex items-center md:space-x-3 sm:space-x-6 text-xs">

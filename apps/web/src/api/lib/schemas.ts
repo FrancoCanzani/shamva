@@ -1,29 +1,92 @@
 import z from "zod";
 
-export const MonitorsParamsSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(1, "Monitor name cannot be empty")
-    .max(100, "Monitor name is too long"),
-  url: z.string().url({ message: "Invalid URL format" }),
-  method: z.enum(["GET", "POST", "HEAD"]).default("GET"),
-  regions: z.array(z.string()).min(1),
-  interval: z.number().int().optional(),
-  headers: z.record(z.string(), z.string()).optional(),
-  body: z
-    .union([
-      z.string(), // Allows plain text or pre-stringified JSON
-      z.record(z.string(), z.unknown()),
-    ])
-    .nullable()
-    .optional(),
-  workspaceId: z.string().uuid("Invalid workspace ID format"),
-  slackWebhookUrl: z
-    .string()
-    .url({ message: "Invalid Slack webhook URL format" })
-    .optional(),
-});
+const tcpHostPortSchema = z
+  .string()
+  .trim()
+  .regex(
+    /^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*:[1-9]\d{0,4}$/,
+    "Please enter a valid host:port format (e.g., example.com:8080)"
+  )
+  .refine(
+    (value) => {
+      const port = parseInt(value.split(":")[1], 10);
+      return port >= 1 && port <= 65535;
+    },
+    "Port must be between 1 and 65535"
+  );
+
+export const MonitorsParamsSchema = z
+  .object({
+    name: z
+      .string()
+      .trim()
+      .min(1, "Monitor name cannot be empty")
+      .max(100, "Monitor name is too long"),
+    checkType: z.enum(["http", "tcp"], {
+      errorMap: () => ({ message: "Please select a valid check type" }),
+    }),
+    url: z.string().trim().url("Invalid URL format").optional(),
+    tcpHostPort: tcpHostPortSchema.optional(),
+    method: z.enum(["GET", "POST", "HEAD"]).optional(),
+    regions: z.array(z.string()).min(1),
+    interval: z.number().int().optional(),
+    headers: z.record(z.string(), z.string()).optional(),
+    body: z
+      .union([
+        z.string(), // Allows plain text or pre-stringified JSON
+        z.record(z.string(), z.unknown()),
+      ])
+      .nullable()
+      .optional(),
+    workspaceId: z.string().uuid("Invalid workspace ID format"),
+    slackWebhookUrl: z
+      .string()
+      .url({ message: "Invalid Slack webhook URL format" })
+      .optional(),
+  })
+  .refine(
+    (data) => {
+      // URL is required for HTTP checks
+      if (data.checkType === "http" && (!data.url || data.url.trim() === "")) {
+        return false;
+      }
+      // TCP host:port is required for TCP checks
+      if (data.checkType === "tcp" && (!data.tcpHostPort || data.tcpHostPort.trim() === "")) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "URL is required for HTTP checks, Host:Port is required for TCP checks",
+      path: ["url"],
+    }
+  )
+  .refine(
+    (data) => {
+      // Method is required for HTTP checks
+      if (data.checkType === "http" && !data.method) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Method is required for HTTP checks",
+      path: ["method"],
+    }
+  )
+  .refine(
+    (data) => {
+      // Headers and body are only applicable for HTTP checks
+      if (data.checkType === "tcp") {
+        return !data.headers && !data.body;
+      }
+      return true;
+    },
+    {
+      message: "Headers and body are only applicable for HTTP checks",
+      path: ["headers"],
+    }
+  );
 
 export const MemberInviteSchema = z.object({
   email: z

@@ -85,7 +85,7 @@
     "build": "vite build",
     "check-types": "tsc --noEmit",
     "deploy": "bun run build && wrangler deploy",
-    "dev": "vite",
+    "dev": "vite dev",
     "lint": "eslint .",
     "preview": "bun run build && vite preview",
     "types": "wrangler types"

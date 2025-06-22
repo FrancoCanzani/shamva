@@ -39,7 +39,9 @@ export default async function putMonitors(c: Context) {
 
   const {
     name,
+    checkType,
     url,
+    tcpHostPort,
     method,
     headers,
     body,
@@ -95,8 +97,10 @@ export default async function putMonitors(c: Context) {
 
     const updateData = {
       name,
-      url,
-      method,
+      check_type: checkType,
+      url: checkType === "http" ? url : null,
+      tcp_host_port: checkType === "tcp" ? tcpHostPort : null,
+      method: checkType === "http" ? method : null,
       headers: headers ?? {},
       body,
       interval: finalInterval,

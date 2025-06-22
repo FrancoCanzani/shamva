@@ -44,14 +44,14 @@ export interface Monitor {
   id: string;
   created_at: string;
   updated_at: string;
-  url: string;
-  method: "GET" | "POST" | "HEAD";
+  check_type: "http" | "tcp";
+  url: string | null;
+  tcp_host_port: string | null;
+  method: "GET" | "POST" | "HEAD" | null;
   headers: Record<string, string>;
   last_check_at: string | null;
   last_success_at: string | null;
   last_failure_at: string | null;
-  failure_count: number;
-  success_count: number;
   user_id: string;
   body: Record<string, unknown> | string | null;
   region: string;
@@ -77,6 +77,9 @@ export interface Log {
   body_content: string | Record<string, unknown> | null;
   error: string | null;
   method: string;
+  check_type: "http" | "tcp";
+  tcp_host?: string;
+  tcp_port?: number;
 }
 
 export type ApiLogResponse = {

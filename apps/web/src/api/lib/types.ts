@@ -45,8 +45,10 @@ export interface Monitor {
   id: string;
   workspace_id: string;
   user_id: string;
-  url: string;
-  method: "GET" | "POST" | "HEAD";
+  check_type: "http" | "tcp";
+  url: string | null;
+  tcp_host_port: string | null;
+  method: "GET" | "POST" | "HEAD" | null;
   interval: number;
   regions: Region[];
   headers: Record<string, string> | null;
@@ -56,8 +58,6 @@ export interface Monitor {
   last_check_at: string | null;
   last_success_at: string | null;
   last_failure_at: string | null;
-  failure_count: number;
-  success_count: number;
   status: "broken" | "active" | "maintenance" | "paused" | "error" | "degraded";
   error_message: string | null;
   name: string;
@@ -79,6 +79,9 @@ export interface Log {
   body_content: string | Record<string, unknown> | null;
   error: string | null;
   method: string;
+  check_type: "http" | "tcp";
+  tcp_host?: string;
+  tcp_port?: number;
 }
 
 export interface BodyContent {
@@ -87,13 +90,15 @@ export interface BodyContent {
 }
 
 export interface MonitorConfig {
+  checkType: "http" | "tcp";
   urlToCheck: string;
+  tcpHostPort?: string;
   monitorId: string;
   userId: string;
   workspaceId: string;
-  method: string;
+  method?: string;
   intervalMs: number;
-  region: string | null;
+  region: string;
   createdAt: number;
   consecutiveFailures: number;
   lastStatusCode?: number;

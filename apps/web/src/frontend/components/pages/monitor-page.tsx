@@ -118,7 +118,7 @@ export default function MonitorPage() {
         </Link>
         <div className="flex items-center gap-1">
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+            <DropdownMenuTrigger>
               <Button variant="outline" size="xs" className="text-xs">
                 {currentPeriod}
               </Button>

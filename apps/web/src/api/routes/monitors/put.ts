@@ -45,6 +45,8 @@ export default async function putMonitors(c: Context) {
     method,
     headers,
     body,
+    headersString,
+    bodyString,
     regions,
     interval,
     slackWebhookUrl,
@@ -95,14 +97,33 @@ export default async function putMonitors(c: Context) {
   try {
     const finalInterval = interval ?? existingMonitor.interval;
 
+    // Parse headers and body from strings if provided
+    let parsedHeaders: Record<string, string> | undefined = headers;
+    if (headersString && !headers) {
+      try {
+        parsedHeaders = JSON.parse(headersString);
+      } catch {
+        return c.json({ success: false, error: "Invalid headers JSON format." }, 400);
+      }
+    }
+
+    let parsedBody: Record<string, unknown> | string | undefined = body;
+    if (bodyString && !body) {
+      try {
+        parsedBody = JSON.parse(bodyString);
+      } catch {
+        return c.json({ success: false, error: "Invalid body JSON format." }, 400);
+      }
+    }
+
     const updateData = {
       name,
       check_type: checkType,
       url: checkType === "http" ? url : null,
       tcp_host_port: checkType === "tcp" ? tcpHostPort : null,
       method: checkType === "http" ? method : null,
-      headers: headers ?? {},
-      body,
+      headers: parsedHeaders ?? {},
+      body: parsedBody,
       interval: finalInterval,
       regions,
       updated_at: new Date().toISOString(),

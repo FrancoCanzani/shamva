@@ -33,8 +33,12 @@ export default function RecentChecks({
 
   if (!displayLogs.length) {
     return (
-      <div className="text-sm text-muted-foreground p-4 text-center">
-        No recent logs available
+      <div>
+        <div className="border border-dashed p-8">
+          <p className="text-sm text-center text-muted-foreground">
+          No recent logs available
+          </p>
+        </div>
       </div>
     );
   }

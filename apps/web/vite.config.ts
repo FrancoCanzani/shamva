@@ -20,6 +20,11 @@ export default defineConfig({
     cloudflare(),
     tailwindcss(),
   ],
+  build: {
+    commonjsOptions: {
+      transformMixedEsModules: true
+    },
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

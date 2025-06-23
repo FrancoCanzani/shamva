@@ -15,10 +15,12 @@ export default function RegionLatencyCharts({
 
   if (Object.keys(groupedLogs).length === 0) {
     return (
-      <div className="flex items-center justify-center w-full p-4">
-        <p className="text-sm text-muted-foreground">
-          No latency data available for the selected period
-        </p>
+      <div>
+        <h2 className="text-sm font-medium mb-4">Latency Trends by Region</h2>
+        <div className="border border-dashed p-8">
+          <p className="text-sm text-center text-muted-foreground">
+            No latency data available for the selected period          </p>
+        </div>
       </div>
     );
   }

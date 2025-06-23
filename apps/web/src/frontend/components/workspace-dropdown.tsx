@@ -32,7 +32,7 @@ export function WorkspaceDropdown({ workspaceName }: WorkspaceDropdownProps) {
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger>
         <Button
           variant="outline"
           size={"xs"}

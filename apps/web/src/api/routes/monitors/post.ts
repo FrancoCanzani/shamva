@@ -36,6 +36,8 @@ export default async function postMonitors(c: Context) {
     method,
     headers,
     body,
+    headersString,
+    bodyString,
     regions,
     interval,
     workspaceId,
@@ -82,6 +84,24 @@ export default async function postMonitors(c: Context) {
     );
   }
 
+  let parsedHeaders: Record<string, string> | undefined = headers;
+  if (headersString && !headers) {
+    try {
+      parsedHeaders = JSON.parse(headersString);
+    } catch {
+      return c.json({ success: false, error: "Invalid headers JSON format." }, 400);
+    }
+  }
+
+  let parsedBody: Record<string, unknown> | string | undefined = body;
+  if (bodyString && !body) {
+    try {
+      parsedBody = JSON.parse(bodyString);
+    } catch {
+      return c.json({ success: false, error: "Invalid body JSON format." }, 400);
+    }
+  }
+
   try {
     const { data, error: insertError } = await supabase
       .from("monitors")
@@ -92,8 +112,8 @@ export default async function postMonitors(c: Context) {
           url: url,
           tcp_host_port: tcpHostPort,
           method: method,
-          headers: headers ?? {},
-          body: body,
+          headers: parsedHeaders ?? {},
+          body: parsedBody,
           user_id: userId,
           workspace_id: workspaceId,
           interval: interval ?? 5 * 60000,
@@ -115,11 +135,6 @@ export default async function postMonitors(c: Context) {
     if (!data) {
       throw new Error("Failed to create monitor record: No data returned.");
     }
-
-
-    console.log(
-      `Monitor record created in database. ID: ${data.id}`
-    );
 
     return c.json({
       data: data,

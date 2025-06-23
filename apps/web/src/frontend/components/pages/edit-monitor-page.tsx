@@ -54,8 +54,8 @@ export default function EditMonitorPage() {
       const monitorRequest = {
         name: formData.name,
         checkType: formData.checkType,
-        url: formData.checkType === "http" ? formData.url : "",
-        tcpHostPort: formData.checkType === "tcp" ? formData.tcpHostPort : "",
+        url: formData.checkType === "http" ? formData.url : undefined,
+        tcpHostPort: formData.checkType === "tcp" ? formData.tcpHostPort : undefined,
         method: formData.method,
         interval: formData.interval,
         regions: formData.regions,

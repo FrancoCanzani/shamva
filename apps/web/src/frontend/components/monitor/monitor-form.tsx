@@ -155,11 +155,13 @@ export default function MonitorForm({
     };
     if (data.checkType === "http") {
       payload.method = data.method;
-      payload.url = data.url
+      payload.url = data.url;
+      payload.tcpHostPort = undefined; 
     }
     if (data.checkType === "tcp") {
       payload.method = undefined;
-      payload.tcpHostPort = data.tcpHostPort
+      payload.tcpHostPort = data.tcpHostPort;
+      payload.url = undefined; 
     }
     await onSubmit(payload);
   };

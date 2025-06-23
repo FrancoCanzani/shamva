@@ -125,7 +125,7 @@ export function DashboardNavbar() {
           </div>
 
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+            <DropdownMenuTrigger>
               <Button variant="ghost" size="icon" className="md:hidden">
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Toggle menu</span>

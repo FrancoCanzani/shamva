@@ -49,10 +49,13 @@ export const MonitorsParamsSchema = z
       .trim()
       .optional()
       .refine(isValidJSON, 'Body must be a valid JSON string, e.g. {"key": "value"} or "text"'),
+    headers: z.record(z.string()).optional(),
+    body: z.union([z.record(z.unknown()), z.string()]).optional(),
     slackWebhookUrl: z
       .string()
       .trim()
       .optional(),
+    workspaceId: z.string().uuid("Invalid workspace ID format"),
   })
   .refine(
     (data) => {

@@ -1,7 +1,8 @@
 import { monitoringRegions } from "@/frontend/lib/constants";
 import { MonitorFormSchema } from "@/frontend/lib/schemas";
 import { cn } from "@/frontend/lib/utils";
-import { useForm } from "@tanstack/react-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, Controller } from "react-hook-form";
 import { Check } from "lucide-react";
 import { z } from "zod";
 import { Button } from "../ui/button";
@@ -9,8 +10,8 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Textarea } from "../ui/textarea";
-import MonitorFormSectionSelector from "./monitor-form-section-selector";
 import { Link } from "@tanstack/react-router";
+import { useState } from "react";
 
 const checkIntervals = [
   { value: "60000", label: "1 minute" },
@@ -68,8 +69,21 @@ const FormField = ({ children, className = "" }: { children: React.ReactNode; cl
   <div className={cn("space-y-2", className)}>{children}</div>
 );
 
-const ErrorMessage = ({ errors }: { errors?: (string | undefined)[] }) => 
-  errors?.[0] ? <p className="text-sm text-destructive">{errors[0]}</p> : null;
+const ErrorMessage = ({ errors }: { errors?: string }) => 
+  errors ? <p className="text-sm text-destructive">{errors}</p> : null;
+
+const checkTypeTabs = [
+  {
+    value: "http",
+    label: "HTTP/HTTPS",
+    description: "Use this for monitoring web endpoints (APIs, websites, etc). Checks support GET, POST, and HEAD methods, and can include headers and a request body.",
+  },
+  {
+    value: "tcp",
+    label: "TCP",
+    description: "Use this for monitoring raw TCP endpoints (custom services, databases, etc). Checks only if a TCP connection can be established to the host:port.",
+  },
+];
 
 export default function MonitorForm({
   onSubmit,
@@ -78,98 +92,130 @@ export default function MonitorForm({
   submitLabel = "Save",
   defaultValues,
 }: MonitorFormProps) {
-  const form = useForm({
+  const [checkType, setCheckType] = useState<"http" | "tcp">(defaultValues?.checkType ?? "http");
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<MonitorFormValues>({
+    resolver: zodResolver(MonitorFormSchema),
     defaultValues: {
-      name: defaultValues?.name ?? "",
+      name: defaultValues?.name,
       checkType: defaultValues?.checkType ?? "http",
-      url: defaultValues?.url ?? "",
-      tcpHostPort: defaultValues?.tcpHostPort ?? "",
+      url: defaultValues?.url,
+      tcpHostPort: defaultValues?.tcpHostPort,
       method: defaultValues?.method ?? "GET",
       interval: defaultValues?.interval ?? 300000,
       regions: defaultValues?.regions ?? [],
       headersString: defaultValues?.headers ? JSON.stringify(defaultValues.headers, null, 2) : "",
       bodyString: defaultValues?.body ? JSON.stringify(defaultValues.body, null, 2) : "",
-      slackWebhookUrl: defaultValues?.slack_webhook_url || undefined,
-    },
-    onSubmit: async ({ value }) => {
-      const headers = value.headersString ? JSON.parse(value.headersString) : undefined;
-      const body = value.bodyString ? JSON.parse(value.bodyString) : undefined;
-
-      await onSubmit({
-        name: value.name,
-        checkType: value.checkType,
-        url: value.url,
-        tcpHostPort: value.tcpHostPort,
-        method: value.checkType === "http" ? value.method : undefined,
-        interval: value.interval,
-        regions: value.regions,
-        headers,
-        body,
-        slackWebhookUrl: value.slackWebhookUrl,
-      });
-    },
-    validators: {
-      onBlur: ({ value }) => {
-        try {
-          MonitorFormSchema.parse(value);
-          return undefined;
-        } catch (error) {
-          if (error instanceof z.ZodError) {
-            const fieldErrors: Record<string, string> = {};
-            error.errors.forEach((err) => {
-              fieldErrors[err.path.join(".")] = err.message;
-            });
-            return { fields: fieldErrors };
-          }
-          return { form: "Invalid form data" };
-        }
-      },
+      slackWebhookUrl: defaultValues?.slack_webhook_url,
     },
   });
+
+  // Keep checkType in sync with tab
+  const handleTabChange = (type: "http" | "tcp") => {
+    setCheckType(type);
+    setValue("checkType", type);
+  };
+
+  // Watch for method to show/hide body
+  const method = watch("method");
+
+  // Watch for regions
+  const selectedRegions = watch("regions");
+
+  // On submit, parse JSON fields
+  const onFormSubmit = async (data: MonitorFormValues) => {
+    let headers, body;
+    try {
+      headers = data.headersString ? JSON.parse(data.headersString) : undefined;
+    } catch (e) {
+      // Optionally set error here
+      return;
+    }
+    try {
+      body = data.bodyString ? JSON.parse(data.bodyString) : undefined;
+    } catch (e) {
+      // Optionally set error here
+      return;
+    }
+    const payload: any = {
+      name: data.name,
+      checkType: data.checkType,
+      interval: data.interval,
+      regions: data.regions,
+      headers,
+      body,
+      slackWebhookUrl: data.slackWebhookUrl,
+    };
+    if (data.checkType === "http") {
+      payload.method = data.method;
+      payload.url = data.url
+    }
+    if (data.checkType === "tcp") {
+      payload.method = undefined;
+      payload.tcpHostPort = data.tcpHostPort
+    }
+    await onSubmit(payload);
+  };
 
   return (
     <div className="flex gap-8">
       <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          form.handleSubmit();
-        }}
+        onSubmit={handleSubmit(onFormSubmit)}
         className="flex-1 space-y-8"
       >
+        <div className="mb-6">
+          <div className="flex gap-2 border-b mb-2">
+            {checkTypeTabs.map((tab) => (
+              <button
+                key={tab.value}
+                type="button"
+                className={cn(
+                  "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
+                  checkType === tab.value ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-primary"
+                )}
+                onClick={() => handleTabChange(tab.value as "http" | "tcp")}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+          <div className="text-xs text-muted-foreground mb-2">
+            {checkTypeTabs.find((tab) => tab.value === checkType)?.description}
+          </div>
+        </div>
+
         <div id="basic-config" className="space-y-4">
           <h2 className="font-medium">Basic Configuration</h2>
           <div className="flex gap-4 w-full">
-            <form.Field name="name">
-              {(field) => (
-                <FormField className="flex-1 w-full">
-                  <Label htmlFor="name">Monitor name</Label>
-                  <Input
-                    id="name"
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    onBlur={field.handleBlur}
-                    placeholder="Example API"
-                    className={cn("w-full", field.state.meta.errors?.length && "border-destructive")}
-                  />
-                  <ErrorMessage errors={field.state.meta.errors} />
-                </FormField>
-              )}
-            </form.Field>
+            <FormField className="flex-1 w-full">
+              <Label htmlFor="name">Monitor name</Label>
+              <Input
+                id="name"
+                {...register("name")}
+                placeholder="Example API"
+                className={cn("w-full", errors.name && "border-destructive")}
+              />
+              <ErrorMessage errors={errors.name?.message} />
+            </FormField>
 
-            <form.Field name="interval">
-              {(field) => (
-                <FormField>
-                  <Label htmlFor="interval">Check interval</Label>
+            <FormField>
+              <Label htmlFor="interval">Check interval</Label>
+              <Controller
+                control={control}
+                name="interval"
+                render={({ field }) => (
                   <Select
-                    onValueChange={(value) => field.handleChange(Number.parseInt(value, 10))}
-                    value={field.state.value.toString()}
-                    onOpenChange={() => !field.state.meta.isTouched && field.handleBlur()}
+                    onValueChange={(value) => field.onChange(Number.parseInt(value, 10))}
+                    value={field.value.toString()}
                   >
-                    <SelectTrigger
-                      id="interval"
-                      className={field.state.meta.errors?.length ? "border-destructive" : ""}
-                    >
+                    <SelectTrigger id="interval" className={errors.interval ? "border-destructive" : ""}>
                       <SelectValue placeholder="Select interval" />
                     </SelectTrigger>
                     <SelectContent>
@@ -182,128 +228,83 @@ export default function MonitorForm({
                       </SelectGroup>
                     </SelectContent>
                   </Select>
-                  <ErrorMessage errors={field.state.meta.errors} />
-                </FormField>
-              )}
-            </form.Field>
+                )}
+              />
+              <ErrorMessage errors={errors.interval?.message} />
+            </FormField>
           </div>
         </div>
 
         <div id="check-config" className="space-y-4">
           <h2 className="font-medium">Check Configuration</h2>
-          
-          <form.Field name="checkType">
-            {(checkTypeField) => (
-              <div className="space-y-4 w-full">
-                <div className="flex flex-col w-full sm:flex-row gap-4">
-                  <FormField>
-                    <Label htmlFor="checkType">Check Type</Label>
+          {checkType === "http" && (
+            <div className="flex gap-4 flex-1">
+              <FormField>
+                <Label htmlFor="method">Method</Label>
+                <Controller
+                  control={control}
+                  name="method"
+                  render={({ field }) => (
                     <Select
-                      onValueChange={(value) => checkTypeField.handleChange(value as "http" | "tcp")}
-                      value={checkTypeField.state.value}
-                      onOpenChange={() => !checkTypeField.state.meta.isTouched && checkTypeField.handleBlur()}
+                      onValueChange={(value) => field.onChange(value as "GET" | "POST" | "HEAD")}
+                      value={field.value}
                     >
-                      <SelectTrigger
-                        id="checkType"
-                        className={cn("w-full sm:w-fit", checkTypeField.state.meta.errors?.length && "border-destructive")}
-                      >
-                        <SelectValue placeholder="Select check type" />
+                      <SelectTrigger id="method" className={errors.method ? "border-destructive" : ""}>
+                        <SelectValue placeholder="Select method" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
-                          <SelectItem value="http">HTTP/HTTPS</SelectItem>
-                          <SelectItem value="tcp">TCP</SelectItem>
+                          <SelectItem value="GET">GET</SelectItem>
+                          <SelectItem value="POST">POST</SelectItem>
+                          <SelectItem value="HEAD">HEAD</SelectItem>
                         </SelectGroup>
                       </SelectContent>
                     </Select>
-                    <ErrorMessage errors={checkTypeField.state.meta.errors} />
-                  </FormField>
-
-                  {checkTypeField.state.value === "http" && (
-                    <div className="flex gap-4 flex-1">
-                      <form.Field name="method">
-                        {(field) => (
-                          <FormField>
-                            <Label htmlFor="method">Method</Label>
-                            <Select
-                              onValueChange={(value) => field.handleChange(value as "GET" | "POST" | "HEAD")}
-                              value={field.state.value}
-                              onOpenChange={() => !field.state.meta.isTouched && field.handleBlur()}
-                            >
-                              <SelectTrigger
-                                id="method"
-                                className={field.state.meta.errors?.length ? "border-destructive" : ""}
-                              >
-                                <SelectValue placeholder="Select method" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectGroup>
-                                  <SelectItem value="GET">GET</SelectItem>
-                                  <SelectItem value="POST">POST</SelectItem>
-                                  <SelectItem value="HEAD">HEAD</SelectItem>
-                                </SelectGroup>
-                              </SelectContent>
-                            </Select>
-                            <ErrorMessage errors={field.state.meta.errors} />
-                          </FormField>
-                        )}
-                      </form.Field>
-
-                      <form.Field name="url">
-                        {(field) => (
-                          <FormField className="flex-1 w-full">
-                            <Label htmlFor="url">URL to Monitor</Label>
-                            <Input
-                              id="url"
-                              value={field.state.value}
-                              onChange={(e) => field.handleChange(e.target.value)}
-                              onBlur={field.handleBlur}
-                              placeholder="https://example.com/api"
-                              className={cn("flex-1", field.state.meta.errors?.length && "border-destructive")}
-                            />
-                            <ErrorMessage errors={field.state.meta.errors} />
-                          </FormField>
-                        )}
-                      </form.Field>
-                    </div>
                   )}
+                />
+                <ErrorMessage errors={errors.method?.message} />
+              </FormField>
 
-                  {checkTypeField.state.value === "tcp" && (
-                    <form.Field name="tcpHostPort">
-                      {(field) => (
-                        <FormField className="flex-1">
-                          <Label htmlFor="tcpHostPort">Host:Port</Label>
-                          <Input
-                            id="tcpHostPort"
-                            value={field.state.value}
-                            onChange={(e) => field.handleChange(e.target.value)}
-                            onBlur={field.handleBlur}
-                            placeholder="example.com:8080"
-                            className={field.state.meta.errors?.length ? "border-destructive" : ""}
-                          />
-                          <ErrorMessage errors={field.state.meta.errors} />
-                          <p className="text-xs text-muted-foreground">
-                            Enter the hostname and port to check (e.g., example.com:8080)
-                          </p>
-                        </FormField>
-                      )}
-                    </form.Field>
-                  )}
-                </div>
-              </div>
-            )}
-          </form.Field>
+              <FormField className="flex-1 w-full">
+                <Label htmlFor="url">URL to Monitor</Label>
+                <Input
+                  id="url"
+                  {...register("url")}
+                  placeholder="https://example.com/api"
+                  className={cn("flex-1", errors.url && "border-destructive")}
+                />
+                <ErrorMessage errors={errors.url?.message} />
+              </FormField>
+            </div>
+          )}
+          {checkType === "tcp" && (
+            <FormField className="flex-1">
+              <Label htmlFor="tcpHostPort">Host:Port</Label>
+              <Input
+                id="tcpHostPort"
+                {...register("tcpHostPort")}
+                placeholder="example.com:8080"
+                className={errors.tcpHostPort ? "border-destructive" : ""}
+              />
+              <ErrorMessage errors={errors.tcpHostPort?.message} />
+              <p className="text-xs text-muted-foreground">
+                Enter the hostname and port to check (e.g., example.com:8080)
+              </p>
+            </FormField>
+          )}
         </div>
 
         <div id="monitoring-regions" className="space-y-4">
-          <form.Field name="regions">
-            {(field) => (
+          <Controller
+            control={control}
+            name="regions"
+            render={({ field }) => (
               <>
                 <div className="flex flex-col gap-1.5">
                   <div className="flex items-center justify-between">
                     <h2 className="font-medium">Monitoring Regions *</h2>
                     <span className="text-xs text-muted-foreground">
-                      {field.state.value.length} region{field.state.value.length !== 1 ? "s" : ""} selected
+                      {selectedRegions.length} region{selectedRegions.length !== 1 ? "s" : ""} selected
                     </span>
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -323,19 +324,19 @@ export default function MonitorForm({
                           <h3 className="font-medium text-sm">{continent}</h3>
                           <div className="grid gap-2">
                             {regions.map((region) => {
-                              const isSelected = field.state.value.includes(region.value);
+                              const isSelected = field.value.includes(region.value);
                               return (
                                 <div
                                   key={region.value}
                                   className={cn(
-                                    "flex items-center justify-between p-2 border cursor-pointer hover:bg-slate-50 transition-colors",
-                                    isSelected ? "border-primary bg-slate-50" : ""
+                                    "flex items-center justify-between p-2 border cursor-pointer hover:bg-slate-50 dark:hover:bg-carbon-800 transition-colors",
+                                    isSelected ? "border-primary bg-slate-50 dark:bg-carbon-800" : ""
                                   )}
                                   onClick={() => {
                                     const newRegions = isSelected
-                                      ? field.state.value.filter((r) => r !== region.value)
-                                      : [...field.state.value, region.value];
-                                    field.handleChange(newRegions);
+                                      ? field.value.filter((r) => r !== region.value)
+                                      : [...field.value, region.value];
+                                    field.onChange(newRegions);
                                   }}
                                   role="checkbox"
                                   aria-checked={isSelected}
@@ -344,9 +345,9 @@ export default function MonitorForm({
                                     if (e.key === " " || e.key === "Enter") {
                                       e.preventDefault();
                                       const newRegions = isSelected
-                                        ? field.state.value.filter((r) => r !== region.value)
-                                        : [...field.state.value, region.value];
-                                      field.handleChange(newRegions);
+                                        ? field.value.filter((r) => r !== region.value)
+                                        : [...field.value, region.value];
+                                      field.onChange(newRegions);
                                     }
                                   }}
                                 >
@@ -364,72 +365,52 @@ export default function MonitorForm({
                     })}
                   </div>
                 </div>
-                <ErrorMessage errors={field.state.meta.errors} />
+                <ErrorMessage errors={errors.regions?.message} />
               </>
             )}
-          </form.Field>
+          />
         </div>
 
-        <form.Field name="checkType">
-          {(checkTypeField) =>
-            checkTypeField.state.value === "http" && (
-              <div id="advanced-options" className="space-y-4">
-                <h2 className="font-medium">Advanced Options</h2>
-                <div className="space-y-4 border border-dashed p-4">
-                  <form.Field name="headersString">
-                    {(field) => (
-                      <FormField>
-                        <Label htmlFor="headersString">Headers (JSON String)</Label>
-                        <Textarea
-                          id="headersString"
-                          value={field.state.value}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          onBlur={field.handleBlur}
-                          placeholder='{"Authorization": "Bearer token", "Content-Type": "application/json"}'
-                          rows={8}
-                          className={cn(
-                            "text-sm",
-                            field.state.meta.errors?.length ? "border-destructive" : ""
-                          )}
-                        />
-                        <ErrorMessage errors={field.state.meta.errors} />
-                        <p className="text-xs text-muted-foreground">Enter headers as a valid JSON object</p>
-                      </FormField>
-                    )}
-                  </form.Field>
+        {checkType === "http" && (
+          <div id="advanced-options" className="space-y-4">
+            <h2 className="font-medium">Advanced Options</h2>
+            <div className="space-y-4 border border-dashed p-4">
+              <FormField>
+                <Label htmlFor="headersString">Headers (JSON String)</Label>
+                <Textarea
+                  id="headersString"
+                  {...register("headersString")}
+                  placeholder='{"Authorization": "Bearer token", "Content-Type": "application/json"}'
+                  rows={8}
+                  className={cn(
+                    "text-sm",
+                    errors.headersString && "border-destructive"
+                  )}
+                />
+                <ErrorMessage errors={errors.headersString?.message} />
+                <p className="text-xs text-muted-foreground">Enter headers as a valid JSON object</p>
+              </FormField>
 
-                  <form.Field name="method">
-                    {(methodField) =>
-                      methodField.state.value === "POST" && (
-                        <form.Field name="bodyString">
-                          {(field) => (
-                            <FormField>
-                              <Label htmlFor="bodyString">Request Body (JSON String)</Label>
-                              <Textarea
-                                id="bodyString"
-                                value={field.state.value}
-                                onChange={(e) => field.handleChange(e.target.value)}
-                                onBlur={field.handleBlur}
-                                placeholder='{"key": "value"}'
-                                rows={8}
-                                className={cn(
-                                  "text-sm",
-                                  field.state.meta.errors?.length ? "border-destructive" : ""
-                                )}
-                              />
-                              <ErrorMessage errors={field.state.meta.errors} />
-                              <p className="text-xs text-muted-foreground">Only applicable for POST requests</p>
-                            </FormField>
-                          )}
-                        </form.Field>
-                      )
-                    }
-                  </form.Field>
-                </div>
-              </div>
-            )
-          }
-        </form.Field>
+              {method === "POST" && (
+                <FormField>
+                  <Label htmlFor="bodyString">Request Body (JSON String)</Label>
+                  <Textarea
+                    id="bodyString"
+                    {...register("bodyString")}
+                    placeholder='{"key": "value"}'
+                    rows={8}
+                    className={cn(
+                      "text-sm",
+                      errors.bodyString && "border-destructive"
+                    )}
+                  />
+                  <ErrorMessage errors={errors.bodyString?.message} />
+                  <p className="text-xs text-muted-foreground">Only applicable for POST requests</p>
+                </FormField>
+              )}
+            </div>
+          </div>
+        )}
 
         <div id="notifications" className="space-y-4">
           <h3 className="text-sm font-medium">Notifications</h3>
@@ -437,32 +418,26 @@ export default function MonitorForm({
             * Every accepted user in your workspace will receive email notifications. 
             Additionally, you can configure Slack notifications.
           </p>
-          <form.Field name="slackWebhookUrl">
-            {(field) => (
-              <FormField>
-                <Label htmlFor={field.name}>Slack Webhook URL</Label>
-                <Input
-                  id={field.name}
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  placeholder="https://hooks.slack.com/services/..."
-                />
-                <ErrorMessage errors={field.state.meta.errors} />
-                <p className="text-xs text-muted-foreground">
-                  Optional. Add a{" "}
-                  <Link
-                    className="underline font-medium text-primary"
-                    to="/dashboard/$workspaceName/monitors"
-                    params={{ workspaceName: "workspaceName" }}
-                  >
-                    Slack webhook URL
-                  </Link>{" "}
-                  to receive notifications in your Slack channel.
-                </p>
-              </FormField>
-            )}
-          </form.Field>
+          <FormField>
+            <Label htmlFor="slackWebhookUrl">Slack Webhook URL</Label>
+            <Input
+              id="slackWebhookUrl"
+              {...register("slackWebhookUrl")}
+              placeholder="https://hooks.slack.com/services/..."
+            />
+            <ErrorMessage errors={errors.slackWebhookUrl?.message} />
+            <p className="text-xs text-muted-foreground">
+              Optional. Add a{" "}
+              <Link
+                className="underline font-medium text-primary"
+                to="/dashboard/$workspaceName/monitors"
+                params={{ workspaceName: "workspaceName" }}
+              >
+                Slack webhook URL
+              </Link>{" "}
+              to receive notifications in your Slack channel.
+            </p>
+          </FormField>
         </div>
 
         <div className="flex justify-end space-x-4">
@@ -474,8 +449,6 @@ export default function MonitorForm({
           </Button>
         </div>
       </form>
-
-      <MonitorFormSectionSelector />
     </div>
   );
 }

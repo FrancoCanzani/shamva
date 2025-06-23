@@ -7,7 +7,7 @@ interface AvailabilityDisplayProps {
 }
 
 export default function MonitorsCardAvailabilityDisplay({ label, availability }: AvailabilityDisplayProps) {
-  const formattedPercentage = availability.total > 0 ? `${availability.percentage.toFixed()}%` : "N/A";
+  const formattedPercentage = availability.total > 0 ? `${availability.percentage.toFixed()}%` : "-";
 
   return (
     <TooltipProvider delayDuration={100}>

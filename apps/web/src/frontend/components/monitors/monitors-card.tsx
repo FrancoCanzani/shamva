@@ -124,7 +124,7 @@ export default function MonitorsCard({ monitor, workspaceName }: MonitorCardProp
     ? formatDistanceToNowStrict(parseISO(monitor.last_check_at), {
         addSuffix: true,
       })
-    : "N/A";
+    : "-";
 
   const mostRecentLog = monitor.recent_logs && monitor.recent_logs.length > 0 ? monitor.recent_logs[0] : undefined;
 
@@ -171,7 +171,7 @@ export default function MonitorsCard({ monitor, workspaceName }: MonitorCardProp
               <div className="text-center hidden sm:block">
                 <div className="text-muted-foreground mb-1 hidden sm:block">Latency</div>
                 <span className="font-mono text-muted-foreground">
-                  {avgLatency !== null ? `${avgLatency.toFixed(0)}ms` : "N/A"}
+                  {avgLatency !== null ? `${avgLatency.toFixed(0)}ms` : "-"}
                 </span>
               </div>
             </div>

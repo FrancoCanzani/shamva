@@ -121,7 +121,7 @@ export default function EditMonitorPage() {
   };
 
   return (
-    <div className="container max-w-6xl mx-auto p-4">
+    <div className="container max-w-5xl mx-auto p-4">
       <div className="space-y-4">
         <div>
           <h1 className="text-xl font-medium">Edit Monitor</h1>

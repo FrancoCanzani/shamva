@@ -228,7 +228,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                   <span className="font-mono">
                     {selectedLog.latency >= 0
                       ? `${selectedLog.latency.toFixed(0)}ms`
-                      : "N/A"}
+                      : "-"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between py-2">
@@ -236,7 +236,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                   <span className="font-mono">
                     {(selectedLog.region &&
                       getRegionNameFromCode(selectedLog.region)) ||
-                      "N/A"}
+                      "-"}
                   </span>
                 </div>
               </div>

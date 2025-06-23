@@ -80,10 +80,10 @@ export default function RecentChecks({
                 <TableCell className="font-mono text-xs py-2">
                   {log.latency && log.latency >= 0
                     ? `${Math.round(log.latency)}ms`
-                    : "N/A"}
+                    : "-"}
                 </TableCell>
                 <TableCell className="text-xs py-2 hidden sm:block">
-                  {(log.region && getRegionNameFromCode(log.region)) || "N/A"}
+                  {(log.region && getRegionNameFromCode(log.region)) || "-"}
                 </TableCell>
                 <TableCell className="text-xs text-muted-foreground py-2">
                   {log.created_at &&

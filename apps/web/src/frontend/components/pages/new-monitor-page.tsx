@@ -112,7 +112,7 @@ export default function NewMonitorPage() {
   };
 
   return (
-    <div className="container max-w-6xl mx-auto p-4">
+    <div className="container max-w-5xl mx-auto p-4">
       <div className="space-y-8">
         <div>
           <h1 className="font-medium text-xl">Create New Monitor</h1>

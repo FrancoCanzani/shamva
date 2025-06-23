@@ -180,7 +180,7 @@ export const columns: ColumnDef<Log>[] = [
       return typeof latency === "number" && latency >= 0 ? (
         <span className="font-mono text-sm">{`${latency.toFixed(0)}ms`}</span>
       ) : (
-        <span className="text-muted-foreground text-sm font-mono">N/A</span>
+        <span className="text-muted-foreground text-sm font-mono">-</span>
       );
     },
     filterFn: (row, columnId, filterValue) => {
@@ -221,7 +221,7 @@ export const columns: ColumnDef<Log>[] = [
       return region ? (
         <span className="font-mono text-sm">{region}</span>
       ) : (
-        <span className="text-muted-foreground text-sm font-mono">N/A</span>
+        <span className="text-muted-foreground text-sm font-mono">-</span>
       );
     },
     size: 70,

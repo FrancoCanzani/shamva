@@ -3,7 +3,7 @@ import { cn, getRegionFlags, getStatusColor } from "@/frontend/lib/utils";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id";
 import { Link, redirect, useNavigate, useRouter } from "@tanstack/react-router";
 import { formatDistanceToNowStrict, parseISO, subDays } from "date-fns";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { toast } from "sonner";
 import MonitorStats from "../monitor/monitor-stats";
 import RecentChecks from "../monitor/recent-checks";
@@ -184,13 +184,13 @@ export default function MonitorPage() {
                 <span
                   className={cn(
                     "absolute inline-flex h-full w-full animate-ping duration-[2000ms]",
-                    getStatusColor(sortedLogs[0]?.status_code)
+                    getStatusColor(sortedLogs[0]?.ok ? 200 : 500)
                   )}
                 ></span>
                 <span
                   className={cn(
                     "absolute inline-flex h-2 w-2 -full bg-red-500",
-                    getStatusColor(sortedLogs[0]?.status_code)
+                    getStatusColor(sortedLogs[0]?.ok ? 200 : 500)
                   )}
                 ></span>
               </span>
@@ -239,9 +239,10 @@ export default function MonitorPage() {
             <Link
               to="/dashboard/$workspaceName/logs"
               params={{ workspaceName: workspaceName }}
-              className="text-sm hover:underline"
-            >
-              View all logs
+              className="flex items-center justify-start text-xs gap-1 text-muted-foreground"
+              >
+                <span className="hover:underline">View all logs</span>
+                <ArrowUpRight className="size-3" />
             </Link>
           </div>
           <RecentChecks logs={monitor.recent_logs} />

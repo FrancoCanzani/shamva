@@ -36,6 +36,20 @@ export const getStatusColor = (status: number | unknown): string => {
   return "bg-slate-200 dark:bg-slate-700";
 };
 
+export const getOkStatusColor = (ok: boolean | unknown): string => {
+  if (typeof ok !== "boolean") {
+    return "bg-slate-200 dark:bg-slate-700";
+  }
+  return ok ? "bg-green-700 dark:bg-green-700" : "bg-red-700 dark:bg-red-700";
+};
+
+export const getOkStatusTextColor = (ok: boolean | unknown): string => {
+  if (typeof ok !== "boolean") {
+    return "text-slate-700 dark:text-slate-300";
+  }
+  return ok ? "text-green-700 dark:text-green-700" : "text-red-700 dark:text-red-700";
+};
+
 export const getStatusTextColor = (status: number | unknown): string => {
   if (typeof status !== "number") {
     return "text-slate-700 dark:text-slate-300";

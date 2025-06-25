@@ -1,5 +1,5 @@
 import type { Log, Monitor } from "@/frontend/lib/types";
-import { cn, getStatusColor } from "@/frontend/lib/utils";
+import { cn } from "@/frontend/lib/utils";
 import { Link } from "@tanstack/react-router";
 import { format, formatDistanceToNowStrict, isAfter, parseISO, subHours } from "date-fns";
 import { ChevronRight } from "lucide-react";
@@ -19,15 +19,13 @@ const calculateAvailability = (
     return { percentage: 100, success: 0, total: 0 };
   }
 
-  const validLogs = relevantLogs.filter((log) => typeof log.status_code === "number");
+  const validLogs = relevantLogs.filter((log) => typeof log.ok === "boolean");
 
   if (validLogs.length === 0) {
     return { percentage: 0, success: 0, total: relevantLogs.length };
   }
 
-  const successCount = validLogs.filter(
-    (log) => log.status_code && log.status_code >= 200 && log.status_code < 300,
-  ).length;
+  const successCount = validLogs.filter((log) => log.ok === true).length;
 
   const totalCount = validLogs.length;
   const percentage = (successCount / totalCount) * 100;
@@ -51,24 +49,45 @@ const calculateAverageLatency = (logs: Partial<Log>[]): number | null => {
 const getStatusColorForCheck = (log: Partial<Log> | undefined): string => {
   if (!log) return "bg-gray-200";
 
-  if (typeof log.status_code !== "number") {
-    return log.error ? "bg-red-700" : "bg-gray-700";
+  // For HTTP checks, use status code colors
+  if (log.check_type === "http" && typeof log.status_code === "number") {
+    if (log.status_code >= 200 && log.status_code < 300) return "bg-green-700";
+    if (log.status_code >= 300 && log.status_code < 400) return "bg-blue-700";
+    if (log.status_code >= 400 && log.status_code < 500) return "bg-orange-500";
+    if (log.status_code >= 500) return "bg-red-700";
+    return "bg-red-700";
   }
 
-  if (log.status_code >= 200 && log.status_code < 300) return "bg-green-700";
-  return "bg-red-700";
+  // For TCP checks or when status_code is not available, use ok field
+  if (typeof log.ok === "boolean") {
+    return log.ok ? "bg-green-700" : "bg-red-700";
+  }
+
+  // Fallback for unknown status
+  return log.error ? "bg-red-700" : "bg-gray-700";
 };
 
 const getStatusText = (log: Partial<Log> | undefined): string => {
   if (!log) return "No data";
 
-  if (typeof log.status_code !== "number") {
-    return log.error ? `Error: ${log.error}` : "Unknown status";
+  // For HTTP checks, show status code
+  if (log.check_type === "http" && typeof log.status_code === "number") {
+    if (log.status_code >= 200 && log.status_code < 300) return "Success";
+    if (log.status_code >= 300 && log.status_code < 400) return `Redirect (${log.status_code})`;
+    if (log.status_code >= 400 && log.status_code < 500) return `Client Error (${log.status_code})`;
+    if (log.status_code >= 500) return `Server Error (${log.status_code})`;
+    return `Failed (${log.status_code})`;
   }
 
-  if (log.status_code >= 200 && log.status_code < 300) return "Success";
-  if (log.error) return `Error: ${log.error}`;
-  return `Failed (${log.status_code})`;
+  // For TCP checks, use ok field
+  if (typeof log.ok === "boolean") {
+    if (log.ok) return "Success";
+    if (log.error) return `Error: ${log.error}`;
+    return "Failed";
+  }
+
+  // Fallback for unknown status
+  return log.error ? `Error: ${log.error}` : "Unknown status";
 };
 
 interface RecentChecksProps {
@@ -90,13 +109,13 @@ function RecentChecks({ logs }: RecentChecksProps) {
           const statusText = getStatusText(log);
 
           const title = log
-            ? `${statusText} ${log.status_code ? `(${log.status_code})` : ""} at ${log.created_at ? format(parseISO(log.created_at), "HH:mm:ss") : "Unknown time"}`
+            ? `${statusText} at ${log.created_at ? format(parseISO(log.created_at), "HH:mm:ss") : "Unknown time"}`
             : `Check ${index + 1} (No data)`;
 
           return (
             <Tooltip key={index}>
               <TooltipTrigger asChild>
-                <div className={cn("h-8 w-1.5", color)} aria-label={title} />
+                <div className={cn("h-8 w-1.5 rounded-xs", color)} aria-label={title} />
               </TooltipTrigger>
               {log && (
                 <TooltipContent side="top" className="text-xs">
@@ -128,20 +147,38 @@ export default function MonitorsCard({ monitor, workspaceName }: MonitorCardProp
 
   const mostRecentLog = monitor.recent_logs && monitor.recent_logs.length > 0 ? monitor.recent_logs[0] : undefined;
 
+  const getMonitorStatusColor = (status: string): string => {
+    switch (status) {
+      case "active":
+        return "bg-green-700 dark:bg-green-700";
+      case "broken":
+      case "error":
+        return "bg-red-700 dark:bg-red-700";
+      case "degraded":
+        return "bg-yellow-500 dark:bg-yellow-500";
+      case "maintenance":
+        return "bg-blue-700 dark:bg-blue-700";
+      case "paused":
+        return "bg-gray-500 dark:bg-gray-500";
+      default:
+        return "bg-slate-200 dark:bg-slate-700";
+    }
+  };
+
   return (
-    <div className="group hover:bg-slate-50 dark:hover:bg-carbon-800 transition-colors border border-dashed">
+    <div className="group border shadow-xs rounded-xs">
       <Link 
         to="/dashboard/$workspaceName/monitors/$id"
         params={{ id: monitor.id, workspaceName: workspaceName }}
         search={{ days: 30 }}
-        className="block px-2 py-2.5"
+        className="block px-2 py-2.5 bg-background hover:bg-slate-50 dark:hover:bg-carbon-800 transition-colors"
       >
         <div className="flex items-center justify-between">
           <div className="min-w-0 flex-1">
             <div className="flex items-center space-x-2">
               <div
-                className={cn("w-2 h-2", getStatusColor(mostRecentLog?.status_code))}
-                title={`Status: ${mostRecentLog?.status_code ?? "Unknown"}`}
+                className={cn("w-2 h-2 rounded-xs", getMonitorStatusColor(monitor.status))}
+                title={`Status: ${monitor.status}`}
               />
               <span className="text-sm font-medium truncate">
                 {monitor.name ?? (monitor.check_type === "tcp" ? monitor.tcp_host_port : monitor.url)}
@@ -170,7 +207,7 @@ export default function MonitorsCard({ monitor, workspaceName }: MonitorCardProp
 
               <div className="text-center hidden sm:block">
                 <div className="text-muted-foreground mb-1 hidden sm:block">Latency</div>
-                <span className="font-mono text-muted-foreground">
+                <span className="font-mono">
                   {avgLatency !== null ? `${avgLatency.toFixed(0)}ms` : "-"}
                 </span>
               </div>

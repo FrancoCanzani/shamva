@@ -82,6 +82,7 @@ export interface Log {
   check_type: "http" | "tcp";
   tcp_host?: string;
   tcp_port?: number;
+  ok: boolean;
 }
 
 export interface BodyContent {

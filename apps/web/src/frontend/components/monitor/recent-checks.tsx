@@ -2,6 +2,7 @@ import { Log } from "@/frontend/lib/types";
 import {
   cn,
   getRegionNameFromCode,
+  getOkStatusColor,
   getStatusColor,
 } from "@/frontend/lib/utils";
 import { format, parseISO } from "date-fns";
@@ -66,19 +67,31 @@ export default function RecentChecks({
               >
                 <TableCell className="py-2">
                   <div
-                    className={cn("size-2", getStatusColor(log.status_code))}
+                    className={cn("size-2", 
+                      log.check_type === "http" && typeof log.status_code === "number"
+                        ? getStatusColor(log.status_code)
+                        : getOkStatusColor(log.ok)
+                    )}
                     title={
-                      typeof log.status_code === "number"
+                      log.check_type === "http" && typeof log.status_code === "number"
                         ? `Status code: ${log.status_code}`
-                        : log.error
-                          ? `Error: ${log.error}`
-                          : "Unknown status"
+                        : typeof log.ok === "boolean"
+                          ? log.ok
+                            ? "Success"
+                            : log.error
+                              ? `Error: ${log.error}`
+                              : "Failed"
+                          : log.error
+                            ? `Error: ${log.error}`
+                            : "Unknown status"
                     }
                   />
                 </TableCell>
                 <TableCell className="font-mono text-xs py-2">
-                  {typeof log.status_code === "number"
-                    ? log.status_code
+                  {typeof log.ok === "boolean"
+                    ? log.ok
+                      ? "OK"
+                      : "ERR"
                     : "ERR"}
                 </TableCell>
                 <TableCell className="font-mono text-xs py-2">

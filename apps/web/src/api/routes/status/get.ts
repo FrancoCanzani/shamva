@@ -95,7 +95,7 @@ export default async function getPublicStatusPage(c: Context) {
 
       const { data: recentLogs, error: logError } = await supabase
         .from("logs")
-        .select("monitor_id, status_code, latency, created_at")
+        .select("monitor_id, status_code, latency, created_at, ok")
         .in("monitor_id", monitorIds)
         .gte("created_at", thirtyDaysAgoISO)
         .order("created_at", { ascending: false });
@@ -113,11 +113,10 @@ export default async function getPublicStatusPage(c: Context) {
           const logs = logsByMonitorId.get(monitor.id) || [];
 
           const validLogs = logs.filter(
-            (log: Partial<Log>) => typeof log.status_code === "number"
+            (log: Partial<Log>) => typeof log.ok === "boolean"
           );
           const successfulLogs = validLogs.filter(
-            (log: Partial<Log>) =>
-              log.status_code && log.status_code >= 200 && log.status_code < 300
+            (log: Partial<Log>) => log.ok === true
           );
 
           const uptimePercentage =
@@ -147,13 +146,10 @@ export default async function getPublicStatusPage(c: Context) {
             });
 
             const dayValidLogs = dayLogs.filter(
-              (log: Partial<Log>) => typeof log.status_code === "number"
+              (log: Partial<Log>) => typeof log.ok === "boolean"
             );
             const daySuccessfulLogs = dayValidLogs.filter(
-              (log: Partial<Log>) =>
-                log.status_code &&
-                log.status_code >= 200 &&
-                log.status_code < 300
+              (log: Partial<Log>) => log.ok === true
             );
 
             const dayUptimePercentage =

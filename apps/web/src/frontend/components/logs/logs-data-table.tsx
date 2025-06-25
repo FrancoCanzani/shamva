@@ -16,10 +16,12 @@ import * as React from "react";
 import {
   cn,
   getRegionNameFromCode,
-  getStatusColor,
+  getOkStatusColor,
+  getOkStatusTextColor,
   getStatusRowClass,
+  getStatusColor,
   getStatusTextColor,
-} from "../../lib/utils";
+} from "@/frontend/lib/utils";
 import { Route } from "../../routes/dashboard/$workspaceName/logs";
 import { LogsFiltersSidebar } from "./logs-data-table-filters-sidebar";
 import LogsSheet from "./logs-sheet";
@@ -39,12 +41,23 @@ export const columns: ColumnDef<Log>[] = [
     enableSorting: false,
     enableHiding: false,
     cell: ({ row }) => {
-      const status = row.original.status_code;
+      const ok = row.original.ok;
+      const checkType = row.original.check_type;
+      const statusCode = row.original.status_code;
+      
       return (
         <div className="flex items-center justify-center">
           <div
-            className={cn("w-3 h-3", getStatusColor(status))}
-            title={`Status: ${status}`}
+            className={cn("w-3 h-3", 
+              checkType === "http" && typeof statusCode === "number"
+                ? getStatusColor(statusCode)
+                : getOkStatusColor(ok)
+            )}
+            title={`Status: ${
+              checkType === "http" && typeof statusCode === "number"
+                ? `HTTP ${statusCode}`
+                : ok ? "Success" : "Failed"
+            }`}
           />
         </div>
       );
@@ -125,7 +138,6 @@ export const columns: ColumnDef<Log>[] = [
       const url = row.getValue("url") as string;
       const checkType = row.original.check_type;
       
-      // Check if this is a TCP check
       const isTcpCheck = checkType === "tcp";
       
       return (
@@ -144,7 +156,7 @@ export const columns: ColumnDef<Log>[] = [
     size: 250,
   },
   {
-    accessorKey: "status_code",
+    accessorKey: "ok",
     header: ({ column }) => (
       <button
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
@@ -154,10 +166,19 @@ export const columns: ColumnDef<Log>[] = [
       </button>
     ),
     cell: ({ row }) => {
-      const status = row.getValue("status_code") as number | null;
+      const ok = row.original.ok;
+      const checkType = row.original.check_type;
+      const statusCode = row.original.status_code;
+      
       return (
-        <span className={cn("font-mono text-sm", getStatusTextColor(status))}>
-          {status === null || status === -1 ? "ERR" : status}
+        <span className={cn("font-mono text-sm", 
+          checkType === "http" && typeof statusCode === "number"
+            ? getStatusTextColor(statusCode)
+            : getOkStatusTextColor(ok)
+        )}>
+          {checkType === "http" && typeof statusCode === "number"
+            ? statusCode
+            : typeof ok === "boolean" ? (ok ? "OK" : "ERR") : "ERR"}
         </span>
       );
     },

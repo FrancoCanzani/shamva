@@ -31,3 +31,6 @@ dist-ssr
 
 # turbo
 .turbo
+
+# tanstack
+.tanstack

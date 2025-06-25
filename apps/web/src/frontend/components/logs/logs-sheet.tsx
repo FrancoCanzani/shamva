@@ -8,6 +8,7 @@ import {
   cn,
   copyToClipboard,
   getRegionNameFromCode,
+  getOkStatusTextColor,
   getStatusTextColor,
 } from "@/frontend/lib/utils";
 import { Button } from "../ui/button";
@@ -215,12 +216,14 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                   <span
                     className={cn(
                       "font-mono font-medium",
-                      getStatusTextColor(selectedLog.status_code)
+                      selectedLog.check_type === "http" && typeof selectedLog.status_code === "number"
+                        ? getStatusTextColor(selectedLog.status_code)
+                        : getOkStatusTextColor(selectedLog.ok)
                     )}
                   >
-                    {selectedLog.status_code === null || selectedLog.status_code === -1
-                      ? "ERR"
-                      : selectedLog.status_code}
+                    {selectedLog.check_type === "http" && typeof selectedLog.status_code === "number"
+                      ? selectedLog.status_code
+                      : typeof selectedLog.ok === "boolean" ? (selectedLog.ok ? "OK" : "ERR") : "ERR"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between py-2">

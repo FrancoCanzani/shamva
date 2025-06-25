@@ -7,9 +7,8 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
 
   const recentSuccessCount = logs.filter(
     (log) =>
-      typeof log.status_code === "number" &&
-      log.status_code >= 200 &&
-      log.status_code < 300
+      typeof log.ok === "boolean" &&
+      log.ok === true
   ).length;
 
   const recentTotalCount = logs.length;

@@ -16,7 +16,7 @@ import { Separator } from "../ui/separator";
 interface FilterGroup {
   key: string;
   label: string;
-  values: Array<{ value: string | number; label: string; count: number }>;
+  values: Array<{ value: string | number | boolean; label: string; count: number }>;
 }
 
 interface LogsFiltersSidebarProps {
@@ -31,14 +31,15 @@ export function LogsFiltersSidebar({ table, data }: LogsFiltersSidebarProps) {
   const [urlFilter, setUrlFilter] = useState("");
 
   const filterGroups: FilterGroup[] = useMemo(() => {
-    const statusCodes = new Map<number, number>();
+    const statusCodes = new Map<string, number>();
     const methods = new Map<string, number>();
     const regions = new Map<string, number>();
 
     data.forEach((log) => {
+      const statusKey = typeof log.ok === "boolean" ? (log.ok ? "OK" : "ERR") : "ERR";
       statusCodes.set(
-        log.status_code,
-        (statusCodes.get(log.status_code) || 0) + 1
+        statusKey,
+        (statusCodes.get(statusKey) || 0) + 1
       );
       methods.set(log.method, (methods.get(log.method) || 0) + 1);
       if (log.region) {
@@ -48,15 +49,15 @@ export function LogsFiltersSidebar({ table, data }: LogsFiltersSidebarProps) {
 
     return [
       {
-        key: "status_code",
+        key: "ok",
         label: "Status",
         values: Array.from(statusCodes.entries())
           .map(([value, count]) => ({
-            value,
-            label: value === -1 ? "ERR" : value.toString(),
+            value: value === "OK" ? true : false,
+            label: value,
             count,
           }))
-          .sort((a, b) => Number(a.value) - Number(b.value)),
+          .sort((a, b) => a.label.localeCompare(b.label)),
       },
       {
         key: "method",
@@ -118,14 +119,14 @@ export function LogsFiltersSidebar({ table, data }: LogsFiltersSidebarProps) {
 
   const handleFilterChange = (
     columnKey: string,
-    value: string | number,
+    value: string | number | boolean,
     checked: boolean
   ) => {
     const column = table.getColumn(columnKey);
     if (!column) return;
 
     const currentFilter =
-      (column.getFilterValue() as Array<string | number>) || [];
+      (column.getFilterValue() as Array<string | number | boolean>) || [];
     const newFilter = checked
       ? [...currentFilter, value]
       : currentFilter.filter((v) => v !== value);
@@ -249,13 +250,13 @@ export function LogsFiltersSidebar({ table, data }: LogsFiltersSidebarProps) {
                 {group.values.map((item) => {
                   const currentFilter =
                     (table.getColumn(group.key)?.getFilterValue() as Array<
-                      string | number
+                      string | number | boolean
                     >) || [];
                   const isChecked = currentFilter.includes(item.value);
 
                   return (
                     <div
-                      key={item.value}
+                      key={String(item.value)}
                       className="flex items-center justify-between"
                     >
                       <div className="flex items-center space-x-2">

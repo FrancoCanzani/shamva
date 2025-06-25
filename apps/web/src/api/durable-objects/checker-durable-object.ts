@@ -268,6 +268,7 @@ export class CheckerDurableObject extends DurableObject {
       monitor_id: monitorId,
       url,
       status_code: result.statusCode,
+      ok: result.ok,
       latency: result.latencyMs,
       headers: result.headers,
       body_content: result.bodyContent,

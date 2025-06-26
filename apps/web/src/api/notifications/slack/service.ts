@@ -1,24 +1,8 @@
-import { MonitorEmailData } from "../types";
+import { MonitorEmailData } from "../../lib/types";
+import { calculateDowntime } from "../../lib/utils";
 
 export class SlackService {
   constructor() {}
-
-  private calculateDowntime(lastSuccessAt: string, currentTime: Date): string {
-    const lastSuccess = new Date(lastSuccessAt);
-    const diffMs = currentTime.getTime() - lastSuccess.getTime();
-
-    const minutes = Math.floor(diffMs / 60000);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-
-    if (days > 0) {
-      return `${days}d ${hours % 24}h ${minutes % 60}m`;
-    } else if (hours > 0) {
-      return `${hours}h ${minutes % 60}m`;
-    } else {
-      return `${minutes}m`;
-    }
-  }
 
   private async sendMessage(
     webhookUrl: string,
@@ -65,7 +49,7 @@ export class SlackService {
     lastSuccessAt: string,
     webhookUrl: string
   ): Promise<boolean> {
-    const downtime = this.calculateDowntime(lastSuccessAt, new Date());
+    const downtime = calculateDowntime(lastSuccessAt, new Date());
     const message =
       `✅ *Great News: ${data.monitorName} is Back Online*\n\n` +
       `• URL: ${data.url}\n` +

@@ -1,5 +1,6 @@
 import { render } from "@react-email/render";
-import { MonitorEmailData } from "../types";
+import { MonitorEmailData } from "../../lib/types";
+import { calculateDowntime } from "../../lib/utils";
 import { MonitorDownEmail } from "./templates/monitor-down-email";
 import { MonitorRecoveredEmail } from "./templates/monitor-recovered-email";
 import { Resend } from "resend";
@@ -11,23 +12,6 @@ export class EmailService {
   constructor(env: { RESEND_API_KEY: string }) {
     this.resend = new Resend(env.RESEND_API_KEY);
     this.fromEmail = "alerts@shamva.io";
-  }
-
-  private calculateDowntime(lastSuccessAt: string, currentTime: Date): string {
-    const lastSuccess = new Date(lastSuccessAt);
-    const diffMs = currentTime.getTime() - lastSuccess.getTime();
-
-    const minutes = Math.floor(diffMs / 60000);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-
-    if (days > 0) {
-      return `${days}d ${hours % 24}h ${minutes % 60}m`;
-    } else if (hours > 0) {
-      return `${hours}h ${minutes % 60}m`;
-    } else {
-      return `${minutes}m`;
-    }
   }
 
   async sendMonitorDownAlert(
@@ -66,7 +50,7 @@ export class EmailService {
     userEmails: string[]
   ): Promise<boolean> {
     try {
-      const downtime = this.calculateDowntime(lastSuccessAt, new Date());
+      const downtime = calculateDowntime(lastSuccessAt, new Date());
       const emailHtml = await render(
         MonitorRecoveredEmail({
           monitorName: data.monitorName,

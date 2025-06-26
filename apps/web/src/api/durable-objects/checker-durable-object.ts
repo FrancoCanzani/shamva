@@ -2,9 +2,9 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import { DurableObject } from "cloudflare:workers";
 import { connect } from "cloudflare:sockets";
 import type { EnvBindings } from "../../../bindings";
-import { EmailService } from "../lib/email/service";
+import { EmailService } from "../notifications/email/service";
 import { ScreenshotService } from "../lib/screenshot/service";
-import { SlackService } from "../lib/slack/service";
+import { SlackService } from "../notifications/slack/service";
 import { createSupabaseClient } from "../lib/supabase/client";
 import {
   CheckResult,

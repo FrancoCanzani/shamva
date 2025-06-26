@@ -331,8 +331,8 @@ export default function MonitorForm({
                                 <div
                                   key={region.value}
                                   className={cn(
-                                    "flex items-center justify-between p-2 border cursor-pointer hover:bg-slate-50 dark:hover:bg-carbon-800 transition-colors",
-                                    isSelected ? "border-primary bg-slate-50 dark:bg-carbon-800" : ""
+                                    "flex items-center justify-between p-2 border cursor-pointer hover:bg-carbon-50 dark:hover:bg-carbon-800 transition-colors",
+                                    isSelected ? "border-primary bg-carbon-50 dark:bg-carbon-800" : ""
                                   )}
                                   onClick={() => {
                                     const newRegions = isSelected

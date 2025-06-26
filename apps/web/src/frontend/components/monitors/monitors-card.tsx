@@ -171,7 +171,7 @@ export default function MonitorsCard({ monitor, workspaceName }: MonitorCardProp
         to="/dashboard/$workspaceName/monitors/$id"
         params={{ id: monitor.id, workspaceName: workspaceName }}
         search={{ days: 30 }}
-        className="block px-2 py-2.5 bg-background hover:bg-slate-50 dark:hover:bg-carbon-800 transition-colors"
+        className="block px-2 py-2.5 bg-background hover:bg-carbon-50 dark:hover:bg-carbon-800 transition-colors"
       >
         <div className="flex items-center justify-between">
           <div className="min-w-0 flex-1">

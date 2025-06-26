@@ -189,7 +189,7 @@ export default function MonitorPage() {
                 ></span>
                 <span
                   className={cn(
-                    "absolute inline-flex h-2 w-2 -full",
+                    "absolute rounded-xs inline-flex h-2 w-2 -full",
                     getStatusColor(sortedLogs[0]?.ok ? 200 : 500)
                   )}
                 ></span>

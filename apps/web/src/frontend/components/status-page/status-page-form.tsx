@@ -294,8 +294,8 @@ export default function StatusPageForm({
                       return (
                         <div
                           key={monitor.id}
-                          className={`flex items-center justify-between p-3 border  cursor-pointer hover:bg-slate-50 transition-colors ${
-                            isSelected ? "border-primary bg-slate-50" : ""
+                          className={`flex items-center justify-between p-3 border  cursor-pointer hover:bg-carbon-50 transition-colors ${
+                            isSelected ? "border-primary bg-carbon-50" : ""
                           }`}
                           onClick={() => {
                             const newMonitors = isSelected

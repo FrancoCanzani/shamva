@@ -346,7 +346,7 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
                       "data-[state=selected]:bg-blue-100 dark:data-[state=selected]:bg-blue-900/40",
                       "data-[state=selected]:hover:!bg-blue-200/80 dark:data-[state=selected]:hover:!bg-blue-800/60",
                       !getStatusRowClass(row.original.status_code) &&
-                        "even:bg-slate-50/50 dark:even:bg-slate-900/20 hover:bg-slate-100 dark:hover:bg-slate-800/50"
+                        "even:bg-carbon-50/50 dark:even:bg-slate-900/20 hover:bg-slate-100 dark:hover:bg-slate-800/50"
                     )}
                     onClick={() => {
                       navigate({

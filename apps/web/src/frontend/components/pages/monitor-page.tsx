@@ -106,7 +106,7 @@ export default function MonitorPage() {
     PERIOD_OPTIONS.find((p) => p.value === days)?.label || `Last ${days} days`;
 
   return (
-    <div className="flex flex-1 w-full mx-auto p-4 flex-col">
+    <div className="flex flex-1 w-full mx-auto max-w-6xl p-4 flex-col">
       <div className="flex items-center justify-between gap-6">
         <Link
           to="/dashboard/$workspaceName/monitors"
@@ -165,8 +165,8 @@ export default function MonitorPage() {
       </div>
       <div className="flex items-center justify-between gap-4 py-4 flex-shrink-0">
         <div className="flex items-center justify-start gap-1">
-          <h1 className="flex-1 font-medium">
-            {monitor.name || (monitor.check_type === "tcp" ? monitor.tcp_host_port : monitor.url)}
+          <h1 className="flex-1 text-xl font-medium">
+            {monitor.name}
           </h1>
           {monitor.name && (
             <span className="text-xs text-muted-foreground">
@@ -183,13 +183,13 @@ export default function MonitorPage() {
               <span className="relative flex h-2 w-2">
                 <span
                   className={cn(
-                    "absolute inline-flex h-full w-full animate-ping duration-[2000ms]",
+                    "absolute rounded-xs inline-flex h-full w-full animate-ping duration-[2000ms]",
                     getStatusColor(sortedLogs[0]?.ok ? 200 : 500)
                   )}
                 ></span>
                 <span
                   className={cn(
-                    "absolute inline-flex h-2 w-2 -full bg-red-500",
+                    "absolute inline-flex h-2 w-2 -full",
                     getStatusColor(sortedLogs[0]?.ok ? 200 : 500)
                   )}
                 ></span>
@@ -198,15 +198,17 @@ export default function MonitorPage() {
             <span className={cn("font-medium capitalize")}>
               {monitor.status}
             </span>
-            <span className="text-sm text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               Last checked {lastCheck}
             </span>
           </div>
           <div className="flex items-center justify-end gap-2">
-            <div className="flex gap-2">
-              <div className="text-sm text-muted-foreground">Method:</div>
-              <div className="text-sm font-medium">{monitor.method}</div>
-            </div>
+            {monitor.check_type === "http" && (
+              <div className="flex gap-2">
+                <div className="text-sm text-muted-foreground">Method:</div>
+                <div className="text-sm font-medium">{monitor.method}</div>
+              </div>
+            )}
             <div className="flex gap-2">
               <div className="text-sm text-muted-foreground">Interval:</div>
               <div className="text-sm font-medium">

@@ -128,7 +128,7 @@ export default function MonitorPage() {
                 <DropdownMenuItem
                   key={option.value}
                   onClick={() => handleDaysChange(option.value)}
-                  className={cn(option.value === days && "bg-accent")}
+                  className={cn("text-xs w-full", option.value === days && "bg-accent")}
                 >
                   {option.label}
                 </DropdownMenuItem>
@@ -146,15 +146,17 @@ export default function MonitorPage() {
                 <Link
                   to="/dashboard/$workspaceName/monitors/$id/edit"
                   params={{ id: monitor.id, workspaceName: workspaceName }}
+                  className="text-xs w-full"
                 >
                   Edit
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => router.invalidate()}>
+              <DropdownMenuItem onClick={() => router.invalidate()} className="text-xs w-full"
+              >
                 Refresh
               </DropdownMenuItem>
               <DropdownMenuItem
-                className="text-red-500 focus:text-red-500 hover:text-red-500"
+                className="text-red-500 focus:text-red-500 hover:text-red-500 focus:bg-red-50 focus:dark:bg-red-900 focus:dark:text-white text-xs w-full" 
                 onClick={handleDelete}
               >
                 Delete

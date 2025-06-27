@@ -51,7 +51,7 @@ export default function RecentChecks({
           <TableHeader>
             <TableRow className="border-dashed text-sm">
               <TableHead className=""></TableHead>
-              <TableHead className="">{displayLogs[0].check_type === "http" ? "Code" : "Status"}</TableHead>
+              <TableHead className="">{displayLogs[0].check_type === "http" ? "Code" : "Result"}</TableHead>
               <TableHead className="">Latency</TableHead>
               <TableHead className="flex-1 hidden sm:flex items-center justify-start">
                 Region
@@ -63,7 +63,7 @@ export default function RecentChecks({
             {displayLogs.map((log, index) => (
               <TableRow
                 key={log.id || index}
-                className="hover:bg-carbon-50 dark:hover:bg-carbon-800 border-dashed"
+                className="hover:bg-carbon-50 rounded-xs dark:hover:bg-carbon-800 border-dashed"
               >
                 <TableCell className="py-2">
                   <div
@@ -88,7 +88,7 @@ export default function RecentChecks({
                   />
                 </TableCell>
                 <TableCell className="font-mono text-xs py-2">
-                  {log.check_type === "http" && typeof log.status_code === "number" ? log.status_code : log.ok ? "OK" : "ERR"}
+                  {log.check_type === "http" && typeof log.status_code === "number" ? log.status_code : log.ok ? "Ok" : "Error"}
                 </TableCell>
                 <TableCell className="font-mono text-xs py-2">
                   {log.latency && log.latency >= 0

@@ -1,23 +1,23 @@
 import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
 import { useAuth } from "@/frontend/lib/context/auth-context";
 import { ApiResponse, Monitor } from "@/frontend/lib/types";
-import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/new";
+import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/new/$type";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import MonitorForm, { MonitorFormValues } from "../monitor/monitor-form";
+import HttpMonitorForm from "../monitor/forms/http-monitor-form";
+import TcpMonitorForm from "../monitor/forms/tcp-monitor-form";
 
 export default function NewMonitorPage() {
+  const { type } = Route.useParams();
+  const { workspaceName } = Route.useParams();
   const navigate = useNavigate();
   const router = useRouter();
-
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { session } = useAuth();
-
-  const { workspaceName } = Route.useParams();
   const { currentWorkspace } = useWorkspaces();
 
-  const handleSubmit = async (formData: MonitorFormValues) => {
+  const handleSubmit = async (formData: any) => {
     setIsSubmitting(true);
 
     try {
@@ -31,41 +31,8 @@ export default function NewMonitorPage() {
         );
       }
 
-      let parsedHeaders: Record<string, string> | undefined = undefined;
-      if (formData.headersString) {
-        try {
-          parsedHeaders = JSON.parse(formData.headersString);
-          if (
-            typeof parsedHeaders !== "object" ||
-            Array.isArray(parsedHeaders) ||
-            parsedHeaders === null
-          ) {
-            throw new Error("Headers must be a JSON object.");
-          }
-        } catch {
-          throw new Error("Invalid JSON format for headers.");
-        }
-      }
-
-      let parsedBody: Record<string, unknown> | string | undefined = undefined;
-      if (formData.method === "POST" && formData.bodyString) {
-        try {
-          parsedBody = JSON.parse(formData.bodyString);
-        } catch {
-          throw new Error("Invalid JSON format for body.");
-        }
-      }
-
       const monitorRequest = {
-        name: formData.name,
-        checkType: formData.checkType,
-        url: formData.checkType === "http" ? formData.url : undefined,
-        tcpHostPort: formData.checkType === "tcp" ? formData.tcpHostPort : undefined,
-        method: formData.method,
-        interval: formData.interval,
-        regions: formData.regions,
-        headers: parsedHeaders,
-        body: parsedBody,
+        ...formData,
         workspaceId: currentWorkspace.id,
       };
 
@@ -94,7 +61,6 @@ export default function NewMonitorPage() {
         params: { workspaceName: workspaceName },
       });
     } catch (error) {
-      console.error("Error creating monitor:", error);
       toast.error(
         error instanceof Error ? error.message : "An unexpected error occurred"
       );
@@ -110,23 +76,56 @@ export default function NewMonitorPage() {
       params: { workspaceName: workspaceName },
     });
   };
-
+  
+  if (type === "http") {
+    return (
+      <div className="container max-w-5xl mx-auto p-4">
+        <div className="space-y-8">
+          <div>
+            <h1 className="font-medium text-xl">Create HTTP Monitor</h1>
+            <p className="text-muted-foreground text-sm mt-1">
+              Configure an HTTP/HTTPS endpoint monitor.
+            </p>
+          </div>
+          <HttpMonitorForm
+            onSubmit={handleSubmit}
+            onCancel={handleCancel}
+            isSubmitting={isSubmitting}
+            submitLabel="Create Monitor"
+          />
+        </div>
+      </div>
+    );
+  } else if (type === "tcp") {
+    return (
+      <div className="container max-w-5xl mx-auto p-4">
+        <div className="space-y-8">
+          <div>
+            <h1 className="font-medium text-xl">Create TCP Monitor</h1>
+            <p className="text-muted-foreground text-sm mt-1">
+              Configure a TCP connection monitor.
+            </p>
+          </div>
+          <TcpMonitorForm
+            onSubmit={handleSubmit}
+            onCancel={handleCancel}
+            isSubmitting={isSubmitting}
+            submitLabel="Create Monitor"
+          />
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className="container max-w-5xl mx-auto p-4">
       <div className="space-y-8">
         <div>
-          <h1 className="font-medium text-xl">Create New Monitor</h1>
+          <h1 className="font-medium text-xl">Invalid Monitor Type</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Enter the details for the URL you want to monitor.
+            The specified monitor type is not supported.
           </p>
         </div>
-
-        <MonitorForm
-          onSubmit={handleSubmit}
-          onCancel={handleCancel}
-          isSubmitting={isSubmitting}
-          submitLabel="Create Monitor"
-        />
       </div>
     </div>
   );

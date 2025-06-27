@@ -25,6 +25,7 @@ import { Route as DashboardWorkspaceNameMonitorsNewIndexRouteImport } from './ro
 import { Route as DashboardWorkspaceNameMonitorsIdIndexRouteImport } from './routes/dashboard/$workspaceName/monitors/$id/index'
 import { Route as DashboardWorkspaceNameIncidentsIdIndexRouteImport } from './routes/dashboard/$workspaceName/incidents/$id/index'
 import { Route as DashboardWorkspaceNameStatusPagesIdEditIndexRouteImport } from './routes/dashboard/$workspaceName/status-pages/$id/edit/index'
+import { Route as DashboardWorkspaceNameMonitorsNewTypeIndexRouteImport } from './routes/dashboard/$workspaceName/monitors/new/$type/index'
 import { Route as DashboardWorkspaceNameMonitorsIdEditIndexRouteImport } from './routes/dashboard/$workspaceName/monitors/$id/edit/index'
 
 const DashboardRouteRoute = DashboardRouteRouteImport.update({
@@ -118,6 +119,12 @@ const DashboardWorkspaceNameStatusPagesIdEditIndexRoute =
     path: '/$workspaceName/status-pages/$id/edit/',
     getParentRoute: () => DashboardRouteRoute,
   } as any)
+const DashboardWorkspaceNameMonitorsNewTypeIndexRoute =
+  DashboardWorkspaceNameMonitorsNewTypeIndexRouteImport.update({
+    id: '/$workspaceName/monitors/new/$type/',
+    path: '/$workspaceName/monitors/new/$type/',
+    getParentRoute: () => DashboardRouteRoute,
+  } as any)
 const DashboardWorkspaceNameMonitorsIdEditIndexRoute =
   DashboardWorkspaceNameMonitorsIdEditIndexRouteImport.update({
     id: '/$workspaceName/monitors/$id/edit/',
@@ -142,6 +149,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/$workspaceName/monitors/new': typeof DashboardWorkspaceNameMonitorsNewIndexRoute
   '/dashboard/$workspaceName/status-pages/new': typeof DashboardWorkspaceNameStatusPagesNewIndexRoute
   '/dashboard/$workspaceName/monitors/$id/edit': typeof DashboardWorkspaceNameMonitorsIdEditIndexRoute
+  '/dashboard/$workspaceName/monitors/new/$type': typeof DashboardWorkspaceNameMonitorsNewTypeIndexRoute
   '/dashboard/$workspaceName/status-pages/$id/edit': typeof DashboardWorkspaceNameStatusPagesIdEditIndexRoute
 }
 export interface FileRoutesByTo {
@@ -161,6 +169,7 @@ export interface FileRoutesByTo {
   '/dashboard/$workspaceName/monitors/new': typeof DashboardWorkspaceNameMonitorsNewIndexRoute
   '/dashboard/$workspaceName/status-pages/new': typeof DashboardWorkspaceNameStatusPagesNewIndexRoute
   '/dashboard/$workspaceName/monitors/$id/edit': typeof DashboardWorkspaceNameMonitorsIdEditIndexRoute
+  '/dashboard/$workspaceName/monitors/new/$type': typeof DashboardWorkspaceNameMonitorsNewTypeIndexRoute
   '/dashboard/$workspaceName/status-pages/$id/edit': typeof DashboardWorkspaceNameStatusPagesIdEditIndexRoute
 }
 export interface FileRoutesById {
@@ -181,6 +190,7 @@ export interface FileRoutesById {
   '/dashboard/$workspaceName/monitors/new/': typeof DashboardWorkspaceNameMonitorsNewIndexRoute
   '/dashboard/$workspaceName/status-pages/new/': typeof DashboardWorkspaceNameStatusPagesNewIndexRoute
   '/dashboard/$workspaceName/monitors/$id/edit/': typeof DashboardWorkspaceNameMonitorsIdEditIndexRoute
+  '/dashboard/$workspaceName/monitors/new/$type/': typeof DashboardWorkspaceNameMonitorsNewTypeIndexRoute
   '/dashboard/$workspaceName/status-pages/$id/edit/': typeof DashboardWorkspaceNameStatusPagesIdEditIndexRoute
 }
 export interface FileRouteTypes {
@@ -202,6 +212,7 @@ export interface FileRouteTypes {
     | '/dashboard/$workspaceName/monitors/new'
     | '/dashboard/$workspaceName/status-pages/new'
     | '/dashboard/$workspaceName/monitors/$id/edit'
+    | '/dashboard/$workspaceName/monitors/new/$type'
     | '/dashboard/$workspaceName/status-pages/$id/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -221,6 +232,7 @@ export interface FileRouteTypes {
     | '/dashboard/$workspaceName/monitors/new'
     | '/dashboard/$workspaceName/status-pages/new'
     | '/dashboard/$workspaceName/monitors/$id/edit'
+    | '/dashboard/$workspaceName/monitors/new/$type'
     | '/dashboard/$workspaceName/status-pages/$id/edit'
   id:
     | '__root__'
@@ -240,6 +252,7 @@ export interface FileRouteTypes {
     | '/dashboard/$workspaceName/monitors/new/'
     | '/dashboard/$workspaceName/status-pages/new/'
     | '/dashboard/$workspaceName/monitors/$id/edit/'
+    | '/dashboard/$workspaceName/monitors/new/$type/'
     | '/dashboard/$workspaceName/status-pages/$id/edit/'
   fileRoutesById: FileRoutesById
 }
@@ -364,6 +377,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardWorkspaceNameStatusPagesIdEditIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
+    '/dashboard/$workspaceName/monitors/new/$type/': {
+      id: '/dashboard/$workspaceName/monitors/new/$type/'
+      path: '/$workspaceName/monitors/new/$type'
+      fullPath: '/dashboard/$workspaceName/monitors/new/$type'
+      preLoaderRoute: typeof DashboardWorkspaceNameMonitorsNewTypeIndexRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
     '/dashboard/$workspaceName/monitors/$id/edit/': {
       id: '/dashboard/$workspaceName/monitors/$id/edit/'
       path: '/$workspaceName/monitors/$id/edit'
@@ -387,6 +407,7 @@ interface DashboardRouteRouteChildren {
   DashboardWorkspaceNameMonitorsNewIndexRoute: typeof DashboardWorkspaceNameMonitorsNewIndexRoute
   DashboardWorkspaceNameStatusPagesNewIndexRoute: typeof DashboardWorkspaceNameStatusPagesNewIndexRoute
   DashboardWorkspaceNameMonitorsIdEditIndexRoute: typeof DashboardWorkspaceNameMonitorsIdEditIndexRoute
+  DashboardWorkspaceNameMonitorsNewTypeIndexRoute: typeof DashboardWorkspaceNameMonitorsNewTypeIndexRoute
   DashboardWorkspaceNameStatusPagesIdEditIndexRoute: typeof DashboardWorkspaceNameStatusPagesIdEditIndexRoute
 }
 
@@ -411,6 +432,8 @@ const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
     DashboardWorkspaceNameStatusPagesNewIndexRoute,
   DashboardWorkspaceNameMonitorsIdEditIndexRoute:
     DashboardWorkspaceNameMonitorsIdEditIndexRoute,
+  DashboardWorkspaceNameMonitorsNewTypeIndexRoute:
+    DashboardWorkspaceNameMonitorsNewTypeIndexRoute,
   DashboardWorkspaceNameStatusPagesIdEditIndexRoute:
     DashboardWorkspaceNameStatusPagesIdEditIndexRoute,
 }

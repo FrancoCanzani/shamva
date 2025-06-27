@@ -5,7 +5,8 @@ import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id/e
 import { useNavigate, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import MonitorForm, { MonitorFormValues } from "../monitor/monitor-form";
+import HttpMonitorForm from "../monitor/forms/http-monitor-form";
+import TcpMonitorForm from "../monitor/forms/tcp-monitor-form";
 
 export default function EditMonitorPage() {
   const navigate = useNavigate();
@@ -19,48 +20,15 @@ export default function EditMonitorPage() {
   const { session } = useAuth();
   const { currentWorkspace } = useWorkspaces(workspaceName);
 
-  const handleSubmit = async (formData: MonitorFormValues) => {
+  const handleSubmit = async (formData: any) => {
     setIsSubmitting(true);
     try {
       if (!session?.access_token) {
         throw new Error("Authentication error. Please log in again.");
       }
 
-      let parsedHeaders: Record<string, string> | undefined = undefined;
-      if (formData.headersString) {
-        try {
-          parsedHeaders = JSON.parse(formData.headersString);
-          if (
-            typeof parsedHeaders !== "object" ||
-            Array.isArray(parsedHeaders) ||
-            parsedHeaders === null
-          ) {
-            throw new Error("Headers must be a JSON object.");
-          }
-        } catch {
-          throw new Error("Invalid JSON format for headers.");
-        }
-      }
-
-      let parsedBody: Record<string, unknown> | string | undefined = undefined;
-      if (formData.method === "POST" && formData.bodyString) {
-        try {
-          parsedBody = JSON.parse(formData.bodyString);
-        } catch {
-          throw new Error("Invalid JSON format for body.");
-        }
-      }
-
       const monitorRequest = {
-        name: formData.name,
-        checkType: formData.checkType,
-        url: formData.checkType === "http" ? formData.url : undefined,
-        tcpHostPort: formData.checkType === "tcp" ? formData.tcpHostPort : undefined,
-        method: formData.method,
-        interval: formData.interval,
-        regions: formData.regions,
-        headers: parsedHeaders,
-        body: parsedBody,
+        ...formData,
         workspaceId: currentWorkspace && currentWorkspace.id,
       };
 
@@ -106,19 +74,66 @@ export default function EditMonitorPage() {
     });
   };
 
-  const initialValues: MonitorFormValues = {
-    name: monitor.name,
-    checkType: monitor.check_type,
-    url: monitor.url || "",
-    tcpHostPort: monitor.tcp_host_port || "",
-    method: monitor.method as "GET" | "POST" | "HEAD",
-    interval: monitor.interval,
-    regions: monitor.regions,
-    headersString: monitor.headers
-      ? JSON.stringify(monitor.headers, null, 2)
-      : "",
-    bodyString: monitor.body ? JSON.stringify(monitor.body, null, 2) : "",
-  };
+  if (monitor.check_type === "http") {
+    const initialValues = {
+      name: monitor.name,
+      url: monitor.url || "",
+      method: monitor.method as "GET" | "POST" | "HEAD",
+      interval: monitor.interval,
+      regions: monitor.regions,
+      headers: monitor.headers,
+      body: monitor.body || undefined,
+    };
+
+    return (
+      <div className="container max-w-5xl mx-auto p-4">
+        <div className="space-y-4">
+          <div>
+            <h1 className="text-xl font-medium">Edit HTTP Monitor</h1>
+            <p className="text-muted-foreground mt-1">
+              Update the details for your HTTP monitor.
+            </p>
+          </div>
+
+          <HttpMonitorForm
+            defaultValues={initialValues}
+            onSubmit={handleSubmit}
+            onCancel={handleCancel}
+            isSubmitting={isSubmitting}
+            submitLabel="Update Monitor"
+          />
+        </div>
+      </div>
+    );
+  } else if (monitor.check_type === "tcp") {
+    const initialValues = {
+      name: monitor.name,
+      tcpHostPort: monitor.tcp_host_port || "",
+      interval: monitor.interval,
+      regions: monitor.regions,
+    };
+
+    return (
+      <div className="container max-w-5xl mx-auto p-4">
+        <div className="space-y-4">
+          <div>
+            <h1 className="text-xl font-medium">Edit TCP Monitor</h1>
+            <p className="text-muted-foreground mt-1">
+              Update the details for your TCP monitor.
+            </p>
+          </div>
+
+          <TcpMonitorForm
+            defaultValues={initialValues}
+            onSubmit={handleSubmit}
+            onCancel={handleCancel}
+            isSubmitting={isSubmitting}
+            submitLabel="Update Monitor"
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container max-w-5xl mx-auto p-4">
@@ -126,17 +141,9 @@ export default function EditMonitorPage() {
         <div>
           <h1 className="text-xl font-medium">Edit Monitor</h1>
           <p className="text-muted-foreground mt-1">
-            Update the details for your monitor.
+            Unknown monitor type.
           </p>
         </div>
-
-        <MonitorForm
-          defaultValues={initialValues}
-          onSubmit={handleSubmit}
-          onCancel={handleCancel}
-          isSubmitting={isSubmitting}
-          submitLabel="Update Monitor"
-        />
       </div>
     </div>
   );

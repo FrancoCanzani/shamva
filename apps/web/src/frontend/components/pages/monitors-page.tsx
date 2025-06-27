@@ -1,10 +1,9 @@
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors";
-import { Link } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
 import { MonitorsCards } from "../monitors/monitors-cards";
 import NotFoundMessage from "../not-found-message";
-import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import MonitorTypeSelector from "../monitor/monitor-type-selector";
 
 export default function MonitorsPage() {
   const monitorsData = Route.useLoaderData();
@@ -40,14 +39,7 @@ export default function MonitorsPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="h-7 text-xs placeholder:text-xs"
             />
-          <Button asChild variant={"outline"} size={"xs"}>
-            <Link
-              to="/dashboard/$workspaceName/monitors/new"
-              params={{ workspaceName: workspaceName }}
-            >
-              New Monitor
-            </Link>
-          </Button>
+          <MonitorTypeSelector />
         </div>
       </div>
       {filteredMonitors && filteredMonitors.length > 0 ? (

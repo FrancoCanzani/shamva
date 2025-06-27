@@ -19,66 +19,50 @@ const isValidJSONObject = (val?: string) => {
     return false;
   }
 };  
-  
 
-export const MonitorFormSchema = z
-  .object({
-    name: z.string().trim().min(1, "Monitor name cannot be empty").max(100, "Monitor name is too long"),
-    checkType: z.enum(["http", "tcp"]),
-    url: z.string().optional().transform(val => val === '' ? undefined : val).refine(val => !val || z.string().url().safeParse(val).success, {
-      message: "Invalid URL format",
-    }),    
-    tcpHostPort: z.string()
+export const HttpMonitorSchema = z.object({
+  name: z.string().trim().min(1, "Monitor name cannot be empty").max(100, "Monitor name is too long"),
+  url: z.string().trim().min(1, "URL is required").refine(
+    (val) => z.string().url().safeParse(val).success,
+    { message: "Invalid URL format" }
+  ),
+  method: z.enum(["GET", "POST", "HEAD"], { 
+    errorMap: () => ({ message: "Please select a valid HTTP method" }) 
+  }),
+  interval: z.number().int().min(60000, "Interval must be at least 1 minute").max(3600000, "Interval must be less than 1 hour"),
+  regions: z.array(z.string()).min(1, "Please select at least one monitoring region"),
+  headersString: z
+    .string()
     .trim()
+    .optional()
+    .refine(isValidJSONObject, 'Headers must be a valid JSON object string, e.g. {"key": "value"}'),
+  bodyString: z
+    .string()
+    .trim()
+    .optional()
+    .refine(isValidJSON, 'Body must be a valid JSON string, e.g. {"key": "value"} or "text"'),
+  slackWebhookUrl: z
+    .string()
+    .trim()
+    .optional()
+});
+
+export const TcpMonitorSchema = z.object({
+  name: z.string().trim().min(1, "Monitor name cannot be empty").max(100, "Monitor name is too long"),
+  tcpHostPort: z.string()
+    .trim()
+    .min(1, "Host:Port is required")
     .regex(
       /^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*:[1-9]\d{0,4}$/,
       "Please enter a valid host:port format (e.g., example.com:8080)"
-    ).optional().transform(val => val === '' ? undefined : val),
-    method: z.enum(["GET", "POST", "HEAD"]).optional(),
-    interval: z.number().int().min(60000, "Interval must be at least 1 minute").max(3600000, "Interval must be less than 1 hour"),
-    regions: z.array(z.string()).min(1, "Please select at least one monitoring region"),
-    headersString: z
-      .string()
-      .trim()
-      .optional()
-      .refine(isValidJSONObject, 'Headers must be a valid JSON object string, e.g. {"key": "value"}'),
-    bodyString: z
-      .string()
-      .trim()
-      .optional()
-      .refine(isValidJSON, 'Body must be a valid JSON string, e.g. {"key": "value"} or "text"'),
-    slackWebhookUrl: z
-      .string()
-      .trim()
-      .optional()     
-  })
-  .refine(
-    (data) => {
-      if (data.checkType === "http" && (!data.url || data.url.trim() === "")) {
-        return false;
-      }
-      if (data.checkType === "tcp" && (!data.tcpHostPort || data.tcpHostPort.trim() === "")) {
-        return false;
-      }
-      return true;
-    },
-    {
-      message: "URL is required for HTTP checks, Host:Port is required for TCP checks",
-      path: ["url"],
-    }
-  )
-  .refine(
-    (data) => {
-      if (data.checkType === "http" && !data.method) {
-        return false;
-      }
-      return true;
-    },
-    {
-      message: "Method is required for HTTP checks",
-      path: ["method"],
-    }
-  )
+    ),
+  interval: z.number().int().min(60000, "Interval must be at least 1 minute").max(3600000, "Interval must be less than 1 hour"),
+  regions: z.array(z.string()).min(1, "Please select at least one monitoring region"),
+  slackWebhookUrl: z
+    .string()
+    .trim()
+    .optional()
+});
 
 export const MemberInviteSchema = z.object({
   email: z.string().email("Please enter a valid email address").min(1, "Email is required"),

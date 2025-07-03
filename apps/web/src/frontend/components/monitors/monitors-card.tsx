@@ -94,16 +94,13 @@ function RecentChecks({ logs }: {logs: Partial<Log>[]}) {
 
   const isMobile = useIsMobile();
 
-  console.log("----------Logs----------------");
-  console.log(logs);
-  console.log("----------Logs----------------");
-
-  const recent = isMobile ? logs.reverse().slice(0, 7) : logs.reverse().slice(0, 10);
+  const recent = (isMobile ? logs.slice(0, 7) : logs.slice(0, 10)).reverse();
 
   
   return (
     <TooltipProvider>
       <div className="flex items-center space-x-1">
+        {/* This approach ensures that the UI always displays a fixed number of bars */}
         {Array.from({ length: isMobile ? 7 : 10 }).map((_, index) => {
           const log = recent[index];
           const color = getStatusColorForCheck(log);

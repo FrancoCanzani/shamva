@@ -178,7 +178,7 @@ export default function IncidentPage() {
             title: "Notifications Sent",
             time: incident.notified_at,
             description: "Team members were notified",
-            color: "bg-blue-700",
+            color: "bg-orange-500",
           },
         ]
       : []),
@@ -189,7 +189,7 @@ export default function IncidentPage() {
             title: "Incident Acknowledged",
             time: incident.acknowledged_at,
             description: "The incident was acknowledged by the team",
-            color: "bg-orange-700",
+            color: "bg-yellow-500",
           },
         ]
       : []),
@@ -259,8 +259,8 @@ export default function IncidentPage() {
                     <Button
                       onClick={() => resolveMutation.mutate()}
                       disabled={resolveMutation.isPending}
-                      size="sm"
-                      className="bg-green-600 hover:bg-green-700 text-white font-mono tracking-wide text-xs px-4 py-2"
+                      size="xs"
+                      variant={"outline"}
                     >
                       {resolveMutation.isPending ? "Resolving..." : "Resolve"}
                     </Button>

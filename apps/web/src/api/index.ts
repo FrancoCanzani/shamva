@@ -65,8 +65,8 @@ export default {
     // @ts-expect-error - Required by Cloudflare Workers API
     controller: ScheduledController,
     env: EnvBindings,
-    // @ts-expect-error - Required by Cloudflare Workers API
-    ctx: ExecutionContext
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _ctx: ExecutionContext
   ) {
     await handleCheckerCron(env);
   },

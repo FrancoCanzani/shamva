@@ -90,7 +90,7 @@
     "deploy": "bun run build && wrangler deploy",
     "dev": "vite dev",
     "lint": "eslint .",
-    "preview": "bun run build && vite preview",
+    "preview": "bunx wrangler dev --remote",
     "types": "wrangler types"
   },
   "type": "module"

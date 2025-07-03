@@ -76,7 +76,7 @@ export default function NewMonitorPage() {
       params: { workspaceName: workspaceName },
     });
   };
-  
+
   if (type === "http") {
     return (
       <div className="container max-w-5xl mx-auto p-4">
@@ -116,7 +116,7 @@ export default function NewMonitorPage() {
       </div>
     );
   }
-  
+
   return (
     <div className="container max-w-5xl mx-auto p-4">
       <div className="space-y-8">

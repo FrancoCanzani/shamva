@@ -52,7 +52,6 @@ export interface Monitor {
   last_check_at: string | null;
   last_success_at: string | null;
   last_failure_at: string | null;
-  user_id: string;
   body: Record<string, unknown> | string | null;
   region: string;
   interval: number;
@@ -66,7 +65,6 @@ export interface Monitor {
 
 export interface Log {
   id: string;
-  user_id: string;
   monitor_id: string;
   url: string;
   status_code: number;
@@ -113,7 +111,6 @@ export interface StatusPage {
   password: string | null;
   is_public: boolean;
   monitors: string[];
-  user_id: string;
 }
 
 export interface DailyStat {

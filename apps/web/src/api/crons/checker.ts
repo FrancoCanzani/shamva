@@ -51,7 +51,6 @@ export async function handleCheckerCron(env: EnvBindings): Promise<void> {
     }
 
     const checkPromises = monitors.flatMap((monitor: Monitor) => {
-      // Default to a single check if no regions specified
       const regions = (monitor.regions as Region[]) || ["enam"];
       console.log(
         `Processing monitor ${monitor.id} (${monitor.name}) with regions:`,
@@ -87,7 +86,6 @@ export async function handleCheckerCron(env: EnvBindings): Promise<void> {
             },
             body: JSON.stringify({
               monitorId: monitor.id,
-              userId: monitor.user_id,
               workspaceId: monitor.workspace_id,
               checkType: monitor.check_type,
               urlToCheck: monitor.url,

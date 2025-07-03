@@ -114,7 +114,6 @@ export default async function postMonitors(c: Context) {
           method: method,
           headers: parsedHeaders ?? {},
           body: parsedBody,
-          user_id: userId,
           workspace_id: workspaceId,
           interval: interval ?? 5 * 60000,
           status: "initializing",

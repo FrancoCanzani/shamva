@@ -20,7 +20,6 @@ export async function doHealthCheck(env: EnvBindings, scheduledTime: number) {
         interval,
         regions,
         status,
-        user_id,
         headers,
         body,
         monitor_checkers(id, region, do_id, status, last_check_at, error_message)
@@ -108,7 +107,6 @@ export async function doHealthCheck(env: EnvBindings, scheduledTime: number) {
             const initPayload: InitializeCheckerDOPayload = {
               urlToCheck: monitor.url,
               monitorId: monitor.id,
-              userId: monitor.user_id,
               intervalMs: monitor.interval,
               method: monitor.method,
               region: region,

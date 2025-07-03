@@ -246,7 +246,6 @@ export class CheckerDurableObject extends DurableObject {
 
   private async logCheckResult(
     monitorId: string,
-    userId: string,
     url: string,
     result: CheckResult,
     method: string | null,
@@ -264,7 +263,6 @@ export class CheckerDurableObject extends DurableObject {
     }
 
     const logData = {
-      user_id: userId,
       monitor_id: monitorId,
       url,
       status_code: result.statusCode,
@@ -306,7 +304,6 @@ export class CheckerDurableObject extends DurableObject {
         error: errorMessage,
         details: errorDetails,
         monitorId,
-        userId,
         url,
         method,
         region,
@@ -339,7 +336,6 @@ export class CheckerDurableObject extends DurableObject {
         
         await this.logCheckResult(
           config.monitorId,
-          config.userId,
           targetUrl,
           result,
           config.method || null,

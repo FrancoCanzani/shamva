@@ -22,7 +22,6 @@ export type ApiVariables = {
 export interface InitializeCheckerDOPayload {
   urlToCheck: string;
   monitorId: string;
-  userId: string;
   intervalMs?: number;
   method: string;
   region: string;
@@ -44,7 +43,6 @@ export type Region =
 export interface Monitor {
   id: string;
   workspace_id: string;
-  user_id: string;
   check_type: "http" | "tcp";
   url: string | null;
   tcp_host_port: string | null;
@@ -68,7 +66,6 @@ export interface Monitor {
 
 export interface Log {
   id: string;
-  user_id: string;
   monitor_id: string;
   url: string;
   status_code: number;
@@ -95,7 +92,6 @@ export interface MonitorConfig {
   urlToCheck: string;
   tcpHostPort?: string;
   monitorId: string;
-  userId: string;
   workspaceId: string;
   method?: string;
   intervalMs: number;

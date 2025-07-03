@@ -105,7 +105,6 @@ export default async function postStatusPages(c: Context) {
           is_public: isPublic,
           monitors,
           workspace_id: workspaceId,
-          user_id: userId,
         },
       ])
       .select()

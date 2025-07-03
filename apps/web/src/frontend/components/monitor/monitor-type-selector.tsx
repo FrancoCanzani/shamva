@@ -33,9 +33,6 @@ export default function MonitorTypeSelector() {
       <PopoverContent className="p-0">
         <div className="p-2 border-b">
           <h3 className="font-medium text-sm">Select Monitor Type</h3>
-          <p className="text-xs text-muted-foreground">
-            Choose the type of monitoring you want
-          </p>
         </div>
         <div className="p-2 space-y-2">
           {monitorTypes.map((monitorType) => {
@@ -52,9 +49,9 @@ export default function MonitorTypeSelector() {
               >
                 <Card className="hover:bg-carbon-50 hover:dark:bg-carbon-800 transition-colors cursor-pointer border shadow-xs rounded-xs">
                   <CardHeader className="p-1">
-                    <CardTitle className="text-sm font-medium">{monitorType.title}</CardTitle>
+                    <CardTitle className="text-xs font-medium">{monitorType.title}</CardTitle>
                   </CardHeader>
-                  <CardContent className="text-xs text-muted-foreground p-1">
+                  <CardContent className="text-xs text-muted-foreground px-1 pb-1">
                     {monitorType.description}
                   </CardContent>
                 </Card>

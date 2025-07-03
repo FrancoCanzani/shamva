@@ -90,16 +90,17 @@ const getStatusText = (log: Partial<Log> | undefined): string => {
   return log.error ? `Error: ${log.error}` : "Unknown status";
 };
 
-interface RecentChecksProps {
-  logs: Partial<Log>[];
-}
-
-function RecentChecks({ logs }: RecentChecksProps) {
+function RecentChecks({ logs }: {logs: Partial<Log>[]}) {
 
   const isMobile = useIsMobile();
 
-  const recent = isMobile ? logs.slice(0, 7) : logs.slice(0, 10);
+  console.log("----------Logs----------------");
+  console.log(logs);
+  console.log("----------Logs----------------");
 
+  const recent = isMobile ? logs.reverse().slice(0, 7) : logs.reverse().slice(0, 10);
+
+  
   return (
     <TooltipProvider>
       <div className="flex items-center space-x-1">
@@ -144,8 +145,6 @@ export default function MonitorsCard({ monitor, workspaceName }: MonitorCardProp
         addSuffix: true,
       })
     : "-";
-
-  const mostRecentLog = monitor.recent_logs && monitor.recent_logs.length > 0 ? monitor.recent_logs[0] : undefined;
 
   const getMonitorStatusColor = (status: string): string => {
     switch (status) {

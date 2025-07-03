@@ -35,9 +35,9 @@ export default async function getIncident(c: Context) {
         .single(),
       supabase
         .from("incident_updates")
-        .select("id, author_id, author_name, content, created_at")
+        .select("*")
         .eq("incident_id", incidentId)
-        .order("created_at", { ascending: true })
+        .order("created_at", { ascending: true }),
     ]);
 
     const { data: incident, error: fetchError } = incidentResult;
@@ -74,7 +74,14 @@ export default async function getIncident(c: Context) {
     }
 
     if (updatesError) {
-      return c.json({ success: false, error: "Failed to fetch updates", details: updatesError.message }, 500);
+      return c.json(
+        {
+          success: false,
+          error: "Failed to fetch updates",
+          details: updatesError.message,
+        },
+        500
+      );
     }
 
     return c.json({

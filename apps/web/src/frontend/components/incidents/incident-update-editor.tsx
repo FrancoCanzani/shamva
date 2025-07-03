@@ -1,31 +1,29 @@
-import { useEditor, EditorContent } from "@tiptap/react";
+import { cn } from "@/frontend/lib/utils";
+import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import {
   Bold,
-  Italic,
-  List,
-  ListOrdered,
+  Code,
   Heading1,
   Heading2,
   Heading3,
+  Italic,
+  List,
+  ListOrdered,
   Quote,
-  Code,
-  Undo,
   Redo,
   Strikethrough,
+  Undo,
 } from "lucide-react";
+import { useState } from "react";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
-import { cn } from "@/frontend/lib/utils";
-import { useState } from "react";
 
 export function IncidentUpdateEditor({
   onSubmit,
   loading,
 }: {
   onSubmit: (content: string) => void;
-  authorName: string;
-  authorEmail: string;
   loading?: boolean;
 }) {
   const [submitted, setSubmitted] = useState(false);
@@ -40,7 +38,7 @@ export function IncidentUpdateEditor({
     editorProps: {
       attributes: {
         class:
-          "prose prose-sm max-w-none focus:outline-none min-h-[200px] p-4 border rounded-xs shadow-xs",
+          "prose prose-xs max-w-none focus:outline-none min-h-[200px] p-4 border rounded-xs shadow-xs",
       },
     },
   });
@@ -182,4 +180,4 @@ export function IncidentUpdateEditor({
       </div>
     </form>
   );
-} 
+}

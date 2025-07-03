@@ -18,9 +18,11 @@ export class ScreenshotService {
 
     try {
       // Check if we have a cached screenshot first (optional optimization)
-      const cacheKey = `screenshot-${Buffer.from(url).toString('base64')}`;
-      let screenshotBuffer = await this.env.RATE_LIMITS.get(cacheKey, { type: "arrayBuffer" });
-      
+      const cacheKey = `screenshot-${Buffer.from(url).toString("base64")}`;
+      let screenshotBuffer = await this.env.RATE_LIMITS.get(cacheKey, {
+        type: "arrayBuffer",
+      });
+
       if (!screenshotBuffer) {
         // Take screenshot using Puppeteer with Workers binding
         browser = await puppeteer.launch(this.env.BROWSER, {
@@ -34,9 +36,9 @@ export class ScreenshotService {
         page.setDefaultNavigationTimeout(30000);
 
         // Navigate to the URL with better error handling
-        const response = await page.goto(url, { 
+        const response = await page.goto(url, {
           waitUntil: "networkidle0",
-          timeout: 30000 
+          timeout: 30000,
         });
 
         if (!response || !response.ok()) {
@@ -45,10 +47,10 @@ export class ScreenshotService {
         }
 
         // Take the screenshot
-        screenshotBuffer = await page.screenshot({ 
+        screenshotBuffer = await page.screenshot({
           fullPage: true,
-          type: 'png',
-          quality: 80
+          type: "png",
+          quality: 80,
         });
 
         // Cache the screenshot for 1 hour (optional)
@@ -79,7 +81,6 @@ export class ScreenshotService {
 
       console.log(`Screenshot taken and stored: ${publicUrl}`);
       return publicUrl;
-
     } catch (error) {
       console.error("Error taking screenshot:", error);
       return null;

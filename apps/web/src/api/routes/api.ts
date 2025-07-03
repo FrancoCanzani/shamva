@@ -23,6 +23,7 @@ import deleteStatusPages from "./status-pages/delete";
 import getAllIncidents from "./incidents/get-all";
 import getIncident from "./incidents/get";
 import putIncident from "./incidents/put";
+import postIncidentUpdate from "./incidents/post-incident-update";
 
 const apiRoutes = new Hono<{
   Bindings: EnvBindings;
@@ -66,5 +67,6 @@ apiRoutes.post("/api/check", postCheck);
 apiRoutes.get("/api/incidents", getAllIncidents);
 apiRoutes.get("/api/incidents/:id", getIncident);
 apiRoutes.put("/api/incidents/:id", putIncident);
+apiRoutes.post("/api/incidents/:id/updates", postIncidentUpdate);
 
 export default apiRoutes;

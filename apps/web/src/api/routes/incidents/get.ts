@@ -16,28 +16,37 @@ export default async function getIncident(c: Context) {
   const supabase = createSupabaseClient(c.env);
 
   try {
-    const { data: incident, error: fetchError } = await supabase
-      .from("incidents")
-      .select(
+    const [incidentResult, updatesResult] = await Promise.all([
+      supabase
+        .from("incidents")
+        .select(
+          `
+          *,
+          monitors (
+            id,
+            name,
+            url,
+            error_message,
+            workspace_id
+          )
         `
-        *,
-        monitors (
-          id,
-          name,
-          url,
-          error_message,
-          workspace_id
         )
-      `
-      )
-      .eq("id", incidentId)
-      .single();
+        .eq("id", incidentId)
+        .single(),
+      supabase
+        .from("incident_updates")
+        .select("id, author_id, author_name, content, created_at")
+        .eq("incident_id", incidentId)
+        .order("created_at", { ascending: true })
+    ]);
+
+    const { data: incident, error: fetchError } = incidentResult;
+    const { data: updates, error: updatesError } = updatesResult;
 
     if (fetchError) {
       if (fetchError.code === "PGRST116") {
         return c.json({ success: false, error: "Incident not found" }, 404);
       }
-
       return c.json(
         {
           success: false,
@@ -64,8 +73,12 @@ export default async function getIncident(c: Context) {
       return c.json({ success: false, error: "Incident not found" }, 404);
     }
 
+    if (updatesError) {
+      return c.json({ success: false, error: "Failed to fetch updates", details: updatesError.message }, 500);
+    }
+
     return c.json({
-      data: incident,
+      data: { ...incident, updates },
       success: true,
     });
   } catch (error) {

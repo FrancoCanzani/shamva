@@ -3,13 +3,16 @@ import { Route } from "@/frontend/routes/dashboard/$workspaceName/incidents/$id"
 import { Link, useRouter } from "@tanstack/react-router"
 import { useMutation } from "@tanstack/react-query"
 import { formatDistanceToNowStrict, parseISO, format } from "date-fns"
-import { ArrowLeft, HelpCircle } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/frontend/components/ui/button"
-import { Popover, PopoverContent, PopoverTrigger } from "@/frontend/components/ui/popover"
-import { PostMortemEditor } from "../incidents/post-mortem-editor"
-import type { Incident } from "@/frontend/lib/types"
+import type { Incident as IncidentBase } from "@/frontend/lib/types"
 import { useAuth } from "@/frontend/lib/context/auth-context"
+import { IncidentUpdateEditor } from "../incidents/incident-update-editor"
+import { IncidentUpdatesSection } from "../incidents/incident-updates-section"
+import { Separator } from "../ui/separator"
+
+type Incident = IncidentBase & { updates?: any[] };
 
 export default function IncidentPage() {
   const { workspaceName, id } = Route.useParams()
@@ -61,29 +64,33 @@ export default function IncidentPage() {
     onError: () => toast.error("Failed to resolve incident"),
   })
 
-  const postMortemMutation = useMutation({
-    mutationFn: async () => {
-      if (!session?.access_token) {
-        throw new Error("Authentication error. Please log in again.")
-      }
-      const response = await fetch(`/api/incidents/${id}`, {
-        method: "PUT",
-        headers: { 
+  const updateMutation = useMutation({
+    mutationFn: async ({ content }: { content: string }) => {
+      if (!session?.access_token || !session?.user) throw new Error("Not authenticated");
+      const res = await fetch(`/api/incidents/${id}/updates`, {
+        method: "POST",
+        headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${session.access_token}`
+          Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ post_mortem: incident.post_mortem || "" }),
-      })
-      if (!response.ok) throw new Error("Failed to save post-mortem")
+        body: JSON.stringify({
+          content,
+          author_name: session.user.user_metadata?.name || session.user.email || "",
+          author_email: session.user.email || "",
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to post update");
+      return res.json();
     },
     onSuccess: async () => {
-      toast.success("Post-mortem saved")
-      await router.invalidate()
+      toast.success("Update posted");
+      await router.invalidate();
     },
-    onError: () => {
-      toast.error("Failed to save post-mortem")
+    onError: (error) => {
+      toast.error("Failed to post update");
+      console.error(error);
     },
-  })
+  });
 
   const getIncidentStatus = (incident: Incident) => {
     if (incident.resolved_at) {
@@ -164,7 +171,7 @@ export default function IncidentPage() {
           <span className="hover:underline">Back to Monitor</span>
         </Link>
 
-        <div className="border border-dashed p-4">
+        <div className="border rounded-xs shadow-xs p-4">
           <div className="flex items-start justify-between mb-4">
             <div className="space-y-3">
               <h1 className="text-xl uppercase font-medium tracking-tight font-mono">
@@ -210,23 +217,23 @@ export default function IncidentPage() {
           </div>
 
           {incident.monitors?.error_message && (
-            <div className="border border-dashed border-red-300 dark:border-red-900 p-3 bg-red-50 dark:bg-background">
+            <div className="border rounded-xs shadow-xs border-red-300 dark:border-red-900 p-3 bg-red-50 dark:bg-background">
               <p className="text-red-900 text-xs font-mono tracking-wide">
-                ERROR: {incident.monitors.error_message.toUpperCase()}
+                {incident.monitors.error_message.toUpperCase()}
               </p>
             </div>
           )}
         </div>
       
 
-        <div className="border border-dashed p-4">
+        <div className="border rounded-xs shadow-xs p-4">
           <h2 className="text-sm font-medium mb-4 font-mono">TIMELINE</h2>
           <div className="space-y-3">
             {timelineEvents.map((event) => (
               <div key={event.id} className="relative">
                 <div className="flex gap-4">
                   <div className="flex-1 min-w-0 pb-2">
-                    <div className="border border-dashed p-2">
+                    <div className="border rounded-xs shadow-xs p-2">
                       <div className="flex items-start gap-x-2 mb-2">
                         <span className="text-xs font-mono whitespace-nowrap">{formatEventTime(event.time)}</span>
                         <h3 className="font-medium text-xs font-mono">{event.title}</h3>
@@ -240,45 +247,23 @@ export default function IncidentPage() {
           </div>
         </div>
 
-        <div className="border border-dashed p-4">
+        <div className="border rounded-xs shadow-xs p-4">
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <h2 className="text-sm font-medium font-mono">POST-MORTEM</h2>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button size="xs" variant="outline" className="h-5 w-5 p-0">
-                    <HelpCircle className="size-3" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-70 p-2.5">
-                  <div className="space-y-2">
-                    <h4 className="font-medium text-xs">What is a Post-Mortem?</h4>
-                    <p className="text-xs text-muted-foreground">
-                      A post-mortem is a detailed analysis of an incident after it has occurred. It helps teams
-                      understand what happened, why it happened, and how to prevent similar issues in the future. This
-                      document will be shared with your team and can be made public to communicate with users about the
-                      incident.
-                    </p>
-                  </div>
-                </PopoverContent>
-              </Popover>
-            </div>
-            <Button
-              onClick={() => postMortemMutation.mutate()}
-              disabled={postMortemMutation.isPending}
-              size="xs"
-              variant={"outline"}
-            >
-              {postMortemMutation.isPending ? "Saving..." : "Save Post-Mortem"}
-            </Button>
+              <h2 className="text-sm font-medium font-mono">UPDATES</h2>
           </div>
-
-          <PostMortemEditor
-            content={incident.post_mortem || ""}
-            onChange={(content) => {
-              incident.post_mortem = content
+          <IncidentUpdateEditor
+            onSubmit={async (content) => {
+              if (!session?.user) return;
+              await updateMutation.mutateAsync({ content });
             }}
+            authorName={session?.user?.user_metadata?.name || session?.user?.email || ""}
+            authorEmail={session?.user?.email || ""}
+            loading={updateMutation.isPending}
           />
+          
+          <Separator className="my-6"/>
+
+          <IncidentUpdatesSection updates={incident.updates || []} />
         </div>
       </div>
     </div>

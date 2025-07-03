@@ -14,39 +14,49 @@ import {
   Redo,
   Strikethrough,
 } from "lucide-react";
-import { Button } from "@/frontend/components/ui/button";
-import { Separator } from "@/frontend/components/ui/separator";
+import { Button } from "../ui/button";
+import { Separator } from "../ui/separator";
 import { cn } from "@/frontend/lib/utils";
+import { useState } from "react";
 
-interface PostMortemEditorProps {
-  content: string;
-  onChange: (content: string) => void;
-}
+export function IncidentUpdateEditor({
+  onSubmit,
+  loading,
+}: {
+  onSubmit: (content: string) => void;
+  authorName: string;
+  authorEmail: string;
+  loading?: boolean;
+}) {
+  const [submitted, setSubmitted] = useState(false);
 
-export function PostMortemEditor({ content, onChange }: PostMortemEditorProps) {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        heading: {
-          levels: [1, 2, 3],
-        },
+        heading: { levels: [1, 2, 3] },
       }),
     ],
-    content,
-    onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
-    },
+    content: "",
     editorProps: {
       attributes: {
         class:
-          "prose prose-sm max-w-none focus:outline-none min-h-[300px] p-4 border border-dashed",
+          "prose prose-sm max-w-none focus:outline-none min-h-[200px] p-4 border rounded-xs shadow-xs",
       },
     },
   });
 
-  if (!editor) {
-    return null;
-  }
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editor) return;
+    const html = editor.getHTML();
+    if (!html) return;
+    setSubmitted(true);
+    onSubmit(html);
+    editor.commands.clearContent();
+    setSubmitted(false);
+  };
+
+  if (!editor) return null;
 
   const toolbarItems = [
     {
@@ -128,8 +138,8 @@ export function PostMortemEditor({ content, onChange }: PostMortemEditorProps) {
   ];
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-1 border border-dashed p-2 overflow-auto bg-gray-50 dark:bg-background">
+    <form onSubmit={handleSubmit} className="space-y-2">
+      <div className="flex items-center gap-1 rounded-xs shadow-xs border overflow-auto bg-carbon-50 dark:bg-carbon-800">
         {toolbarItems.map((item, index) => {
           if (item.separator) {
             return (
@@ -157,6 +167,7 @@ export function PostMortemEditor({ content, onChange }: PostMortemEditorProps) {
                 item.disabled && "opacity-50 cursor-not-allowed"
               )}
               title={item.tooltip}
+              type="button"
             >
               <Icon className="h-4 w-4" />
             </Button>
@@ -164,6 +175,11 @@ export function PostMortemEditor({ content, onChange }: PostMortemEditorProps) {
         })}
       </div>
       <EditorContent editor={editor} />
-    </div>
+      <div className="flex items-center justify-end">
+        <Button type="submit" size="xs" disabled={loading || submitted}>
+          {loading ? "Posting..." : "Post Update"}
+        </Button>
+      </div>
+    </form>
   );
-}
+} 

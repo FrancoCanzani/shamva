@@ -1,6 +1,6 @@
 import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
 import { useAuth } from "@/frontend/lib/context/auth-context";
-import { ApiResponse, Monitor } from "@/frontend/lib/types";
+import { ApiResponse, Monitor, MonitorFormData } from "@/frontend/lib/types";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id/edit";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
@@ -20,7 +20,7 @@ export default function EditMonitorPage() {
   const { session } = useAuth();
   const { currentWorkspace } = useWorkspaces(workspaceName);
 
-  const handleSubmit = async (formData: any) => {
+  const handleSubmit = async (formData: MonitorFormData) => {
     setIsSubmitting(true);
     try {
       if (!session?.access_token) {

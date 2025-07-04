@@ -1,13 +1,13 @@
+import { useQuery } from "@tanstack/react-query";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 import React, {
   createContext,
+  useCallback,
   useContext,
   useEffect,
-  useCallback,
   useMemo,
   useState,
 } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { useNavigate, useLocation } from "@tanstack/react-router";
 import { supabase } from "../supabase";
 import { ApiResponse, Workspace } from "../types";
 
@@ -99,7 +99,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     enabled: isAuthenticated === true, // Only run query when authenticated
   });
 
-  const workspaces = query.data ?? [];
+  const workspaces = useMemo(() => query.data ?? [], [query.data]);
   const currentWorkspace = useMemo(() => {
     if (!currentWorkspaceId) {
       return workspaces.length > 0 ? workspaces[0] : null;
@@ -131,7 +131,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
           lastLocation.includes("/dashboard/") &&
           !lastLocation.includes("/workspaces")
             ? lastLocation.replace(
-                /\/dashboard\/[^\/]+/,
+                /\/dashboard\/[^/]+/,
                 `/dashboard/${workspace.name}`
               )
             : defaultPath;

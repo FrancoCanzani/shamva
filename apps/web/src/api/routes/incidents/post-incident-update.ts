@@ -27,7 +27,7 @@ export default async function postIncidentUpdate(c: Context) {
   let rawBody: unknown;
   try {
     rawBody = await c.req.json();
-  } catch (err) {
+  } catch {
     return c.json(
       { success: false, error: "Invalid JSON payload provided." },
       400

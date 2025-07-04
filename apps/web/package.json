@@ -89,7 +89,7 @@
     "check-types": "tsc --noEmit",
     "deploy": "bun run build && wrangler deploy",
     "dev": "vite dev",
-    "lint": "eslint .",
+    "lint": "eslint . --no-warn-ignored",
     "preview": "bunx wrangler dev --remote",
     "types": "wrangler types"
   },

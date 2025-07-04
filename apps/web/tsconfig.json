@@ -5,6 +5,12 @@
     { "path": "./tsconfig.node.json" },
     { "path": "./tsconfig.worker.json" }
   ],
+  "exclude": [
+    "worker-configuration.d.ts",
+    "src/frontend/routeTree.gen.ts",
+    "**/*.gen.ts",
+    "**/*.gen.js"
+  ],
   "compilerOptions": {
     "types": ["@cloudflare/workers-types/2023-07-01"],
     "jsx": "react-jsx",

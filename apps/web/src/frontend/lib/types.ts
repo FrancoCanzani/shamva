@@ -92,6 +92,19 @@ export interface CreateMonitorRequest {
   body?: string;
 }
 
+export interface MonitorFormData {
+  name: string;
+  checkType: "http" | "tcp";
+  url?: string;
+  method?: "GET" | "POST" | "HEAD";
+  tcpHostPort?: string;
+  interval: number;
+  regions: string[];
+  headers?: Record<string, string>;
+  body?: Record<string, unknown> | string;
+  slackWebhookUrl?: string;
+}
+
 export interface ApiResponse<T> {
   data: T | null;
   success: boolean;

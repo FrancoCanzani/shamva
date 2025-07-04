@@ -92,7 +92,7 @@ export default async function putIncident(c: Context) {
   }
 
   try {
-    const updateData: Record<string, any> = {
+    const updateData: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
     };
 

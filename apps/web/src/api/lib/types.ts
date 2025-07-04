@@ -50,7 +50,7 @@ export interface Monitor {
   interval: number;
   regions: Region[];
   headers: Record<string, string> | null;
-  body: Record<string, any> | null;
+  body: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;
   last_check_at: string | null;

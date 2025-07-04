@@ -16,7 +16,11 @@ import { Separator } from "../ui/separator";
 interface FilterGroup {
   key: string;
   label: string;
-  values: Array<{ value: string | number | boolean; label: string; count: number }>;
+  values: Array<{
+    value: string | number | boolean;
+    label: string;
+    count: number;
+  }>;
 }
 
 interface LogsFiltersSidebarProps {
@@ -36,11 +40,9 @@ export function LogsFiltersSidebar({ table, data }: LogsFiltersSidebarProps) {
     const regions = new Map<string, number>();
 
     data.forEach((log) => {
-      const statusKey = typeof log.ok === "boolean" ? (log.ok ? "OK" : "ERR") : "ERR";
-      statusCodes.set(
-        statusKey,
-        (statusCodes.get(statusKey) || 0) + 1
-      );
+      const statusKey =
+        typeof log.ok === "boolean" ? (log.ok ? "OK" : "ERR") : "ERR";
+      statusCodes.set(statusKey, (statusCodes.get(statusKey) || 0) + 1);
       methods.set(log.method, (methods.get(log.method) || 0) + 1);
       if (log.region) {
         regions.set(log.region, (regions.get(log.region) || 0) + 1);

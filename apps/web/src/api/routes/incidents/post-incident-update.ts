@@ -28,12 +28,22 @@ export default async function postIncidentUpdate(c: Context) {
   try {
     rawBody = await c.req.json();
   } catch (err) {
-    return c.json({ success: false, error: "Invalid JSON payload provided." }, 400);
+    return c.json(
+      { success: false, error: "Invalid JSON payload provided." },
+      400
+    );
   }
 
   const result = IncidentUpdatePostSchema.safeParse(rawBody);
   if (!result.success) {
-    return c.json({ success: false, error: "Validation failed", details: result.error.flatten() }, 400);
+    return c.json(
+      {
+        success: false,
+        error: "Validation failed",
+        details: result.error.flatten(),
+      },
+      400
+    );
   }
 
   const { content, author_name, author_email } = result.data;
@@ -56,7 +66,10 @@ export default async function postIncidentUpdate(c: Context) {
     .single();
 
   if (monitorError || !monitor) {
-    return c.json({ success: false, error: "Monitor not found for incident" }, 404);
+    return c.json(
+      { success: false, error: "Monitor not found for incident" },
+      404
+    );
   }
 
   const { data: membership, error: membershipError } = await supabase
@@ -85,8 +98,15 @@ export default async function postIncidentUpdate(c: Context) {
     .single();
 
   if (insertError) {
-    return c.json({ success: false, error: "Failed to add update", details: insertError.message }, 500);
+    return c.json(
+      {
+        success: false,
+        error: "Failed to add update",
+        details: insertError.message,
+      },
+      500
+    );
   }
 
   return c.json({ data: inserted, success: true });
-} 
+}

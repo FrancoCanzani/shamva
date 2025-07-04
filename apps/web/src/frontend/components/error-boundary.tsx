@@ -10,7 +10,10 @@ interface ErrorBoundaryProps {
   children: ReactNode;
 }
 
-export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+export class ErrorBoundary extends Component<
+  ErrorBoundaryProps,
+  ErrorBoundaryState
+> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false };
@@ -34,10 +37,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                 Something went wrong
               </h1>
               <p className="text-muted-foreground">
-                We encountered an unexpected error. Please try refreshing the page.
+                We encountered an unexpected error. Please try refreshing the
+                page.
               </p>
             </div>
-            
+
             <div className="flex items-center justify-center gap-x-4">
               <Button
                 onClick={() => window.location.reload()}
@@ -46,17 +50,19 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               >
                 Refresh Page
               </Button>
-              
+
               <Button
-                onClick={() => this.setState({ hasError: false, error: undefined })}
+                onClick={() =>
+                  this.setState({ hasError: false, error: undefined })
+                }
                 variant="outline"
-                size={"sm"}             
-                >
+                size={"sm"}
+              >
                 Try Again
               </Button>
             </div>
 
-            {process.env.NODE_ENV === 'development' && this.state.error && (
+            {process.env.NODE_ENV === "development" && this.state.error && (
               <details className="text-left">
                 <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground">
                   Error Details (Development)
@@ -73,4 +79,4 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
     return this.props.children;
   }
-} 
+}

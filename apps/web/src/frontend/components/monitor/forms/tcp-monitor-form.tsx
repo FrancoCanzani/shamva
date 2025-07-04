@@ -6,7 +6,14 @@ import { z } from "zod";
 import { Button } from "../../ui/button";
 import { Input } from "../../ui/input";
 import { Label } from "../../ui/label";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../ui/select";
 import { MonitorFormRegionsSection } from "./monitor-form-regions-section";
 import { MonitorFormNotificationsSection } from "./monitor-form-notifications-section";
 
@@ -42,11 +49,15 @@ interface TcpMonitorFormProps {
   }>;
 }
 
-const FormField = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
-  <div className={cn("space-y-2", className)}>{children}</div>
-);
+const FormField = ({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => <div className={cn("space-y-2", className)}>{children}</div>;
 
-const ErrorMessage = ({ errors }: { errors?: string }) => 
+const ErrorMessage = ({ errors }: { errors?: string }) =>
   errors ? <p className="text-sm text-destructive">{errors}</p> : null;
 
 export default function TcpMonitorForm({
@@ -83,7 +94,7 @@ export default function TcpMonitorForm({
       regions: data.regions,
       slackWebhookUrl: data.slackWebhookUrl,
     };
-    
+
     await onSubmit(payload);
   };
 
@@ -115,16 +126,24 @@ export default function TcpMonitorForm({
                   name="interval"
                   render={({ field }) => (
                     <Select
-                      onValueChange={(value) => field.onChange(Number.parseInt(value, 10))}
+                      onValueChange={(value) =>
+                        field.onChange(Number.parseInt(value, 10))
+                      }
                       value={field.value.toString()}
                     >
-                      <SelectTrigger id="interval" className={errors.interval ? "border-destructive" : ""}>
+                      <SelectTrigger
+                        id="interval"
+                        className={errors.interval ? "border-destructive" : ""}
+                      >
                         <SelectValue placeholder="Select interval" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
                           {checkIntervals.map((interval) => (
-                            <SelectItem key={interval.value} value={interval.value}>
+                            <SelectItem
+                              key={interval.value}
+                              value={interval.value}
+                            >
                               {interval.label}
                             </SelectItem>
                           ))}
@@ -150,7 +169,8 @@ export default function TcpMonitorForm({
               />
               <ErrorMessage errors={errors.tcpHostPort?.message} />
               <p className="text-xs text-muted-foreground">
-                Enter the hostname and port to check (e.g., example.com:8080, database.local:5432)
+                Enter the hostname and port to check (e.g., example.com:8080,
+                database.local:5432)
               </p>
             </FormField>
           </div>
@@ -171,4 +191,4 @@ export default function TcpMonitorForm({
       </div>
     </FormProvider>
   );
-} 
+}

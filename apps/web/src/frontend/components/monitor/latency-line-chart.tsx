@@ -1,13 +1,6 @@
 import type { Log } from "@/frontend/lib/types";
 import { format, startOfDay, startOfHour, differenceInDays } from "date-fns";
-import {
-  LineChart,
-  Line,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-  Legend,
-} from "recharts";
+import { LineChart, Line, CartesianGrid, XAxis, YAxis, Legend } from "recharts";
 import {
   type ChartConfig,
   ChartContainer,
@@ -130,7 +123,7 @@ export default function LatencyLineChart({
   height = 200,
 }: LatencyLineChartProps) {
   const chartData = groupLogsByTime(logs);
-  const isHourlyData = chartData.length > 0 && chartData[0].date.includes('-');
+  const isHourlyData = chartData.length > 0 && chartData[0].date.includes("-");
 
   if (chartData.length === 0) {
     return (
@@ -153,7 +146,11 @@ export default function LatencyLineChart({
   } satisfies ChartConfig;
 
   return (
-    <ChartContainer config={chartConfig} className="w-full max-h-80" style={{ height }}>
+    <ChartContainer
+      config={chartConfig}
+      className="w-full max-h-80"
+      style={{ height }}
+    >
       <LineChart
         data={chartData}
         margin={{ top: 5, right: 20, left: -10, bottom: 5 }}
@@ -163,12 +160,12 @@ export default function LatencyLineChart({
           dataKey="date"
           tickFormatter={(value) => {
             if (isHourlyData) {
-              const parts = value.split('-');
+              const parts = value.split("-");
               if (parts.length === 4) {
                 const hour = parts[3];
                 return `${hour}:00`;
               }
-              return value; 
+              return value;
             } else {
               return format(new Date(value), "MMM d");
             }
@@ -189,26 +186,31 @@ export default function LatencyLineChart({
               labelFormatter={(label) => {
                 try {
                   if (isHourlyData) {
-                    const parts = label.split('-');
+                    const parts = label.split("-");
                     if (parts.length === 4) {
                       const [year, month, day, hour] = parts;
-                      const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour));
+                      const date = new Date(
+                        parseInt(year),
+                        parseInt(month) - 1,
+                        parseInt(day),
+                        parseInt(hour)
+                      );
                       if (isNaN(date.getTime())) {
-                        return label; 
+                        return label;
                       }
                       return format(date, "MMM d, yyyy - HH:00");
                     }
-                    return label; 
+                    return label;
                   } else {
                     const date = new Date(label);
                     if (isNaN(date.getTime())) {
-                      return label; 
+                      return label;
                     }
                     return format(date, "MMM d, yyyy");
                   }
                 } catch (error) {
-                  console.error('Error formatting date label:', error, label);
-                  return label; 
+                  console.error("Error formatting date label:", error, label);
+                  return label;
                 }
               }}
             />
@@ -246,4 +248,4 @@ export default function LatencyLineChart({
       </LineChart>
     </ChartContainer>
   );
-} 
+}

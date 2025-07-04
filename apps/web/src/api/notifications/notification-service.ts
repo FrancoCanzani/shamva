@@ -11,26 +11,26 @@ import { GitHubService } from "./github/service";
 export interface NotificationConfig {
   // Email
   userEmails: string[];
-  
+
   // Slack
   slackWebhookUrl?: string;
-  
+
   // PagerDuty
   pagerDutyServiceId?: string;
   pagerDutyApiKey?: string;
-  
+
   // Discord
   discordWebhookUrl?: string;
-  
+
   // SMS
   smsPhoneNumbers?: string[];
   twilioAccountSid?: string;
   twilioAuthToken?: string;
   twilioFromNumber?: string;
-  
+
   // WhatsApp
   whatsappPhoneNumbers?: string[];
-  
+
   // GitHub
   githubIssueTracking?: boolean;
   githubToken?: string;
@@ -51,12 +51,16 @@ export class NotificationService {
     this.emailService = new EmailService(env);
     this.slackService = new SlackService();
     this.discordService = new DiscordService();
-    
+
     if (config.pagerDutyApiKey) {
       this.pagerDutyService = new PagerDutyService(config.pagerDutyApiKey);
     }
-    
-    if (config.twilioAccountSid && config.twilioAuthToken && config.twilioFromNumber) {
+
+    if (
+      config.twilioAccountSid &&
+      config.twilioAuthToken &&
+      config.twilioFromNumber
+    ) {
       this.smsService = new SMSService(
         config.twilioAccountSid,
         config.twilioAuthToken,
@@ -68,7 +72,7 @@ export class NotificationService {
         config.twilioFromNumber
       );
     }
-    
+
     if (config.githubToken && config.githubOwner && config.githubRepo) {
       this.githubService = new GitHubService(
         config.githubToken,
@@ -86,12 +90,18 @@ export class NotificationService {
 
     // Email notifications
     if (config.userEmails && config.userEmails.length > 0) {
-      results.email = await this.emailService.sendMonitorDownAlert(data, config.userEmails);
+      results.email = await this.emailService.sendMonitorDownAlert(
+        data,
+        config.userEmails
+      );
     }
 
     // Slack notifications
     if (config.slackWebhookUrl) {
-      results.slack = await this.slackService.sendMonitorDownAlert(data, config.slackWebhookUrl);
+      results.slack = await this.slackService.sendMonitorDownAlert(
+        data,
+        config.slackWebhookUrl
+      );
     }
 
     // PagerDuty notifications
@@ -128,7 +138,9 @@ export class NotificationService {
           },
           {
             name: "Status",
-            value: data.statusCode ? `HTTP ${data.statusCode}` : "Connection Failed",
+            value: data.statusCode
+              ? `HTTP ${data.statusCode}`
+              : "Connection Failed",
             inline: true,
           },
           {
@@ -154,11 +166,18 @@ export class NotificationService {
         timestamp: new Date().toISOString(),
       };
 
-      results.discord = await this.discordService.sendMessage(config.discordWebhookUrl, embed);
+      results.discord = await this.discordService.sendMessage(
+        config.discordWebhookUrl,
+        embed
+      );
     }
 
     // SMS notifications
-    if (this.smsService && config.smsPhoneNumbers && config.smsPhoneNumbers.length > 0) {
+    if (
+      this.smsService &&
+      config.smsPhoneNumbers &&
+      config.smsPhoneNumbers.length > 0
+    ) {
       const message =
         `🚨 SHAMVA ALERT: ${data.monitorName} is DOWN\n\n` +
         `URL: ${data.url}\n` +
@@ -169,13 +188,19 @@ export class NotificationService {
         `We'll notify you when it's back online.`;
 
       const smsResults = await Promise.all(
-        config.smsPhoneNumbers.map(phoneNumber => this.smsService!.sendSMS(phoneNumber, message))
+        config.smsPhoneNumbers.map((phoneNumber) =>
+          this.smsService!.sendSMS(phoneNumber, message)
+        )
       );
-      results.sms = smsResults.some(success => success);
+      results.sms = smsResults.some((success) => success);
     }
 
     // WhatsApp notifications
-    if (this.whatsappService && config.whatsappPhoneNumbers && config.whatsappPhoneNumbers.length > 0) {
+    if (
+      this.whatsappService &&
+      config.whatsappPhoneNumbers &&
+      config.whatsappPhoneNumbers.length > 0
+    ) {
       const message =
         `🚨 *SHAMVA ALERT: ${data.monitorName} is DOWN*\n\n` +
         `*URL:* ${data.url}\n` +
@@ -186,9 +211,11 @@ export class NotificationService {
         `We'll notify you when it's back online.`;
 
       const whatsappResults = await Promise.all(
-        config.whatsappPhoneNumbers.map(phoneNumber => this.whatsappService!.sendWhatsAppMessage(phoneNumber, message))
+        config.whatsappPhoneNumbers.map((phoneNumber) =>
+          this.whatsappService!.sendWhatsAppMessage(phoneNumber, message)
+        )
       );
-      results.whatsapp = whatsappResults.some(success => success);
+      results.whatsapp = whatsappResults.some((success) => success);
     }
 
     // GitHub notifications
@@ -211,7 +238,10 @@ export class NotificationService {
         `---\n` +
         `*This issue was automatically created by Shamva monitoring system.*`;
 
-      results.github = await this.githubService.createIssue(title, body, ["urgent", "down"]);
+      results.github = await this.githubService.createIssue(title, body, [
+        "urgent",
+        "down",
+      ]);
     }
 
     return results;
@@ -237,15 +267,23 @@ export class NotificationService {
 
     // Slack notifications
     if (config.slackWebhookUrl) {
-      results.slack = await this.slackService.sendMonitorRecoveredAlert(data, lastSuccessAt, config.slackWebhookUrl);
+      results.slack = await this.slackService.sendMonitorRecoveredAlert(
+        data,
+        lastSuccessAt,
+        config.slackWebhookUrl
+      );
     }
 
     // PagerDuty notifications
     if (this.pagerDutyService && config.pagerDutyServiceId) {
-      if (previousResults?.pagerduty && typeof previousResults.pagerduty === "string") {
+      if (
+        previousResults?.pagerduty &&
+        typeof previousResults.pagerduty === "string"
+      ) {
         // Extract incident ID from the previous result and resolve it
         const incidentId = previousResults.pagerduty;
-        results.pagerduty = await this.pagerDutyService.resolveIncident(incidentId);
+        results.pagerduty =
+          await this.pagerDutyService.resolveIncident(incidentId);
       } else {
         // Create a new resolution notification
         const title = `✅ Monitor Recovered: ${data.monitorName} is Back Online`;
@@ -307,11 +345,18 @@ export class NotificationService {
         timestamp: new Date().toISOString(),
       };
 
-      results.discord = await this.discordService.sendMessage(config.discordWebhookUrl, embed);
+      results.discord = await this.discordService.sendMessage(
+        config.discordWebhookUrl,
+        embed
+      );
     }
 
     // SMS notifications
-    if (this.smsService && config.smsPhoneNumbers && config.smsPhoneNumbers.length > 0) {
+    if (
+      this.smsService &&
+      config.smsPhoneNumbers &&
+      config.smsPhoneNumbers.length > 0
+    ) {
       const message =
         `✅ SHAMVA RECOVERY: ${data.monitorName} is BACK ONLINE\n\n` +
         `URL: ${data.url}\n` +
@@ -321,13 +366,19 @@ export class NotificationService {
         `Region: ${data.region}`;
 
       const smsResults = await Promise.all(
-        config.smsPhoneNumbers.map(phoneNumber => this.smsService!.sendSMS(phoneNumber, message))
+        config.smsPhoneNumbers.map((phoneNumber) =>
+          this.smsService!.sendSMS(phoneNumber, message)
+        )
       );
-      results.sms = smsResults.some(success => success);
+      results.sms = smsResults.some((success) => success);
     }
 
     // WhatsApp notifications
-    if (this.whatsappService && config.whatsappPhoneNumbers && config.whatsappPhoneNumbers.length > 0) {
+    if (
+      this.whatsappService &&
+      config.whatsappPhoneNumbers &&
+      config.whatsappPhoneNumbers.length > 0
+    ) {
       const message =
         `✅ *SHAMVA RECOVERY: ${data.monitorName} is BACK ONLINE*\n\n` +
         `*URL:* ${data.url}\n` +
@@ -337,14 +388,19 @@ export class NotificationService {
         `*Region:* ${data.region}`;
 
       const whatsappResults = await Promise.all(
-        config.whatsappPhoneNumbers.map(phoneNumber => this.whatsappService!.sendWhatsAppMessage(phoneNumber, message))
+        config.whatsappPhoneNumbers.map((phoneNumber) =>
+          this.whatsappService!.sendWhatsAppMessage(phoneNumber, message)
+        )
       );
-      results.whatsapp = whatsappResults.some(success => success);
+      results.whatsapp = whatsappResults.some((success) => success);
     }
 
     // GitHub notifications
     if (this.githubService && config.githubIssueTracking) {
-      if (previousResults?.github && typeof previousResults.github === "string") {
+      if (
+        previousResults?.github &&
+        typeof previousResults.github === "string"
+      ) {
         // Extract issue number from the previous result and close it
         const issueUrl = previousResults.github;
         const issueNumberMatch = issueUrl.match(/\/(\d+)$/);
@@ -369,10 +425,13 @@ export class NotificationService {
           `---\n` +
           `*This issue was automatically created by Shamva monitoring system.*`;
 
-        results.github = await this.githubService.createIssue(title, body, ["resolved", "recovery"]);
+        results.github = await this.githubService.createIssue(title, body, [
+          "resolved",
+          "recovery",
+        ]);
       }
     }
 
     return results;
   }
-} 
+}

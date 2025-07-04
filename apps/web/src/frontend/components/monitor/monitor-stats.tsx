@@ -6,9 +6,7 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
   const { days } = Route.useSearch();
 
   const recentSuccessCount = logs.filter(
-    (log) =>
-      typeof log.ok === "boolean" &&
-      log.ok === true
+    (log) => typeof log.ok === "boolean" && log.ok === true
   ).length;
 
   const recentTotalCount = logs.length;

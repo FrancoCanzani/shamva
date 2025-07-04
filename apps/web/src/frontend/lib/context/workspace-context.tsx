@@ -75,12 +75,16 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   // Check authentication status
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       setIsAuthenticated(!!session?.access_token);
     };
     checkAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setIsAuthenticated(!!session?.access_token);
     });
 
@@ -140,13 +144,25 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Only redirect to create workspace if we're authenticated and have no workspaces
-    if (isAuthenticated && !query.isLoading && workspaces.length === 0 && !query.error) {
+    if (
+      isAuthenticated &&
+      !query.isLoading &&
+      workspaces.length === 0 &&
+      !query.error
+    ) {
       // Only redirect if we're not already on the workspaces page
       if (!location.pathname.includes("/workspaces")) {
         navigate({ to: "/dashboard/workspaces/new" });
       }
     }
-  }, [isAuthenticated, workspaces.length, query.isLoading, query.error, navigate, location.pathname]);
+  }, [
+    isAuthenticated,
+    workspaces.length,
+    query.isLoading,
+    query.error,
+    navigate,
+    location.pathname,
+  ]);
 
   useEffect(() => {
     if (

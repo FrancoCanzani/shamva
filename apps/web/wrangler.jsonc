@@ -1,5 +1,5 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
+  "$schema": "../../node_modules/wrangler/config-schema.json",
 
   "name": "shamva",
 
@@ -9,14 +9,14 @@
   "compatibility_flags": ["nodejs_compat"],
 
   "observability": {
-    "enabled": true,
+    "enabled": true
   },
 
   // Static asset handling configuration
   "assets": {
     "run_worker_first": true,
     "not_found_handling": "single-page-application",
-    "binding": "ASSETS",
+    "binding": "ASSETS"
   },
 
   "upload_source_maps": true,
@@ -25,36 +25,36 @@
     "bindings": [
       {
         "name": "CHECKER_DURABLE_OBJECT",
-        "class_name": "CheckerDurableObject",
-      },
-    ],
+        "class_name": "CheckerDurableObject"
+      }
+    ]
   },
 
   "kv_namespaces": [
     {
       "binding": "RATE_LIMITS",
       "id": "e3e8cc8aeb5945eaaee13f7468cc54fd",
-      "preview_id": "6432f850ce5f4d84a2c482de7cc13fd0",
-    },
+      "preview_id": "6432f850ce5f4d84a2c482de7cc13fd0"
+    }
   ],
 
   "browser": {
-    "binding": "BROWSER",
+    "binding": "BROWSER"
   },
 
   // Durable Object migration settings
   "migrations": [
     {
       "tag": "v1",
-      "new_classes": ["CheckerDurableObject"],
-    },
+      "new_classes": ["CheckerDurableObject"]
+    }
   ],
 
   // Cron triggers for scheduled tasks
   "triggers": {
     "crons": [
       // Run checks every minute
-      "* * * * *",
-    ],
-  },
+      "* * * * *"
+    ]
+  }
 }

@@ -128,7 +128,10 @@ export default function MonitorPage() {
                 <DropdownMenuItem
                   key={option.value}
                   onClick={() => handleDaysChange(option.value)}
-                  className={cn("text-xs w-full", option.value === days && "bg-accent")}
+                  className={cn(
+                    "text-xs w-full",
+                    option.value === days && "bg-accent"
+                  )}
                 >
                   {option.label}
                 </DropdownMenuItem>
@@ -151,12 +154,14 @@ export default function MonitorPage() {
                   Edit
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => router.invalidate()} className="text-xs w-full"
+              <DropdownMenuItem
+                onClick={() => router.invalidate()}
+                className="text-xs w-full"
               >
                 Refresh
               </DropdownMenuItem>
               <DropdownMenuItem
-                className="text-red-500 focus:text-red-500 hover:text-red-500 focus:bg-red-50 focus:dark:bg-red-900 focus:dark:text-white text-xs w-full" 
+                className="text-red-500 focus:text-red-500 hover:text-red-500 focus:bg-red-50 focus:dark:bg-red-900 focus:dark:text-white text-xs w-full"
                 onClick={handleDelete}
               >
                 Delete
@@ -167,12 +172,12 @@ export default function MonitorPage() {
       </div>
       <div className="flex items-center justify-between gap-4 py-4 flex-shrink-0">
         <div className="flex items-center justify-start gap-1">
-          <h1 className="flex-1 text-xl font-medium">
-            {monitor.name}
-          </h1>
+          <h1 className="flex-1 text-xl font-medium">{monitor.name}</h1>
           {monitor.name && (
             <span className="text-xs text-muted-foreground">
-              {monitor.check_type === "tcp" ? monitor.tcp_host_port : monitor.url}
+              {monitor.check_type === "tcp"
+                ? monitor.tcp_host_port
+                : monitor.url}
             </span>
           )}
         </div>
@@ -244,9 +249,9 @@ export default function MonitorPage() {
               to="/dashboard/$workspaceName/logs"
               params={{ workspaceName: workspaceName }}
               className="flex items-center justify-start text-xs gap-1 text-muted-foreground"
-              >
-                <span className="hover:underline">View all logs</span>
-                <ArrowUpRight className="size-3" />
+            >
+              <span className="hover:underline">View all logs</span>
+              <ArrowUpRight className="size-3" />
             </Link>
           </div>
           <RecentChecks logs={monitor.recent_logs} />

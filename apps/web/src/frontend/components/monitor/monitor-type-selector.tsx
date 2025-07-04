@@ -15,7 +15,7 @@ const monitorTypes = [
     type: "tcp",
     title: "TCP Check",
     description: "Monitor raw TCP connections and services",
-  }
+  },
 ];
 
 export default function MonitorTypeSelector() {
@@ -25,9 +25,9 @@ export default function MonitorTypeSelector() {
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <PopoverTrigger >
+      <PopoverTrigger>
         <Button variant={"outline"} size={"xs"}>
-            New Monitor
+          New Monitor
         </Button>
       </PopoverTrigger>
       <PopoverContent className="p-0">
@@ -40,16 +40,18 @@ export default function MonitorTypeSelector() {
               <Link
                 key={monitorType.type}
                 to="/dashboard/$workspaceName/monitors/new/$type"
-                params={{ 
+                params={{
                   workspaceName: workspaceName!,
-                  type: monitorType.type
+                  type: monitorType.type,
                 }}
                 onClick={() => setIsOpen(false)}
                 className="block"
               >
                 <Card className="hover:bg-carbon-50 hover:dark:bg-carbon-800 transition-colors cursor-pointer border shadow-xs rounded-xs">
                   <CardHeader className="p-1">
-                    <CardTitle className="text-xs font-medium">{monitorType.title}</CardTitle>
+                    <CardTitle className="text-xs font-medium">
+                      {monitorType.title}
+                    </CardTitle>
                   </CardHeader>
                   <CardContent className="text-xs text-muted-foreground px-1 pb-1">
                     {monitorType.description}
@@ -62,4 +64,4 @@ export default function MonitorTypeSelector() {
       </PopoverContent>
     </Popover>
   );
-} 
+}

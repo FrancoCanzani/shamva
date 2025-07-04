@@ -13,12 +13,12 @@ export default function MonitorsPage() {
   const filteredMonitors = useMemo(() => {
     if (!monitorsData) return [];
     if (!searchQuery.trim()) return monitorsData;
-    
+
     return monitorsData.filter((monitor) => {
       const searchLower = searchQuery.toLowerCase();
       const name = monitor.name?.toLowerCase() || "";
       const url = monitor.url?.toLowerCase() || "";
-      
+
       return name.includes(searchLower) || url.includes(searchLower);
     });
   }, [monitorsData, searchQuery]);
@@ -33,19 +33,24 @@ export default function MonitorsPage() {
           </p>
         </div>
         <div className="flex items-center space-x-1.5">
-            <Input
-              placeholder="Search monitors..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-7 text-xs placeholder:text-xs"
-            />
+          <Input
+            placeholder="Search monitors..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="h-7 text-xs placeholder:text-xs"
+          />
           <MonitorTypeSelector />
         </div>
       </div>
       {filteredMonitors && filteredMonitors.length > 0 ? (
-        <MonitorsCards monitors={filteredMonitors} workspaceName={workspaceName} />
+        <MonitorsCards
+          monitors={filteredMonitors}
+          workspaceName={workspaceName}
+        />
       ) : searchQuery ? (
-        <NotFoundMessage message={`No monitors found matching "${searchQuery}".`} />
+        <NotFoundMessage
+          message={`No monitors found matching "${searchQuery}".`}
+        />
       ) : (
         <NotFoundMessage message="No monitors found. Create one to get started." />
       )}

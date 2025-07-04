@@ -86,9 +86,7 @@ export default async function getLogs(c: Context): Promise<Response> {
 
     const { data: logs, error: logError } = await supabase
       .from("logs")
-      .select(
-        "*"
-      )
+      .select("*")
       .in("monitor_id", monitorIds)
       .gte("created_at", sevenDaysAgoISO)
       .order("created_at", {

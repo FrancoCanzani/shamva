@@ -216,14 +216,20 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                   <span
                     className={cn(
                       "font-mono font-medium",
-                      selectedLog.check_type === "http" && typeof selectedLog.status_code === "number"
+                      selectedLog.check_type === "http" &&
+                        typeof selectedLog.status_code === "number"
                         ? getStatusTextColor(selectedLog.status_code)
                         : getOkStatusTextColor(selectedLog.ok)
                     )}
                   >
-                    {selectedLog.check_type === "http" && typeof selectedLog.status_code === "number"
+                    {selectedLog.check_type === "http" &&
+                    typeof selectedLog.status_code === "number"
                       ? selectedLog.status_code
-                      : typeof selectedLog.ok === "boolean" ? (selectedLog.ok ? "OK" : "ERR") : "ERR"}
+                      : typeof selectedLog.ok === "boolean"
+                        ? selectedLog.ok
+                          ? "OK"
+                          : "ERR"
+                        : "ERR"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between py-2">
@@ -256,35 +262,43 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
               )}
 
               {/* TCP Check Information */}
-              {selectedLog.check_type === "tcp" && selectedLog.tcp_host && selectedLog.tcp_port && (
-                <div className="text-sm flex-shrink-0">
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">TCP Check Details</span>
-                  </div>
-                  <div className="mt-2 bg-blue-50 dark:bg-blue-900/30 p-3 border border-blue-200 dark:border-blue-800 rounded">
-                    <div className="space-y-1 text-xs">
-                      <div className="flex justify-between">
-                        <span className="font-medium text-blue-700 dark:text-blue-300">Host:</span>
-                        <span className="font-mono text-blue-700 dark:text-blue-300">
-                          {selectedLog.tcp_host}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="font-medium text-blue-700 dark:text-blue-300">Port:</span>
-                        <span className="font-mono text-blue-700 dark:text-blue-300">
-                          {selectedLog.tcp_port}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="font-medium text-blue-700 dark:text-blue-300">Host:Port:</span>
-                        <span className="font-mono text-blue-700 dark:text-blue-300">
-                          {selectedLog.tcp_host}:{selectedLog.tcp_port}
-                        </span>
+              {selectedLog.check_type === "tcp" &&
+                selectedLog.tcp_host &&
+                selectedLog.tcp_port && (
+                  <div className="text-sm flex-shrink-0">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium">TCP Check Details</span>
+                    </div>
+                    <div className="mt-2 bg-blue-50 dark:bg-blue-900/30 p-3 border border-blue-200 dark:border-blue-800 rounded">
+                      <div className="space-y-1 text-xs">
+                        <div className="flex justify-between">
+                          <span className="font-medium text-blue-700 dark:text-blue-300">
+                            Host:
+                          </span>
+                          <span className="font-mono text-blue-700 dark:text-blue-300">
+                            {selectedLog.tcp_host}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="font-medium text-blue-700 dark:text-blue-300">
+                            Port:
+                          </span>
+                          <span className="font-mono text-blue-700 dark:text-blue-300">
+                            {selectedLog.tcp_port}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="font-medium text-blue-700 dark:text-blue-300">
+                            Host:Port:
+                          </span>
+                          <span className="font-mono text-blue-700 dark:text-blue-300">
+                            {selectedLog.tcp_host}:{selectedLog.tcp_port}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
 
               <div className="flex-shrink-0">
                 <div className="flex items-center justify-between">
@@ -355,9 +369,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                   </Button>
                 </div>
                 <div className="relative flex-grow min-h-0 flex flex-col">
-                  <pre
-                    className="text-xs bg-carbon-50 dark:bg-carbon-800 overflow-auto p-2 mt-2 font-mono border whitespace-pre-wrap break-words flex-grow"  
-                  >
+                  <pre className="text-xs bg-carbon-50 dark:bg-carbon-800 overflow-auto p-2 mt-2 font-mono border whitespace-pre-wrap break-words flex-grow">
                     {(() => {
                       try {
                         if (
@@ -391,7 +403,6 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                       }
                     })()}
                   </pre>
-
                 </div>
               </div>
             </div>

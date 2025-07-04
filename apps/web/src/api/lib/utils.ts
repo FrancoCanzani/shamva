@@ -2,7 +2,10 @@
 
 const MAX_BODY_SIZE_BYTES = 10000;
 
-export function calculateDowntime(lastSuccessAt: string, currentTime: Date): string {
+export function calculateDowntime(
+  lastSuccessAt: string,
+  currentTime: Date
+): string {
   const lastSuccess = new Date(lastSuccessAt);
   const diffMs = currentTime.getTime() - lastSuccess.getTime();
 

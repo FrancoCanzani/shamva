@@ -27,7 +27,7 @@ export default function IndexPage() {
       dashboardLinkTo = "/dashboard/workspaces/new";
     }
   }
-  
+
   const getDashboardButtonText = () => {
     if (!user) return "Get Started";
     if (workspacesLoading) return "Loading...";
@@ -77,7 +77,7 @@ export default function IndexPage() {
               smoothly.
             </p>
           </div>
-          
+
           <div className="flex justify-center space-x-4">
             <Button size="lg" asChild>
               <Link to="/auth/login">Start Monitoring</Link>
@@ -146,8 +146,8 @@ export default function IndexPage() {
                   Performance Analytics
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  Track response times, uptime percentages, and performance trends
-                  with detailed analytics and charts.
+                  Track response times, uptime percentages, and performance
+                  trends with detailed analytics and charts.
                 </p>
               </div>
             </div>

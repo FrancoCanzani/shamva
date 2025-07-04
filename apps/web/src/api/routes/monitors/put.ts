@@ -103,7 +103,10 @@ export default async function putMonitors(c: Context) {
       try {
         parsedHeaders = JSON.parse(headersString);
       } catch {
-        return c.json({ success: false, error: "Invalid headers JSON format." }, 400);
+        return c.json(
+          { success: false, error: "Invalid headers JSON format." },
+          400
+        );
       }
     }
 
@@ -112,7 +115,10 @@ export default async function putMonitors(c: Context) {
       try {
         parsedBody = JSON.parse(bodyString);
       } catch {
-        return c.json({ success: false, error: "Invalid body JSON format." }, 400);
+        return c.json(
+          { success: false, error: "Invalid body JSON format." },
+          400
+        );
       }
     }
 

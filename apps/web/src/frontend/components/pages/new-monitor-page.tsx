@@ -8,6 +8,29 @@ import { toast } from "sonner";
 import HttpMonitorForm from "../monitor/forms/http-monitor-form";
 import TcpMonitorForm from "../monitor/forms/tcp-monitor-form";
 
+type HttpMonitorFormData = {
+  name: string;
+  checkType: "http";
+  url: string;
+  method: "GET" | "POST" | "HEAD";
+  interval: number;
+  regions: string[];
+  headers?: Record<string, string>;
+  body?: Record<string, unknown> | string;
+  slackWebhookUrl?: string;
+};
+
+type TcpMonitorFormData = {
+  name: string;
+  checkType: "tcp";
+  tcpHostPort: string;
+  interval: number;
+  regions: string[];
+  slackWebhookUrl?: string;
+};
+
+type MonitorFormData = HttpMonitorFormData | TcpMonitorFormData;
+
 export default function NewMonitorPage() {
   const { type } = Route.useParams();
   const { workspaceName } = Route.useParams();
@@ -17,7 +40,7 @@ export default function NewMonitorPage() {
   const { session } = useAuth();
   const { currentWorkspace } = useWorkspaces();
 
-  const handleSubmit = async (formData: any) => {
+  const handleSubmit = async (formData: MonitorFormData) => {
     setIsSubmitting(true);
 
     try {

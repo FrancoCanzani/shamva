@@ -11,7 +11,9 @@ const serviceTest = new Hono<{ Bindings: EnvBindings }>().get(
       // Get URL from query params, default to example.com
       const url = c.req.query("url") || "https://example.com";
 
-      console.log(`[Service-Test] Starting screenshot service test for URL: ${url}`);
+      console.log(
+        `[Service-Test] Starting screenshot service test for URL: ${url}`
+      );
 
       // Create a test incident ID
       const testIncidentId = `test-${Date.now()}`;
@@ -28,33 +30,40 @@ const serviceTest = new Hono<{ Bindings: EnvBindings }>().get(
       const duration = Date.now() - startTime;
 
       if (screenshotUrl) {
-        console.log(`[Service-Test] Screenshot service test completed successfully in ${duration}ms`);
+        console.log(
+          `[Service-Test] Screenshot service test completed successfully in ${duration}ms`
+        );
         return c.json({
           success: true,
           screenshotUrl,
           testIncidentId,
           duration,
           originalUrl: url,
-          message: "Screenshot service test completed successfully"
+          message: "Screenshot service test completed successfully",
         });
       } else {
-        console.log(`[Service-Test] Screenshot service test failed in ${duration}ms`);
+        console.log(
+          `[Service-Test] Screenshot service test failed in ${duration}ms`
+        );
         return c.json({
           success: false,
           screenshotUrl: null,
           testIncidentId,
           duration,
           originalUrl: url,
-          message: "Screenshot service returned null - check logs for details"
+          message: "Screenshot service returned null - check logs for details",
         });
       }
     } catch (error) {
       const duration = Date.now() - startTime;
-      console.error(`[Service-Test] Screenshot service test error after ${duration}ms:`, {
-        error: error instanceof Error ? error.message : "Unknown error",
-        stack: error instanceof Error ? error.stack : undefined,
-        url: c.req.query("url") || "https://example.com",
-      });
+      console.error(
+        `[Service-Test] Screenshot service test error after ${duration}ms:`,
+        {
+          error: error instanceof Error ? error.message : "Unknown error",
+          stack: error instanceof Error ? error.stack : undefined,
+          url: c.req.query("url") || "https://example.com",
+        }
+      );
 
       return c.json(
         {

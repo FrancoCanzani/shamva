@@ -6,7 +6,6 @@ import { Providers } from "../components/providers";
 export const Route = createRootRoute({
   notFoundComponent: NotFoundPage,
 
-
   component: () => (
     <ErrorBoundary>
       <Providers>

@@ -16,6 +16,7 @@ Shamva supports multiple notification channels to alert you when your monitors g
 ## 1. PagerDuty Integration
 
 ### What it does
+
 - Creates incidents when monitors go down
 - Resolves incidents when monitors recover
 - Supports different urgency levels (critical, warning, error, info)
@@ -37,6 +38,7 @@ Shamva supports multiple notification channels to alert you when your monitors g
    - Find your monitoring service and copy the Service ID
 
 4. **Environment Variables**
+
    ```bash
    PAGERDUTY_API_KEY=your_api_key_here
    PAGERDUTY_SERVICE_ID=your_service_id_here
@@ -48,12 +50,18 @@ Shamva supports multiple notification channels to alert you when your monitors g
    - The system will automatically create incidents when monitors fail
 
 ### Usage in Code
+
 ```typescript
 import { PagerDutyService } from "./notifications/pagerduty/service";
 
 const pagerDuty = new PagerDutyService(apiKey);
 await pagerDuty.sendMonitorDownAlert(monitorData, serviceId);
-await pagerDuty.sendMonitorRecoveredAlert(monitorData, lastSuccessAt, serviceId, incidentId);
+await pagerDuty.sendMonitorRecoveredAlert(
+  monitorData,
+  lastSuccessAt,
+  serviceId,
+  incidentId
+);
 ```
 
 ---
@@ -61,6 +69,7 @@ await pagerDuty.sendMonitorRecoveredAlert(monitorData, lastSuccessAt, serviceId,
 ## 2. Discord Integration
 
 ### What it does
+
 - Sends rich embed messages to Discord channels
 - Uses color-coded embeds (red for down, green for recovery)
 - Includes detailed monitor information in structured format
@@ -75,6 +84,7 @@ await pagerDuty.sendMonitorRecoveredAlert(monitorData, lastSuccessAt, serviceId,
    - Copy the webhook URL
 
 2. **Environment Variables**
+
    ```bash
    DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/your_webhook_url
    ```
@@ -84,6 +94,7 @@ await pagerDuty.sendMonitorRecoveredAlert(monitorData, lastSuccessAt, serviceId,
    - The system will automatically send Discord messages when monitors change status
 
 ### Usage in Code
+
 ```typescript
 import { DiscordService } from "./notifications/discord/service";
 
@@ -97,6 +108,7 @@ await discord.sendMonitorRecoveredAlert(monitorData, lastSuccessAt, webhookUrl);
 ## 3. SMS Integration (Twilio)
 
 ### What it does
+
 - Sends SMS notifications to specified phone numbers
 - Uses Twilio as the SMS provider
 - Supports multiple phone numbers per alert
@@ -113,6 +125,7 @@ await discord.sendMonitorRecoveredAlert(monitorData, lastSuccessAt, webhookUrl);
    - Get a **Twilio Phone Number** for sending SMS
 
 3. **Environment Variables**
+
    ```bash
    TWILIO_ACCOUNT_SID=your_account_sid_here
    TWILIO_AUTH_TOKEN=your_auth_token_here
@@ -124,6 +137,7 @@ await discord.sendMonitorRecoveredAlert(monitorData, lastSuccessAt, webhookUrl);
    - Include phone numbers in international format (e.g., `+1234567890`)
 
 ### Usage in Code
+
 ```typescript
 import { SMSService } from "./notifications/sms/service";
 
@@ -137,6 +151,7 @@ await sms.sendMonitorRecoveredAlert(monitorData, lastSuccessAt, phoneNumbers);
 ## 4. GitHub Integration
 
 ### What it does
+
 - Creates GitHub issues when monitors go down
 - Automatically closes issues when monitors recover
 - Adds appropriate labels and structured content
@@ -156,6 +171,7 @@ await sms.sendMonitorRecoveredAlert(monitorData, lastSuccessAt, phoneNumbers);
    - The system will create issues in this repository
 
 3. **Environment Variables**
+
    ```bash
    GITHUB_TOKEN=your_personal_access_token_here
    GITHUB_OWNER=your_github_username_or_org
@@ -167,6 +183,7 @@ await sms.sendMonitorRecoveredAlert(monitorData, lastSuccessAt, phoneNumbers);
    - When enabled, the system will create GitHub issues for incidents
 
 ### Usage in Code
+
 ```typescript
 import { GitHubService } from "./notifications/github/service";
 
@@ -335,7 +352,8 @@ await github.sendMonitorDownAlert(testData);
 ## Support
 
 For issues with specific integrations:
+
 - **PagerDuty**: [PagerDuty Support](https://support.pagerduty.com/)
 - **Discord**: [Discord Developer Portal](https://discord.com/developers/docs)
 - **Twilio**: [Twilio Support](https://support.twilio.com/)
-- **GitHub**: [GitHub Support](https://support.github.com/) 
+- **GitHub**: [GitHub Support](https://support.github.com/)

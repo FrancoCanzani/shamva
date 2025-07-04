@@ -5,4 +5,7 @@ export { DiscordService } from "./discord/service";
 export { SMSService } from "./sms/service";
 export { WhatsAppService } from "./whatsapp/service";
 export { GitHubService } from "./github/service";
-export { NotificationService, type NotificationConfig } from "./notification-service"; 
+export {
+  NotificationService,
+  type NotificationConfig,
+} from "./notification-service";

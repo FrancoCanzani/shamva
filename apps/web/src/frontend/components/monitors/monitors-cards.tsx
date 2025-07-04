@@ -10,8 +10,12 @@ export function MonitorsCards({ monitors, workspaceName }: MonitorsCardsProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
       {monitors.map((monitor) => (
-        <MonitorsCard key={monitor.id} monitor={monitor} workspaceName={workspaceName} />
+        <MonitorsCard
+          key={monitor.id}
+          monitor={monitor}
+          workspaceName={workspaceName}
+        />
       ))}
     </div>
   );
-} 
+}

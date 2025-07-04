@@ -4,22 +4,29 @@ import { Input } from "../../ui/input";
 import { Label } from "../../ui/label";
 import { Link } from "@tanstack/react-router";
 
-const FormField = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
-  <div className={cn("space-y-2", className)}>{children}</div>
-);
+const FormField = ({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => <div className={cn("space-y-2", className)}>{children}</div>;
 
-const ErrorMessage = ({ errors }: { errors?: string }) => 
+const ErrorMessage = ({ errors }: { errors?: string }) =>
   errors ? <p className="text-sm text-destructive">{errors}</p> : null;
 
 export function MonitorFormNotificationsSection() {
-  const { register, formState: { errors } } = useFormContext();
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext();
 
   return (
     <div id="notifications" className="space-y-4">
       <h3 className="text-sm font-medium">Notifications</h3>
       <p className="text-xs text-muted-foreground">
-        * Every accepted user in your workspace will receive email notifications. 
-        Additionally, you can configure Slack notifications.
+        * Every accepted user in your workspace will receive email
+        notifications. Additionally, you can configure Slack notifications.
       </p>
       <FormField>
         <Label htmlFor="slackWebhookUrl">Slack Webhook URL</Label>
@@ -43,4 +50,4 @@ export function MonitorFormNotificationsSection() {
       </FormField>
     </div>
   );
-} 
+}

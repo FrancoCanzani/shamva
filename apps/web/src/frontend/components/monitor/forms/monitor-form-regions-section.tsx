@@ -12,13 +12,25 @@ const regionsByContinent = monitoringRegions.reduce(
   {} as Record<string, typeof monitoringRegions>
 );
 
-const continentOrder = ["North America", "South America", "Europe", "Africa", "Middle East", "Asia-Pacific", "Oceania"];
+const continentOrder = [
+  "North America",
+  "South America",
+  "Europe",
+  "Africa",
+  "Middle East",
+  "Asia-Pacific",
+  "Oceania",
+];
 
-const ErrorMessage = ({ errors }: { errors?: string }) => 
+const ErrorMessage = ({ errors }: { errors?: string }) =>
   errors ? <p className="text-sm text-destructive">{errors}</p> : null;
 
 export function MonitorFormRegionsSection() {
-  const { control, watch, formState: { errors } } = useFormContext();
+  const {
+    control,
+    watch,
+    formState: { errors },
+  } = useFormContext();
   const selectedRegions = watch("regions");
 
   return (
@@ -32,12 +44,15 @@ export function MonitorFormRegionsSection() {
               <div className="flex items-center justify-between">
                 <h2 className="font-medium">Monitoring Regions *</h2>
                 <span className="text-xs text-muted-foreground">
-                  {selectedRegions.length} region{selectedRegions.length !== 1 ? "s" : ""} selected
+                  {selectedRegions.length} region
+                  {selectedRegions.length !== 1 ? "s" : ""} selected
                 </span>
               </div>
               <p className="text-xs text-muted-foreground">
-                * Regions are a best effort and not a guarantee. Monitors will not necessarily be instantiated 
-                in the hinted region, but instead instantiated in a data center selected to minimize latency.
+                * Regions are a best effort and not a guarantee. Monitors will
+                not necessarily be instantiated in the hinted region, but
+                instead instantiated in a data center selected to minimize
+                latency.
               </p>
             </div>
 
@@ -58,11 +73,15 @@ export function MonitorFormRegionsSection() {
                               key={region.value}
                               className={cn(
                                 "flex items-center justify-between p-2 border cursor-pointer hover:bg-carbon-50 dark:hover:bg-carbon-800 transition-colors",
-                                isSelected ? "border-primary bg-carbon-50 dark:bg-carbon-800" : ""
+                                isSelected
+                                  ? "border-primary bg-carbon-50 dark:bg-carbon-800"
+                                  : ""
                               )}
                               onClick={() => {
                                 const newRegions = isSelected
-                                  ? field.value.filter((r: string) => r !== region.value)
+                                  ? field.value.filter(
+                                      (r: string) => r !== region.value
+                                    )
                                   : [...field.value, region.value];
                                 field.onChange(newRegions);
                               }}
@@ -73,17 +92,23 @@ export function MonitorFormRegionsSection() {
                                 if (e.key === " " || e.key === "Enter") {
                                   e.preventDefault();
                                   const newRegions = isSelected
-                                    ? field.value.filter((r: string) => r !== region.value)
+                                    ? field.value.filter(
+                                        (r: string) => r !== region.value
+                                      )
                                     : [...field.value, region.value];
                                   field.onChange(newRegions);
                                 }
                               }}
                             >
                               <div className="flex items-center gap-2">
-                                <span className="text-sm leading-none">{region.flag}</span>
+                                <span className="text-sm leading-none">
+                                  {region.flag}
+                                </span>
                                 <span className="text-xs">{region.label}</span>
                               </div>
-                              {isSelected && <Check className="h-4 w-4 text-primary" />}
+                              {isSelected && (
+                                <Check className="h-4 w-4 text-primary" />
+                              )}
                             </div>
                           );
                         })}
@@ -99,4 +124,4 @@ export function MonitorFormRegionsSection() {
       />
     </div>
   );
-} 
+}

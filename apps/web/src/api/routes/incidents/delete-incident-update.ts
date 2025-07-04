@@ -10,7 +10,10 @@ export default async function deleteIncidentUpdate(c: Context) {
     return c.json({ success: false, error: "User not authenticated" }, 401);
   }
   if (!incidentId || !updateId) {
-    return c.json({ success: false, error: "Incident ID and Update ID are required" }, 400);
+    return c.json(
+      { success: false, error: "Incident ID and Update ID are required" },
+      400
+    );
   }
 
   const supabase = createSupabaseClient(c.env);
@@ -55,7 +58,10 @@ export default async function deleteIncidentUpdate(c: Context) {
     .single();
 
   if (membershipError || !membership) {
-    return c.json({ success: false, error: "Workspace membership not found" }, 404);
+    return c.json(
+      { success: false, error: "Workspace membership not found" },
+      404
+    );
   }
 
   const isAdmin = membership && membership.role === "admin";
@@ -72,8 +78,15 @@ export default async function deleteIncidentUpdate(c: Context) {
     .eq("incident_id", incidentId);
 
   if (deleteError) {
-    return c.json({ success: false, error: "Failed to delete update", details: deleteError.message }, 500);
+    return c.json(
+      {
+        success: false,
+        error: "Failed to delete update",
+        details: deleteError.message,
+      },
+      500
+    );
   }
 
   return c.json({ success: true });
-} 
+}

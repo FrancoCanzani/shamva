@@ -1,15 +1,22 @@
 import { HttpMonitorSchema } from "@/frontend/lib/schemas";
 import { cn } from "@/frontend/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller, FormProvider } from "react-hook-form";
+import { Controller, FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "../../ui/button";
 import { Input } from "../../ui/input";
 import { Label } from "../../ui/label";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../ui/select";
 import { Textarea } from "../../ui/textarea";
-import { MonitorFormRegionsSection } from "./monitor-form-regions-section";
 import { MonitorFormNotificationsSection } from "./monitor-form-notifications-section";
+import { MonitorFormRegionsSection } from "./monitor-form-regions-section";
 
 const checkIntervals = [
   { value: "60000", label: "1 minute" },
@@ -49,11 +56,15 @@ interface HttpMonitorFormProps {
   }>;
 }
 
-const FormField = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
-  <div className={cn("space-y-2", className)}>{children}</div>
-);
+const FormField = ({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => <div className={cn("space-y-2", className)}>{children}</div>;
 
-const ErrorMessage = ({ errors }: { errors?: string }) => 
+const ErrorMessage = ({ errors }: { errors?: string }) =>
   errors ? <p className="text-sm text-destructive">{errors}</p> : null;
 
 export default function HttpMonitorForm({
@@ -71,8 +82,12 @@ export default function HttpMonitorForm({
       method: defaultValues?.method ?? "GET",
       interval: defaultValues?.interval ?? 300000,
       regions: defaultValues?.regions ?? [],
-      headersString: defaultValues?.headers ? JSON.stringify(defaultValues.headers, null, 2) : "",
-      bodyString: defaultValues?.body ? JSON.stringify(defaultValues.body, null, 2) : "",
+      headersString: defaultValues?.headers
+        ? JSON.stringify(defaultValues.headers, null, 2)
+        : "",
+      bodyString: defaultValues?.body
+        ? JSON.stringify(defaultValues.body, null, 2)
+        : "",
       slackWebhookUrl: defaultValues?.slack_webhook_url,
     },
   });
@@ -92,17 +107,17 @@ export default function HttpMonitorForm({
     let headers, body;
     try {
       headers = data.headersString ? JSON.parse(data.headersString) : undefined;
-    } catch (e) {
-      // Optionally set error here
+    } catch {
+      // set error here
       return;
     }
     try {
       body = data.bodyString ? JSON.parse(data.bodyString) : undefined;
-    } catch (e) {
-      // Optionally set error here
+    } catch {
+      // set error here
       return;
     }
-    
+
     const payload = {
       name: data.name,
       checkType: "http" as const,
@@ -114,7 +129,7 @@ export default function HttpMonitorForm({
       body,
       slackWebhookUrl: data.slackWebhookUrl,
     };
-    
+
     await onSubmit(payload);
   };
 
@@ -146,16 +161,24 @@ export default function HttpMonitorForm({
                   name="interval"
                   render={({ field }) => (
                     <Select
-                      onValueChange={(value) => field.onChange(Number.parseInt(value, 10))}
+                      onValueChange={(value) =>
+                        field.onChange(Number.parseInt(value, 10))
+                      }
                       value={field.value.toString()}
                     >
-                      <SelectTrigger id="interval" className={errors.interval ? "border-destructive" : ""}>
+                      <SelectTrigger
+                        id="interval"
+                        className={errors.interval ? "border-destructive" : ""}
+                      >
                         <SelectValue placeholder="Select interval" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
                           {checkIntervals.map((interval) => (
-                            <SelectItem key={interval.value} value={interval.value}>
+                            <SelectItem
+                              key={interval.value}
+                              value={interval.value}
+                            >
                               {interval.label}
                             </SelectItem>
                           ))}
@@ -179,10 +202,15 @@ export default function HttpMonitorForm({
                   name="method"
                   render={({ field }) => (
                     <Select
-                      onValueChange={(value) => field.onChange(value as "GET" | "POST" | "HEAD")}
+                      onValueChange={(value) =>
+                        field.onChange(value as "GET" | "POST" | "HEAD")
+                      }
                       value={field.value}
                     >
-                      <SelectTrigger id="method" className={errors.method ? "border-destructive" : ""}>
+                      <SelectTrigger
+                        id="method"
+                        className={errors.method ? "border-destructive" : ""}
+                      >
                         <SelectValue placeholder="Select method" />
                       </SelectTrigger>
                       <SelectContent>
@@ -229,7 +257,9 @@ export default function HttpMonitorForm({
                   )}
                 />
                 <ErrorMessage errors={errors.headersString?.message} />
-                <p className="text-xs text-muted-foreground">Enter headers as a valid JSON object</p>
+                <p className="text-xs text-muted-foreground">
+                  Enter headers as a valid JSON object
+                </p>
               </FormField>
 
               {method === "POST" && (
@@ -246,7 +276,9 @@ export default function HttpMonitorForm({
                     )}
                   />
                   <ErrorMessage errors={errors.bodyString?.message} />
-                  <p className="text-xs text-muted-foreground">Only applicable for POST requests</p>
+                  <p className="text-xs text-muted-foreground">
+                    Only applicable for POST requests
+                  </p>
                 </FormField>
               )}
             </div>
@@ -266,4 +298,4 @@ export default function HttpMonitorForm({
       </div>
     </FormProvider>
   );
-} 
+}

@@ -1,4 +1,3 @@
-
 export class SMSService {
   private accountSid: string;
   private authToken: string;
@@ -13,7 +12,7 @@ export class SMSService {
   async sendSMS(toNumber: string, message: string): Promise<boolean> {
     try {
       const url = `https://api.twilio.com/2010-04-01/Accounts/${this.accountSid}/Messages.json`;
-      
+
       const formData = new URLSearchParams();
       formData.append("To", toNumber);
       formData.append("From", this.fromNumber);
@@ -22,7 +21,7 @@ export class SMSService {
       const response = await fetch(url, {
         method: "POST",
         headers: {
-          "Authorization": `Basic ${btoa(`${this.accountSid}:${this.authToken}`)}`,
+          Authorization: `Basic ${btoa(`${this.accountSid}:${this.authToken}`)}`,
           "Content-Type": "application/x-www-form-urlencoded",
         },
         body: formData,
@@ -30,7 +29,9 @@ export class SMSService {
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`Twilio API responded with status ${response.status}: ${errorText}`);
+        throw new Error(
+          `Twilio API responded with status ${response.status}: ${errorText}`
+        );
       }
 
       return true;
@@ -39,4 +40,4 @@ export class SMSService {
       return false;
     }
   }
-} 
+}

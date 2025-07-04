@@ -47,7 +47,9 @@ export const getOkStatusTextColor = (ok: boolean | unknown): string => {
   if (typeof ok !== "boolean") {
     return "text-slate-700 dark:text-slate-300";
   }
-  return ok ? "text-green-700 dark:text-green-700" : "text-red-700 dark:text-red-700";
+  return ok
+    ? "text-green-700 dark:text-green-700"
+    : "text-red-700 dark:text-red-700";
 };
 
 export const getStatusTextColor = (status: number | unknown): string => {

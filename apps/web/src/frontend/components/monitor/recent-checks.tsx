@@ -37,7 +37,7 @@ export default function RecentChecks({
       <div>
         <div className="border border-dashed p-8">
           <p className="text-sm text-center text-muted-foreground">
-          No recent logs available
+            No recent logs available
           </p>
         </div>
       </div>
@@ -51,7 +51,9 @@ export default function RecentChecks({
           <TableHeader>
             <TableRow className="border-dashed text-sm">
               <TableHead className=""></TableHead>
-              <TableHead className="">{displayLogs[0].check_type === "http" ? "Code" : "Result"}</TableHead>
+              <TableHead className="">
+                {displayLogs[0].check_type === "http" ? "Code" : "Result"}
+              </TableHead>
               <TableHead className="">Latency</TableHead>
               <TableHead className="flex-1 hidden sm:flex items-center justify-start">
                 Region
@@ -67,13 +69,16 @@ export default function RecentChecks({
               >
                 <TableCell className="py-2">
                   <div
-                    className={cn("size-2 rounded-xs", 
-                      log.check_type === "http" && typeof log.status_code === "number"
+                    className={cn(
+                      "size-2 rounded-xs",
+                      log.check_type === "http" &&
+                        typeof log.status_code === "number"
                         ? getStatusColor(log.status_code)
                         : getOkStatusColor(log.ok)
                     )}
                     title={
-                      log.check_type === "http" && typeof log.status_code === "number"
+                      log.check_type === "http" &&
+                      typeof log.status_code === "number"
                         ? `Status code: ${log.status_code}`
                         : typeof log.ok === "boolean"
                           ? log.ok
@@ -88,7 +93,12 @@ export default function RecentChecks({
                   />
                 </TableCell>
                 <TableCell className="font-mono text-xs py-2">
-                  {log.check_type === "http" && typeof log.status_code === "number" ? log.status_code : log.ok ? "Ok" : "Error"}
+                  {log.check_type === "http" &&
+                  typeof log.status_code === "number"
+                    ? log.status_code
+                    : log.ok
+                      ? "Ok"
+                      : "Error"}
                 </TableCell>
                 <TableCell className="font-mono text-xs py-2">
                   {log.latency && log.latency >= 0

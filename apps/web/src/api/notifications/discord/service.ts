@@ -1,4 +1,3 @@
-
 export class DiscordService {
   constructor() {}
 
@@ -33,4 +32,4 @@ export class DiscordService {
       return false;
     }
   }
-} 
+}

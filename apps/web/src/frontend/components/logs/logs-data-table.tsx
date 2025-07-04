@@ -44,11 +44,12 @@ export const columns: ColumnDef<Log>[] = [
       const ok = row.original.ok;
       const checkType = row.original.check_type;
       const statusCode = row.original.status_code;
-      
+
       return (
         <div className="flex items-center justify-center">
           <div
-            className={cn("w-3 h-3", 
+            className={cn(
+              "w-3 h-3",
               checkType === "http" && typeof statusCode === "number"
                 ? getStatusColor(statusCode)
                 : getOkStatusColor(ok)
@@ -56,7 +57,9 @@ export const columns: ColumnDef<Log>[] = [
             title={`Status: ${
               checkType === "http" && typeof statusCode === "number"
                 ? `HTTP ${statusCode}`
-                : ok ? "Success" : "Failed"
+                : ok
+                  ? "Success"
+                  : "Failed"
             }`}
           />
         </div>
@@ -118,10 +121,10 @@ export const columns: ColumnDef<Log>[] = [
     cell: ({ row }) => {
       const method = row.getValue("method") as string;
       const checkType = row.original.check_type;
-      
+
       // Check if this is a TCP check
       const isTcpCheck = checkType === "tcp";
-      
+
       return (
         <span className="text-sm font-mono font-medium">
           {isTcpCheck ? "TCP" : method}
@@ -137,9 +140,9 @@ export const columns: ColumnDef<Log>[] = [
     cell: ({ row }) => {
       const url = row.getValue("url") as string;
       const checkType = row.original.check_type;
-      
+
       const isTcpCheck = checkType === "tcp";
-      
+
       return (
         <div className="flex items-center space-x-2">
           {isTcpCheck && (
@@ -169,16 +172,23 @@ export const columns: ColumnDef<Log>[] = [
       const ok = row.original.ok;
       const checkType = row.original.check_type;
       const statusCode = row.original.status_code;
-      
+
       return (
-        <span className={cn("font-mono text-sm", 
-          checkType === "http" && typeof statusCode === "number"
-            ? getStatusTextColor(statusCode)
-            : getOkStatusTextColor(ok)
-        )}>
+        <span
+          className={cn(
+            "font-mono text-sm",
+            checkType === "http" && typeof statusCode === "number"
+              ? getStatusTextColor(statusCode)
+              : getOkStatusTextColor(ok)
+          )}
+        >
           {checkType === "http" && typeof statusCode === "number"
             ? statusCode
-            : typeof ok === "boolean" ? (ok ? "OK" : "ERR") : "ERR"}
+            : typeof ok === "boolean"
+              ? ok
+                ? "OK"
+                : "ERR"
+              : "ERR"}
         </span>
       );
     },

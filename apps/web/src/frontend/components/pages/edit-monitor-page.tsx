@@ -140,9 +140,7 @@ export default function EditMonitorPage() {
       <div className="space-y-4">
         <div>
           <h1 className="text-xl font-medium">Edit Monitor</h1>
-          <p className="text-muted-foreground mt-1">
-            Unknown monitor type.
-          </p>
+          <p className="text-muted-foreground mt-1">Unknown monitor type.</p>
         </div>
       </div>
     </div>

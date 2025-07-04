@@ -14,47 +14,66 @@ const isValidJSONObject = (val?: string) => {
   if (!val?.trim()) return true;
   try {
     const parsed = JSON.parse(val);
-    return typeof parsed === "object" && parsed !== null && !Array.isArray(parsed);
+    return (
+      typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)
+    );
   } catch {
     return false;
   }
 };
 
-
 export const MonitorsParamsSchema = z
   .object({
-    name: z.string().trim().min(1, "Monitor name cannot be empty").max(100, "Monitor name is too long"),
+    name: z
+      .string()
+      .trim()
+      .min(1, "Monitor name cannot be empty")
+      .max(100, "Monitor name is too long"),
     checkType: z.enum(["http", "tcp"]),
-    url: z.string().optional().transform(val => val === '' ? undefined : val).refine(val => !val || z.string().url().safeParse(val).success, {
-      message: "Invalid URL format",
-    }),    
-    tcpHostPort: z.string()
+    url: z
+      .string()
+      .optional()
+      .transform((val) => (val === "" ? undefined : val))
+      .refine((val) => !val || z.string().url().safeParse(val).success, {
+        message: "Invalid URL format",
+      }),
+    tcpHostPort: z
+      .string()
       .trim()
       .regex(
         /^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*:[1-9]\d{0,4}$/,
         "Please enter a valid host:port format (e.g., example.com:8080)"
       )
       .optional()
-      .transform(val => val === '' ? undefined : val),
+      .transform((val) => (val === "" ? undefined : val)),
     method: z.enum(["GET", "POST", "HEAD"]).optional(),
-    interval: z.number().int().min(60000, "Interval must be at least 1 minute").max(3600000, "Interval must be less than 1 hour"),
-    regions: z.array(z.string()).min(1, "Please select at least one monitoring region"),
+    interval: z
+      .number()
+      .int()
+      .min(60000, "Interval must be at least 1 minute")
+      .max(3600000, "Interval must be less than 1 hour"),
+    regions: z
+      .array(z.string())
+      .min(1, "Please select at least one monitoring region"),
     headersString: z
       .string()
       .trim()
       .optional()
-      .refine(isValidJSONObject, 'Headers must be a valid JSON object string, e.g. {"key": "value"}'),
+      .refine(
+        isValidJSONObject,
+        'Headers must be a valid JSON object string, e.g. {"key": "value"}'
+      ),
     bodyString: z
       .string()
       .trim()
       .optional()
-      .refine(isValidJSON, 'Body must be a valid JSON string, e.g. {"key": "value"} or "text"'),
+      .refine(
+        isValidJSON,
+        'Body must be a valid JSON string, e.g. {"key": "value"} or "text"'
+      ),
     headers: z.record(z.string()).optional(),
     body: z.union([z.record(z.unknown()), z.string()]).optional(),
-    slackWebhookUrl: z
-      .string()
-      .trim()
-      .optional(),
+    slackWebhookUrl: z.string().trim().optional(),
     workspaceId: z.string().uuid("Invalid workspace ID format"),
   })
   .refine(
@@ -62,13 +81,17 @@ export const MonitorsParamsSchema = z
       if (data.checkType === "http" && (!data.url || data.url.trim() === "")) {
         return false;
       }
-      if (data.checkType === "tcp" && (!data.tcpHostPort || data.tcpHostPort.trim() === "")) {
+      if (
+        data.checkType === "tcp" &&
+        (!data.tcpHostPort || data.tcpHostPort.trim() === "")
+      ) {
         return false;
       }
       return true;
     },
     {
-      message: "URL is required for HTTP checks, Host:Port is required for TCP checks",
+      message:
+        "URL is required for HTTP checks, Host:Port is required for TCP checks",
       path: ["url"],
     }
   )

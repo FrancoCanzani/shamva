@@ -41,7 +41,7 @@ export class GitHubService {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `token ${this.token}`,
+            Authorization: `token ${this.token}`,
             "User-Agent": "Shamva-Monitoring/1.0",
           },
           body: JSON.stringify({
@@ -54,10 +54,15 @@ export class GitHubService {
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`GitHub API responded with status ${response.status}: ${errorText}`);
+        throw new Error(
+          `GitHub API responded with status ${response.status}: ${errorText}`
+        );
       }
 
-      const data = await response.json() as { number: number; html_url: string };
+      const data = (await response.json()) as {
+        number: number;
+        html_url: string;
+      };
       return data.html_url;
     } catch (error) {
       console.error("Failed to create GitHub issue:", error);
@@ -73,7 +78,7 @@ export class GitHubService {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `token ${this.token}`,
+            Authorization: `token ${this.token}`,
             "User-Agent": "Shamva-Monitoring/1.0",
           },
           body: JSON.stringify({
@@ -84,7 +89,9 @@ export class GitHubService {
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`GitHub API responded with status ${response.status}: ${errorText}`);
+        throw new Error(
+          `GitHub API responded with status ${response.status}: ${errorText}`
+        );
       }
 
       return true;
@@ -116,7 +123,7 @@ export class GitHubService {
       `*This issue was automatically created by Shamva monitoring system.*`;
 
     const issueUrl = await this.createIssue(title, body, ["urgent", "down"]);
-    
+
     return {
       success: issueUrl !== null,
       issueUrl: issueUrl || undefined,
@@ -129,7 +136,7 @@ export class GitHubService {
     issueNumber?: number
   ): Promise<boolean> {
     const downtime = this.calculateDowntime(lastSuccessAt, new Date());
-    
+
     // If we have an issue number, close it
     if (issueNumber) {
       return await this.closeIssue(issueNumber);
@@ -151,7 +158,10 @@ export class GitHubService {
       `---\n` +
       `*This issue was automatically created by Shamva monitoring system.*`;
 
-    const issueUrl = await this.createIssue(title, body, ["resolved", "recovery"]);
+    const issueUrl = await this.createIssue(title, body, [
+      "resolved",
+      "recovery",
+    ]);
     return issueUrl !== null;
   }
-} 
+}

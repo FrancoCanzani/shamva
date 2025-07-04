@@ -17,9 +17,9 @@ export class PagerDutyService {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Accept": "application/vnd.pagerduty+json;version=2",
-          "Authorization": `Token token=${this.apiKey}`,
-          "From": "shamva-monitoring@yourdomain.com", // Replace with your email
+          Accept: "application/vnd.pagerduty+json;version=2",
+          Authorization: `Token token=${this.apiKey}`,
+          From: "shamva-monitoring@yourdomain.com", // Replace with your email
         },
         body: JSON.stringify({
           incident: {
@@ -39,10 +39,12 @@ export class PagerDutyService {
       });
 
       if (!response.ok) {
-        throw new Error(`PagerDuty API responded with status ${response.status}`);
+        throw new Error(
+          `PagerDuty API responded with status ${response.status}`
+        );
       }
 
-      const data = await response.json() as { incident: { id: string } };
+      const data = (await response.json()) as { incident: { id: string } };
       return data.incident.id;
     } catch (error) {
       console.error("Failed to create PagerDuty incident:", error);
@@ -56,9 +58,9 @@ export class PagerDutyService {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "Accept": "application/vnd.pagerduty+json;version=2",
-          "Authorization": `Token token=${this.apiKey}`,
-          "From": "shamva-monitoring@yourdomain.com", // Replace with your email
+          Accept: "application/vnd.pagerduty+json;version=2",
+          Authorization: `Token token=${this.apiKey}`,
+          From: "shamva-monitoring@yourdomain.com", // Replace with your email
         },
         body: JSON.stringify({
           incident: {
@@ -69,7 +71,9 @@ export class PagerDutyService {
       });
 
       if (!response.ok) {
-        throw new Error(`PagerDuty API responded with status ${response.status}`);
+        throw new Error(
+          `PagerDuty API responded with status ${response.status}`
+        );
       }
 
       return true;
@@ -78,4 +82,4 @@ export class PagerDutyService {
       return false;
     }
   }
-} 
+}

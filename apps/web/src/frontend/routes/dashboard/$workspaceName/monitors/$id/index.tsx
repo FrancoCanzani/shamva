@@ -7,9 +7,11 @@ const MonitorSearchSchema = z.object({
   days: z.number().default(30),
 });
 
-export const Route = createFileRoute("/dashboard/$workspaceName/monitors/$id/")({
-  component: MonitorPage,
-  validateSearch: (search) => MonitorSearchSchema.parse(search),
-  loader: ({ params, abortController }) =>
-    fetchMonitor({ params, abortController }),
-});
+export const Route = createFileRoute("/dashboard/$workspaceName/monitors/$id/")(
+  {
+    component: MonitorPage,
+    validateSearch: (search) => MonitorSearchSchema.parse(search),
+    loader: ({ params, abortController }) =>
+      fetchMonitor({ params, abortController }),
+  }
+);

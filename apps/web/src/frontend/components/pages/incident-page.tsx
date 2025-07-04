@@ -9,9 +9,10 @@ import { format, formatDistanceToNowStrict, parseISO } from "date-fns";
 import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { IncidentTimeline } from "../incidents/incident-timeline";
+import IncidentTimeline from "../incidents/incident-timeline";
 import { IncidentUpdateEditor } from "../incidents/incident-update-editor";
 import { IncidentUpdatesSection } from "../incidents/incident-updates-section";
+import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
 import { Separator } from "../ui/separator";
 
 interface IncidentUpdate {
@@ -33,8 +34,6 @@ export default function IncidentPage() {
   const { session } = useAuth();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showEditor, setShowEditor] = useState(false);
-
-  console.log(session);
 
   const acknowledgeMutation = useMutation({
     mutationFn: async () => {
@@ -208,28 +207,28 @@ export default function IncidentPage() {
 
   return (
     <div>
-      <div className="max-w-6xl mx-auto p-4">
+      <div className="mx-auto max-w-6xl p-4">
         <Link
           to="/dashboard/$workspaceName/monitors/$id"
           params={{ workspaceName, id: incident.monitor_id }}
           search={{ days: 30 }}
-          className="flex items-center justify-start text-xs gap-1 text-muted-foreground mb-6"
+          className="text-muted-foreground mb-6 flex items-center justify-start gap-1 text-xs"
         >
           <ArrowLeft className="size-3" />
           <span className="hover:underline">Back to Monitor</span>
         </Link>
-        <div className="flex flex-col lg:flex-row gap-8">
-          <div className="flex-1 min-w-0 space-y-6 order-2 lg:order-1">
-            <div className="border rounded-xs shadow-xs p-4">
-              <div className="flex items-start justify-between mb-4">
+        <div className="flex flex-col gap-8 lg:flex-row">
+          <div className="order-2 min-w-0 flex-1 space-y-6 lg:order-1">
+            <div className="rounded-xs border p-4 shadow-xs">
+              <div className="mb-4 flex items-start justify-between">
                 <div className="space-y-3">
-                  <h1 className="text-xl uppercase font-medium tracking-tight font-mono">
+                  <h1 className="tracking-widetight font-mono text-xl font-medium uppercase">
                     {status.label.toUpperCase()} incident
                   </h1>
                   {incident.regions_affected &&
                     incident.regions_affected.length > 0 && (
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-xs text-muted-foreground uppercase tracking-wide">
+                        <span className="text-muted-foreground tracking-widewide font-mono text-xs uppercase">
                           Affected regions:
                         </span>
                         <div className="flex items-center gap-1">
@@ -237,7 +236,7 @@ export default function IncidentPage() {
                         </div>
                       </div>
                     )}
-                  <p className="text-xs font-mono text-muted-foreground">
+                  <p className="text-muted-foreground font-mono text-xs">
                     STARTED {formatEventTime(incident.started_at).toUpperCase()}{" "}
                     ({duration.toUpperCase()})
                   </p>
@@ -268,21 +267,29 @@ export default function IncidentPage() {
                 </div>
               </div>
               {incident.monitors?.error_message && (
-                <div className="border rounded-xs shadow-xs border-red-300 dark:border-red-900 p-3 bg-red-50 dark:bg-background">
-                  <p className="text-red-900 text-xs font-mono tracking-wide">
+                <div className="dark:bg-background rounded-xs border border-red-300 bg-red-50 p-3 shadow-xs dark:border-red-900">
+                  <p className="tracking-widewide font-mono text-xs text-red-900">
                     {incident.monitors.error_message.toUpperCase()}
                   </p>
                 </div>
               )}
             </div>
 
+            {incident.screenshot_url && (
+              <img
+                src={incident.screenshot_url}
+                alt="Incident screenshot"
+                className="w-full rounded-xs border shadow-xs lg:hidden"
+              />
+            )}
+
             <div className="lg:hidden">
               <IncidentTimeline events={timelineEvents} />
             </div>
 
-            <div className="border rounded-xs shadow-xs p-4">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-medium font-mono">UPDATES</h2>
+            <div className="rounded-xs border p-4 shadow-xs">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="font-mono text-sm font-medium">UPDATES</h2>
                 <Button
                   variant={"outline"}
                   size={"xs"}
@@ -310,13 +317,32 @@ export default function IncidentPage() {
               />
             </div>
           </div>
-          <div className="order-1 lg:order-2 hidden lg:block lg space-y-4">
+          <div className="lg order-1 hidden space-y-4 lg:order-2 lg:block">
             {incident.screenshot_url && (
-              <img
-                src={incident.screenshot_url}
-                alt="Incident screenshot"
-                className="w-80 border rounded-xs shadow-xs"
-              />
+              <Dialog>
+                <DialogTrigger className="group flex w-80 flex-col items-start rounded-xs border p-4 shadow-xs">
+                  <h2 className="mb-4 font-mono text-sm font-medium">
+                    Screenshot
+                  </h2>
+                  <div className="relative">
+                    <span className="bg-carbon-50 dark:bg-carbon-800 absolute inset-0 z-10 flex items-center justify-center rounded-xs font-mono text-xs font-medium opacity-0 transition-opacity duration-300 group-hover:opacity-100 dark:text-white">
+                      Click to expand
+                    </span>
+                    <img
+                      src={incident.screenshot_url}
+                      alt="Incident screenshot"
+                      className="w-80 rounded-xs transition-all duration-200 group-hover:blur-xs"
+                    />
+                  </div>
+                </DialogTrigger>
+                <DialogContent>
+                  <img
+                    src={incident.screenshot_url}
+                    alt="Incident screenshot"
+                    className="w-full rounded-xs border shadow-xs"
+                  />
+                </DialogContent>
+              </Dialog>
             )}
             <IncidentTimeline events={timelineEvents} />
           </div>

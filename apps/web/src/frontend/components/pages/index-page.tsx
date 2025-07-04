@@ -44,7 +44,12 @@ export default function IndexPage() {
               <div className="w-8 h-8 bg-primary flex items-center justify-center">
                 <Heart className="w-5 h-5 text-primary-foreground" />
               </div>
-              <span className="text-xl font-medium">Shamva</span>
+              <span
+                className="text-xl font-bold tracking-wide[-5px]"
+                style={{ fontFamily: "Helvetica, Arial, sans-serif" }}
+              >
+                Shamva
+              </span>
             </div>
             <div className="flex items-center space-x-4">
               {user ? (
@@ -224,7 +229,10 @@ export default function IndexPage() {
               <div className="w-6 h-6 bg-primary flex items-center justify-center">
                 <Heart className="w-4 h-4 text-primary-foreground" />
               </div>
-              <span className="text-lg font-medium text-foreground">
+              <span
+                className="text-lg font-bold text-foreground tracking-wide[-5px]"
+                style={{ fontFamily: "Helvetica, Arial, sans-serif" }}
+              >
                 Shamva
               </span>
             </div>

@@ -18,8 +18,8 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from "./ui/navigation-menu";
-import { WorkspaceDropdown } from "./workspace-dropdown";
 import { ThemeToggle } from "./ui/theme-toggle";
+import { WorkspaceDropdown } from "./workspace-dropdown";
 
 export function DashboardNavbar() {
   const { workspaceName } = useParams({ strict: false });
@@ -62,12 +62,19 @@ export function DashboardNavbar() {
             <Link
               to="/dashboard/$workspaceName/monitors"
               params={{ workspaceName: currentWorkspace.name }}
-              className="font-mono uppercase tracking-tight font-medium text-xl"
+              className="font-bold uppercase tracking-wide
+              text-xl"
+              style={{ fontFamily: "Helvetica, Arial, sans-serif" }}
             >
               Shamva
             </Link>
           ) : (
-            <span className="font-medium text-2xl font-mono">Shamva</span>
+            <span
+              className="font-bold text-2xl tracking-wide[-5px]"
+              style={{ fontFamily: "Helvetica, Arial, sans-serif" }}
+            >
+              Shamva
+            </span>
           )}
 
           <NavigationMenu className="hidden md:flex">
@@ -133,7 +140,12 @@ export function DashboardNavbar() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
               <div className="px-2 py-1.5">
-                <p className="font-mono font-semibold text-sm">Shamva</p>
+                <p
+                  className="font-bold text-sm tracking-wide[-5px]"
+                  style={{ fontFamily: "Helvetica, Arial, sans-serif" }}
+                >
+                  Shamva
+                </p>
               </div>
               <DropdownMenuSeparator />
 

@@ -18,7 +18,7 @@ export const IncidentTimeline: React.FC<IncidentTimelineProps> = ({
 }) => (
   <div className="border rounded-xs shadow-xs w-full lg:w-80 h-fit p-4">
     <h2 className="text-sm font-medium mb-4 font-mono">TIMELINE</h2>
-    <div className="flex flex-col items-start justify-start gap-6">
+    <div className="flex flex-col items-start justify-start gap-4">
       {events.map((event) => (
         <div key={event.id} className="flex items-start gap-3">
           <div>

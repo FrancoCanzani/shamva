@@ -310,7 +310,14 @@ export default function IncidentPage() {
               />
             </div>
           </div>
-          <div className="order-1 lg:order-2 hidden lg:block lg">
+          <div className="order-1 lg:order-2 hidden lg:block lg space-y-4">
+            {incident.screenshot_url && (
+              <img
+                src={incident.screenshot_url}
+                alt="Incident screenshot"
+                className="w-80 border rounded-xs shadow-xs"
+              />
+            )}
             <IncidentTimeline events={timelineEvents} />
           </div>
         </div>

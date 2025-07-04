@@ -1,19 +1,32 @@
+import { useIsMobile } from "@/frontend/hooks/use-mobile";
 import type { Log, Monitor } from "@/frontend/lib/types";
 import { cn } from "@/frontend/lib/utils";
 import { Link } from "@tanstack/react-router";
-import { format, formatDistanceToNowStrict, isAfter, parseISO, subHours } from "date-fns";
+import {
+  format,
+  formatDistanceToNowStrict,
+  isAfter,
+  parseISO,
+  subHours,
+} from "date-fns";
 import { ChevronRight } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip";
 import MonitorsCardAvailabilityDisplay from "./monitors-card-availability";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
-import { useIsMobile } from "@/frontend/hooks/use-mobile";
 
 const calculateAvailability = (
   logs: Partial<Log>[],
-  hours: number,
+  hours: number
 ): { percentage: number; success: number; total: number } => {
   const now = new Date();
   const timeLimit = subHours(now, hours);
-  const relevantLogs = logs.filter((log) => log.created_at && isAfter(parseISO(log.created_at), timeLimit));
+  const relevantLogs = logs.filter(
+    (log) => log.created_at && isAfter(parseISO(log.created_at), timeLimit)
+  );
 
   if (relevantLogs.length === 0) {
     return { percentage: 100, success: 0, total: 0 };
@@ -36,7 +49,10 @@ const calculateAvailability = (
 const calculateAverageLatency = (logs: Partial<Log>[]): number | null => {
   const validLatencies = logs
     .map((log) => log.latency)
-    .filter((latency): latency is number => typeof latency === "number" && latency >= 0);
+    .filter(
+      (latency): latency is number =>
+        typeof latency === "number" && latency >= 0
+    );
 
   if (validLatencies.length === 0) {
     return null;
@@ -73,8 +89,10 @@ const getStatusText = (log: Partial<Log> | undefined): string => {
   // For HTTP checks, show status code
   if (log.check_type === "http" && typeof log.status_code === "number") {
     if (log.status_code >= 200 && log.status_code < 300) return "Success";
-    if (log.status_code >= 300 && log.status_code < 400) return `Redirect (${log.status_code})`;
-    if (log.status_code >= 400 && log.status_code < 500) return `Client Error (${log.status_code})`;
+    if (log.status_code >= 300 && log.status_code < 400)
+      return `Redirect (${log.status_code})`;
+    if (log.status_code >= 400 && log.status_code < 500)
+      return `Client Error (${log.status_code})`;
     if (log.status_code >= 500) return `Server Error (${log.status_code})`;
     return `Failed (${log.status_code})`;
   }
@@ -90,17 +108,15 @@ const getStatusText = (log: Partial<Log> | undefined): string => {
   return log.error ? `Error: ${log.error}` : "Unknown status";
 };
 
-function RecentChecks({ logs }: {logs: Partial<Log>[]}) {
-
+function RecentChecks({ logs }: { logs: Partial<Log>[] }) {
   const isMobile = useIsMobile();
 
   const recent = (isMobile ? logs.slice(0, 7) : logs.slice(0, 10)).reverse();
 
-  
   return (
     <TooltipProvider>
       <div className="flex items-center space-x-1">
-        {/* This approach ensures that the UI always displays a fixed number of bars */}
+        {/* ensures that the UI always displays a fixed number of bars */}
         {Array.from({ length: isMobile ? 7 : 10 }).map((_, index) => {
           const log = recent[index];
           const color = getStatusColorForCheck(log);
@@ -113,7 +129,10 @@ function RecentChecks({ logs }: {logs: Partial<Log>[]}) {
           return (
             <Tooltip key={index}>
               <TooltipTrigger asChild>
-                <div className={cn("h-8 w-1.5 rounded-xs", color)} aria-label={title} />
+                <div
+                  className={cn("h-8 w-1.5 rounded-xs", color)}
+                  aria-label={title}
+                />
               </TooltipTrigger>
               {log && (
                 <TooltipContent side="top" className="text-xs">
@@ -133,7 +152,10 @@ interface MonitorCardProps {
   workspaceName: string;
 }
 
-export default function MonitorsCard({ monitor, workspaceName }: MonitorCardProps) {
+export default function MonitorsCard({
+  monitor,
+  workspaceName,
+}: MonitorCardProps) {
   const avgLatency = calculateAverageLatency(monitor.recent_logs);
   const availability24h = calculateAvailability(monitor.recent_logs, 24);
   const availability7d = calculateAvailability(monitor.recent_logs, 7 * 24);
@@ -163,7 +185,7 @@ export default function MonitorsCard({ monitor, workspaceName }: MonitorCardProp
 
   return (
     <div className="group border shadow-xs rounded-xs">
-      <Link 
+      <Link
         to="/dashboard/$workspaceName/monitors/$id"
         params={{ id: monitor.id, workspaceName: workspaceName }}
         search={{ days: 30 }}
@@ -173,36 +195,58 @@ export default function MonitorsCard({ monitor, workspaceName }: MonitorCardProp
           <div className="min-w-0 flex-1">
             <div className="flex items-center space-x-2">
               <div
-                className={cn("w-2 h-2 rounded-xs", getMonitorStatusColor(monitor.status))}
+                className={cn(
+                  "w-2 h-2 rounded-xs",
+                  getMonitorStatusColor(monitor.status)
+                )}
                 title={`Status: ${monitor.status}`}
               />
               <span className="text-sm font-medium truncate">
-                {monitor.name ?? (monitor.check_type === "tcp" ? monitor.tcp_host_port : monitor.url)}
+                {monitor.name ??
+                  (monitor.check_type === "tcp"
+                    ? monitor.tcp_host_port
+                    : monitor.url)}
               </span>
-              <span className="text-xs text-muted-foreground capitalize hidden sm:inline">{monitor.status}</span>
+              <span className="text-xs text-muted-foreground capitalize hidden sm:inline">
+                {monitor.status}
+              </span>
             </div>
-            <span className="text-xs text-muted-foreground">Last checked {lastCheck}</span>
+            <span className="text-xs text-muted-foreground">
+              Last checked {lastCheck}
+            </span>
           </div>
 
           <div className="flex items-center md:space-x-3 sm:space-x-6 text-xs">
             <div className="flex items-center flex-col space-y-0.5">
-              <span className="text-muted-foreground text-[8px]">- Recent- </span>
+              <span className="text-muted-foreground text-[8px]">
+                - Recent-{" "}
+              </span>
               <RecentChecks logs={monitor.recent_logs} />
             </div>
 
             <div className="flex items-center space-x-2 sm:space-x-4">
               <div className="text-center hidden sm:block">
-                <div className="text-muted-foreground mb-1 w-8 hidden sm:block">24h</div>
-                <MonitorsCardAvailabilityDisplay label="24h" availability={availability24h} />
+                <div className="text-muted-foreground mb-1 w-8 hidden sm:block">
+                  24h
+                </div>
+                <MonitorsCardAvailabilityDisplay
+                  label="24h"
+                  availability={availability24h}
+                />
               </div>
 
               <div className="text-center hidden sm:block">
                 <div className="text-muted-foreground mb-1 w-8">7d</div>
-                <MonitorsCardAvailabilityDisplay label="7d" availability={availability7d} />
+                <MonitorsCardAvailabilityDisplay
+                  label="7d"
+                  availability={availability7d}
+                />
               </div>
 
               <div className="text-center hidden sm:block">
-                <div className="text-muted-foreground mb-1 hidden sm:block">Latency</div>
+                <div className="text-muted-foreground mb-1 hidden sm:block">
+                  Latency
+                </div>
                 <span className="font-mono">
                   {avgLatency !== null ? `${avgLatency.toFixed(0)}ms` : "-"}
                 </span>
@@ -219,4 +263,4 @@ export default function MonitorsCard({ monitor, workspaceName }: MonitorCardProp
       </Link>
     </div>
   );
-} 
+}

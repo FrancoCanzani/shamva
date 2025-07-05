@@ -102,11 +102,11 @@ export default function NewMonitorPage() {
 
   if (type === "http") {
     return (
-      <div className="container max-w-5xl mx-auto p-4">
+      <div className="container mx-auto max-w-5xl p-4">
         <div className="space-y-8">
           <div>
-            <h1 className="font-medium text-xl">Create HTTP Monitor</h1>
-            <p className="text-muted-foreground text-sm mt-1">
+            <h1 className="text-xl font-medium">Create HTTP Monitor</h1>
+            <p className="text-muted-foreground mt-1 text-sm">
               Configure an HTTP/HTTPS endpoint monitor.
             </p>
           </div>
@@ -121,11 +121,11 @@ export default function NewMonitorPage() {
     );
   } else if (type === "tcp") {
     return (
-      <div className="container max-w-5xl mx-auto p-4">
+      <div className="container mx-auto max-w-5xl p-4">
         <div className="space-y-8">
           <div>
-            <h1 className="font-medium text-xl">Create TCP Monitor</h1>
-            <p className="text-muted-foreground text-sm mt-1">
+            <h1 className="text-xl font-medium">Create TCP Monitor</h1>
+            <p className="text-muted-foreground mt-1 text-sm">
               Configure a TCP connection monitor.
             </p>
           </div>
@@ -141,11 +141,11 @@ export default function NewMonitorPage() {
   }
 
   return (
-    <div className="container max-w-5xl mx-auto p-4">
+    <div className="container mx-auto max-w-5xl p-4">
       <div className="space-y-8">
         <div>
-          <h1 className="font-medium text-xl">Invalid Monitor Type</h1>
-          <p className="text-muted-foreground text-sm mt-1">
+          <h1 className="text-xl font-medium">Invalid Monitor Type</h1>
+          <p className="text-muted-foreground mt-1 text-sm">
             The specified monitor type is not supported.
           </p>
         </div>

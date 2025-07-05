@@ -38,63 +38,63 @@ export const MonitorRecoveredEmail = ({
       <Head />
       <Preview>{previewText}</Preview>
       <Tailwind>
-        <Body className="bg-white my-auto mx-auto font-sans">
-          <Container className="border border-solid border-[#eaeaea]  my-[40px] mx-auto p-[20px] w-[465px]">
+        <Body className="mx-auto my-auto bg-white font-sans">
+          <Container className="mx-auto my-[40px] w-[465px] border border-solid border-[#eaeaea] p-[20px]">
             <Section className="mt-[32px]">
-              <div className="w-8 h-8 bg-green-500 -full flex items-center justify-center mb-4">
-                <span className="text-white text-sm font-bold">✓</span>
+              <div className="-full mb-4 flex h-8 w-8 items-center justify-center bg-green-500">
+                <span className="text-sm font-bold text-white">✓</span>
               </div>
             </Section>
 
-            <Heading className="text-black text-[24px] font-normal text-center p-0 my-[30px] mx-0">
+            <Heading className="mx-0 my-[30px] p-0 text-center text-[24px] font-normal text-black">
               Great News: <strong>{monitorName}</strong> is Back Online
             </Heading>
 
-            <Text className="text-black text-[14px] leading-[24px]">
+            <Text className="text-[14px] leading-[24px] text-black">
               Hello {userName},
             </Text>
 
-            <Text className="text-black text-[14px] leading-[24px]">
+            <Text className="text-[14px] leading-[24px] text-black">
               Your monitor <strong>{monitorName}</strong> has recovered and is
               now responding normally.
             </Text>
 
-            <Section className="bg-green-50  p-4 my-4">
-              <Text className="text-black text-[14px] leading-[24px] m-0 mb-2">
+            <Section className="my-4 bg-green-50 p-4">
+              <Text className="m-0 mb-2 text-[14px] leading-[24px] text-black">
                 <strong>URL:</strong> {url}
               </Text>
-              <Text className="text-black text-[14px] leading-[24px] m-0 mb-2">
+              <Text className="m-0 mb-2 text-[14px] leading-[24px] text-black">
                 <strong>Status:</strong> Online
               </Text>
               {downtime && (
-                <Text className="text-black text-[14px] leading-[24px] m-0 mb-2">
+                <Text className="m-0 mb-2 text-[14px] leading-[24px] text-black">
                   <strong>Downtime:</strong> {downtime}
                 </Text>
               )}
-              <Text className="text-black text-[14px] leading-[24px] m-0 mb-2">
+              <Text className="m-0 mb-2 text-[14px] leading-[24px] text-black">
                 <strong>Recovered At:</strong> {formattedDate}
               </Text>
               {region && (
-                <Text className="text-black text-[14px] leading-[24px] m-0">
+                <Text className="m-0 text-[14px] leading-[24px] text-black">
                   <strong>Region:</strong> {region}
                 </Text>
               )}
             </Section>
 
-            <Text className="text-black text-[14px] leading-[24px]">
+            <Text className="text-[14px] leading-[24px] text-black">
               We'll continue monitoring to ensure your service stays healthy.
             </Text>
 
-            <Section className="text-center mt-[32px] mb-[32px]">
+            <Section className="mt-[32px] mb-[32px] text-center">
               <Link
-                className="bg-[#000000]  text-white text-[12px] font-semibold no-underline text-center px-5 py-3 inline-block"
+                className="inline-block bg-[#000000] px-5 py-3 text-center text-[12px] font-semibold text-white no-underline"
                 href={dashboardUrl}
               >
                 View Dashboard
               </Link>
             </Section>
 
-            <Text className="text-black text-[14px] leading-[24px]">
+            <Text className="text-[14px] leading-[24px] text-black">
               Best regards,
               <br />
               The Shamva Team

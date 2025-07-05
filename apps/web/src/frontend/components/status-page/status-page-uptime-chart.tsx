@@ -12,7 +12,7 @@ export default function StatusPageUptimeChart({
 
   return (
     <div className="">
-      <h4 className="text-xs uppercase text-black mb-2">30-DAY UPTIME</h4>
+      <h4 className="mb-2 text-xs text-black uppercase">30-DAY UPTIME</h4>
       <div className="flex gap-[2px]">
         {monitor.daily_stats.map((day, index) => {
           const uptimePercentage = day.uptime_percentage;
@@ -49,7 +49,7 @@ export default function StatusPageUptimeChart({
             <Tooltip key={index}>
               <TooltipTrigger asChild>
                 <div
-                  className="w-2 h-8 cursor-pointer transition-opacity hover:opacity-80"
+                  className="h-8 w-2 cursor-pointer transition-opacity hover:opacity-80"
                   style={{ backgroundColor: barColor }}
                 />
               </TooltipTrigger>

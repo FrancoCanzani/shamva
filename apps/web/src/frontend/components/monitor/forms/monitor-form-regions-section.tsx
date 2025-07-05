@@ -23,7 +23,7 @@ const continentOrder = [
 ];
 
 const ErrorMessage = ({ errors }: { errors?: string }) =>
-  errors ? <p className="text-sm text-destructive">{errors}</p> : null;
+  errors ? <p className="text-destructive text-sm">{errors}</p> : null;
 
 export function MonitorFormRegionsSection() {
   const {
@@ -43,12 +43,12 @@ export function MonitorFormRegionsSection() {
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between">
                 <h2 className="font-medium">Monitoring Regions *</h2>
-                <span className="text-xs text-muted-foreground">
+                <span className="text-muted-foreground text-xs">
                   {selectedRegions.length} region
                   {selectedRegions.length !== 1 ? "s" : ""} selected
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 * Regions are a best effort and not a guarantee. Monitors will
                 not necessarily be instantiated in the hinted region, but
                 instead instantiated in a data center selected to minimize
@@ -57,14 +57,14 @@ export function MonitorFormRegionsSection() {
             </div>
 
             <div className="border border-dashed p-2">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 {continentOrder.map((continent) => {
                   const regions = regionsByContinent[continent] || [];
                   if (regions.length === 0) return null;
 
                   return (
                     <div key={continent} className="space-y-2">
-                      <h3 className="font-medium text-sm">{continent}</h3>
+                      <h3 className="text-sm font-medium">{continent}</h3>
                       <div className="grid gap-2">
                         {regions.map((region) => {
                           const isSelected = field.value.includes(region.value);
@@ -72,7 +72,7 @@ export function MonitorFormRegionsSection() {
                             <div
                               key={region.value}
                               className={cn(
-                                "flex items-center justify-between p-2 border cursor-pointer hover:bg-carbon-50 dark:hover:bg-carbon-800 transition-colors",
+                                "hover:bg-carbon-50 dark:hover:bg-carbon-800 flex cursor-pointer items-center justify-between border p-2 transition-colors",
                                 isSelected
                                   ? "border-primary bg-carbon-50 dark:bg-carbon-800"
                                   : ""
@@ -107,7 +107,7 @@ export function MonitorFormRegionsSection() {
                                 <span className="text-xs">{region.label}</span>
                               </div>
                               {isSelected && (
-                                <Check className="h-4 w-4 text-primary" />
+                                <Check className="text-primary h-4 w-4" />
                               )}
                             </div>
                           );

@@ -128,10 +128,10 @@ export default function LatencyLineChart({
   if (chartData.length === 0) {
     return (
       <div
-        className="flex items-center justify-center h-full p-4"
+        className="flex h-full items-center justify-center p-4"
         style={{ height }}
       >
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           No latency data available
         </p>
       </div>
@@ -148,7 +148,7 @@ export default function LatencyLineChart({
   return (
     <ChartContainer
       config={chartConfig}
-      className="w-full max-h-80"
+      className="max-h-80 w-full"
       style={{ height }}
     >
       <LineChart

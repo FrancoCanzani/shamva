@@ -24,7 +24,7 @@ export default function MonitorsCardAvailabilityDisplay({
         <TooltipTrigger asChild>
           <span
             className={cn(
-              "text-xs font-mono",
+              "font-mono text-xs",
               availability.percentage < 95 && availability.total > 0
                 ? "text-red-700"
                 : availability.percentage < 100 && availability.total > 0

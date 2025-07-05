@@ -13,7 +13,7 @@ const FormField = ({
 }) => <div className={cn("space-y-2", className)}>{children}</div>;
 
 const ErrorMessage = ({ errors }: { errors?: string }) =>
-  errors ? <p className="text-sm text-destructive">{errors}</p> : null;
+  errors ? <p className="text-destructive text-sm">{errors}</p> : null;
 
 export function MonitorFormNotificationsSection() {
   const {
@@ -24,7 +24,7 @@ export function MonitorFormNotificationsSection() {
   return (
     <div id="notifications" className="space-y-4">
       <h3 className="text-sm font-medium">Notifications</h3>
-      <p className="text-xs text-muted-foreground">
+      <p className="text-muted-foreground text-xs">
         * Every accepted user in your workspace will receive email
         notifications. Additionally, you can configure Slack notifications.
       </p>
@@ -36,10 +36,10 @@ export function MonitorFormNotificationsSection() {
           placeholder="https://hooks.slack.com/services/..."
         />
         <ErrorMessage errors={errors.slackWebhookUrl?.message?.toString()} />
-        <p className="text-xs text-muted-foreground">
+        <p className="text-muted-foreground text-xs">
           Optional. Add a{" "}
           <Link
-            className="underline font-medium text-primary"
+            className="text-primary font-medium underline"
             to="/dashboard/$workspaceName/monitors"
             params={{ workspaceName: "workspaceName" }}
           >

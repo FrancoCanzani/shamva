@@ -8,11 +8,11 @@ export default function StatusPagesPage() {
   const { workspaceName } = Route.useParams();
 
   return (
-    <div className="p-4 space-y-8">
+    <div className="space-y-8 p-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-medium text-xl">Status Pages</h2>
-          <p className="text-sm text-muted-foreground mt-1">
+          <h2 className="text-xl font-medium">Status Pages</h2>
+          <p className="text-muted-foreground mt-1 text-sm">
             Create public status pages to share the health of your services
           </p>
         </div>
@@ -33,22 +33,22 @@ export default function StatusPagesPage() {
           {statusPages.map((statusPage) => (
             <div
               key={statusPage.id}
-              className="border border-dashed p-4 hover:bg-carbon-50"
+              className="hover:bg-carbon-50 border border-dashed p-4"
             >
-              <div className="flex justify-between items-start">
+              <div className="flex items-start justify-between">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <h3 className="font-medium">{statusPage.title}</h3>
-                    <span className="text-xs bg-muted px-2 py-1">
+                    <span className="bg-muted px-2 py-1 text-xs">
                       /{statusPage.slug}
                     </span>
                   </div>
                   {statusPage.description && (
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       {statusPage.description}
                     </p>
                   )}
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                  <div className="text-muted-foreground flex items-center gap-4 text-xs">
                     <span>{statusPage.monitors.length} monitor(s)</span>
                     {statusPage.password && <span>Password protected</span>}
                     <span>{statusPage.is_public ? "Public" : "Private"}</span>

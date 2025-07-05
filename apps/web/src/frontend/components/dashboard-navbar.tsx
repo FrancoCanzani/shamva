@@ -55,22 +55,21 @@ export function DashboardNavbar() {
   );
 
   return (
-    <header className="border-b border-dashed bg-background">
-      <div className="px-4 flex h-16 items-center justify-between">
+    <header className="bg-background border-b border-dashed">
+      <div className="flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-4">
           {currentWorkspace ? (
             <Link
               to="/dashboard/$workspaceName/monitors"
               params={{ workspaceName: currentWorkspace.name }}
-              className="font-bold uppercase tracking-wide
-              text-xl"
+              className="text-xl font-bold tracking-wide uppercase"
               style={{ fontFamily: "Helvetica, Arial, sans-serif" }}
             >
               Shamva
             </Link>
           ) : (
             <span
-              className="font-bold text-2xl tracking-wide[-5px]"
+              className="tracking-wide[-5px] text-2xl font-bold"
               style={{ fontFamily: "Helvetica, Arial, sans-serif" }}
             >
               Shamva
@@ -87,7 +86,7 @@ export function DashboardNavbar() {
                         to={item.to}
                         params={{ workspaceName: currentWorkspace.name }}
                         className={cn(
-                          "font-mono text-sm px-2 py-1 hover:bg-accent",
+                          "hover:bg-accent px-2 py-1 font-mono text-sm",
                           "data-[active=true]:bg-accent data-[active=true]:text-accent-foreground"
                         )}
                         activeProps={{ "data-active": "true" }}
@@ -96,7 +95,7 @@ export function DashboardNavbar() {
                       </Link>
                     </NavigationMenuLink>
                   ) : (
-                    <span className="font-mono text-sm px-3 py-2 opacity-50">
+                    <span className="px-3 py-2 font-mono text-sm opacity-50">
                       {item.label}
                     </span>
                   )}
@@ -141,7 +140,7 @@ export function DashboardNavbar() {
             <DropdownMenuContent align="end" className="w-56">
               <div className="px-2 py-1.5">
                 <p
-                  className="font-bold text-sm tracking-wide[-5px]"
+                  className="tracking-wide[-5px] text-sm font-bold"
                   style={{ fontFamily: "Helvetica, Arial, sans-serif" }}
                 >
                   Shamva
@@ -169,12 +168,12 @@ export function DashboardNavbar() {
                     <Link
                       to={item.to}
                       params={{ workspaceName: currentWorkspace.name }}
-                      className="font-mono text-sm w-full"
+                      className="w-full font-mono text-sm"
                     >
                       {item.label}
                     </Link>
                   ) : (
-                    <span className="font-mono text-sm opacity-50 w-full">
+                    <span className="w-full font-mono text-sm opacity-50">
                       {item.label}
                     </span>
                   )}

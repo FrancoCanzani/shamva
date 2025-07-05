@@ -106,12 +106,12 @@ export default function MonitorPage() {
     PERIOD_OPTIONS.find((p) => p.value === days)?.label || `Last ${days} days`;
 
   return (
-    <div className="flex flex-1 w-full mx-auto max-w-6xl p-4 flex-col">
+    <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col p-4">
       <div className="flex items-center justify-between gap-6">
         <Link
           to="/dashboard/$workspaceName/monitors"
           params={{ workspaceName: workspaceName }}
-          className="flex items-center justify-start text-xs gap-1 text-muted-foreground"
+          className="text-muted-foreground flex items-center justify-start gap-1 text-xs"
         >
           <ArrowLeft className="size-3" />
           <span className="hover:underline">Back to monitors</span>
@@ -129,7 +129,7 @@ export default function MonitorPage() {
                   key={option.value}
                   onClick={() => handleDaysChange(option.value)}
                   className={cn(
-                    "text-xs w-full",
+                    "w-full text-xs",
                     option.value === days && "bg-accent"
                   )}
                 >
@@ -149,19 +149,19 @@ export default function MonitorPage() {
                 <Link
                   to="/dashboard/$workspaceName/monitors/$id/edit"
                   params={{ id: monitor.id, workspaceName: workspaceName }}
-                  className="text-xs w-full"
+                  className="w-full text-xs"
                 >
                   Edit
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => router.invalidate()}
-                className="text-xs w-full"
+                className="w-full text-xs"
               >
                 Refresh
               </DropdownMenuItem>
               <DropdownMenuItem
-                className="text-red-500 focus:text-red-500 hover:text-red-500 focus:bg-red-50 focus:dark:bg-red-900 focus:dark:text-white text-xs w-full"
+                className="w-full text-xs text-red-500 hover:text-red-500 focus:bg-red-50 focus:text-red-500 focus:dark:bg-red-900 focus:dark:text-white"
                 onClick={handleDelete}
               >
                 Delete
@@ -170,11 +170,11 @@ export default function MonitorPage() {
           </DropdownMenu>
         </div>
       </div>
-      <div className="flex items-center justify-between gap-4 py-4 flex-shrink-0">
+      <div className="flex flex-shrink-0 items-center justify-between gap-4 py-4">
         <div className="flex items-center justify-start gap-1">
           <h1 className="flex-1 text-xl font-medium">{monitor.name}</h1>
           {monitor.name && (
-            <span className="text-xs text-muted-foreground">
+            <span className="text-muted-foreground text-xs">
               {monitor.check_type === "tcp"
                 ? monitor.tcp_host_port
                 : monitor.url}
@@ -183,20 +183,20 @@ export default function MonitorPage() {
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col overflow-y-auto space-y-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-6">
+      <div className="flex flex-1 flex-col space-y-8 overflow-y-auto">
+        <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <div className="pl-1">
               <span className="relative flex h-2 w-2">
                 <span
                   className={cn(
-                    "absolute rounded-xs inline-flex h-full w-full animate-ping duration-[2000ms]",
+                    "absolute inline-flex h-full w-full animate-ping rounded-xs duration-[2000ms]",
                     getStatusColor(sortedLogs[0]?.ok ? 200 : 500)
                   )}
                 ></span>
                 <span
                   className={cn(
-                    "absolute rounded-xs inline-flex h-2 w-2 -full",
+                    "-full absolute inline-flex h-2 w-2 rounded-xs",
                     getStatusColor(sortedLogs[0]?.ok ? 200 : 500)
                   )}
                 ></span>
@@ -205,25 +205,25 @@ export default function MonitorPage() {
             <span className={cn("font-medium capitalize")}>
               {monitor.status}
             </span>
-            <span className="text-xs text-muted-foreground">
+            <span className="text-muted-foreground text-xs">
               Last checked {lastCheck}
             </span>
           </div>
           <div className="flex items-center justify-end gap-2">
             {monitor.check_type === "http" && (
               <div className="flex gap-2">
-                <div className="text-sm text-muted-foreground">Method:</div>
+                <div className="text-muted-foreground text-sm">Method:</div>
                 <div className="text-sm font-medium">{monitor.method}</div>
               </div>
             )}
             <div className="flex gap-2">
-              <div className="text-sm text-muted-foreground">Interval:</div>
+              <div className="text-muted-foreground text-sm">Interval:</div>
               <div className="text-sm font-medium">
                 {monitor.interval / 60000} min
               </div>
             </div>
             <div className="flex gap-2">
-              <div className="text-sm text-muted-foreground">Regions:</div>
+              <div className="text-muted-foreground text-sm">Regions:</div>
               <div className="text-sm">{getRegionFlags(monitor.regions)}</div>
             </div>
           </div>
@@ -243,12 +243,12 @@ export default function MonitorPage() {
 
         <Separator />
         <div>
-          <div className="w-full mb-4 flex items-center justify-between">
+          <div className="mb-4 flex w-full items-center justify-between">
             <h2 className="text-sm font-medium">Recent checks</h2>
             <Link
               to="/dashboard/$workspaceName/logs"
               params={{ workspaceName: workspaceName }}
-              className="flex items-center justify-start text-xs gap-1 text-muted-foreground"
+              className="text-muted-foreground flex items-center justify-start gap-1 text-xs"
             >
               <span className="hover:underline">View all logs</span>
               <ArrowUpRight className="size-3" />

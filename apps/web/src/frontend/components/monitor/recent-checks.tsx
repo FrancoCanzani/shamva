@@ -36,7 +36,7 @@ export default function RecentChecks({
     return (
       <div>
         <div className="border border-dashed p-8">
-          <p className="text-sm text-center text-muted-foreground">
+          <p className="text-muted-foreground text-center text-sm">
             No recent logs available
           </p>
         </div>
@@ -55,7 +55,7 @@ export default function RecentChecks({
                 {displayLogs[0].check_type === "http" ? "Code" : "Result"}
               </TableHead>
               <TableHead className="">Latency</TableHead>
-              <TableHead className="flex-1 hidden sm:flex items-center justify-start">
+              <TableHead className="hidden flex-1 items-center justify-start sm:flex">
                 Region
               </TableHead>
               <TableHead className="w-20">Time</TableHead>
@@ -65,7 +65,7 @@ export default function RecentChecks({
             {displayLogs.map((log, index) => (
               <TableRow
                 key={log.id || index}
-                className="hover:bg-carbon-50 rounded-xs dark:hover:bg-carbon-800 border-dashed"
+                className="hover:bg-carbon-50 dark:hover:bg-carbon-800 rounded-xs border-dashed"
               >
                 <TableCell className="py-2">
                   <div
@@ -92,7 +92,7 @@ export default function RecentChecks({
                     }
                   />
                 </TableCell>
-                <TableCell className="font-mono text-xs py-2">
+                <TableCell className="py-2 font-mono text-xs">
                   {log.check_type === "http" &&
                   typeof log.status_code === "number"
                     ? log.status_code
@@ -100,15 +100,15 @@ export default function RecentChecks({
                       ? "Ok"
                       : "Error"}
                 </TableCell>
-                <TableCell className="font-mono text-xs py-2">
+                <TableCell className="py-2 font-mono text-xs">
                   {log.latency && log.latency >= 0
                     ? `${Math.round(log.latency)}ms`
                     : "-"}
                 </TableCell>
-                <TableCell className="text-xs py-2 hidden sm:block">
+                <TableCell className="hidden py-2 text-xs sm:block">
                   {(log.region && getRegionNameFromCode(log.region)) || "-"}
                 </TableCell>
-                <TableCell className="text-xs text-muted-foreground py-2">
+                <TableCell className="text-muted-foreground py-2 text-xs">
                   {log.created_at &&
                     format(parseISO(log.created_at), "MMM dd, HH:mm:ss")}
                 </TableCell>

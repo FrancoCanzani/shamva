@@ -16,9 +16,9 @@ export default function RegionLatencyCharts({
   if (Object.keys(groupedLogs).length === 0) {
     return (
       <div>
-        <h2 className="text-sm font-medium mb-4">Latency Trends by Region</h2>
+        <h2 className="mb-4 text-sm font-medium">Latency Trends by Region</h2>
         <div className="border border-dashed p-8">
-          <p className="text-sm text-center text-muted-foreground">
+          <p className="text-muted-foreground text-center text-sm">
             No latency data available for the selected period{" "}
           </p>
         </div>
@@ -30,7 +30,7 @@ export default function RegionLatencyCharts({
 
   return (
     <div>
-      <h2 className="text-sm font-medium mb-4">Latency Trends by Region</h2>
+      <h2 className="mb-4 text-sm font-medium">Latency Trends by Region</h2>
 
       <div className="w-full space-y-6">
         {Object.entries(groupedLogs).map(([region, regionLogs]) => {
@@ -54,7 +54,7 @@ export default function RegionLatencyCharts({
                 <h3 className="text-xs font-medium">
                   {getRegionNameFromCode(region)}
                 </h3>
-                <div className="text-xs text-muted-foreground space-x-3">
+                <div className="text-muted-foreground space-x-3 text-xs">
                   <span className="font-medium">Min: {minLatency}ms</span>
                   <span className="font-medium">Avg: {avgLatency}ms</span>
                   <span className="font-medium">Max: {maxLatency}ms</span>

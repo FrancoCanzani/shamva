@@ -108,11 +108,11 @@ export default function NewStatusPage() {
   };
 
   return (
-    <div className="container max-w-4xl mx-auto p-4">
+    <div className="container mx-auto max-w-4xl p-4">
       <div className="space-y-8">
         <div>
-          <h1 className="font-medium text-xl">Create New Status Page</h1>
-          <p className="text-muted-foreground text-sm mt-1">
+          <h1 className="text-xl font-medium">Create New Status Page</h1>
+          <p className="text-muted-foreground mt-1 text-sm">
             Create a public status page to share the health of your services
             with your users.
           </p>

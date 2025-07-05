@@ -49,7 +49,7 @@ export const columns: ColumnDef<Log>[] = [
         <div className="flex items-center justify-center">
           <div
             className={cn(
-              "w-3 h-3",
+              "h-3 w-3",
               checkType === "http" && typeof statusCode === "number"
                 ? getStatusColor(statusCode)
                 : getOkStatusColor(ok)
@@ -73,7 +73,7 @@ export const columns: ColumnDef<Log>[] = [
     header: ({ column }) => (
       <button
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="px-1 justify-start text-left font-medium -ml-1 h-auto py-1"
+        className="-ml-1 h-auto justify-start px-1 py-1 text-left font-medium"
       >
         Timestamp
       </button>
@@ -83,7 +83,7 @@ export const columns: ColumnDef<Log>[] = [
       try {
         const date = parseISO(dateString);
         return (
-          <span className="whitespace-nowrap text-muted-foreground font-mono text-sm">
+          <span className="text-muted-foreground font-mono text-sm whitespace-nowrap">
             {format(date, "LLL dd, y HH:mm:ss")}
           </span>
         );
@@ -126,7 +126,7 @@ export const columns: ColumnDef<Log>[] = [
       const isTcpCheck = checkType === "tcp";
 
       return (
-        <span className="text-sm font-mono font-medium">
+        <span className="font-mono text-sm font-medium">
           {isTcpCheck ? "TCP" : method}
         </span>
       );
@@ -146,7 +146,7 @@ export const columns: ColumnDef<Log>[] = [
       return (
         <div className="flex items-center space-x-2">
           {isTcpCheck && (
-            <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded font-medium">
+            <span className="rounded bg-blue-100 px-1.5 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900 dark:text-blue-300">
               TCP
             </span>
           )}
@@ -163,7 +163,7 @@ export const columns: ColumnDef<Log>[] = [
     header: ({ column }) => (
       <button
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="px-1 justify-start text-left -ml-1 h-auto py-1"
+        className="-ml-1 h-auto justify-start px-1 py-1 text-left"
       >
         Status
       </button>
@@ -201,7 +201,7 @@ export const columns: ColumnDef<Log>[] = [
     header: ({ column }) => (
       <button
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="px-1 justify-start text-left -ml-1 h-auto py-1"
+        className="-ml-1 h-auto justify-start px-1 py-1 text-left"
       >
         Latency
       </button>
@@ -211,7 +211,7 @@ export const columns: ColumnDef<Log>[] = [
       return typeof latency === "number" && latency >= 0 ? (
         <span className="font-mono text-sm">{`${latency.toFixed(0)}ms`}</span>
       ) : (
-        <span className="text-muted-foreground text-sm font-mono">-</span>
+        <span className="text-muted-foreground font-mono text-sm">-</span>
       );
     },
     filterFn: (row, columnId, filterValue) => {
@@ -239,7 +239,7 @@ export const columns: ColumnDef<Log>[] = [
     header: ({ column }) => (
       <button
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="px-1 justify-start text-left -ml-1 h-auto py-1"
+        className="-ml-1 h-auto justify-start px-1 py-1 text-left"
       >
         Region
       </button>
@@ -252,7 +252,7 @@ export const columns: ColumnDef<Log>[] = [
       return region ? (
         <span className="font-mono text-sm">{region}</span>
       ) : (
-        <span className="text-muted-foreground text-sm font-mono">-</span>
+        <span className="text-muted-foreground font-mono text-sm">-</span>
       );
     },
     size: 70,
@@ -303,12 +303,12 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
   });
 
   return (
-    <div className="flex w-full flex-1 min-h-0">
+    <div className="flex min-h-0 w-full flex-1">
       <LogsFiltersSidebar table={table} data={data} />{" "}
-      <div className="flex-1 flex flex-col min-w-0 min-h-0">
-        <div className="flex-1 min-h-0 overflow-auto">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+        <div className="min-h-0 flex-1 overflow-auto">
           <Table>
-            <TableHeader className="sticky top-0 z-10 bg-background">
+            <TableHeader className="bg-background sticky top-0 z-10">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow
                   key={headerGroup.id}
@@ -324,8 +324,8 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
                       key={header.id}
                       colSpan={header.colSpan}
                       className={cn(
-                        "px-2 py-1 h-auto relative select-none truncate text-sm font-medium",
-                        "whitespace-nowrap text-muted-foreground",
+                        "relative h-auto truncate px-2 py-1 text-sm font-medium select-none",
+                        "text-muted-foreground whitespace-nowrap",
                         "bg-background",
                         header.id === "status-indicator" && "w-6"
                       )}
@@ -351,12 +351,12 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
                       logId === row.original.id ? "selected" : undefined
                     }
                     className={cn(
-                      "border-b cursor-pointer border-dashed transition-colors duration-100",
+                      "cursor-pointer border-b border-dashed transition-colors duration-100",
                       getStatusRowClass(row.original.status_code),
                       "data-[state=selected]:bg-blue-100 dark:data-[state=selected]:bg-blue-900/40",
                       "data-[state=selected]:hover:!bg-blue-200/80 dark:data-[state=selected]:hover:!bg-blue-800/60",
                       !getStatusRowClass(row.original.status_code) &&
-                        "even:bg-carbon-50/50 dark:even:bg-slate-900/20 hover:bg-slate-100 dark:hover:bg-slate-800/50"
+                        "even:bg-carbon-50/50 hover:bg-slate-100 dark:even:bg-slate-900/20 dark:hover:bg-slate-800/50"
                     )}
                     onClick={() => {
                       navigate({
@@ -372,7 +372,7 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
                       <TableCell
                         key={cell.id}
                         className={cn(
-                          "px-2 py-1.5 whitespace-nowrap border-r last:border-r-0 border-border/50",
+                          "border-border/50 border-r px-2 py-1.5 whitespace-nowrap last:border-r-0",
                           cell.column.id === "status-indicator" && "w-6 p-1"
                         )}
                         style={{ width: cell.column.getSize() }}
@@ -389,7 +389,7 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-24 text-center text-muted-foreground"
+                    className="text-muted-foreground h-24 text-center"
                   >
                     No logs found.
                   </TableCell>
@@ -399,12 +399,12 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
           </Table>
         </div>
 
-        <div className="flex items-center justify-end p-2 border-t shrink-0">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <div className="flex shrink-0 items-center justify-end border-t p-2">
+          <div className="text-muted-foreground flex items-center gap-2 text-xs">
             Page {table.getState().pagination.pageIndex + 1} of{" "}
             {table.getPageCount()}
           </div>
-          <div className="space-x-2 ml-4">
+          <div className="ml-4 space-x-2">
             <Button
               variant="outline"
               size="xs"

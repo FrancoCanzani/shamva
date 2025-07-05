@@ -19,7 +19,7 @@ export function IncidentUpdatesSection({
 }) {
   if (updates.length === 0) {
     return (
-      <div className="text-sm text-muted-foreground text-center border border-dashed rounded-xs p-4">
+      <div className="text-muted-foreground rounded-xs border border-dashed p-4 text-center text-sm">
         No updates yet
       </div>
     );
@@ -33,13 +33,13 @@ export function IncidentUpdatesSection({
         return (
           <div
             key={update.id}
-            className="border rounded-xs p-3 bg-background shadow-xs"
+            className="bg-background rounded-xs border p-3 shadow-xs"
           >
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-mono text-muted-foreground">
+            <div className="mb-1 flex items-center justify-between">
+              <span className="text-muted-foreground font-mono text-xs">
                 {new Date(update.created_at).toLocaleString()}
               </span>
-              <div className="text-xs space-x-2 inline-flex font-mono text-muted-foreground text-right">
+              <div className="text-muted-foreground inline-flex space-x-2 text-right font-mono text-xs">
                 <div>{update.author_name}</div>
                 {update.author_email && (
                   <div className="text-muted-foreground hidden md:block">

@@ -29,15 +29,15 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
         <h2 className="text-sm font-medium">{`Statistics`} </h2>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        <div className="border shadow-xs rounded-xs p-2 hover:bg-carbon-50 hover:dark:bg-carbon-800">
-          <h3 className="text-sm font-medium text-muted-foreground mb-2">
+      <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+        <div className="hover:bg-carbon-50 hover:dark:bg-carbon-800 rounded-xs border p-2 shadow-xs">
+          <h3 className="text-muted-foreground mb-2 text-sm font-medium">
             Success Rate
           </h3>
 
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-xs text-muted-foreground">Last {days}d</div>
+              <div className="text-muted-foreground text-xs">Last {days}d</div>
               <div
                 className={cn(
                   "font-mono font-medium",
@@ -54,14 +54,14 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
           </div>
         </div>
 
-        <div className="border shadow-xs rounded-xs p-2 hover:bg-carbon-50 hover:dark:bg-carbon-800">
-          <h3 className="text-sm font-medium text-muted-foreground mb-2">
+        <div className="hover:bg-carbon-50 hover:dark:bg-carbon-800 rounded-xs border p-2 shadow-xs">
+          <h3 className="text-muted-foreground mb-2 text-sm font-medium">
             Total Checks
           </h3>
 
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-xs text-muted-foreground">Last {days}d</div>
+              <div className="text-muted-foreground text-xs">Last {days}d</div>
               <div className="font-mono font-medium">
                 {recentTotalCount.toLocaleString()}
               </div>
@@ -69,22 +69,22 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
           </div>
         </div>
 
-        <div className="border shadow-xs rounded-xs p-2 hover:bg-carbon-50 hover:dark:bg-carbon-800">
-          <h3 className="text-sm font-medium text-muted-foreground mb-2">
+        <div className="hover:bg-carbon-50 hover:dark:bg-carbon-800 rounded-xs border p-2 shadow-xs">
+          <h3 className="text-muted-foreground mb-2 text-sm font-medium">
             Successes
           </h3>
 
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-xs text-muted-foreground">Last {days}d</div>
+              <div className="text-muted-foreground text-xs">Last {days}d</div>
               <div className="font-mono font-medium text-green-700">
                 {recentSuccessCount.toLocaleString()}
               </div>
             </div>
 
             <div className="flex flex-col items-center">
-              <div className="text-sm text-muted-foreground">of period</div>
-              <div className="text-sm font-medium font-mono text-green-700">
+              <div className="text-muted-foreground text-sm">of period</div>
+              <div className="font-mono text-sm font-medium text-green-700">
                 {recentTotalCount > 0
                   ? `${Math.round((recentSuccessCount / recentTotalCount) * 100)}%`
                   : "0%"}
@@ -93,22 +93,22 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
           </div>
         </div>
 
-        <div className="border shadow-xs rounded-xs p-2 hover:bg-carbon-50 hover:dark:bg-carbon-800">
-          <h3 className="text-sm font-medium text-muted-foreground mb-2">
+        <div className="hover:bg-carbon-50 hover:dark:bg-carbon-800 rounded-xs border p-2 shadow-xs">
+          <h3 className="text-muted-foreground mb-2 text-sm font-medium">
             Failures
           </h3>
 
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-xs text-muted-foreground">Last {days}d</div>
+              <div className="text-muted-foreground text-xs">Last {days}d</div>
               <div className="font-mono font-medium text-red-700">
                 {(recentTotalCount - recentSuccessCount).toLocaleString()}
               </div>
             </div>
 
             <div className="flex flex-col items-center">
-              <div className="text-sm text-muted-foreground">of period</div>
-              <div className="text-sm font-medium font-mono text-red-700">
+              <div className="text-muted-foreground text-sm">of period</div>
+              <div className="font-mono text-sm font-medium text-red-700">
                 {recentTotalCount > 0
                   ? `${Math.round(((recentTotalCount - recentSuccessCount) / recentTotalCount) * 100)}%`
                   : "0%"}
@@ -118,15 +118,15 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        <div className="border shadow-xs rounded-xs p-2 hover:bg-carbon-50 hover:dark:bg-carbon-800">
-          <h3 className="text-sm font-medium text-muted-foreground mb-2">
+      <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+        <div className="hover:bg-carbon-50 hover:dark:bg-carbon-800 rounded-xs border p-2 shadow-xs">
+          <h3 className="text-muted-foreground mb-2 text-sm font-medium">
             P50 Latency
           </h3>
 
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-xs text-muted-foreground">Median</div>
+              <div className="text-muted-foreground text-xs">Median</div>
               <div
                 className={cn("font-mono font-medium", getLatencyColor(p50))}
               >
@@ -136,14 +136,14 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
           </div>
         </div>
 
-        <div className="border shadow-xs rounded-xs p-2 hover:bg-carbon-50 hover:dark:bg-carbon-800">
-          <h3 className="text-sm font-medium text-muted-foreground mb-2">
+        <div className="hover:bg-carbon-50 hover:dark:bg-carbon-800 rounded-xs border p-2 shadow-xs">
+          <h3 className="text-muted-foreground mb-2 text-sm font-medium">
             P75 Latency
           </h3>
 
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-xs text-muted-foreground">
+              <div className="text-muted-foreground text-xs">
                 75th percentile
               </div>
               <div
@@ -155,14 +155,14 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
           </div>
         </div>
 
-        <div className="border shadow-xs rounded-xs p-2 hover:bg-carbon-50 hover:dark:bg-carbon-800">
-          <h3 className="text-sm font-medium text-muted-foreground mb-2">
+        <div className="hover:bg-carbon-50 hover:dark:bg-carbon-800 rounded-xs border p-2 shadow-xs">
+          <h3 className="text-muted-foreground mb-2 text-sm font-medium">
             P95 Latency
           </h3>
 
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-xs text-muted-foreground">
+              <div className="text-muted-foreground text-xs">
                 95th percentile
               </div>
               <div
@@ -174,14 +174,14 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
           </div>
         </div>
 
-        <div className="border shadow-xs rounded-xs p-2 hover:bg-carbon-50 hover:dark:bg-carbon-800">
-          <h3 className="text-sm font-medium text-muted-foreground mb-2">
+        <div className="hover:bg-carbon-50 hover:dark:bg-carbon-800 rounded-xs border p-2 shadow-xs">
+          <h3 className="text-muted-foreground mb-2 text-sm font-medium">
             P99 Latency
           </h3>
 
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-xs text-muted-foreground">
+              <div className="text-muted-foreground text-xs">
                 99th percentile
               </div>
               <div

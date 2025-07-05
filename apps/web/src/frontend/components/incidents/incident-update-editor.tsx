@@ -137,7 +137,7 @@ export function IncidentUpdateEditor({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-2">
-      <div className="flex items-center gap-1 rounded-xs shadow-xs border overflow-auto bg-carbon-50 dark:bg-carbon-800">
+      <div className="bg-carbon-50 dark:bg-carbon-800 flex items-center gap-1 overflow-auto rounded-xs border shadow-xs">
         {toolbarItems.map((item, index) => {
           if (item.separator) {
             return (
@@ -162,7 +162,7 @@ export function IncidentUpdateEditor({
               className={cn(
                 "h-8 w-8 p-0",
                 item.active && "bg-muted text-foreground",
-                item.disabled && "opacity-50 cursor-not-allowed"
+                item.disabled && "cursor-not-allowed opacity-50"
               )}
               title={item.tooltip}
               type="button"

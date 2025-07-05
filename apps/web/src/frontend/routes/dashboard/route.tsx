@@ -16,7 +16,7 @@ function DashboardLayout() {
   if (!isLoading && !user) throw redirect({ to: "/auth/login" });
 
   return (
-    <div className="flex h-screen w-full min-w-0 flex-col overflow-hidden mx-auto">
+    <div className="mx-auto flex h-screen w-full min-w-0 flex-col overflow-hidden">
       <DashboardNavbar />
       <main className="flex flex-1 flex-col overflow-auto">
         <Outlet />

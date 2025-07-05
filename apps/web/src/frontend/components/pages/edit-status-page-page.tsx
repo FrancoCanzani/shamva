@@ -111,7 +111,7 @@ export default function EditStatusPagePage() {
   };
 
   return (
-    <div className="container max-w-4xl mx-auto p-4">
+    <div className="container mx-auto max-w-4xl p-4">
       <div className="space-y-4">
         <div>
           <h1 className="text-xl font-medium">Edit Status Page</h1>

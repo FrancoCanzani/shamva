@@ -184,40 +184,40 @@ export default function MonitorsCard({
   };
 
   return (
-    <div className="group border shadow-xs rounded-xs">
+    <div className="group rounded-xs border shadow-xs">
       <Link
         to="/dashboard/$workspaceName/monitors/$id"
         params={{ id: monitor.id, workspaceName: workspaceName }}
         search={{ days: 30 }}
-        className="block px-2 py-2.5 bg-background hover:bg-carbon-50 dark:hover:bg-carbon-800 transition-colors"
+        className="bg-background hover:bg-carbon-50 dark:hover:bg-carbon-800 block px-2 py-2.5 transition-colors"
       >
         <div className="flex items-center justify-between">
           <div className="min-w-0 flex-1">
             <div className="flex items-center space-x-2">
               <div
                 className={cn(
-                  "w-2 h-2 rounded-xs",
+                  "h-2 w-2 rounded-xs",
                   getMonitorStatusColor(monitor.status)
                 )}
                 title={`Status: ${monitor.status}`}
               />
-              <span className="text-sm font-medium truncate">
+              <span className="truncate text-sm font-medium">
                 {monitor.name ??
                   (monitor.check_type === "tcp"
                     ? monitor.tcp_host_port
                     : monitor.url)}
               </span>
-              <span className="text-xs text-muted-foreground capitalize hidden sm:inline">
+              <span className="text-muted-foreground hidden text-xs capitalize sm:inline">
                 {monitor.status}
               </span>
             </div>
-            <span className="text-xs text-muted-foreground">
+            <span className="text-muted-foreground text-xs">
               Last checked {lastCheck}
             </span>
           </div>
 
-          <div className="flex items-center md:space-x-3 sm:space-x-6 text-xs">
-            <div className="flex items-center flex-col space-y-0.5">
+          <div className="flex items-center text-xs sm:space-x-6 md:space-x-3">
+            <div className="flex flex-col items-center space-y-0.5">
               <span className="text-muted-foreground text-[8px]">
                 - Recent-{" "}
               </span>
@@ -225,8 +225,8 @@ export default function MonitorsCard({
             </div>
 
             <div className="flex items-center space-x-2 sm:space-x-4">
-              <div className="text-center hidden sm:block">
-                <div className="text-muted-foreground mb-1 w-8 hidden sm:block">
+              <div className="hidden text-center sm:block">
+                <div className="text-muted-foreground mb-1 hidden w-8 sm:block">
                   24h
                 </div>
                 <MonitorsCardAvailabilityDisplay
@@ -235,7 +235,7 @@ export default function MonitorsCard({
                 />
               </div>
 
-              <div className="text-center hidden sm:block">
+              <div className="hidden text-center sm:block">
                 <div className="text-muted-foreground mb-1 w-8">7d</div>
                 <MonitorsCardAvailabilityDisplay
                   label="7d"
@@ -243,7 +243,7 @@ export default function MonitorsCard({
                 />
               </div>
 
-              <div className="text-center hidden sm:block">
+              <div className="hidden text-center sm:block">
                 <div className="text-muted-foreground mb-1 hidden sm:block">
                   Latency
                 </div>
@@ -255,7 +255,7 @@ export default function MonitorsCard({
 
             <ChevronRight
               size={16}
-              className="text-carbon-400 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:block"
+              className="text-carbon-400 hidden opacity-0 transition-opacity group-hover:opacity-100 sm:block"
               aria-hidden="true"
             />
           </div>

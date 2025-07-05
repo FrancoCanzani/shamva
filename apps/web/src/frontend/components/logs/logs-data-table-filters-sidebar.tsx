@@ -147,8 +147,8 @@ export function LogsFiltersSidebar({ table, data }: LogsFiltersSidebarProps) {
   const hasActiveFilters = table.getState().columnFilters.length > 0;
 
   return (
-    <div className="w-72 border-r bg-background">
-      <div className="flex items-center justify-between px-4 p-2 h-10">
+    <div className="bg-background w-72 border-r">
+      <div className="flex h-10 items-center justify-between p-2 px-4">
         <div className="flex items-center gap-2">
           <h2 className="font-medium">Filters</h2>
         </div>
@@ -160,7 +160,7 @@ export function LogsFiltersSidebar({ table, data }: LogsFiltersSidebarProps) {
       </div>
 
       <ScrollArea className="">
-        <div className="px-4 p-2 space-y-4">
+        <div className="space-y-4 p-2 px-4">
           <div className="space-y-2">
             <Label className="text-sm font-medium">Date Range</Label>
             <div className="grid grid-cols-2 gap-2">
@@ -248,7 +248,7 @@ export function LogsFiltersSidebar({ table, data }: LogsFiltersSidebarProps) {
           {filterGroups.map((group) => (
             <div key={group.key} className="space-y-2">
               <Label className="text-sm font-medium">{group.label}</Label>
-              <div className="space-y-2 max-h-32 overflow-y-auto">
+              <div className="max-h-32 space-y-2 overflow-y-auto">
                 {group.values.map((item) => {
                   const currentFilter =
                     (table.getColumn(group.key)?.getFilterValue() as Array<
@@ -275,12 +275,12 @@ export function LogsFiltersSidebar({ table, data }: LogsFiltersSidebarProps) {
                         />
                         <Label
                           htmlFor={`${group.key}-${item.value}`}
-                          className="text-xs cursor-pointer"
+                          className="cursor-pointer text-xs"
                         >
                           {item.label}
                         </Label>
                       </div>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-muted-foreground text-xs">
                         {item.count}
                       </span>
                     </div>

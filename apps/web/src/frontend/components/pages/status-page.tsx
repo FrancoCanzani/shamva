@@ -67,26 +67,26 @@ export default function StatusPage() {
 
   return (
     <div className="min-h-screen w-full font-mono">
-      <div className="relative z-10 max-w-5xl mx-auto bg-transparent min-h-screen">
-        <div className="absolute left-0 top-0 h-full w-[2px] border-l border-dashed"></div>
-        <div className="absolute right-0 top-0 h-full w-[2px] border-r border-dashed"></div>
+      <div className="relative z-10 mx-auto min-h-screen max-w-5xl bg-transparent">
+        <div className="absolute top-0 left-0 h-full w-[2px] border-l border-dashed"></div>
+        <div className="absolute top-0 right-0 h-full w-[2px] border-r border-dashed"></div>
 
-        <header className="flex justify-between items-center p-6 border-b bg-white">
+        <header className="flex items-center justify-between border-b bg-white p-6">
           <div className="flex items-center gap-2">
-            <span className="uppercase text-sm">{data.title}</span>
+            <span className="text-sm uppercase">{data.title}</span>
           </div>
           <div className="text-xs uppercase">LIVE STATUS</div>
         </header>
 
-        <div className="px-6 space-y-8">
+        <div className="space-y-8 px-6">
           <section className="pt-8">
             <div className="border p-6">
               <div className="text-center">
-                <h1 className="text-2xl  uppercase mb-4 text-black">
+                <h1 className="mb-4 text-2xl text-black uppercase">
                   {data.title}
                 </h1>
                 {data.description && (
-                  <p className="text-sm mb-6">{data.description}</p>
+                  <p className="mb-6 text-sm">{data.description}</p>
                 )}
                 <div className="inline-flex items-center gap-3 border p-3">
                   <span className="text-sm font-medium uppercase">
@@ -98,14 +98,14 @@ export default function StatusPage() {
           </section>
 
           <section>
-            <h2 className="text-lg uppercase mb-6  text-black">SERVICES</h2>
+            <h2 className="mb-6 text-lg text-black uppercase">SERVICES</h2>
             <div className="space-y-4">
               {data.monitors.map((monitor) => (
-                <div key={monitor.id} className="border hover:bg-carbon-50">
-                  <div className="border-l-2 py-6 px-6">
-                    <div className="flex justify-between items-start">
-                      <div className="flex items-start flex-col space-y-2">
-                        <h3 className="uppercase text-sm text-black">
+                <div key={monitor.id} className="hover:bg-carbon-50 border">
+                  <div className="border-l-2 px-6 py-6">
+                    <div className="flex items-start justify-between">
+                      <div className="flex flex-col items-start space-y-2">
+                        <h3 className="text-sm text-black uppercase">
                           {monitor.name}
                         </h3>
 
@@ -118,7 +118,7 @@ export default function StatusPage() {
                       </div>
 
                       <div className="text-right">
-                        <div className="text-xs uppercase text-black mb-2">
+                        <div className="mb-2 text-xs text-black uppercase">
                           {getStatusText(monitor.status)}
                         </div>
                         {data.show_values &&
@@ -144,14 +144,14 @@ export default function StatusPage() {
 
           {data.show_values && (
             <section>
-              <h2 className="text-lg uppercase mb-6 text-black">SUMMARY</h2>
+              <h2 className="mb-6 text-lg text-black uppercase">SUMMARY</h2>
               <div className="border">
                 <div>
-                  <div className="flex justify-between items-center p-4">
-                    <h3 className="text-xs uppercase  text-black w-1/3">
+                  <div className="flex items-center justify-between p-4">
+                    <h3 className="w-1/3 text-xs text-black uppercase">
                       SERVICES ONLINE
                     </h3>
-                    <div className="text-xs w-2/3 text-right">
+                    <div className="w-2/3 text-right text-xs">
                       {
                         data.monitors.filter((m) => m.status === "active")
                           .length
@@ -161,21 +161,21 @@ export default function StatusPage() {
                   </div>
                 </div>
                 <div className="border-t">
-                  <div className="flex justify-between items-center p-4">
-                    <h3 className="text-xs uppercase text-black w-1/3">
+                  <div className="flex items-center justify-between p-4">
+                    <h3 className="w-1/3 text-xs text-black uppercase">
                       AVERAGE UPTIME
                     </h3>
-                    <div className="text-xs w-2/3 text-right">
+                    <div className="w-2/3 text-right text-xs">
                       {avgUptime.toFixed(1)}%
                     </div>
                   </div>
                 </div>
                 <div className="border-t">
-                  <div className="flex justify-between items-center p-4">
-                    <h3 className="text-xs uppercase  text-black w-1/3">
+                  <div className="flex items-center justify-between p-4">
+                    <h3 className="w-1/3 text-xs text-black uppercase">
                       AVG RESPONSE TIME
                     </h3>
-                    <div className="text-xs w-2/3 text-right">
+                    <div className="w-2/3 text-right text-xs">
                       {Math.round(
                         data.monitors.reduce(
                           (sum, m) => sum + (m.avg_response_time || 0),
@@ -191,8 +191,8 @@ export default function StatusPage() {
           )}
         </div>
 
-        <footer className="p-6 mt-8 border-t bg-white">
-          <p className="text-xs text-muted-foreground">
+        <footer className="mt-8 border-t bg-white p-6">
+          <p className="text-muted-foreground text-xs">
             © POWERED BY BLINKS. ALL RIGHTS RESERVED {new Date().getFullYear()}
             .
           </p>

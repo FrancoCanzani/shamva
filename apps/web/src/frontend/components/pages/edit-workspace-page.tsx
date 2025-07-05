@@ -107,11 +107,11 @@ export default function EditWorkspacePage() {
   };
 
   return (
-    <div className="container max-w-4xl mx-auto p-4">
+    <div className="container mx-auto max-w-4xl p-4">
       <div className="space-y-4">
         <div>
-          <h1 className="font-medium text-xl">Edit Workspace</h1>
-          <p className="text-muted-foreground text-sm mt-1">
+          <h1 className="text-xl font-medium">Edit Workspace</h1>
+          <p className="text-muted-foreground mt-1 text-sm">
             Update the details and manage members for your workspace.
           </p>
         </div>

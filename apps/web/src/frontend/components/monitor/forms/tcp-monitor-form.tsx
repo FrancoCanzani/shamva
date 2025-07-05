@@ -58,7 +58,7 @@ const FormField = ({
 }) => <div className={cn("space-y-2", className)}>{children}</div>;
 
 const ErrorMessage = ({ errors }: { errors?: string }) =>
-  errors ? <p className="text-sm text-destructive">{errors}</p> : null;
+  errors ? <p className="text-destructive text-sm">{errors}</p> : null;
 
 export default function TcpMonitorForm({
   onSubmit,
@@ -107,8 +107,8 @@ export default function TcpMonitorForm({
         >
           <div id="basic-config" className="space-y-4">
             <h2 className="font-medium">Basic Configuration</h2>
-            <div className="flex gap-4 w-full">
-              <FormField className="flex-1 w-full">
+            <div className="flex w-full gap-4">
+              <FormField className="w-full flex-1">
                 <Label htmlFor="name">Monitor name</Label>
                 <Input
                   id="name"
@@ -168,7 +168,7 @@ export default function TcpMonitorForm({
                 className={errors.tcpHostPort ? "border-destructive" : ""}
               />
               <ErrorMessage errors={errors.tcpHostPort?.message} />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 Enter the hostname and port to check (e.g., example.com:8080,
                 database.local:5432)
               </p>

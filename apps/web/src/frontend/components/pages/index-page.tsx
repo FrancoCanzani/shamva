@@ -35,17 +35,17 @@ export default function IndexPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto p-4">
+    <div className="bg-background min-h-screen">
+      <div className="mx-auto max-w-4xl p-4">
         {/* Header */}
         <header className="py-8">
-          <nav className="flex justify-between items-center">
+          <nav className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-primary flex items-center justify-center">
-                <Heart className="w-5 h-5 text-primary-foreground" />
+              <div className="bg-primary flex h-8 w-8 items-center justify-center">
+                <Heart className="text-primary-foreground h-5 w-5" />
               </div>
               <span
-                className="text-xl font-bold tracking-wide[-5px]"
+                className="tracking-wide[-5px] text-xl font-bold"
                 style={{ fontFamily: "Helvetica, Arial, sans-serif" }}
               >
                 Shamva
@@ -71,12 +71,12 @@ export default function IndexPage() {
         </header>
 
         {/* Hero Section */}
-        <main className="py-20 text-center space-y-8">
+        <main className="space-y-8 py-20 text-center">
           <div className="space-y-4">
-            <h1 className="text-4xl font-medium text-foreground">
+            <h1 className="text-foreground text-4xl font-medium">
               Monitor Your Services
             </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
               Shamva provides real-time monitoring, instant alerts, and
               comprehensive incident management to keep your services running
               smoothly.
@@ -100,102 +100,102 @@ export default function IndexPage() {
         </main>
 
         {/* Features Section */}
-        <section className="py-20 space-y-8">
-          <div className="text-center space-y-4">
-            <h2 className="text-2xl font-medium text-foreground">
+        <section className="space-y-8 py-20">
+          <div className="space-y-4 text-center">
+            <h2 className="text-foreground text-2xl font-medium">
               Everything You Need for Reliable Monitoring
             </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-muted-foreground mx-auto max-w-2xl">
               From simple uptime checks to complex incident management, Shamva
               has you covered.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="border border-dashed p-6 space-y-4">
-              <div className="w-12 h-12 bg-muted flex items-center justify-center">
-                <Monitor className="w-6 h-6 text-muted-foreground" />
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-4 border border-dashed p-6">
+              <div className="bg-muted flex h-12 w-12 items-center justify-center">
+                <Monitor className="text-muted-foreground h-6 w-6" />
               </div>
               <div className="space-y-2">
-                <h3 className="text-lg font-medium text-foreground">
+                <h3 className="text-foreground text-lg font-medium">
                   Real-time Monitoring
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   Monitor your services from multiple global locations with
                   configurable check intervals and custom thresholds.
                 </p>
               </div>
             </div>
 
-            <div className="border border-dashed p-6 space-y-4">
-              <div className="w-12 h-12 bg-muted flex items-center justify-center">
-                <Bell className="w-6 h-6 text-muted-foreground" />
+            <div className="space-y-4 border border-dashed p-6">
+              <div className="bg-muted flex h-12 w-12 items-center justify-center">
+                <Bell className="text-muted-foreground h-6 w-6" />
               </div>
               <div className="space-y-2">
-                <h3 className="text-lg font-medium text-foreground">
+                <h3 className="text-foreground text-lg font-medium">
                   Instant Alerts
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   Get notified immediately when issues are detected via email,
                   Slack, or custom webhooks.
                 </p>
               </div>
             </div>
 
-            <div className="border border-dashed p-6 space-y-4">
-              <div className="w-12 h-12 bg-muted flex items-center justify-center">
-                <BarChart3 className="w-6 h-6 text-muted-foreground" />
+            <div className="space-y-4 border border-dashed p-6">
+              <div className="bg-muted flex h-12 w-12 items-center justify-center">
+                <BarChart3 className="text-muted-foreground h-6 w-6" />
               </div>
               <div className="space-y-2">
-                <h3 className="text-lg font-medium text-foreground">
+                <h3 className="text-foreground text-lg font-medium">
                   Performance Analytics
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   Track response times, uptime percentages, and performance
                   trends with detailed analytics and charts.
                 </p>
               </div>
             </div>
 
-            <div className="border border-dashed p-6 space-y-4">
-              <div className="w-12 h-12 bg-muted flex items-center justify-center">
-                <Clock className="w-6 h-6 text-muted-foreground" />
+            <div className="space-y-4 border border-dashed p-6">
+              <div className="bg-muted flex h-12 w-12 items-center justify-center">
+                <Clock className="text-muted-foreground h-6 w-6" />
               </div>
               <div className="space-y-2">
-                <h3 className="text-lg font-medium text-foreground">
+                <h3 className="text-foreground text-lg font-medium">
                   Incident Management
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   Track incidents from detection to resolution with detailed
                   timelines and post-mortem documentation.
                 </p>
               </div>
             </div>
 
-            <div className="border border-dashed p-6 space-y-4">
-              <div className="w-12 h-12 bg-muted flex items-center justify-center">
-                <Globe className="w-6 h-6 text-muted-foreground" />
+            <div className="space-y-4 border border-dashed p-6">
+              <div className="bg-muted flex h-12 w-12 items-center justify-center">
+                <Globe className="text-muted-foreground h-6 w-6" />
               </div>
               <div className="space-y-2">
-                <h3 className="text-lg font-medium text-foreground">
+                <h3 className="text-foreground text-lg font-medium">
                   Global Coverage
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   Monitor from multiple regions to ensure your services are
                   accessible worldwide.
                 </p>
               </div>
             </div>
 
-            <div className="border border-dashed p-6 space-y-4">
-              <div className="w-12 h-12 bg-muted flex items-center justify-center">
-                <Users className="w-6 h-6 text-muted-foreground" />
+            <div className="space-y-4 border border-dashed p-6">
+              <div className="bg-muted flex h-12 w-12 items-center justify-center">
+                <Users className="text-muted-foreground h-6 w-6" />
               </div>
               <div className="space-y-2">
-                <h3 className="text-lg font-medium text-foreground">
+                <h3 className="text-foreground text-lg font-medium">
                   Team Collaboration
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   Invite team members with different permission levels and
                   collaborate on monitoring and incident response.
                 </p>
@@ -206,12 +206,12 @@ export default function IndexPage() {
 
         {/* CTA Section */}
         <section className="py-20 text-center">
-          <div className="border border-dashed p-12 space-y-8">
+          <div className="space-y-8 border border-dashed p-12">
             <div className="space-y-4">
-              <h2 className="text-2xl font-medium text-foreground">
+              <h2 className="text-foreground text-2xl font-medium">
                 Ready to Start Monitoring?
               </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
+              <p className="text-muted-foreground mx-auto max-w-2xl">
                 Join thousands of teams who trust Shamva to keep their services
                 running smoothly.
               </p>
@@ -223,20 +223,20 @@ export default function IndexPage() {
         </section>
 
         {/* Footer */}
-        <footer className="py-12 border-t">
-          <div className="flex justify-between items-center">
+        <footer className="border-t py-12">
+          <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <div className="w-6 h-6 bg-primary flex items-center justify-center">
-                <Heart className="w-4 h-4 text-primary-foreground" />
+              <div className="bg-primary flex h-6 w-6 items-center justify-center">
+                <Heart className="text-primary-foreground h-4 w-4" />
               </div>
               <span
-                className="text-lg font-bold text-foreground tracking-wide[-5px]"
+                className="text-foreground tracking-wide[-5px] text-lg font-bold"
                 style={{ fontFamily: "Helvetica, Arial, sans-serif" }}
               >
                 Shamva
               </span>
             </div>
-            <div className="flex items-center space-x-6 text-sm text-muted-foreground">
+            <div className="text-muted-foreground flex items-center space-x-6 text-sm">
               <a
                 href="https://github.com/your-org/shamva"
                 target="_blank"

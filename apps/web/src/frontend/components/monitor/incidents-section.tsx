@@ -30,9 +30,9 @@ export default function IncidentsSection({
   if (incidents.length === 0) {
     return (
       <div>
-        <h2 className="text-sm font-medium mb-4">Incidents</h2>
-        <div className="border border-dashed rounded-xs p-8">
-          <p className="text-sm text-center text-muted-foreground">
+        <h2 className="mb-4 text-sm font-medium">Incidents</h2>
+        <div className="rounded-xs border border-dashed p-8">
+          <p className="text-muted-foreground text-center text-sm">
             No incidents reported
           </p>
         </div>
@@ -42,8 +42,8 @@ export default function IncidentsSection({
 
   return (
     <div>
-      <h2 className="text-sm font-medium mb-4">Incidents</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+      <h2 className="mb-4 text-sm font-medium">Incidents</h2>
+      <div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
         {incidents.map((incident) => {
           const status = getIncidentStatus(incident);
 
@@ -52,13 +52,13 @@ export default function IncidentsSection({
               to="/dashboard/$workspaceName/incidents/$id"
               params={{ workspaceName, id: incident.id! }}
               key={incident.id}
-              className="group block border rounded-xs shadow-xs p-2 hover:bg-carbon-50 dark:hover:bg-carbon-800 transition-colors"
+              className="group hover:bg-carbon-50 dark:hover:bg-carbon-800 block rounded-xs border p-2 shadow-xs transition-colors"
             >
-              <div className="flex items-start justify-between mb-3">
+              <div className="mb-3 flex items-start justify-between">
                 <div className="min-w-0">
                   <div
                     className={cn(
-                      "text-sm font-medium text-foreground",
+                      "text-foreground text-sm font-medium",
                       status.color,
                       {
                         "animate-pulse": status.status === "active",
@@ -68,7 +68,7 @@ export default function IncidentsSection({
                     {status.label} Incident
                   </div>
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   Started{" "}
                   {formatDistanceToNowStrict(parseISO(incident.started_at!), {
                     addSuffix: true,
@@ -79,7 +79,7 @@ export default function IncidentsSection({
               <div className="flex items-center justify-between">
                 {incident.regions_affected &&
                   incident.regions_affected.length > 0 && (
-                    <div className="flex items-center justify-between text-xs gap-x-1.5">
+                    <div className="flex items-center justify-between gap-x-1.5 text-xs">
                       <span className="text-muted-foreground">
                         Regions affected:
                       </span>
@@ -89,7 +89,7 @@ export default function IncidentsSection({
                     </div>
                   )}
 
-                <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                <ArrowRight className="text-muted-foreground h-4 w-4 opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
               </div>
             </Link>
           );

@@ -153,10 +153,10 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
         if (!isOpen) handleCloseSheet();
       }}
     >
-      <SheetContent className="w-full sm:max-w-xl flex flex-col">
+      <SheetContent className="flex w-full flex-col sm:max-w-xl">
         {selectedLog ? (
           <>
-            <SheetHeader className="flex-shrink-0 flex items-start justify-between w-full flex-row">
+            <SheetHeader className="flex w-full flex-shrink-0 flex-row items-start justify-between">
               <div className="">
                 <SheetTitle>Log Details</SheetTitle>
                 <SheetDescription className="font-mono text-xs break-all">
@@ -164,7 +164,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                 </SheetDescription>
               </div>
 
-              <div className="space-x-2 flex justify-end">
+              <div className="flex justify-end space-x-2">
                 <Button
                   variant="outline"
                   size={"xs"}
@@ -196,8 +196,8 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                 </Button>
               </div>
             </SheetHeader>
-            <div className="p-4 space-y-4 overflow-y-auto flex-grow flex flex-col">
-              <div className="divide-y divide-dashed space-y-1 text-sm flex-shrink-0">
+            <div className="flex flex-grow flex-col space-y-4 overflow-y-auto p-4">
+              <div className="flex-shrink-0 space-y-1 divide-y divide-dashed text-sm">
                 <div className="flex items-center justify-between py-2">
                   <span className="font-medium">Timestamp</span>
                   <time>
@@ -251,11 +251,11 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
               </div>
 
               {selectedLog.error && (
-                <div className="text-sm flex-shrink-0">
+                <div className="flex-shrink-0 text-sm">
                   <p>
                     <span>Error:</span>
                   </p>{" "}
-                  <pre className="text-xs bg-red-50 dark:bg-red-900/30 p-2 mt-2 overflow-auto max-h-48 text-red-700 dark:text-red-300">
+                  <pre className="mt-2 max-h-48 overflow-auto bg-red-50 p-2 text-xs text-red-700 dark:bg-red-900/30 dark:text-red-300">
                     {selectedLog.error}
                   </pre>
                 </div>
@@ -265,11 +265,11 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
               {selectedLog.check_type === "tcp" &&
                 selectedLog.tcp_host &&
                 selectedLog.tcp_port && (
-                  <div className="text-sm flex-shrink-0">
+                  <div className="flex-shrink-0 text-sm">
                     <div className="flex items-center justify-between">
                       <span className="font-medium">TCP Check Details</span>
                     </div>
-                    <div className="mt-2 bg-blue-50 dark:bg-blue-900/30 p-3 border border-blue-200 dark:border-blue-800 rounded">
+                    <div className="mt-2 rounded border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/30">
                       <div className="space-y-1 text-xs">
                         <div className="flex justify-between">
                           <span className="font-medium text-blue-700 dark:text-blue-300">
@@ -322,7 +322,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                   </Button>
                 </div>
                 {headersArray.length > 0 ? (
-                  <div className="mt-2 overflow-auto border ">
+                  <div className="mt-2 overflow-auto border">
                     <table className="w-full text-xs">
                       <tbody className="divide-y">
                         {headersArray.map(({ key, value }, index) => (
@@ -330,10 +330,10 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                             key={index}
                             className="odd:bg-carbon-50 dark:odd:bg-carbon-800"
                           >
-                            <td className="py-1.5 px-2 font-mono text-left font-medium">
+                            <td className="px-2 py-1.5 text-left font-mono font-medium">
                               {key}
                             </td>
-                            <td className="py-1.5 px-2 font-mono text-left break-all whitespace-pre-wrap">
+                            <td className="px-2 py-1.5 text-left font-mono break-all whitespace-pre-wrap">
                               {value}
                             </td>
                           </tr>
@@ -342,13 +342,13 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                     </table>
                   </div>
                 ) : (
-                  <div className="text-xs bg-muted p-2 mt-2 text-center text-muted-foreground">
+                  <div className="bg-muted text-muted-foreground mt-2 p-2 text-center text-xs">
                     No headers available
                   </div>
                 )}
               </div>
-              <div className="flex flex-col flex-grow min-h-0">
-                <div className="flex items-center justify-between flex-shrink-0">
+              <div className="flex min-h-0 flex-grow flex-col">
+                <div className="flex flex-shrink-0 items-center justify-between">
                   <span className="font-medium">Body Content</span>
                   <Button
                     variant="ghost"
@@ -368,8 +368,8 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                     )}
                   </Button>
                 </div>
-                <div className="relative flex-grow min-h-0 flex flex-col">
-                  <pre className="text-xs bg-carbon-50 dark:bg-carbon-800 overflow-auto p-2 mt-2 font-mono border whitespace-pre-wrap break-words flex-grow">
+                <div className="relative flex min-h-0 flex-grow flex-col">
+                  <pre className="bg-carbon-50 dark:bg-carbon-800 mt-2 flex-grow overflow-auto border p-2 font-mono text-xs break-words whitespace-pre-wrap">
                     {(() => {
                       try {
                         if (
@@ -408,7 +408,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
             </div>
           </>
         ) : (
-          <div className="p-4 text-center text-muted-foreground">
+          <div className="text-muted-foreground p-4 text-center">
             {logId ? "Log not found in current view." : "No log selected."}
           </div>
         )}

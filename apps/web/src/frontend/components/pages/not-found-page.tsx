@@ -3,9 +3,9 @@ import { Button } from "../ui/button";
 
 export default function NotFoundPage() {
   return (
-    <div className="min-h-screen w-full bg-background flex flex-col items-center justify-center p-6 text-center">
-      <h1 className="text-4xl font-bold text-foreground">404</h1>
-      <p className="mt-4 text-muted-foreground">
+    <div className="bg-background flex min-h-screen w-full flex-col items-center justify-center p-6 text-center">
+      <h1 className="text-foreground text-4xl font-bold">404</h1>
+      <p className="text-muted-foreground mt-4">
         Oops! The page you’re looking for doesn’t exist.
       </p>
       <div className="mt-6">

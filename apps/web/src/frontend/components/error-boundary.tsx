@@ -30,10 +30,10 @@ export class ErrorBoundary extends Component<
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-background flex items-center justify-center p-4">
-          <div className="max-w-md w-full space-y-6 text-center">
+        <div className="bg-background flex min-h-screen items-center justify-center p-4">
+          <div className="w-full max-w-md space-y-6 text-center">
             <div className="space-y-2">
-              <h1 className="text-2xl font-medium text-foreground">
+              <h1 className="text-foreground text-2xl font-medium">
                 Something went wrong
               </h1>
               <p className="text-muted-foreground">
@@ -64,10 +64,10 @@ export class ErrorBoundary extends Component<
 
             {process.env.NODE_ENV === "development" && this.state.error && (
               <details className="text-left">
-                <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground">
+                <summary className="text-muted-foreground hover:text-foreground cursor-pointer text-sm">
                   Error Details (Development)
                 </summary>
-                <pre className="mt-2 p-3 bg-muted text-xs overflow-auto rounded-md">
+                <pre className="bg-muted mt-2 overflow-auto rounded-md p-3 text-xs">
                   {this.state.error.stack}
                 </pre>
               </details>

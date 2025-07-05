@@ -65,7 +65,7 @@ const FormField = ({
 }) => <div className={cn("space-y-2", className)}>{children}</div>;
 
 const ErrorMessage = ({ errors }: { errors?: string }) =>
-  errors ? <p className="text-sm text-destructive">{errors}</p> : null;
+  errors ? <p className="text-destructive text-sm">{errors}</p> : null;
 
 export default function HttpMonitorForm({
   onSubmit,
@@ -142,8 +142,8 @@ export default function HttpMonitorForm({
         >
           <div id="basic-config" className="space-y-4">
             <h2 className="font-medium">Basic Configuration</h2>
-            <div className="flex gap-4 w-full">
-              <FormField className="flex-1 w-full">
+            <div className="flex w-full gap-4">
+              <FormField className="w-full flex-1">
                 <Label htmlFor="name">Monitor name</Label>
                 <Input
                   id="name"
@@ -194,7 +194,7 @@ export default function HttpMonitorForm({
 
           <div id="check-config" className="space-y-4">
             <h2 className="font-medium">HTTP Configuration</h2>
-            <div className="flex gap-4 flex-1">
+            <div className="flex flex-1 gap-4">
               <FormField>
                 <Label htmlFor="method">Method</Label>
                 <Controller
@@ -226,7 +226,7 @@ export default function HttpMonitorForm({
                 <ErrorMessage errors={errors.method?.message} />
               </FormField>
 
-              <FormField className="flex-1 w-full">
+              <FormField className="w-full flex-1">
                 <Label htmlFor="url">URL to Monitor</Label>
                 <Input
                   id="url"
@@ -257,7 +257,7 @@ export default function HttpMonitorForm({
                   )}
                 />
                 <ErrorMessage errors={errors.headersString?.message} />
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   Enter headers as a valid JSON object
                 </p>
               </FormField>
@@ -276,7 +276,7 @@ export default function HttpMonitorForm({
                     )}
                   />
                   <ErrorMessage errors={errors.bodyString?.message} />
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-muted-foreground text-xs">
                     Only applicable for POST requests
                   </p>
                 </FormField>

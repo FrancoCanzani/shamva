@@ -31,10 +31,10 @@ export default function MonitorTypeSelector() {
         </Button>
       </PopoverTrigger>
       <PopoverContent className="p-0">
-        <div className="p-2 border-b">
-          <h3 className="font-medium text-sm">Select Monitor Type</h3>
+        <div className="border-b p-2">
+          <h3 className="text-sm font-medium">Select Monitor Type</h3>
         </div>
-        <div className="p-2 space-y-2">
+        <div className="space-y-2 p-2">
           {monitorTypes.map((monitorType) => {
             return (
               <Link
@@ -47,13 +47,13 @@ export default function MonitorTypeSelector() {
                 onClick={() => setIsOpen(false)}
                 className="block"
               >
-                <Card className="hover:bg-carbon-50 hover:dark:bg-carbon-800 transition-colors cursor-pointer border shadow-xs rounded-xs">
+                <Card className="hover:bg-carbon-50 hover:dark:bg-carbon-800 cursor-pointer rounded-xs border shadow-xs transition-colors">
                   <CardHeader className="p-1">
                     <CardTitle className="text-xs font-medium">
                       {monitorType.title}
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="text-xs text-muted-foreground px-1 pb-1">
+                  <CardContent className="text-muted-foreground px-1 pb-1 text-xs">
                     {monitorType.description}
                   </CardContent>
                 </Card>

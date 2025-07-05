@@ -142,12 +142,12 @@ export default function WorkspaceForm({
                   field.state.meta.errors?.length ? "border-destructive" : ""
                 }
               />
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-muted-foreground mt-1 text-sm">
                 This will be part of the URL for your workspace. Use only
                 lowercase letters, numbers, and hyphens.
               </p>
               {field.state.meta.errors?.length > 0 && (
-                <p className="text-sm text-destructive">
+                <p className="text-destructive text-sm">
                   {field.state.meta.errors[0]}
                 </p>
               )}
@@ -174,7 +174,7 @@ export default function WorkspaceForm({
                 rows={3}
               />
               {field.state.meta.errors?.length > 0 && (
-                <p className="text-sm text-destructive">
+                <p className="text-destructive text-sm">
                   {field.state.meta.errors[0]}
                 </p>
               )}
@@ -187,7 +187,7 @@ export default function WorkspaceForm({
 
       <div className="">
         <h2 className="text-lg font-medium">Invite Team Members</h2>
-        <p className="text-xs text-muted-foreground mb-4">
+        <p className="text-muted-foreground mb-4 text-xs">
           Each invited member will receive an email they must accept to join.
           <br />
           <br />- <strong>Admin:</strong> Full access to manage monitors,
@@ -273,8 +273,8 @@ export default function WorkspaceForm({
               </div>
 
               {(membersApi.state.value?.length ?? 0) > 0 && (
-                <div className="mt-4  border p-2">
-                  <h3 className="text-sm font-medium text-muted-foreground">
+                <div className="mt-4 border p-2">
+                  <h3 className="text-muted-foreground text-sm font-medium">
                     Pending Invitations
                   </h3>
                   <div className="divide-y divide-dashed">
@@ -282,13 +282,13 @@ export default function WorkspaceForm({
                       (member: MemberInvite, index: number) => (
                         <div
                           key={`member-${index}`}
-                          className="flex py-2 items-center justify-between gap-2"
+                          className="flex items-center justify-between gap-2 py-2"
                         >
                           <div className="flex flex-col">
                             <span className="text-sm font-medium">
                               {member.email}
                             </span>
-                            <span className="text-xs text-muted-foreground capitalize">
+                            <span className="text-muted-foreground text-xs capitalize">
                               {member.role}
                             </span>
                           </div>
@@ -296,7 +296,7 @@ export default function WorkspaceForm({
                             type="button"
                             variant="ghost"
                             size="icon"
-                            className="size-7 text-muted-foreground hover:text-destructive"
+                            className="text-muted-foreground hover:text-destructive size-7"
                             onClick={() => membersApi.removeValue(index)}
                             aria-label="Remove member"
                           >
@@ -310,7 +310,7 @@ export default function WorkspaceForm({
               )}
               {membersApi.state.meta.errors &&
                 typeof membersApi.state.meta.errors[0] === "string" && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-destructive text-sm">
                     {membersApi.state.meta.errors[0]}
                   </p>
                 )}

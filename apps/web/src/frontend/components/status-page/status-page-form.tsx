@@ -83,7 +83,7 @@ export default function StatusPageForm({
     >
       <div className="space-y-4">
         <h2 className="font-medium">Basic Information</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-2">
             <form.Field name="title">
               {(field) => (
@@ -103,7 +103,7 @@ export default function StatusPageForm({
                     }
                   />
                   {field.state.meta.errors?.length > 0 && (
-                    <p className="text-sm text-destructive">
+                    <p className="text-destructive text-sm">
                       {field.state.meta.errors[0]}
                     </p>
                   )}
@@ -118,7 +118,7 @@ export default function StatusPageForm({
                 <>
                   <Label htmlFor="slug">URL Slug</Label>
                   <div className="flex">
-                    <span className="inline-flex items-center px-3 -l border border-r-0 border-input bg-muted text-muted-foreground text-sm">
+                    <span className="-l border-input bg-muted text-muted-foreground inline-flex items-center border border-r-0 px-3 text-sm">
                       /status/
                     </span>
                     <Input
@@ -137,7 +137,7 @@ export default function StatusPageForm({
                     />
                   </div>
                   {field.state.meta.errors?.length > 0 && (
-                    <p className="text-sm text-destructive">
+                    <p className="text-destructive text-sm">
                       {field.state.meta.errors[0]}
                     </p>
                   )}
@@ -165,7 +165,7 @@ export default function StatusPageForm({
                   }
                 />
                 {field.state.meta.errors?.length > 0 && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-destructive text-sm">
                     {field.state.meta.errors[0]}
                   </p>
                 )}
@@ -186,12 +186,12 @@ export default function StatusPageForm({
                   id="showValues"
                   checked={field.state.value}
                   onChange={(e) => field.handleChange(e.target.checked)}
-                  className=" border-input"
+                  className="border-input"
                 />
                 <Label htmlFor="showValues" className="text-sm">
                   Show response times and uptime percentages
                 </Label>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   When disabled, only shows operational status
                 </p>
               </div>
@@ -206,7 +206,7 @@ export default function StatusPageForm({
                   id="isPublic"
                   checked={field.state.value}
                   onChange={(e) => field.handleChange(e.target.checked)}
-                  className=" border-input"
+                  className="border-input"
                 />
                 <Label htmlFor="isPublic" className="text-sm">
                   Make status page publicly accessible
@@ -243,7 +243,7 @@ export default function StatusPageForm({
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    className="absolute top-0 right-0 h-full px-3 py-2 hover:bg-transparent"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
@@ -254,11 +254,11 @@ export default function StatusPageForm({
                   </Button>
                 </div>
                 {field.state.meta.errors?.length > 0 && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-destructive text-sm">
                     {field.state.meta.errors[0]}
                   </p>
                 )}
-                <p className="text-xs text-muted-foreground">
+                <p className="text-muted-foreground text-xs">
                   Visitors will need to enter this password to view the status
                   page
                 </p>
@@ -272,17 +272,17 @@ export default function StatusPageForm({
         <form.Field name="monitors">
           {(field) => (
             <>
-              <div className="flex gap-1.5 flex-col items-start justify-between">
+              <div className="flex flex-col items-start justify-between gap-1.5">
                 <h2 className="font-medium">Select Monitors</h2>
-                <span className="text-sm text-muted-foreground">
+                <span className="text-muted-foreground text-sm">
                   {field.state.value.length} monitor
                   {field.state.value.length !== 1 ? "s" : ""} selected
                 </span>
               </div>
 
-              <div className="border  border-dashed p-4">
+              <div className="border border-dashed p-4">
                 {availableMonitors.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-4">
+                  <p className="text-muted-foreground py-4 text-center text-sm">
                     No monitors available in this workspace. Create some
                     monitors first.
                   </p>
@@ -294,7 +294,7 @@ export default function StatusPageForm({
                       return (
                         <div
                           key={monitor.id}
-                          className={`flex items-center justify-between p-3 border  cursor-pointer hover:bg-carbon-50 transition-colors ${
+                          className={`hover:bg-carbon-50 flex cursor-pointer items-center justify-between border p-3 transition-colors ${
                             isSelected ? "border-primary bg-carbon-50" : ""
                           }`}
                           onClick={() => {
@@ -324,12 +324,12 @@ export default function StatusPageForm({
                             <span className="text-sm font-medium">
                               {monitor.name || monitor.url}
                             </span>
-                            <span className="text-xs text-muted-foreground">
+                            <span className="text-muted-foreground text-xs">
                               {monitor.url}
                             </span>
                           </div>
                           {isSelected && (
-                            <Check className="h-4 w-4 text-primary" />
+                            <Check className="text-primary h-4 w-4" />
                           )}
                         </div>
                       );
@@ -339,7 +339,7 @@ export default function StatusPageForm({
               </div>
 
               {field.state.meta.errors?.length > 0 && (
-                <p className="text-sm text-destructive">
+                <p className="text-destructive text-sm">
                   {field.state.meta.errors[0]}
                 </p>
               )}

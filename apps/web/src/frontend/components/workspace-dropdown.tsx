@@ -36,7 +36,7 @@ export function WorkspaceDropdown({ workspaceName }: WorkspaceDropdownProps) {
         <Button
           variant="outline"
           size={"xs"}
-          className="flex justify-between w-full max-w-[240px]"
+          className="flex w-full max-w-[240px] justify-between"
           disabled={isLoading}
         >
           {isLoading

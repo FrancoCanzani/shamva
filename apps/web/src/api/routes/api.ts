@@ -13,6 +13,7 @@ import getLogs from "./logs/get";
 import deleteMonitors from "./monitors/delete";
 import getMonitors from "./monitors/get";
 import getAllMonitors from "./monitors/get-all";
+import patchMonitors from "./monitors/patch";
 import postMonitors from "./monitors/post";
 import putMonitors from "./monitors/put";
 import deleteStatusPages from "./status-pages/delete";
@@ -51,6 +52,7 @@ apiRoutes.post("/api/monitors", postMonitors);
 apiRoutes.get("/api/monitors", getAllMonitors);
 apiRoutes.get("/api/monitors/:id", getMonitors);
 apiRoutes.put("/api/monitors/:id", putMonitors);
+apiRoutes.patch("/api/monitors/:id", patchMonitors);
 apiRoutes.delete("/api/monitors/:id", deleteMonitors);
 
 // Status page routes

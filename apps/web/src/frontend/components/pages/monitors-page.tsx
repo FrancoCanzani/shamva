@@ -24,7 +24,7 @@ export default function MonitorsPage() {
   }, [monitorsData, searchQuery]);
 
   return (
-    <div className="space-y-8 p-4">
+    <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 p-4">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-medium">Monitors</h2>

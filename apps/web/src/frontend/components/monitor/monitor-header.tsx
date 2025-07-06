@@ -1,10 +1,12 @@
 import { supabase } from "@/frontend/lib/supabase";
 import { cn, getRegionFlags, getStatusColor } from "@/frontend/lib/utils";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id";
+import { useMutation } from "@tanstack/react-query";
 import { Link, redirect, useNavigate, useRouter } from "@tanstack/react-router";
 import { formatDistanceToNowStrict, parseISO } from "date-fns";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
+import ConfirmationDialog from "../comfirmation-dialog";
 import { Button } from "../ui/button";
 import {
   DropdownMenu,
@@ -14,9 +16,9 @@ import {
 } from "../ui/dropdown-menu";
 
 const PERIOD_OPTIONS = [
+  { value: 1, label: "Last day" },
   { value: 7, label: "Last 7 days" },
   { value: 14, label: "Last 14 days" },
-  { value: 30, label: "Last 30 days" },
 ];
 
 export default function MonitorHeader() {
@@ -35,24 +37,24 @@ export default function MonitorHeader() {
     });
   };
 
-  async function handleDelete() {
-    const {
-      data: { session },
-      error: sessionError,
-    } = await supabase.auth.getSession();
+  const deleteMonitorMutation = useMutation({
+    mutationFn: async () => {
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
 
-    if (sessionError || !session?.access_token) {
-      console.error("Session Error or no token:", sessionError);
-      throw redirect({
-        to: "/auth/login",
-        search: { redirect: `/dashboard/monitors/${id}` },
-        throw: true,
-      });
-    }
+      if (sessionError || !session?.access_token) {
+        console.error("Session Error or no token:", sessionError);
+        throw redirect({
+          to: "/auth/login",
+          search: { redirect: `/dashboard/monitors/${id}` },
+          throw: true,
+        });
+      }
 
-    const token = session.access_token;
+      const token = session.access_token;
 
-    try {
       const response = await fetch(`/api/monitors/${id}`, {
         method: "DELETE",
         headers: {
@@ -61,21 +63,78 @@ export default function MonitorHeader() {
         },
       });
 
-      if (response.ok) {
-        router.invalidate();
-        toast.success("Monitor deleted");
-        navigate({
-          to: "/dashboard/$workspaceName/monitors",
-          params: { workspaceName },
-        });
-      } else {
-        toast.error("Error deleting monitor");
+      if (!response.ok) {
+        throw new Error("Failed to delete monitor");
       }
-    } catch (error) {
-      console.error("Error deleting monitor:", error);
-      toast.error("Error deleting monitor");
-    }
-  }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      router.invalidate();
+      toast.success("Monitor deleted successfully");
+      navigate({
+        to: "/dashboard/$workspaceName/monitors",
+        params: { workspaceName },
+      });
+    },
+    onError: () => {
+      toast.error("Failed to delete monitor");
+    },
+  });
+
+  const handleDelete = () => {
+    deleteMonitorMutation.mutate();
+  };
+
+  const pauseOrResumeMutation = useMutation({
+    mutationFn: async () => {
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
+
+      if (sessionError || !session?.access_token) {
+        console.error("Session Error or no token:", sessionError);
+        throw redirect({
+          to: "/auth/login",
+          search: { redirect: `/dashboard/monitors/${id}` },
+          throw: true,
+        });
+      }
+
+      const token = session.access_token;
+
+      const response = await fetch(`/api/monitors/${id}`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(
+          monitor.status === "paused"
+            ? { status: "active" }
+            : { status: "paused" }
+        ),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete monitor");
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      router.invalidate();
+      toast.success("Monitor updated successfully");
+    },
+    onError: () => {
+      toast.error("Failed to update monitor");
+    },
+  });
+
+  const handlePauseOrResumeMonitor = () => {
+    pauseOrResumeMutation.mutate();
+  };
 
   const sortedLogs = [...monitor.recent_logs].sort((a, b) => {
     if (!a.created_at) return 1;
@@ -165,10 +224,10 @@ export default function MonitorHeader() {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem
-                // onClick={() => router.invalidate()}
+                onClick={handlePauseOrResumeMonitor}
                 className="w-full text-xs"
               >
-                Pause
+                {monitor.status === "paused" ? "Resume" : "Pause"}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => router.invalidate()}
@@ -176,11 +235,20 @@ export default function MonitorHeader() {
               >
                 Refresh
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={handleDelete}
-                className="w-full text-xs text-red-500 hover:text-red-500 focus:bg-red-50 focus:text-red-500 focus:dark:bg-red-900 focus:dark:text-white"
-              >
-                Delete
+              <DropdownMenuItem asChild>
+                <ConfirmationDialog
+                  trigger={
+                    <div className="flex w-full cursor-pointer items-center px-2 py-1.5 text-xs text-red-500 focus:bg-red-50 focus:text-red-500 focus:dark:bg-red-900 focus:dark:text-white">
+                      Delete
+                    </div>
+                  }
+                  title="Delete Monitor"
+                  description={`Are you sure you want to delete "${monitor.name}"? This action cannot be undone and will permanently remove all monitoring data.`}
+                  confirmText="Delete"
+                  cancelText="Cancel"
+                  variant="destructive"
+                  onConfirm={handleDelete}
+                />
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

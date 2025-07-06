@@ -162,7 +162,7 @@ export default function MonitorsCard({
       <Link
         to="/dashboard/$workspaceName/monitors/$id"
         params={{ id: monitor.id, workspaceName: workspaceName }}
-        search={{ days: 30 }}
+        search={{ days: 7 }}
         className="bg-background hover:bg-carbon-50 dark:hover:bg-carbon-800 block px-2 py-2.5 transition-colors"
       >
         <div className="flex items-center justify-between">

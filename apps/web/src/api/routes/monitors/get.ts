@@ -1,10 +1,26 @@
 import { Context } from "hono";
+import { z } from "zod";
 import { createSupabaseClient } from "../../lib/supabase/client";
-import { Log, Incident } from "../../lib/types";
+import { Incident, Log } from "../../lib/types";
+
+const querySchema = z.object({
+  days: z
+    .string()
+    .optional()
+    .transform((val) => {
+      if (!val) return 14;
+      const parsed = parseInt(val, 10);
+      if (isNaN(parsed) || parsed < 1 || parsed > 14) {
+        return 14;
+      }
+      return parsed;
+    }),
+});
 
 export default async function getMonitors(c: Context) {
   const userId = c.get("userId");
   const monitorId = c.req.param("id");
+  const daysParam = c.req.query("days");
 
   if (!userId) {
     return c.json(
@@ -19,6 +35,8 @@ export default async function getMonitors(c: Context) {
       400
     );
   }
+
+  const { days } = querySchema.parse({ days: daysParam });
 
   try {
     const supabase = createSupabaseClient(c.env);
@@ -36,7 +54,6 @@ export default async function getMonitors(c: Context) {
           404
         );
       }
-
       return c.json(
         {
           data: null,
@@ -70,15 +87,15 @@ export default async function getMonitors(c: Context) {
       );
     }
 
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    const thirtyDaysAgoISO = thirtyDaysAgo.toISOString();
+    const date = new Date();
+    date.setDate(date.getDate() - days);
+    const daysAgo = date.toISOString();
 
     const { data: recentLogs, error: logError } = await supabase
       .from("logs")
       .select("*")
       .eq("monitor_id", monitorId)
-      .gte("created_at", thirtyDaysAgoISO)
+      .gte("created_at", daysAgo)
       .order("created_at", { ascending: false });
 
     if (logError) {
@@ -95,7 +112,7 @@ export default async function getMonitors(c: Context) {
       .from("incidents")
       .select("*")
       .eq("monitor_id", monitorId)
-      .gte("created_at", thirtyDaysAgoISO)
+      .gte("created_at", daysAgo)
       .order("created_at", { ascending: false });
 
     if (incidentError) {

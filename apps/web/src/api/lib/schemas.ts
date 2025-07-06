@@ -108,6 +108,99 @@ export const MonitorsParamsSchema = z
     }
   );
 
+export const PartialMonitorSchema = z
+  .object({
+    name: z
+      .string()
+      .min(1, "Name is required")
+      .max(255, "Name too long")
+      .optional(),
+    check_type: z.enum(["http", "tcp"]).optional(),
+    url: z.string().url("Invalid URL format").nullable().optional(),
+    tcp_host_port: z.string().nullable().optional(),
+    method: z.enum(["GET", "POST", "HEAD"]).nullable().optional(),
+    interval: z
+      .number()
+      .min(60000, "Interval must be at least 1 minute (60000ms)")
+      .max(3600000, "Interval cannot exceed 1 hour (3600000ms)")
+      .optional(),
+    regions: z
+      .array(z.string())
+      .min(1, "At least one region is required")
+      .optional(),
+    headers: z.record(z.string(), z.string()).nullable().optional(),
+    body: z
+      .union([z.record(z.string(), z.unknown()), z.string(), z.null()])
+      .optional(),
+    status: z
+      .enum(["broken", "active", "maintenance", "paused", "error", "degraded"])
+      .optional(),
+    slack_webhook_url: z
+      .string()
+      .url("Invalid webhook URL")
+      .nullable()
+      .optional(),
+    error_message: z.string().nullable().optional(),
+    last_check_at: z.string().datetime().nullable().optional(),
+    last_success_at: z.string().datetime().nullable().optional(),
+    last_failure_at: z.string().datetime().nullable().optional(),
+  })
+  .refine(
+    (data) => {
+      // If check_type is http, url should be provided
+      if (data.check_type === "http" && data.url === null) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "URL is required for HTTP monitors",
+      path: ["url"],
+    }
+  )
+  .refine(
+    (data) => {
+      // If check_type is tcp, tcp_host_port should be provided
+      if (data.check_type === "tcp" && !data.tcp_host_port) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Host and port are required for TCP monitors",
+      path: ["tcp_host_port"],
+    }
+  )
+  .refine(
+    (data) => {
+      // Method should only be set for HTTP monitors
+      if (data.check_type === "tcp" && data.method !== null) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Method is not applicable for TCP monitors",
+      path: ["method"],
+    }
+  )
+  .refine(
+    (data) => {
+      // Headers and body should only be set for HTTP monitors
+      if (
+        data.check_type === "tcp" &&
+        (data.headers !== null || data.body !== null)
+      ) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Headers and body are not applicable for TCP monitors",
+      path: ["headers", "body"],
+    }
+  );
+
 export const MemberInviteSchema = z.object({
   email: z
     .string()

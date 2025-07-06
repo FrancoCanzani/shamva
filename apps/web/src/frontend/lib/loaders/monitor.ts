@@ -5,11 +5,14 @@ import { ApiResponse, Monitor } from "../types";
 export default async function fetchMonitor({
   params,
   abortController,
+  days,
 }: {
   params: Params;
   abortController: AbortController;
+  days: number;
 }) {
   const { id } = params;
+
   const {
     data: { session },
     error: sessionError,
@@ -27,7 +30,7 @@ export default async function fetchMonitor({
   const token = session.access_token;
 
   try {
-    const response = await fetch(`/api/monitors/${id}`, {
+    const response = await fetch(`/api/monitors/${id}?days=${days}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -58,7 +61,6 @@ export default async function fetchMonitor({
     }
 
     const result: ApiResponse<Monitor> = await response.json();
-
     if (!result.success || !result.data) {
       console.error(
         `API Error fetching monitor ${id}:`,

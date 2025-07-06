@@ -1,9 +1,9 @@
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors";
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
+import MonitorTypeSelector from "../monitor/monitor-type-selector";
 import { MonitorsCards } from "../monitors/monitors-cards";
 import NotFoundMessage from "../not-found-message";
 import { Input } from "../ui/input";
-import MonitorTypeSelector from "../monitor/monitor-type-selector";
 
 export default function MonitorsPage() {
   const monitorsData = Route.useLoaderData();

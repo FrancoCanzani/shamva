@@ -83,31 +83,6 @@ const getStatusColorForCheck = (log: Partial<Log> | undefined): string => {
   return log.error ? "bg-red-700" : "bg-gray-700";
 };
 
-const getStatusText = (log: Partial<Log> | undefined): string => {
-  if (!log) return "No data";
-
-  // For HTTP checks, show status code
-  if (log.check_type === "http" && typeof log.status_code === "number") {
-    if (log.status_code >= 200 && log.status_code < 300) return "Success";
-    if (log.status_code >= 300 && log.status_code < 400)
-      return `Redirect (${log.status_code})`;
-    if (log.status_code >= 400 && log.status_code < 500)
-      return `Client Error (${log.status_code})`;
-    if (log.status_code >= 500) return `Server Error (${log.status_code})`;
-    return `Failed (${log.status_code})`;
-  }
-
-  // For TCP checks, use ok field
-  if (typeof log.ok === "boolean") {
-    if (log.ok) return "Success";
-    if (log.error) return `Error: ${log.error}`;
-    return "Failed";
-  }
-
-  // Fallback for unknown status
-  return log.error ? `Error: ${log.error}` : "Unknown status";
-};
-
 function RecentChecks({ logs }: { logs: Partial<Log>[] }) {
   const isMobile = useIsMobile();
 
@@ -120,10 +95,9 @@ function RecentChecks({ logs }: { logs: Partial<Log>[] }) {
         {Array.from({ length: isMobile ? 7 : 10 }).map((_, index) => {
           const log = recent[index];
           const color = getStatusColorForCheck(log);
-          const statusText = getStatusText(log);
 
           const title = log
-            ? `${statusText} at ${log.created_at ? format(parseISO(log.created_at), "HH:mm:ss") : "Unknown time"}`
+            ? `${log.status_code} at ${log.created_at ? format(parseISO(log.created_at), "HH:mm:ss") : "Unknown time"}`
             : `Check ${index + 1} (No data)`;
 
           return (

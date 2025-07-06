@@ -7,7 +7,7 @@ interface RegionLatencyChartsProps {
   height?: number;
 }
 
-export default function RegionLatencyCharts({
+export default function MonitorRegionLatencyCharts({
   logs,
   height = 80,
 }: RegionLatencyChartsProps) {

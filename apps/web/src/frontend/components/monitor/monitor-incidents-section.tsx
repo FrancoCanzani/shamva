@@ -1,12 +1,11 @@
 import type { Incident } from "@/frontend/lib/types";
-import { getRegionFlags } from "@/frontend/lib/utils";
+import { cn, getRegionFlags } from "@/frontend/lib/utils";
+import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id";
+import { Link } from "@tanstack/react-router";
 import { formatDistanceToNowStrict, parseISO } from "date-fns";
 import { ArrowRight } from "lucide-react";
-import { Link } from "@tanstack/react-router";
-import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id";
-import { cn } from "@/frontend/lib/utils";
 
-export default function IncidentsSection({
+export default function MonitorIncidentsSection({
   incidents,
 }: {
   incidents: Partial<Incident>[];

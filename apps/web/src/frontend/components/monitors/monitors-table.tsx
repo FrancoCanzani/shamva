@@ -47,7 +47,7 @@ export function MonitorsTable({ monitors }: { monitors: Monitor[] }) {
                     key={header.id}
                     colSpan={header.colSpan}
                     className={cn(
-                      "text-muted-foreground cursor-pointer text-xs font-medium select-none",
+                      "text-muted-foreground group cursor-pointer text-xs font-medium select-none",
                       header.column.getCanSort() && "hover:underline"
                     )}
                     style={{ width: header.getSize() }}
@@ -62,11 +62,21 @@ export function MonitorsTable({ monitors }: { monitors: Monitor[] }) {
                         header.column.columnDef.header,
                         header.getContext()
                       )}
-                      {isSorted === "asc" && (
-                        <ChevronUp size={14} className="inline" />
-                      )}
-                      {isSorted === "desc" && (
-                        <ChevronDown size={14} className="inline" />
+                      {header.column.getCanSort() && (
+                        <span className="invisible transition-opacity group-hover:visible">
+                          {isSorted === "asc" && (
+                            <ChevronUp size={14} className="inline" />
+                          )}
+                          {isSorted === "desc" && (
+                            <ChevronDown size={14} className="inline" />
+                          )}
+                          {!isSorted && (
+                            <ChevronUp
+                              size={14}
+                              className="inline opacity-30"
+                            />
+                          )}
+                        </span>
                       )}
                     </span>
                   </TableHead>

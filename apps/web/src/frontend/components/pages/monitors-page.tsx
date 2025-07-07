@@ -7,9 +7,6 @@ import { Input } from "../ui/input";
 
 export default function MonitorsPage() {
   const monitorsData = Route.useLoaderData();
-
-  console.log(monitorsData);
-
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredMonitors = useMemo(() => {

@@ -137,7 +137,9 @@ export default function HttpMonitorForm({
       body,
       slackWebhookUrl: data.slackWebhookUrl,
       heartbeatId: data.enableHeartbeat ? data.heartbeatId : undefined,
-      heartbeatTimeoutSeconds: data.enableHeartbeat ? data.heartbeatTimeoutSeconds : undefined,
+      heartbeatTimeoutSeconds: data.enableHeartbeat
+        ? data.heartbeatTimeoutSeconds
+        : undefined,
     };
 
     await onSubmit(payload);

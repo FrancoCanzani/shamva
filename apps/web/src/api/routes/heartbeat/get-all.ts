@@ -5,10 +5,7 @@ export default async function getAllHeartbeats(c: Context) {
   const workspaceId = c.req.query("workspaceId");
 
   if (!workspaceId) {
-    return c.json(
-      { success: false, error: "Workspace ID is required." },
-      400
-    );
+    return c.json({ success: false, error: "Workspace ID is required." }, 400);
   }
 
   const userId = c.get("userId");
@@ -57,9 +54,6 @@ export default async function getAllHeartbeats(c: Context) {
     });
   } catch (error) {
     console.error("Error fetching heartbeats:", error);
-    return c.json(
-      { success: false, error: "Internal server error." },
-      500
-    );
+    return c.json({ success: false, error: "Internal server error." }, 500);
   }
-} 
+}

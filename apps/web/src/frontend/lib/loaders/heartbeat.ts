@@ -85,4 +85,4 @@ export default async function fetchHeartbeat({
     console.error(`Error fetching heartbeat ${id}:`, error);
     throw error;
   }
-} 
+}

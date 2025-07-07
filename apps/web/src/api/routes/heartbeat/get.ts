@@ -14,15 +14,13 @@ export default async function getHeartbeat(c: Context) {
     const supabase = createSupabaseClient(c.env);
     const now = new Date().toISOString();
 
-    const { error } = await supabase
-      .from("heartbeats")
-      .upsert({
-        id: heartbeatId,
-        service_name: serviceName || "unknown",
-        metadata: metadata ? JSON.parse(metadata) : null,
-        last_beat_at: now,
-        updated_at: now,
-      });
+    const { error } = await supabase.from("heartbeats").upsert({
+      id: heartbeatId,
+      service_name: serviceName || "unknown",
+      metadata: metadata ? JSON.parse(metadata) : null,
+      last_beat_at: now,
+      updated_at: now,
+    });
 
     if (error) {
       console.error("Failed to log heartbeat:", error);
@@ -38,4 +36,4 @@ export default async function getHeartbeat(c: Context) {
     console.error("Heartbeat error:", error);
     return c.json({ error: "Internal server error" }, 500);
   }
-} 
+}

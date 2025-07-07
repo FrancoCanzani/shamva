@@ -2,8 +2,13 @@ import { EnvBindings } from "../../../bindings";
 import { createSupabaseClient } from "../lib/supabase/client";
 import { Heartbeat } from "../lib/types";
 
-export async function handleHeartbeatCheckerCron(env: EnvBindings): Promise<void> {
-  console.log("Starting heartbeat checker cron job at", new Date().toISOString());
+export async function handleHeartbeatCheckerCron(
+  env: EnvBindings
+): Promise<void> {
+  console.log(
+    "Starting heartbeat checker cron job at",
+    new Date().toISOString()
+  );
 
   try {
     const supabase = createSupabaseClient(env);
@@ -41,22 +46,33 @@ export async function handleHeartbeatCheckerCron(env: EnvBindings): Promise<void
           })
           .eq("id", heartbeat.id);
 
-        console.log(`Heartbeat ${heartbeat.id} (${heartbeat.name}) has timed out`);
+        console.log(
+          `Heartbeat ${heartbeat.id} (${heartbeat.name}) has timed out`
+        );
 
         // Send notifications
         await sendHeartbeatAlert(env, heartbeat);
       } catch (error) {
-        console.error(`Error processing timed out heartbeat ${heartbeat.id}:`, error);
+        console.error(
+          `Error processing timed out heartbeat ${heartbeat.id}:`,
+          error
+        );
       }
     }
 
-    console.log("Completed heartbeat checker cron job at", new Date().toISOString());
+    console.log(
+      "Completed heartbeat checker cron job at",
+      new Date().toISOString()
+    );
   } catch (error) {
     console.error("Critical error in heartbeat checker cron:", error);
   }
 }
 
-async function sendHeartbeatAlert(env: EnvBindings, heartbeat: Heartbeat): Promise<void> {
+async function sendHeartbeatAlert(
+  env: EnvBindings,
+  heartbeat: Heartbeat
+): Promise<void> {
   try {
     const supabase = createSupabaseClient(env);
 
@@ -68,11 +84,13 @@ async function sendHeartbeatAlert(env: EnvBindings, heartbeat: Heartbeat): Promi
       .eq("invitation_status", "accepted");
 
     if (!workspaceMembers || workspaceMembers.length === 0) {
-      console.warn(`No workspace members found for workspace ${heartbeat.workspace_id}`);
+      console.warn(
+        `No workspace members found for workspace ${heartbeat.workspace_id}`
+      );
       return;
     }
 
-    const userEmails = workspaceMembers.map(member => member.user_id);
+    const userEmails = workspaceMembers.map((member) => member.user_id);
 
     // Log the alert
     console.log(`Heartbeat alert for ${heartbeat.name}:`, {
@@ -87,4 +105,4 @@ async function sendHeartbeatAlert(env: EnvBindings, heartbeat: Heartbeat): Promi
   } catch (error) {
     console.error("Failed to send heartbeat alert:", error);
   }
-} 
+}

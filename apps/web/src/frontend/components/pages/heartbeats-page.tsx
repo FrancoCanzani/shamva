@@ -5,7 +5,12 @@ import { supabase } from "@/frontend/lib/supabase";
 import type { Heartbeat } from "@/frontend/lib/types";
 import { useWorkspaces } from "@/frontend/lib/context/workspace-context";
 import { Button } from "@/frontend/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/frontend/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/frontend/components/ui/card";
 import { Alert, AlertDescription } from "@/frontend/components/ui/alert";
 import HeartbeatTable from "@/frontend/components/heartbeat/heartbeat-table";
 import { Route as HeartbeatsRoute } from "@/frontend/routes/dashboard/$workspaceName/heartbeats/index";
@@ -18,24 +23,23 @@ export default function HeartbeatsPage() {
 
   const deleteHeartbeat = useMutation({
     mutationFn: async (heartbeatId: string): Promise<void> => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
       if (!session?.access_token) {
         throw new Error("Not authenticated");
       }
 
-      const response = await fetch(
-        `/api/heartbeats/${heartbeatId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-          },
-        }
-      );
+      const response = await fetch(`/api/heartbeats/${heartbeatId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
 
       if (!response.ok) {
-        const errorData = await response.json() as { error?: string };
+        const errorData = (await response.json()) as { error?: string };
         throw new Error(errorData.error || "Failed to delete heartbeat");
       }
     },
@@ -46,14 +50,16 @@ export default function HeartbeatsPage() {
   });
 
   const handleEdit = (heartbeat: Heartbeat) => {
-    navigate({ to: `/dashboard/${workspace?.name}/heartbeats/${heartbeat.id}/edit` });
+    navigate({
+      to: `/dashboard/${workspace?.name}/heartbeats/${heartbeat.id}/edit`,
+    });
   };
 
   const handleDelete = async (heartbeatId: string) => {
     try {
       await deleteHeartbeat.mutateAsync(heartbeatId);
     } catch (error) {
-      console.error('Failed to delete heartbeat:', error);
+      console.error("Failed to delete heartbeat:", error);
     }
   };
 
@@ -65,7 +71,7 @@ export default function HeartbeatsPage() {
 
   if (!workspace) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex h-64 items-center justify-center">
         <div className="text-center">
           <p className="text-muted-foreground">Loading workspace...</p>
         </div>
@@ -74,7 +80,7 @@ export default function HeartbeatsPage() {
   }
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="container mx-auto space-y-6 py-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Heartbeats</h1>
@@ -82,8 +88,12 @@ export default function HeartbeatsPage() {
             Monitor your services with heartbeat endpoints
           </p>
         </div>
-        <Button onClick={() => navigate({ to: `/dashboard/${workspace.name}/heartbeats/new` })}>
-          <Plus className="h-4 w-4 mr-2" />
+        <Button
+          onClick={() =>
+            navigate({ to: `/dashboard/${workspace.name}/heartbeats/new` })
+          }
+        >
+          <Plus className="mr-2 h-4 w-4" />
           New Heartbeat
         </Button>
       </div>
@@ -100,12 +110,18 @@ export default function HeartbeatsPage() {
         </CardHeader>
         <CardContent>
           {heartbeats.length === 0 ? (
-            <div className="text-center py-8">
+            <div className="py-8 text-center">
               <p className="text-muted-foreground mb-4">
                 No heartbeats found. Create your first heartbeat to get started.
               </p>
-              <Button onClick={() => navigate({ to: `/dashboard/${workspace.name}/heartbeats/new` })}>
-                <Plus className="h-4 w-4 mr-2" />
+              <Button
+                onClick={() =>
+                  navigate({
+                    to: `/dashboard/${workspace.name}/heartbeats/new`,
+                  })
+                }
+              >
+                <Plus className="mr-2 h-4 w-4" />
                 Create Heartbeat
               </Button>
             </div>
@@ -121,4 +137,4 @@ export default function HeartbeatsPage() {
       </Card>
     </div>
   );
-} 
+}

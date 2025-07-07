@@ -116,7 +116,9 @@ export async function fetchHeartbeats({
     );
 
     if (heartbeatsResponse.status === 401) {
-      console.log("API returned 401 fetching heartbeats, redirecting to login.");
+      console.log(
+        "API returned 401 fetching heartbeats, redirecting to login."
+      );
       throw redirect({
         to: "/auth/login",
         search: { redirect: `/dashboard/${workspaceName}/heartbeats` },
@@ -168,6 +170,8 @@ export async function fetchHeartbeats({
     if (error instanceof Error) {
       throw new Error(`Failed to load heartbeats data: ${error.message}`);
     }
-    throw new Error("An unknown error occurred while fetching heartbeats data.");
+    throw new Error(
+      "An unknown error occurred while fetching heartbeats data."
+    );
   }
-} 
+}

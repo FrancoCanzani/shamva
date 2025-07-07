@@ -20,30 +20,33 @@ export default function EditHeartbeatPage() {
       grace_period_ms: number;
       workspace_id: string;
     }): Promise<Heartbeat> => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
       if (!session?.access_token) {
         throw new Error("Not authenticated");
       }
 
-      const response = await fetch(
-        `/api/heartbeats/${params.id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify(data),
-        }
-      );
+      const response = await fetch(`/api/heartbeats/${params.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify(data),
+      });
 
       if (!response.ok) {
-        const errorData = await response.json() as { error?: string };
+        const errorData = (await response.json()) as { error?: string };
         throw new Error(errorData.error || "Failed to update heartbeat");
       }
 
-      const result = await response.json() as { success: boolean; data?: Heartbeat; error?: string };
+      const result = (await response.json()) as {
+        success: boolean;
+        data?: Heartbeat;
+        error?: string;
+      };
       if (!result.success || !result.data) {
         throw new Error(result.error || "Failed to update heartbeat");
       }
@@ -66,7 +69,7 @@ export default function EditHeartbeatPage() {
       await updateHeartbeat.mutateAsync(data);
       navigate({ to: `/dashboard/${workspace?.name}/heartbeats` });
     } catch (error) {
-      console.error('Failed to update heartbeat:', error);
+      console.error("Failed to update heartbeat:", error);
     }
   };
 
@@ -76,7 +79,7 @@ export default function EditHeartbeatPage() {
 
   if (!workspace) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex h-64 items-center justify-center">
         <div className="text-center">
           <p className="text-muted-foreground">Loading workspace...</p>
         </div>
@@ -94,4 +97,4 @@ export default function EditHeartbeatPage() {
       />
     </div>
   );
-} 
+}

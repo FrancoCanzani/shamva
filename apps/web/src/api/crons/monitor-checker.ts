@@ -22,7 +22,9 @@ async function getWorkspaceUsers(
   }
 }
 
-export async function handleMonitorCheckerCron(env: EnvBindings): Promise<void> {
+export async function handleMonitorCheckerCron(
+  env: EnvBindings
+): Promise<void> {
   console.log("Starting checker cron job at", new Date().toISOString());
 
   try {

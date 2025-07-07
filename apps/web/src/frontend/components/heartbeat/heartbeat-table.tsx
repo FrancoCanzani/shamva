@@ -39,38 +39,40 @@ export default function HeartbeatTable({
 
   const getStatusBadge = (heartbeat: Heartbeat) => {
     const now = new Date();
-    const lastBeat = heartbeat.last_beat_at ? new Date(heartbeat.last_beat_at) : null;
+    const lastBeat = heartbeat.last_beat_at
+      ? new Date(heartbeat.last_beat_at)
+      : null;
     const timeoutMs = heartbeat.expected_lapse_ms + heartbeat.grace_period_ms;
-    
+
     if (heartbeat.status === "timeout") {
       return <Badge variant="destructive">Timed Out</Badge>;
     }
-    
+
     if (heartbeat.status === "paused") {
       return <Badge variant="secondary">Paused</Badge>;
     }
-    
+
     if (!lastBeat) {
       return <Badge variant="secondary">No Heartbeats</Badge>;
     }
-    
+
     const timeSinceLastBeat = now.getTime() - lastBeat.getTime();
-    
+
     if (timeSinceLastBeat > timeoutMs) {
       return <Badge variant="destructive">Timed Out</Badge>;
     }
-    
+
     if (timeSinceLastBeat > heartbeat.expected_lapse_ms) {
       return <Badge variant="secondary">Late</Badge>;
     }
-    
+
     return <Badge variant="default">Active</Badge>;
   };
 
   const formatDuration = (ms: number) => {
     const seconds = Math.floor(ms / 1000);
     const minutes = Math.floor(seconds / 60);
-    
+
     if (minutes > 0) {
       return `${minutes}m ${seconds % 60}s`;
     }
@@ -95,12 +97,18 @@ export default function HeartbeatTable({
             <TableRow key={heartbeat.id}>
               <TableCell className="font-medium">{heartbeat.name}</TableCell>
               <TableCell>{getStatusBadge(heartbeat)}</TableCell>
-              <TableCell>{formatDuration(heartbeat.expected_lapse_ms)}</TableCell>
+              <TableCell>
+                {formatDuration(heartbeat.expected_lapse_ms)}
+              </TableCell>
               <TableCell>{formatDuration(heartbeat.grace_period_ms)}</TableCell>
               <TableCell>
                 {heartbeat.last_beat_at ? (
-                  <span title={new Date(heartbeat.last_beat_at).toLocaleString()}>
-                    {formatDistanceToNow(new Date(heartbeat.last_beat_at), { addSuffix: true })}
+                  <span
+                    title={new Date(heartbeat.last_beat_at).toLocaleString()}
+                  >
+                    {formatDistanceToNow(new Date(heartbeat.last_beat_at), {
+                      addSuffix: true,
+                    })}
                   </span>
                 ) : (
                   <span className="text-muted-foreground">Never</span>
@@ -141,4 +149,4 @@ export default function HeartbeatTable({
       </Table>
     </div>
   );
-} 
+}

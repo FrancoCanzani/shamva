@@ -24,9 +24,10 @@ export function MonitorFormHeartbeatSection({
   return (
     <div className={cn("space-y-4", className)}>
       <h2 className="font-medium">Heartbeat Monitoring</h2>
-      <p className="text-sm text-muted-foreground">
-        Configure heartbeat monitoring to track if your service is actively sending heartbeats.
-        This is useful for services that should be continuously running.
+      <p className="text-muted-foreground text-sm">
+        Configure heartbeat monitoring to track if your service is actively
+        sending heartbeats. This is useful for services that should be
+        continuously running.
       </p>
 
       <div className="space-y-4">
@@ -35,17 +36,14 @@ export function MonitorFormHeartbeatSection({
             control={control}
             name="enableHeartbeat"
             render={({ field }) => (
-              <Switch
-                checked={field.value}
-                onCheckedChange={field.onChange}
-              />
+              <Switch checked={field.value} onCheckedChange={field.onChange} />
             )}
           />
           <Label htmlFor="enableHeartbeat">Enable heartbeat monitoring</Label>
         </div>
 
         {enableHeartbeat && (
-          <div className="space-y-4 pl-6 border-l-2 border-muted">
+          <div className="border-muted space-y-4 border-l-2 pl-6">
             <div className="space-y-2">
               <Label htmlFor="heartbeatId">Heartbeat ID</Label>
               <div className="flex gap-2">
@@ -63,9 +61,10 @@ export function MonitorFormHeartbeatSection({
                   Generate
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 This ID will be used to identify heartbeats from your service.
-                External services should ping: /api/heartbeat?id=YOUR_HEARTBEAT_ID
+                External services should ping:
+                /api/heartbeat?id=YOUR_HEARTBEAT_ID
               </p>
             </div>
 
@@ -82,17 +81,22 @@ export function MonitorFormHeartbeatSection({
                     max="3600"
                     placeholder="300"
                     {...field}
-                    onChange={(e) => field.onChange(parseInt(e.target.value) || 300)}
+                    onChange={(e) =>
+                      field.onChange(parseInt(e.target.value) || 300)
+                    }
                   />
                 )}
               />
-              <p className="text-xs text-muted-foreground">
-                How long to wait before considering the heartbeat dead (30-3600 seconds)
+              <p className="text-muted-foreground text-xs">
+                How long to wait before considering the heartbeat dead (30-3600
+                seconds)
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="heartbeatInstructions">Integration Instructions</Label>
+              <Label htmlFor="heartbeatInstructions">
+                Integration Instructions
+              </Label>
               <Textarea
                 id="heartbeatInstructions"
                 readOnly
@@ -115,4 +119,4 @@ export function MonitorFormHeartbeatSection({
       </div>
     </div>
   );
-} 
+}

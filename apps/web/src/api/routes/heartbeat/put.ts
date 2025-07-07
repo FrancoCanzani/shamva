@@ -6,10 +6,7 @@ export default async function putHeartbeat(c: Context) {
   const heartbeatId = c.req.param("id");
 
   if (!heartbeatId) {
-    return c.json(
-      { success: false, error: "Heartbeat ID is required." },
-      400
-    );
+    return c.json({ success: false, error: "Heartbeat ID is required." }, 400);
   }
 
   let rawBody: unknown;
@@ -36,12 +33,8 @@ export default async function putHeartbeat(c: Context) {
     );
   }
 
-  const {
-    name,
-    expected_lapse_ms,
-    grace_period_ms,
-    workspace_id,
-  } = result.data;
+  const { name, expected_lapse_ms, grace_period_ms, workspace_id } =
+    result.data;
 
   const userId = c.get("userId");
 
@@ -87,10 +80,7 @@ export default async function putHeartbeat(c: Context) {
     .single();
 
   if (fetchError || !existingHeartbeat) {
-    return c.json(
-      { success: false, error: "Heartbeat not found." },
-      404
-    );
+    return c.json({ success: false, error: "Heartbeat not found." }, 404);
   }
 
   if (existingHeartbeat.workspace_id !== workspace_id) {
@@ -127,9 +117,6 @@ export default async function putHeartbeat(c: Context) {
     });
   } catch (error) {
     console.error("Error updating heartbeat:", error);
-    return c.json(
-      { success: false, error: "Internal server error." },
-      500
-    );
+    return c.json({ success: false, error: "Internal server error." }, 500);
   }
-} 
+}

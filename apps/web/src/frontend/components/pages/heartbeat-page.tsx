@@ -2,7 +2,12 @@ import { useNavigate } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
 import { Edit, Activity, ArrowLeft } from "lucide-react";
 import { Button } from "@/frontend/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/frontend/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/frontend/components/ui/card";
 import { Badge } from "@/frontend/components/ui/badge";
 import { useWorkspaces } from "@/frontend/lib/context/workspace-context";
 import type { Heartbeat } from "@/frontend/lib/types";
@@ -15,38 +20,40 @@ export default function HeartbeatPage() {
 
   const getStatusBadge = (heartbeat: Heartbeat) => {
     const now = new Date();
-    const lastBeat = heartbeat.last_beat_at ? new Date(heartbeat.last_beat_at) : null;
+    const lastBeat = heartbeat.last_beat_at
+      ? new Date(heartbeat.last_beat_at)
+      : null;
     const timeoutMs = heartbeat.expected_lapse_ms + heartbeat.grace_period_ms;
-    
+
     if (heartbeat.status === "timeout") {
       return <Badge variant="destructive">Timed Out</Badge>;
     }
-    
+
     if (heartbeat.status === "paused") {
       return <Badge variant="secondary">Paused</Badge>;
     }
-    
+
     if (!lastBeat) {
       return <Badge variant="secondary">No Heartbeats</Badge>;
     }
-    
+
     const timeSinceLastBeat = now.getTime() - lastBeat.getTime();
-    
+
     if (timeSinceLastBeat > timeoutMs) {
       return <Badge variant="destructive">Timed Out</Badge>;
     }
-    
+
     if (timeSinceLastBeat > heartbeat.expected_lapse_ms) {
       return <Badge variant="secondary">Late</Badge>;
     }
-    
+
     return <Badge variant="default">Active</Badge>;
   };
 
   const formatDuration = (ms: number) => {
     const seconds = Math.floor(ms / 1000);
     const minutes = Math.floor(seconds / 60);
-    
+
     if (minutes > 0) {
       return `${minutes}m ${seconds % 60}s`;
     }
@@ -61,7 +68,7 @@ export default function HeartbeatPage() {
 
   if (!workspace) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex h-64 items-center justify-center">
         <div className="text-center">
           <p className="text-muted-foreground">Loading workspace...</p>
         </div>
@@ -70,13 +77,15 @@ export default function HeartbeatPage() {
   }
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="container mx-auto space-y-6 py-6">
       <div className="flex items-center gap-4">
         <Button
           variant="outline"
-          onClick={() => navigate({ to: `/dashboard/${workspace?.name}/heartbeats` })}
+          onClick={() =>
+            navigate({ to: `/dashboard/${workspace?.name}/heartbeats` })
+          }
         >
-          <ArrowLeft className="h-4 w-4 mr-2" />
+          <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Heartbeats
         </Button>
         <div className="flex-1">
@@ -85,13 +94,17 @@ export default function HeartbeatPage() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleCopyEndpoint}>
-            <Activity className="h-4 w-4 mr-2" />
+            <Activity className="mr-2 h-4 w-4" />
             Copy Endpoint
           </Button>
           <Button
-            onClick={() => navigate({ to: `/dashboard/${workspace?.name}/heartbeats/${heartbeat.id}/edit` })}
+            onClick={() =>
+              navigate({
+                to: `/dashboard/${workspace?.name}/heartbeats/${heartbeat.id}/edit`,
+              })
+            }
           >
-            <Edit className="h-4 w-4 mr-2" />
+            <Edit className="mr-2 h-4 w-4" />
             Edit
           </Button>
         </div>
@@ -112,8 +125,12 @@ export default function HeartbeatPage() {
                 <span className="font-medium">Last Heartbeat</span>
                 <span>
                   {heartbeat.last_beat_at ? (
-                    <span title={new Date(heartbeat.last_beat_at).toLocaleString()}>
-                      {formatDistanceToNow(new Date(heartbeat.last_beat_at), { addSuffix: true })}
+                    <span
+                      title={new Date(heartbeat.last_beat_at).toLocaleString()}
+                    >
+                      {formatDistanceToNow(new Date(heartbeat.last_beat_at), {
+                        addSuffix: true,
+                      })}
                     </span>
                   ) : (
                     <span className="text-muted-foreground">Never</span>
@@ -140,7 +157,11 @@ export default function HeartbeatPage() {
               </div>
               <div className="flex items-center justify-between">
                 <span className="font-medium">Total Timeout</span>
-                <span>{formatDuration(heartbeat.expected_lapse_ms + heartbeat.grace_period_ms)}</span>
+                <span>
+                  {formatDuration(
+                    heartbeat.expected_lapse_ms + heartbeat.grace_period_ms
+                  )}
+                </span>
               </div>
             </div>
           </CardContent>
@@ -153,18 +174,18 @@ export default function HeartbeatPage() {
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-2">
-            <code className="flex-1 p-2 bg-muted rounded text-sm">
+            <code className="bg-muted flex-1 rounded p-2 text-sm">
               /api/heartbeat?id={heartbeat.id}
             </code>
             <Button variant="outline" size="sm" onClick={handleCopyEndpoint}>
               Copy
             </Button>
           </div>
-          <p className="text-sm text-muted-foreground mt-2">
+          <p className="text-muted-foreground mt-2 text-sm">
             Use this URL to send heartbeat signals from your application.
           </p>
         </CardContent>
       </Card>
     </div>
   );
-} 
+}

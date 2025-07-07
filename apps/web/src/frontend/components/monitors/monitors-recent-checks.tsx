@@ -10,28 +10,11 @@ import {
 import { getStatusColorForCheck } from "./monitors-table-utils";
 
 export default function RecentChecks({ logs }: { logs: Partial<Log>[] }) {
-  const getReferenceDate = () => {
-    if (!logs || logs.length === 0) {
-      return new Date();
-    }
-    const mostRecentLog = logs.reduce((latest, current) => {
-      if (!latest.created_at) return current;
-      if (!current.created_at) return latest;
-      return new Date(current.created_at) > new Date(latest.created_at)
-        ? current
-        : latest;
-    });
+  const referenceDate = new Date();
 
-    return mostRecentLog.created_at
-      ? parseISO(mostRecentLog.created_at)
-      : new Date();
-  };
-
-  const referenceDate = getReferenceDate();
-
-  const dates = Array.from({ length: 7 })
-    .map((_, i) => startOfDay(subDays(referenceDate, i)))
-    .reverse();
+  const dates = Array.from({ length: 7 }).map((_, i) =>
+    startOfDay(subDays(referenceDate, 6 - i))
+  );
 
   const groupedLogs = dates.map((date) => {
     const dayLogs = logs
@@ -55,7 +38,7 @@ export default function RecentChecks({ logs }: { logs: Partial<Log>[] }) {
 
   const getDayStatusColor = (dayLogs: Partial<Log>[]): string => {
     if (dayLogs.length === 0) {
-      return "bg-slate-200 dark:bg-slate-700";
+      return "bg-carbon-200 dark:bg-carbon-800";
     }
 
     const mostSevereLog = dayLogs.reduce((max, log) =>
@@ -99,7 +82,7 @@ export default function RecentChecks({ logs }: { logs: Partial<Log>[] }) {
             <Tooltip key={index}>
               <TooltipTrigger asChild>
                 <div
-                  className={cn("h-5 w-1.5 rounded-xs shadow-xs", color)}
+                  className={cn("h-5 w-1.5 rounded-[1px] shadow-xs", color)}
                   aria-label={title}
                 />
               </TooltipTrigger>
@@ -115,7 +98,7 @@ export default function RecentChecks({ logs }: { logs: Partial<Log>[] }) {
                         >
                           <span
                             className={cn(
-                              "h-2 w-2 rounded-full",
+                              "h-2 w-2 rounded-[1px]",
                               getStatusColorForCheck(log)
                             )}
                           />

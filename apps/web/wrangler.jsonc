@@ -52,8 +52,6 @@
 
   // Cron triggers for scheduled tasks
   "triggers": {
-    "crons": [
-      "* * * * *"
-    ]
+    "crons": ["* * * * *"]
   }
 }

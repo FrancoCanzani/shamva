@@ -73,7 +73,9 @@ export default async function getAllMonitors(c: Context) {
 
     const { data: recentLogs, error: logError } = await supabase
       .from("logs")
-      .select("*")
+      .select(
+        "id, monitor_id, created_at, status_code, ok, check_type, latency"
+      )
       .in("monitor_id", monitorIds)
       .gte("created_at", sevenDaysAgoISO)
       .order("created_at", { ascending: false });

@@ -27,12 +27,8 @@ export default async function postHeartbeat(c: Context) {
     );
   }
 
-  const {
-    name,
-    expected_lapse_ms,
-    grace_period_ms,
-    workspace_id,
-  } = result.data;
+  const { name, expected_lapse_ms, grace_period_ms, workspace_id } =
+    result.data;
 
   const userId = c.get("userId");
 
@@ -99,9 +95,6 @@ export default async function postHeartbeat(c: Context) {
     });
   } catch (error) {
     console.error("Error creating heartbeat:", error);
-    return c.json(
-      { success: false, error: "Internal server error." },
-      500
-    );
+    return c.json({ success: false, error: "Internal server error." }, 500);
   }
-} 
+}

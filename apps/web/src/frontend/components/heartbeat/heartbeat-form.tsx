@@ -6,18 +6,33 @@ import type { Heartbeat } from "@/frontend/lib/types";
 import { Button } from "@/frontend/components/ui/button";
 import { Input } from "@/frontend/components/ui/input";
 import { Label } from "@/frontend/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/frontend/components/ui/card";
-import { Alert,AlertDescription } from "@/frontend/components/ui/alert";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/frontend/components/ui/card";
+import { Alert, AlertDescription } from "@/frontend/components/ui/alert";
 import { Loader2 } from "lucide-react";
 
 interface HeartbeatFormProps {
   workspaceId: string;
   heartbeat?: Heartbeat;
-  onSubmit: (data: { name: string; expected_lapse_ms: number; grace_period_ms: number; workspace_id: string }) => Promise<void>;
+  onSubmit: (data: {
+    name: string;
+    expected_lapse_ms: number;
+    grace_period_ms: number;
+    workspace_id: string;
+  }) => Promise<void>;
   onCancel: () => void;
 }
 
-export default function HeartbeatForm({ workspaceId, heartbeat, onSubmit, onCancel }: HeartbeatFormProps) {
+export default function HeartbeatForm({
+  workspaceId,
+  heartbeat,
+  onSubmit,
+  onCancel,
+}: HeartbeatFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,7 +60,7 @@ export default function HeartbeatForm({ workspaceId, heartbeat, onSubmit, onCanc
   };
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
+    <Card className="mx-auto w-full max-w-2xl">
       <CardHeader>
         <CardTitle>
           {heartbeat ? "Edit Heartbeat" : "Create New Heartbeat"}
@@ -74,15 +89,18 @@ export default function HeartbeatForm({ workspaceId, heartbeat, onSubmit, onCanc
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="expected_lapse_ms">Expected Lapse (milliseconds)</Label>
+            <Label htmlFor="expected_lapse_ms">
+              Expected Lapse (milliseconds)
+            </Label>
             <Input
               id="expected_lapse_ms"
               type="number"
               placeholder="60000"
               {...form.register("expected_lapse_ms", { valueAsNumber: true })}
             />
-            <p className="text-sm text-muted-foreground">
-              How often the heartbeat should be received (e.g., 60000ms = 1 minute)
+            <p className="text-muted-foreground text-sm">
+              How often the heartbeat should be received (e.g., 60000ms = 1
+              minute)
             </p>
             {form.formState.errors.expected_lapse_ms && (
               <p className="text-sm text-red-600">
@@ -99,8 +117,9 @@ export default function HeartbeatForm({ workspaceId, heartbeat, onSubmit, onCanc
               placeholder="10000"
               {...form.register("grace_period_ms", { valueAsNumber: true })}
             />
-            <p className="text-sm text-muted-foreground">
-              Extra time before considering the heartbeat timed out (e.g., 10000ms = 10 seconds)
+            <p className="text-muted-foreground text-sm">
+              Extra time before considering the heartbeat timed out (e.g.,
+              10000ms = 10 seconds)
             </p>
             {form.formState.errors.grace_period_ms && (
               <p className="text-sm text-red-600">
@@ -110,12 +129,10 @@ export default function HeartbeatForm({ workspaceId, heartbeat, onSubmit, onCanc
           </div>
 
           <div className="flex gap-4 pt-4">
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="flex-1"
-            >
-              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            <Button type="submit" disabled={isSubmitting} className="flex-1">
+              {isSubmitting && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
               {heartbeat ? "Update Heartbeat" : "Create Heartbeat"}
             </Button>
             <Button
@@ -132,4 +149,4 @@ export default function HeartbeatForm({ workspaceId, heartbeat, onSubmit, onCanc
       </CardContent>
     </Card>
   );
-} 
+}

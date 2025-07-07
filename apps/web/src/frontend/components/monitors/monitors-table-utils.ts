@@ -29,7 +29,9 @@ export const calculateAvailability = (
   return { percentage, success: successCount, total: totalCount };
 };
 
-export const calculateAverageLatency = (logs: Partial<Log>[]): number | null => {
+export const calculateAverageLatency = (
+  logs: Partial<Log>[]
+): number | null => {
   const validLatencies = logs
     .map((log) => log.latency)
     .filter(
@@ -45,7 +47,9 @@ export const calculateAverageLatency = (logs: Partial<Log>[]): number | null => 
   return sum / validLatencies.length;
 };
 
-export const getStatusColorForCheck = (log: Partial<Log> | undefined): string => {
+export const getStatusColorForCheck = (
+  log: Partial<Log> | undefined
+): string => {
   if (!log) return "bg-gray-200";
 
   // For HTTP checks, use status code colors
@@ -64,4 +68,4 @@ export const getStatusColorForCheck = (log: Partial<Log> | undefined): string =>
 
   // Fallback for unknown status
   return log.error ? "bg-red-700" : "bg-gray-700";
-}; 
+};

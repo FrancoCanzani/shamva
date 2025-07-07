@@ -5,10 +5,7 @@ export default async function deleteHeartbeat(c: Context) {
   const heartbeatId = c.req.param("id");
 
   if (!heartbeatId) {
-    return c.json(
-      { success: false, error: "Heartbeat ID is required." },
-      400
-    );
+    return c.json({ success: false, error: "Heartbeat ID is required." }, 400);
   }
 
   const userId = c.get("userId");
@@ -26,10 +23,7 @@ export default async function deleteHeartbeat(c: Context) {
     .single();
 
   if (fetchError || !heartbeat) {
-    return c.json(
-      { success: false, error: "Heartbeat not found." },
-      404
-    );
+    return c.json({ success: false, error: "Heartbeat not found." }, 404);
   }
 
   const { data: membership, error: membershipError } = await supabase
@@ -81,9 +75,6 @@ export default async function deleteHeartbeat(c: Context) {
     });
   } catch (error) {
     console.error("Error deleting heartbeat:", error);
-    return c.json(
-      { success: false, error: "Internal server error." },
-      500
-    );
+    return c.json({ success: false, error: "Internal server error." }, 500);
   }
-} 
+}

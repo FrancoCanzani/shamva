@@ -43,10 +43,12 @@ curl "https://your-domain.com/api/heartbeat?id=YOUR_HEARTBEAT_ID&service=YourSer
 // Using JavaScript/Node.js
 async function sendHeartbeat() {
   try {
-    await fetch('https://your-domain.com/api/heartbeat?id=YOUR_HEARTBEAT_ID&service=YourServiceName');
-    console.log('Heartbeat sent successfully');
+    await fetch(
+      "https://your-domain.com/api/heartbeat?id=YOUR_HEARTBEAT_ID&service=YourServiceName"
+    );
+    console.log("Heartbeat sent successfully");
   } catch (error) {
-    console.error('Failed to send heartbeat:', error);
+    console.error("Failed to send heartbeat:", error);
   }
 }
 
@@ -87,6 +89,7 @@ The heartbeat endpoint accepts the following query parameters:
 - `metadata` (optional): JSON string with additional data
 
 Example:
+
 ```
 GET /api/heartbeat?id=my-service-heartbeat&service=EmailProcessor&metadata={"version":"1.0","region":"us-east-1"}
 ```
@@ -96,6 +99,7 @@ GET /api/heartbeat?id=my-service-heartbeat&service=EmailProcessor&metadata={"ver
 ### 1. Heartbeat Frequency
 
 Send heartbeats more frequently than your timeout period:
+
 - **Timeout**: 5 minutes (300 seconds)
 - **Recommended heartbeat frequency**: Every 1-2 minutes
 - **Minimum frequency**: At least 3x more frequent than timeout
@@ -103,15 +107,18 @@ Send heartbeats more frequently than your timeout period:
 ### 2. Error Handling
 
 Always handle heartbeat failures gracefully:
+
 ```javascript
 async function sendHeartbeat() {
   try {
-    const response = await fetch('https://your-domain.com/api/heartbeat?id=YOUR_HEARTBEAT_ID');
+    const response = await fetch(
+      "https://your-domain.com/api/heartbeat?id=YOUR_HEARTBEAT_ID"
+    );
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`);
     }
   } catch (error) {
-    console.error('Heartbeat failed:', error);
+    console.error("Heartbeat failed:", error);
     // Don't crash your application, just log the error
   }
 }
@@ -120,6 +127,7 @@ async function sendHeartbeat() {
 ### 3. Multiple Services
 
 Use different heartbeat IDs for different services:
+
 - `email-processor-heartbeat`
 - `data-sync-heartbeat`
 - `webhook-processor-heartbeat`
@@ -127,36 +135,38 @@ Use different heartbeat IDs for different services:
 ### 4. Monitoring Heartbeat Sending
 
 Monitor your own heartbeat sending process:
+
 ```javascript
 let lastHeartbeatTime = Date.now();
 
 async function sendHeartbeat() {
   try {
-    await fetch('https://your-domain.com/api/heartbeat?id=YOUR_HEARTBEAT_ID');
+    await fetch("https://your-domain.com/api/heartbeat?id=YOUR_HEARTBEAT_ID");
     lastHeartbeatTime = Date.now();
   } catch (error) {
-    console.error('Heartbeat failed:', error);
+    console.error("Heartbeat failed:", error);
   }
 }
 
 // Monitor if heartbeats are being sent
 setInterval(() => {
   const timeSinceLastHeartbeat = Date.now() - lastHeartbeatTime;
-  if (timeSinceLastHeartbeat > 60000) { // 1 minute
-    console.error('Heartbeats not being sent!');
+  if (timeSinceLastHeartbeat > 60000) {
+    // 1 minute
+    console.error("Heartbeats not being sent!");
   }
 }, 30000);
 ```
 
 ## Heartbeat vs Traditional Monitoring
 
-| Feature | Traditional Monitoring | Heartbeat Monitoring |
-|---------|----------------------|---------------------|
-| **What it checks** | Service responds to HTTP/TCP requests | Service actively sends signals |
-| **Use case** | Web servers, APIs, databases | Background jobs, workers, scheduled tasks |
-| **Network dependency** | Requires external access | Can work with internal services |
-| **Setup complexity** | Simple endpoint check | Requires code integration |
-| **False positives** | Network issues can cause false alerts | More reliable for internal services |
+| Feature                | Traditional Monitoring                | Heartbeat Monitoring                      |
+| ---------------------- | ------------------------------------- | ----------------------------------------- |
+| **What it checks**     | Service responds to HTTP/TCP requests | Service actively sends signals            |
+| **Use case**           | Web servers, APIs, databases          | Background jobs, workers, scheduled tasks |
+| **Network dependency** | Requires external access              | Can work with internal services           |
+| **Setup complexity**   | Simple endpoint check                 | Requires code integration                 |
+| **False positives**    | Network issues can cause false alerts | More reliable for internal services       |
 
 ## Troubleshooting
 
@@ -176,6 +186,7 @@ setInterval(() => {
 ### Service Integration Examples
 
 #### Cron Job Heartbeat
+
 ```bash
 #!/bin/bash
 # Add to your crontab
@@ -183,6 +194,7 @@ setInterval(() => {
 ```
 
 #### Docker Container Heartbeat
+
 ```dockerfile
 # Add to your Dockerfile
 RUN apt-get update && apt-get install -y curl
@@ -205,6 +217,7 @@ done
 ```
 
 #### Kubernetes Job Heartbeat
+
 ```yaml
 apiVersion: batch/v1
 kind: Job
@@ -214,17 +227,17 @@ spec:
   template:
     spec:
       containers:
-      - name: heartbeat
-        image: curlimages/curl
-        command: ["/bin/sh"]
-        args:
-        - -c
-        - |
-          while true; do
-            curl "https://your-domain.com/api/heartbeat?id=k8s-job&service=DataProcessor"
-            sleep 30
-          done
+        - name: heartbeat
+          image: curlimages/curl
+          command: ["/bin/sh"]
+          args:
+            - -c
+            - |
+              while true; do
+                curl "https://your-domain.com/api/heartbeat?id=k8s-job&service=DataProcessor"
+                sleep 30
+              done
       restartPolicy: Never
 ```
 
-Heartbeat monitoring is a powerful way to ensure your critical services are running and to get alerted quickly when they stop working. 
+Heartbeat monitoring is a powerful way to ensure your critical services are running and to get alerted quickly when they stop working.

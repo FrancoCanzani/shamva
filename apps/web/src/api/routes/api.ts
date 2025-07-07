@@ -26,6 +26,11 @@ import getWorkspaces from "./workspaces/get";
 import getAllWorkspaces from "./workspaces/get-all";
 import postWorkspaces from "./workspaces/post";
 import putWorkspaces from "./workspaces/put";
+import getHeartbeat from "./heartbeat/get";
+import getAllHeartbeats from "./heartbeat/get-all";
+import postHeartbeat from "./heartbeat/post";
+import putHeartbeat from "./heartbeat/put";
+import deleteHeartbeat from "./heartbeat/delete";
 
 const apiRoutes = new Hono<{
   Bindings: EnvBindings;
@@ -65,6 +70,13 @@ apiRoutes.delete("/api/status-pages/:id", deleteStatusPages);
 // Logs and check routes
 apiRoutes.get("/api/logs", getLogs);
 apiRoutes.post("/api/check", postCheck);
+
+// Heartbeat routes
+apiRoutes.get("/api/heartbeat", getHeartbeat); // No auth required for heartbeat endpoint
+apiRoutes.get("/api/heartbeats", getAllHeartbeats);
+apiRoutes.post("/api/heartbeats", postHeartbeat);
+apiRoutes.put("/api/heartbeats/:id", putHeartbeat);
+apiRoutes.delete("/api/heartbeats/:id", deleteHeartbeat);
 
 // Incident routes
 apiRoutes.get("/api/incidents", getAllIncidents);

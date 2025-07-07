@@ -4,7 +4,8 @@ import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
 import { secureHeaders } from "hono/secure-headers";
 import { EnvBindings } from "../../bindings";
-import { handleCheckerCron } from "./crons/checker";
+import { handleMonitorCheckerCron } from "./crons/monitor-checker";
+import { handleHeartbeatCheckerCron } from "./crons/heartbeat-checker";
 import { CheckerDurableObject } from "./durable-objects/checker-durable-object";
 import apiRoutes from "./routes/api";
 import getPublicStatusPage from "./routes/status/get";
@@ -65,9 +66,10 @@ export default {
     // @ts-expect-error - Required by Cloudflare Workers API
     controller: ScheduledController,
     env: EnvBindings,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _ctx: ExecutionContext
+
+    _ctx: ExecutionContext // eslint-disable-line @typescript-eslint/no-unused-vars
   ) {
-    await handleCheckerCron(env);
+    await handleMonitorCheckerCron(env);
+    await handleHeartbeatCheckerCron(env);
   },
 };

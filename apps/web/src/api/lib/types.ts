@@ -64,6 +64,18 @@ export interface Monitor {
   incidents: Partial<Incident>[];
 }
 
+export interface Heartbeat {
+  id: string;
+  workspace_id: string;
+  name: string;
+  expected_lapse_ms: number;
+  grace_period_ms: number;
+  status: "active" | "paused" | "deleted";
+  last_beat_at?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Log {
   id: string;
   monitor_id: string;

@@ -50,6 +50,11 @@ export function DashboardNavbar() {
         label: "Workspaces",
         disabled: !currentWorkspace,
       },
+      {
+        to: "/dashboard/$workspaceName/heartbeats",
+        label: "Heartbeats",
+        disabled: !currentWorkspace,
+      },
     ],
     [currentWorkspace]
   );

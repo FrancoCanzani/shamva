@@ -67,15 +67,15 @@ export default async function getAllMonitors(c: Context) {
     }
 
     const monitorIds = monitors.map((m) => m.id);
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    const thirtyDaysAgoISO = thirtyDaysAgo.toISOString();
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const sevenDaysAgoISO = sevenDaysAgo.toISOString();
 
     const { data: recentLogs, error: logError } = await supabase
       .from("logs")
       .select("*")
       .in("monitor_id", monitorIds)
-      .gte("created_at", thirtyDaysAgoISO)
+      .gte("created_at", sevenDaysAgoISO)
       .order("created_at", { ascending: false });
 
     if (logError) {

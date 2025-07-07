@@ -1,0 +1,230 @@
+# Heartbeat Monitoring 💓
+
+Heartbeat monitoring allows you to track if your services are actively running by having them send periodic "heartbeats" to Shamva.
+
+## What is Heartbeat Monitoring?
+
+Unlike traditional HTTP/TCP monitoring that checks if your service responds to requests, heartbeat monitoring tracks whether your service is actively sending signals to indicate it's running. This is particularly useful for:
+
+- **Background services** that don't expose HTTP endpoints
+- **Batch jobs** that should run periodically
+- **Worker processes** that process queues
+- **Scheduled tasks** that should execute regularly
+- **Long-running applications** that should stay alive
+
+## How It Works
+
+1. **Configure a Heartbeat Monitor**: Set up a heartbeat ID and timeout period
+2. **Your Service Sends Heartbeats**: Your application periodically calls Shamva's heartbeat endpoint
+3. **Shamva Tracks Heartbeats**: Shamva records when heartbeats are received
+4. **Alerts on Missed Heartbeats**: If no heartbeat is received within the timeout period, Shamva creates an incident
+
+## Setting Up Heartbeat Monitoring
+
+### 1. Create a Heartbeat Monitor
+
+1. Go to your dashboard and click "New Monitor"
+2. Select "HTTP Monitor" (heartbeat monitoring is an additional feature)
+3. In the "Heartbeat Monitoring" section, enable heartbeat monitoring
+4. Enter a unique Heartbeat ID (or generate one automatically)
+5. Set the timeout period (how long to wait before considering the heartbeat dead)
+6. Save the monitor
+
+### 2. Integrate Heartbeats in Your Service
+
+Your service should send heartbeats to Shamva's endpoint:
+
+```bash
+# Using curl
+curl "https://your-domain.com/api/heartbeat?id=YOUR_HEARTBEAT_ID&service=YourServiceName"
+```
+
+```javascript
+// Using JavaScript/Node.js
+async function sendHeartbeat() {
+  try {
+    await fetch('https://your-domain.com/api/heartbeat?id=YOUR_HEARTBEAT_ID&service=YourServiceName');
+    console.log('Heartbeat sent successfully');
+  } catch (error) {
+    console.error('Failed to send heartbeat:', error);
+  }
+}
+
+// Send heartbeat every 30 seconds
+setInterval(sendHeartbeat, 30000);
+```
+
+```python
+# Using Python
+import requests
+import time
+
+def send_heartbeat():
+    try:
+        response = requests.get(
+            'https://your-domain.com/api/heartbeat',
+            params={
+                'id': 'YOUR_HEARTBEAT_ID',
+                'service': 'YourServiceName'
+            }
+        )
+        print('Heartbeat sent successfully')
+    except Exception as e:
+        print(f'Failed to send heartbeat: {e}')
+
+# Send heartbeat every 30 seconds
+while True:
+    send_heartbeat()
+    time.sleep(30)
+```
+
+### 3. Heartbeat Endpoint Parameters
+
+The heartbeat endpoint accepts the following query parameters:
+
+- `id` (required): Your unique heartbeat ID
+- `service` (optional): Name of your service for logging
+- `metadata` (optional): JSON string with additional data
+
+Example:
+```
+GET /api/heartbeat?id=my-service-heartbeat&service=EmailProcessor&metadata={"version":"1.0","region":"us-east-1"}
+```
+
+## Best Practices
+
+### 1. Heartbeat Frequency
+
+Send heartbeats more frequently than your timeout period:
+- **Timeout**: 5 minutes (300 seconds)
+- **Recommended heartbeat frequency**: Every 1-2 minutes
+- **Minimum frequency**: At least 3x more frequent than timeout
+
+### 2. Error Handling
+
+Always handle heartbeat failures gracefully:
+```javascript
+async function sendHeartbeat() {
+  try {
+    const response = await fetch('https://your-domain.com/api/heartbeat?id=YOUR_HEARTBEAT_ID');
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+  } catch (error) {
+    console.error('Heartbeat failed:', error);
+    // Don't crash your application, just log the error
+  }
+}
+```
+
+### 3. Multiple Services
+
+Use different heartbeat IDs for different services:
+- `email-processor-heartbeat`
+- `data-sync-heartbeat`
+- `webhook-processor-heartbeat`
+
+### 4. Monitoring Heartbeat Sending
+
+Monitor your own heartbeat sending process:
+```javascript
+let lastHeartbeatTime = Date.now();
+
+async function sendHeartbeat() {
+  try {
+    await fetch('https://your-domain.com/api/heartbeat?id=YOUR_HEARTBEAT_ID');
+    lastHeartbeatTime = Date.now();
+  } catch (error) {
+    console.error('Heartbeat failed:', error);
+  }
+}
+
+// Monitor if heartbeats are being sent
+setInterval(() => {
+  const timeSinceLastHeartbeat = Date.now() - lastHeartbeatTime;
+  if (timeSinceLastHeartbeat > 60000) { // 1 minute
+    console.error('Heartbeats not being sent!');
+  }
+}, 30000);
+```
+
+## Heartbeat vs Traditional Monitoring
+
+| Feature | Traditional Monitoring | Heartbeat Monitoring |
+|---------|----------------------|---------------------|
+| **What it checks** | Service responds to HTTP/TCP requests | Service actively sends signals |
+| **Use case** | Web servers, APIs, databases | Background jobs, workers, scheduled tasks |
+| **Network dependency** | Requires external access | Can work with internal services |
+| **Setup complexity** | Simple endpoint check | Requires code integration |
+| **False positives** | Network issues can cause false alerts | More reliable for internal services |
+
+## Troubleshooting
+
+### Heartbeat Not Being Received
+
+1. **Check the URL**: Ensure you're using the correct domain
+2. **Verify Heartbeat ID**: Make sure the ID matches exactly
+3. **Network connectivity**: Ensure your service can reach Shamva's API
+4. **Firewall rules**: Check if outbound HTTP requests are allowed
+
+### False Alerts
+
+1. **Increase timeout**: If your service is slow, increase the timeout period
+2. **Check frequency**: Ensure heartbeats are sent more frequently than timeout
+3. **Network issues**: Consider using a more reliable network connection
+
+### Service Integration Examples
+
+#### Cron Job Heartbeat
+```bash
+#!/bin/bash
+# Add to your crontab
+*/2 * * * * curl "https://your-domain.com/api/heartbeat?id=backup-job&service=DatabaseBackup"
+```
+
+#### Docker Container Heartbeat
+```dockerfile
+# Add to your Dockerfile
+RUN apt-get update && apt-get install -y curl
+
+# Add heartbeat script
+COPY heartbeat.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/heartbeat.sh
+
+# Start heartbeat in container
+CMD ["/usr/local/bin/heartbeat.sh"]
+```
+
+```bash
+#!/bin/bash
+# heartbeat.sh
+while true; do
+  curl -s "https://your-domain.com/api/heartbeat?id=container-$(hostname)&service=MyApp"
+  sleep 30
+done
+```
+
+#### Kubernetes Job Heartbeat
+```yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: heartbeat-job
+spec:
+  template:
+    spec:
+      containers:
+      - name: heartbeat
+        image: curlimages/curl
+        command: ["/bin/sh"]
+        args:
+        - -c
+        - |
+          while true; do
+            curl "https://your-domain.com/api/heartbeat?id=k8s-job&service=DataProcessor"
+            sleep 30
+          done
+      restartPolicy: Never
+```
+
+Heartbeat monitoring is a powerful way to ensure your critical services are running and to get alerted quickly when they stop working. 

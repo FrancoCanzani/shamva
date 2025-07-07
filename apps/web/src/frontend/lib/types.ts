@@ -59,6 +59,8 @@ export interface Monitor {
   error_message: string | null;
   name: string;
   regions: string[];
+  heartbeat_id?: string;
+  heartbeat_timeout_seconds?: number;
   recent_logs: Partial<Log>[];
   incidents: Partial<Incident>[];
 }
@@ -103,6 +105,9 @@ export interface MonitorFormData {
   headers?: Record<string, string>;
   body?: Record<string, unknown> | string;
   slackWebhookUrl?: string;
+  heartbeatId?: string;
+  heartbeatTimeoutSeconds?: number;
+  enableHeartbeat?: boolean;
 }
 
 export interface ApiResponse<T> {
@@ -176,4 +181,17 @@ export interface Incident {
   created_at: string;
   updated_at: string;
   monitors?: Partial<Monitor>;
+}
+
+export interface Heartbeat {
+  id: string;
+  workspace_id: string;
+  name: string;
+  expected_lapse_ms: number;
+  grace_period_ms: number;
+  status: "active" | "paused" | "timeout";
+  last_beat_at?: string;
+  created_at: string;
+  updated_at: string;
+  created_by: string;
 }

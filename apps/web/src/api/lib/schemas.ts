@@ -74,6 +74,8 @@ export const MonitorsParamsSchema = z
     headers: z.record(z.string()).optional(),
     body: z.union([z.record(z.unknown()), z.string()]).optional(),
     slackWebhookUrl: z.string().trim().optional(),
+    heartbeatId: z.string().trim().optional(),
+    heartbeatTimeoutSeconds: z.number().int().min(30).max(3600).optional(),
     workspaceId: z.string().uuid("Invalid workspace ID format"),
   })
   .refine(
@@ -141,6 +143,8 @@ export const PartialMonitorSchema = z
       .nullable()
       .optional(),
     error_message: z.string().nullable().optional(),
+    heartbeat_id: z.string().nullable().optional(),
+    heartbeat_timeout_seconds: z.number().int().min(30).max(3600).optional(),
     last_check_at: z.string().datetime().nullable().optional(),
     last_success_at: z.string().datetime().nullable().optional(),
     last_failure_at: z.string().datetime().nullable().optional(),
@@ -264,4 +268,23 @@ export const IncidentUpdateSchema = z.object({
     .string()
     .max(2000, "Post-mortem cannot exceed 2000 characters")
     .optional(),
+});
+
+export const HeartbeatSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, "Heartbeat name cannot be empty")
+    .max(100, "Heartbeat name is too long"),
+  expected_lapse_ms: z
+    .number()
+    .int()
+    .min(1000, "Expected lapse must be at least 1 second (1000ms)")
+    .max(3600000, "Expected lapse must be less than 1 hour (3600000ms)"),
+  grace_period_ms: z
+    .number()
+    .int()
+    .min(0, "Grace period cannot be negative")
+    .max(300000, "Grace period must be less than 5 minutes (300000ms)"),
+  workspace_id: z.string().uuid("Invalid workspace ID format"),
 });

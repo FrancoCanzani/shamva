@@ -63,6 +63,9 @@ export const HttpMonitorSchema = z.object({
       'Body must be a valid JSON string, e.g. {"key": "value"} or "text"'
     ),
   slackWebhookUrl: z.string().trim().optional(),
+  enableHeartbeat: z.boolean().optional(),
+  heartbeatId: z.string().trim().optional(),
+  heartbeatTimeoutSeconds: z.number().int().min(30).max(3600).optional(),
 });
 
 export const TcpMonitorSchema = z.object({
@@ -88,6 +91,9 @@ export const TcpMonitorSchema = z.object({
     .array(z.string())
     .min(1, "Please select at least one monitoring region"),
   slackWebhookUrl: z.string().trim().optional(),
+  enableHeartbeat: z.boolean().optional(),
+  heartbeatId: z.string().trim().optional(),
+  heartbeatTimeoutSeconds: z.number().int().min(30).max(3600).optional(),
 });
 
 export const MemberInviteSchema = z.object({
@@ -140,4 +146,23 @@ export const StatusPageSchema = z.object({
     .optional(),
   isPublic: z.boolean().default(true),
   monitors: z.array(z.string()).min(1, "Please select at least one monitor"),
+});
+
+export const HeartbeatSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, "Heartbeat name cannot be empty")
+    .max(100, "Heartbeat name is too long"),
+  expected_lapse_ms: z
+    .number()
+    .int()
+    .min(1000, "Expected lapse must be at least 1 second (1000ms)")
+    .max(3600000, "Expected lapse must be less than 1 hour (3600000ms)"),
+  grace_period_ms: z
+    .number()
+    .int()
+    .min(0, "Grace period cannot be negative")
+    .max(300000, "Grace period must be less than 5 minutes (300000ms)"),
+  workspace_id: z.string().uuid("Invalid workspace ID format"),
 });

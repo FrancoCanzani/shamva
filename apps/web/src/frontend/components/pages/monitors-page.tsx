@@ -1,13 +1,15 @@
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors";
 import { useMemo, useState } from "react";
 import MonitorTypeSelector from "../monitor/monitor-type-selector";
-import { MonitorsCards } from "../monitors/monitors-cards";
+import { MonitorsTable } from "../monitors/monitors-table";
 import NotFoundMessage from "../not-found-message";
 import { Input } from "../ui/input";
 
 export default function MonitorsPage() {
   const monitorsData = Route.useLoaderData();
-  const { workspaceName } = Route.useParams();
+
+  console.log(monitorsData);
+
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredMonitors = useMemo(() => {
@@ -28,7 +30,7 @@ export default function MonitorsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-medium">Monitors</h2>
-          <p className="text-muted-foreground mt-1 text-sm">
+          <p className="text-muted-foreground mt-1 hidden text-sm lg:block">
             A Monitor is a silent vigilante of your services
           </p>
         </div>
@@ -43,10 +45,7 @@ export default function MonitorsPage() {
         </div>
       </div>
       {filteredMonitors && filteredMonitors.length > 0 ? (
-        <MonitorsCards
-          monitors={filteredMonitors}
-          workspaceName={workspaceName}
-        />
+        <MonitorsTable monitors={filteredMonitors} />
       ) : searchQuery ? (
         <NotFoundMessage
           message={`No monitors found matching "${searchQuery}".`}

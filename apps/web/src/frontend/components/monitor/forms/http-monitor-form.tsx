@@ -17,6 +17,7 @@ import {
 import { Textarea } from "../../ui/textarea";
 import { MonitorFormNotificationsSection } from "./monitor-form-notifications-section";
 import { MonitorFormRegionsSection } from "./monitor-form-regions-section";
+import { MonitorFormHeartbeatSection } from "./monitor-form-heartbeat-section";
 
 const checkIntervals = [
   { value: "60000", label: "1 minute" },
@@ -40,6 +41,8 @@ interface HttpMonitorFormProps {
     headers?: Record<string, string>;
     body?: Record<string, unknown> | string;
     slackWebhookUrl?: string;
+    heartbeatId?: string;
+    heartbeatTimeoutSeconds?: number;
   }) => Promise<void>;
   onCancel?: () => void;
   isSubmitting?: boolean;
@@ -53,6 +56,8 @@ interface HttpMonitorFormProps {
     headers: Record<string, string>;
     body: Record<string, unknown> | string;
     slack_webhook_url: string;
+    heartbeat_id?: string;
+    heartbeat_timeout_seconds?: number;
   }>;
 }
 
@@ -89,6 +94,9 @@ export default function HttpMonitorForm({
         ? JSON.stringify(defaultValues.body, null, 2)
         : "",
       slackWebhookUrl: defaultValues?.slack_webhook_url,
+      enableHeartbeat: !!defaultValues?.heartbeat_id,
+      heartbeatId: defaultValues?.heartbeat_id,
+      heartbeatTimeoutSeconds: defaultValues?.heartbeat_timeout_seconds ?? 300,
     },
   });
 
@@ -128,6 +136,8 @@ export default function HttpMonitorForm({
       headers,
       body,
       slackWebhookUrl: data.slackWebhookUrl,
+      heartbeatId: data.enableHeartbeat ? data.heartbeatId : undefined,
+      heartbeatTimeoutSeconds: data.enableHeartbeat ? data.heartbeatTimeoutSeconds : undefined,
     };
 
     await onSubmit(payload);
@@ -285,6 +295,8 @@ export default function HttpMonitorForm({
           </div>
 
           <MonitorFormNotificationsSection />
+
+          <MonitorFormHeartbeatSection />
 
           <div className="flex justify-end space-x-4">
             <Button type="button" variant="ghost" size="sm" onClick={onCancel}>

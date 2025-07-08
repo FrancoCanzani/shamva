@@ -338,14 +338,16 @@ export class CheckerDurableObject extends DurableObject {
         const targetUrl =
           config.checkType === "tcp" ? config.tcpHostPort! : config.urlToCheck;
 
-        await this.logCheckResult(
-          config.monitorId,
-          targetUrl,
-          result,
-          config.method || null,
-          config.region,
-          config.checkType,
-          config.tcpHostPort
+        this.ctx.waitUntil(
+          this.logCheckResult(
+            config.monitorId,
+            targetUrl,
+            result,
+            config.method || null,
+            config.region,
+            config.checkType,
+            config.tcpHostPort
+          )
         );
 
         const isSuccess =
@@ -379,11 +381,13 @@ export class CheckerDurableObject extends DurableObject {
             );
 
             if (allRegionsHealthy) {
-              await this.updateIncident(activeIncident.id, {
-                resolved_at: new Date(now).toISOString(),
-                downtime_duration_ms:
-                  now - new Date(activeIncident.started_at).getTime(),
-              });
+              this.ctx.waitUntil(
+                this.updateIncident(activeIncident.id, {
+                  resolved_at: new Date(now).toISOString(),
+                  downtime_duration_ms:
+                    now - new Date(activeIncident.started_at).getTime(),
+                })
+              );
 
               const { data: monitor } = await this.supabase
                 .from("monitors")
@@ -406,11 +410,13 @@ export class CheckerDurableObject extends DurableObject {
                   region: config.region || "Unknown",
                 };
 
-                await this.sendNotifications(
-                  emailData,
-                  true,
-                  userEmails,
-                  monitor.slack_webhook_url
+                this.ctx.waitUntil(
+                  this.sendNotifications(
+                    emailData,
+                    true,
+                    userEmails,
+                    monitor.slack_webhook_url
+                  )
                 );
               }
             }
@@ -464,27 +470,32 @@ export class CheckerDurableObject extends DurableObject {
                   region: config.region || "Unknown",
                 };
 
-                const notificationSuccess = await this.sendNotifications(
-                  emailData,
-                  false,
-                  userEmails,
-                  monitor.slack_webhook_url
+                this.ctx.waitUntil(
+                  this.sendNotifications(
+                    emailData,
+                    false,
+                    userEmails,
+                    monitor.slack_webhook_url
+                  )
                 );
 
-                if (notificationSuccess) {
-                  await this.updateIncident(incident.id, {
+                this.ctx.waitUntil(
+                  this.updateIncident(incident.id, {
                     notified_at: new Date(now).toISOString(),
-                  });
-                }
+                  })
+                );
               }
             } else {
               // Update the regions_affected array in the incident
               const updatedRegions = [
                 ...new Set([...activeIncident.regions_affected, config.region]),
               ];
-              await this.updateIncident(activeIncident.id, {
-                regions_affected: updatedRegions,
-              });
+              // Use ctx.waitUntil for updateIncident
+              this.ctx.waitUntil(
+                this.updateIncident(activeIncident.id, {
+                  regions_affected: updatedRegions,
+                })
+              );
             }
 
             // Set monitor status based on number of affected regions

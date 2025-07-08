@@ -27,7 +27,7 @@ export default function MonitorsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-medium">Monitors</h2>
-          <p className="text-muted-foreground mt-1 hidden text-sm lg:block">
+          <p className="text-muted-foreground mt-1 hidden text-sm md:block">
             A Monitor is a silent vigilante of your services
           </p>
         </div>

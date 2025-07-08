@@ -59,8 +59,6 @@ export interface Monitor {
   error_message: string | null;
   name: string;
   regions: string[];
-  heartbeat_id?: string;
-  heartbeat_timeout_seconds?: number;
   recent_logs: Partial<Log>[];
   incidents: Partial<Incident>[];
 }

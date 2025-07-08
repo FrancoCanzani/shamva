@@ -122,7 +122,6 @@ export interface CheckResult {
   headers: Record<string, string> | null;
   bodyContent: string | object | null;
   checkError: string | null;
-  colo: string | null;
 }
 
 export interface MonitorEmailData {

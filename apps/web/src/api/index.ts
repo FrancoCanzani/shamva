@@ -53,10 +53,6 @@ app.onError((err, c) => {
 app.route("/", apiRoutes);
 app.get("/status/:slug", getPublicStatusPage);
 
-app.get("/health", (c) => {
-  return c.json({ status: "ok" });
-});
-
 app.mount("/", (req, env) => env.ASSETS.fetch(req));
 
 export default {

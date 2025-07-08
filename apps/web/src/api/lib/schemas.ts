@@ -143,8 +143,6 @@ export const PartialMonitorSchema = z
       .nullable()
       .optional(),
     error_message: z.string().nullable().optional(),
-    heartbeat_id: z.string().nullable().optional(),
-    heartbeat_timeout_seconds: z.number().int().min(30).max(3600).optional(),
     last_check_at: z.string().datetime().nullable().optional(),
     last_success_at: z.string().datetime().nullable().optional(),
     last_failure_at: z.string().datetime().nullable().optional(),

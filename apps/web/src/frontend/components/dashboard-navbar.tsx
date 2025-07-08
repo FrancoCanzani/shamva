@@ -36,6 +36,11 @@ export function DashboardNavbar() {
         disabled: !currentWorkspace,
       },
       {
+        to: "/dashboard/$workspaceName/heartbeats",
+        label: "Heartbeats",
+        disabled: !currentWorkspace,
+      },
+      {
         to: "/dashboard/$workspaceName/logs",
         label: "Logs",
         disabled: !currentWorkspace,
@@ -48,11 +53,6 @@ export function DashboardNavbar() {
       {
         to: "/dashboard/workspaces",
         label: "Workspaces",
-        disabled: !currentWorkspace,
-      },
-      {
-        to: "/dashboard/$workspaceName/heartbeats",
-        label: "Heartbeats",
         disabled: !currentWorkspace,
       },
     ],

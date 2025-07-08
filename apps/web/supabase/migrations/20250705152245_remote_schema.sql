@@ -150,7 +150,6 @@ CREATE TABLE IF NOT EXISTS "public"."logs" (
     "error" "text",
     "method" "text",
     "region" "text",
-    "colo" "text",
     "check_type" "text",
     "tcp_host" "text",
     "tcp_port" integer,

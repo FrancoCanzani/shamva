@@ -47,7 +47,6 @@ export class CheckerDurableObject extends DurableObject {
       headers: null,
       bodyContent: null,
       checkError: null,
-      colo: null,
     };
 
     try {
@@ -95,7 +94,6 @@ export class CheckerDurableObject extends DurableObject {
       headers: null,
       bodyContent: null,
       checkError: null,
-      colo: null,
     };
 
     try {
@@ -132,7 +130,6 @@ export class CheckerDurableObject extends DurableObject {
       result.latencyMs = performance.now() - checkStartTime;
       result.ok = response.ok;
       result.statusCode = response.status;
-      result.colo = response.cf?.colo ?? null;
       result.headers = Object.fromEntries(response.headers.entries());
       result.bodyContent = await handleBodyParsing(response);
     } catch (error: unknown) {
@@ -277,7 +274,6 @@ export class CheckerDurableObject extends DurableObject {
       method: method,
       region: region,
       check_type: checkType,
-      colo: result.colo,
       tcp_host: tcpHost,
       tcp_port: tcpPort,
     };

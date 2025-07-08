@@ -1,10 +1,10 @@
-import { useNavigate } from "@tanstack/react-router";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/frontend/lib/supabase";
-import type { Heartbeat } from "@/frontend/lib/types";
 import HeartbeatForm from "@/frontend/components/heartbeat/heartbeat-form";
 import { useWorkspaces } from "@/frontend/lib/context/workspace-context";
+import { supabase } from "@/frontend/lib/supabase";
+import type { Heartbeat } from "@/frontend/lib/types";
 import { Route as NewHeartbeatRoute } from "@/frontend/routes/dashboard/$workspaceName/heartbeats/new";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 
 export default function NewHeartbeatPage() {
   const navigate = useNavigate();
@@ -87,12 +87,20 @@ export default function NewHeartbeatPage() {
   }
 
   return (
-    <div className="container mx-auto py-6">
-      <HeartbeatForm
-        workspaceId={workspace.id}
-        onSubmit={handleSubmit}
-        onCancel={handleCancel}
-      />
+    <div className="container mx-auto max-w-5xl p-4">
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-xl font-medium">Create Heartbeat</h1>
+          <p className="text-muted-foreground mt-1 text-sm">
+            Let us know your service is ok.
+          </p>
+        </div>
+        <HeartbeatForm
+          workspaceId={workspace.id}
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+        />
+      </div>
     </div>
   );
 }

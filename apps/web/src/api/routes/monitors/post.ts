@@ -42,8 +42,6 @@ export default async function postMonitors(c: Context) {
     interval,
     workspaceId,
     slackWebhookUrl,
-    heartbeatId,
-    heartbeatTimeoutSeconds,
   }: MonitorsParams = result.data;
   const userId = c.get("userId");
 
@@ -127,8 +125,6 @@ export default async function postMonitors(c: Context) {
           status: "initializing",
           regions: regions,
           slack_webhook_url: slackWebhookUrl,
-          heartbeat_id: heartbeatId,
-          heartbeat_timeout_seconds: heartbeatTimeoutSeconds,
         },
       ])
       .select()

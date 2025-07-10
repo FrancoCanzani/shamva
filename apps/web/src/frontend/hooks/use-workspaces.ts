@@ -14,5 +14,6 @@ export function useWorkspaces(workspaceName?: string) {
     error: context.error,
     refetch: context.refetch,
     setCurrentWorkspace: context.setCurrentWorkspace,
+    invalidateWorkspaces: context.invalidateWorkspaces,
   };
 }

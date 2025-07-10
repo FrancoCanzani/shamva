@@ -1,10 +1,10 @@
 import { useAuth } from "@/frontend/lib/context/auth-context";
+import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
 import {
   ApiResponse,
   Workspace,
   WorkspaceFormValues,
 } from "@/frontend/lib/types";
-import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -12,8 +12,8 @@ import WorkspaceForm from "../workspace-form";
 
 export default function NewWorkspacePage() {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const router = useRouter();
+  const { invalidateWorkspaces } = useWorkspaces();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { session } = useAuth();
@@ -52,7 +52,7 @@ export default function NewWorkspacePage() {
       }
 
       toast.success("Workspace created successfully");
-      queryClient.invalidateQueries({ queryKey: ["workspaces"] });
+      invalidateWorkspaces();
       router.invalidate();
       navigate({
         to: "/dashboard/workspaces",

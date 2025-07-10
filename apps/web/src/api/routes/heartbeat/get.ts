@@ -2,11 +2,9 @@ import { Context } from "hono";
 import { createSupabaseClient } from "../../lib/supabase/client";
 
 export default async function getHeartbeat(c: Context) {
-  const heartbeatId = c.req.query("id");
-  const serviceName = c.req.query("service");
-  const metadata = c.req.query("metadata");
+  const pingId = c.req.query("id");
 
-  if (!heartbeatId) {
+  if (!pingId) {
     return c.json({ error: "Heartbeat ID is required" }, 400);
   }
 
@@ -14,13 +12,24 @@ export default async function getHeartbeat(c: Context) {
     const supabase = createSupabaseClient(c.env);
     const now = new Date().toISOString();
 
-    const { error } = await supabase.from("heartbeats").upsert({
-      id: heartbeatId,
-      service_name: serviceName || "unknown",
-      metadata: metadata ? JSON.parse(metadata) : null,
-      last_beat_at: now,
-      updated_at: now,
-    });
+    const { data: heartbeat, error: fetchError } = await supabase
+      .from("heartbeats")
+      .select("id, status")
+      .eq("ping_id", pingId)
+      .single();
+
+    if (fetchError || !heartbeat) {
+      return c.json({ error: "Heartbeat not found" }, 404);
+    }
+
+    const { error } = await supabase
+      .from("heartbeats")
+      .update({
+        last_beat_at: now,
+        updated_at: now,
+        status: heartbeat.status === "idle" ? "active" : heartbeat.status,
+      })
+      .eq("ping_id", pingId);
 
     if (error) {
       console.error("Failed to log heartbeat:", error);

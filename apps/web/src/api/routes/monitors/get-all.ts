@@ -35,7 +35,6 @@ export default async function getAllMonitors(c: Context) {
       return c.json({
         data: [],
         success: true,
-        error: null,
       });
     }
 
@@ -62,7 +61,6 @@ export default async function getAllMonitors(c: Context) {
       return c.json({
         data: [],
         success: true,
-        error: null,
       });
     }
 
@@ -102,7 +100,6 @@ export default async function getAllMonitors(c: Context) {
     return c.json({
       data: monitorsWithLogs,
       success: true,
-      error: null,
     });
   } catch (err) {
     console.error("Unexpected error fetching monitors:", err);

@@ -9,12 +9,13 @@ export default async function postWorkspaces(c: Context) {
     console.log("Received workspace creation request:", rawBody);
   } catch {
     return c.json(
-      { success: false, error: "Invalid JSON payload provided." },
+      { data: null, success: false, error: "Invalid JSON payload provided." },
       400
     );
   }
 
   const result = WorkspaceSchema.safeParse(rawBody);
+
   if (!result.success) {
     console.error("Validation Error Details:", result.error.flatten());
     return c.json(
@@ -30,9 +31,6 @@ export default async function postWorkspaces(c: Context) {
   const { name, description, members, creatorEmail } = result.data;
 
   const userId = c.get("userId");
-  if (!userId) {
-    return c.json({ success: false, error: "User not authenticated." }, 401);
-  }
 
   const supabase = createSupabaseClient(c.env);
   try {

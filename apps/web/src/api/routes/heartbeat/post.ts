@@ -1,6 +1,6 @@
 import { Context } from "hono";
-import { createSupabaseClient } from "../../lib/supabase/client";
 import { HeartbeatSchema } from "../../lib/schemas";
+import { createSupabaseClient } from "../../lib/supabase/client";
 
 export default async function postHeartbeat(c: Context) {
   let rawBody: unknown;
@@ -8,17 +8,16 @@ export default async function postHeartbeat(c: Context) {
     rawBody = await c.req.json();
   } catch {
     return c.json(
-      { success: false, error: "Invalid JSON payload provided." },
+      { data: null, success: false, error: "Invalid JSON payload provided." },
       400
     );
   }
 
   const result = HeartbeatSchema.safeParse(rawBody);
-
   if (!result.success) {
-    console.error("Validation Error Details:", result.error.flatten());
     return c.json(
       {
+        data: null,
         success: false,
         error: "Request parameter validation failed.",
         details: result.error.flatten(),
@@ -27,27 +26,23 @@ export default async function postHeartbeat(c: Context) {
     );
   }
 
-  const { name, expected_lapse_ms, grace_period_ms, workspace_id } =
-    result.data;
+  const { workspaceId } = result.data;
 
   const userId = c.get("userId");
-
-  if (!userId) {
-    return c.json({ success: false, error: "User not authenticated." }, 401);
-  }
 
   const supabase = createSupabaseClient(c.env);
 
   const { data: membership, error: membershipError } = await supabase
     .from("workspace_members")
     .select("role")
-    .eq("workspace_id", workspace_id)
+    .eq("workspace_id", workspaceId)
     .eq("user_id", userId)
     .single();
 
   if (membershipError || !membership) {
     return c.json(
       {
+        data: null,
         success: false,
         error:
           "You do not have permission to create heartbeats in this workspace.",
@@ -59,6 +54,7 @@ export default async function postHeartbeat(c: Context) {
   if (membership.role === "viewer") {
     return c.json(
       {
+        data: null,
         success: false,
         error:
           "Viewers cannot create heartbeats. Contact a workspace admin or member.",
@@ -68,33 +64,47 @@ export default async function postHeartbeat(c: Context) {
   }
 
   try {
-    const { data: heartbeat, error } = await supabase
+    const { data, error: insertError } = await supabase
       .from("heartbeats")
-      .insert({
-        name,
-        expected_lapse_ms,
-        grace_period_ms,
-        workspace_id,
-        status: "active",
-        created_by: userId,
-      })
+      .insert([
+        {
+          workspace_id: result.data.workspaceId,
+          ping_id: result.data.pingId,
+          name: result.data.name,
+          expected_lapse_ms: result.data.expectedLapseMs,
+          grace_period_ms: result.data.gracePeriodMs,
+          status: "idle",
+          created_at: new Date().toISOString(),
+        },
+      ])
       .select()
       .single();
 
-    if (error) {
-      console.error("Failed to create heartbeat:", error);
-      return c.json(
-        { success: false, error: "Failed to create heartbeat." },
-        500
+    if (insertError) {
+      console.error("Supabase heartbeat insert error:", insertError);
+      throw new Error(
+        `Failed to create heartbeat record: ${insertError.message}`
       );
     }
 
+    if (!data) {
+      throw new Error("Failed to create heartbeat record: No data returned.");
+    }
+
     return c.json({
+      data: data,
       success: true,
-      data: heartbeat,
     });
   } catch (error) {
-    console.error("Error creating heartbeat:", error);
-    return c.json({ success: false, error: "Internal server error." }, 500);
+    console.error("Error during heartbeat database creation:", error);
+    return c.json(
+      {
+        data: null,
+        success: false,
+        error: "Failed to create heartbeat in database.",
+        details: String(error),
+      },
+      500
+    );
   }
 }

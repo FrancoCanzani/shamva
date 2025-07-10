@@ -2,10 +2,11 @@
 CREATE TABLE IF NOT EXISTS "public"."heartbeats" (
     "id" TEXT PRIMARY KEY,
     "workspace_id" UUID NOT NULL,
+    "ping_id" TEXT NOT NULL UNIQUE,
     "name" TEXT NOT NULL,
     "expected_lapse_ms" INTEGER NOT NULL CHECK (expected_lapse_ms >= 1000),
     "grace_period_ms" INTEGER NOT NULL CHECK (grace_period_ms >= 0),
-    "status" TEXT DEFAULT 'active',
+    "status" TEXT DEFAULT 'idle',
     "last_beat_at" TIMESTAMPTZ,
     "created_at" TIMESTAMPTZ DEFAULT timezone('utc', now()) NOT NULL,
     "updated_at" TIMESTAMPTZ DEFAULT timezone('utc', now()) NOT NULL

@@ -79,6 +79,7 @@
         "tailwind-merge": "^3.2.0",
         "tailwindcss": "^4.1.4",
         "tw-animate-css": "^1.2.5",
+        "uuid": "^11.1.0",
         "vaul": "^1.1.2",
         "zod": "^3.25.67",
       },
@@ -90,6 +91,7 @@
         "@types/node": "^22.14.1",
         "@types/react": "19.0.10",
         "@types/react-dom": "19.0.4",
+        "@types/react-syntax-highlighter": "^15.5.13",
         "@vitejs/plugin-react": "4.3.4",
         "eslint": "9.23.0",
         "eslint-plugin-react-hooks": "5.2.0",
@@ -893,6 +895,8 @@
     "@types/react": ["@types/react@19.0.10", "", { "dependencies": { "csstype": "^3.0.2" } }, "sha512-JuRQ9KXLEjaUNjTWpzuR231Z2WpIwczOkBEIvbHNCzQefFIT0L8IqE6NV6ULLyC1SI/i234JnDoMkfg+RjQj2g=="],
 
     "@types/react-dom": ["@types/react-dom@19.0.4", "", { "peerDependencies": { "@types/react": "^19.0.0" } }, "sha512-4fSQ8vWFkg+TGhePfUzVmat3eC14TXYSsiiDSLI0dVLsrm9gZFABjPy/Qu6TKgl1tq1Bu1yDsuQgY3A3DOjCcg=="],
+
+    "@types/react-syntax-highlighter": ["@types/react-syntax-highlighter@15.5.13", "", { "dependencies": { "@types/react": "*" } }, "sha512-uLGJ87j6Sz8UaBAooU0T6lWJ0dBmjZgN1PZTrj05TNql2/XpC6+4HhMT5syIdFUUt+FASfCeLLv4kBygNU+8qA=="],
 
     "@types/trusted-types": ["@types/trusted-types@2.0.7", "", {}, "sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw=="],
 

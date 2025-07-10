@@ -4,13 +4,6 @@ import { createSupabaseClient } from "../../lib/supabase/client";
 export default async function getAllWorkspaces(c: Context) {
   const userId = c.get("userId");
 
-  if (!userId) {
-    return c.json(
-      { data: null, success: false, error: "User not authenticated" },
-      401
-    );
-  }
-
   try {
     const supabase = createSupabaseClient(c.env);
 
@@ -29,6 +22,7 @@ export default async function getAllWorkspaces(c: Context) {
       );
       return c.json(
         {
+          data: null,
           success: false,
           error: "Database error fetching workspace memberships",
           details: memberWorkspacesError.message,
@@ -67,6 +61,7 @@ export default async function getAllWorkspaces(c: Context) {
       console.error("Error fetching workspaces:", workspacesError);
       return c.json(
         {
+          data: null,
           success: false,
           error: "Database error fetching workspaces",
           details: workspacesError.message,
@@ -83,6 +78,7 @@ export default async function getAllWorkspaces(c: Context) {
     console.error("Unexpected error fetching workspaces:", error);
     return c.json(
       {
+        data: null,
         success: false,
         error: "An unexpected error occurred",
         details: error instanceof Error ? error.message : String(error),

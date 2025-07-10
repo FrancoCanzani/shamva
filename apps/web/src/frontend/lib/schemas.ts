@@ -154,15 +154,17 @@ export const HeartbeatSchema = z.object({
     .trim()
     .min(1, "Heartbeat name cannot be empty")
     .max(100, "Heartbeat name is too long"),
-  expected_lapse_ms: z
-    .number()
-    .int()
-    .min(1000, "Expected lapse must be at least 1 second (1000ms)")
-    .max(3600000, "Expected lapse must be less than 1 hour (3600000ms)"),
-  grace_period_ms: z
-    .number()
-    .int()
-    .min(0, "Grace period cannot be negative")
-    .max(300000, "Grace period must be less than 5 minutes (300000ms)"),
-  workspace_id: z.string().uuid("Invalid workspace ID format"),
+  expectedLapseMs: z.number().positive(),
+  gracePeriodMs: z.number().positive(),
+  workspaceId: z.string().uuid("Invalid workspace ID format"),
+  pingId: z.string().uuid("Invalid ID format"),
+});
+
+export const IncidentUpdateSchema = z.object({
+  acknowledgedAt: z.string().datetime().optional(),
+  resolvedAt: z.string().datetime().optional(),
+  postMortem: z
+    .string()
+    .max(2000, "Post-mortem cannot exceed 2000 characters")
+    .optional(),
 });

@@ -67,10 +67,11 @@ export interface Monitor {
 export interface Heartbeat {
   id: string;
   workspace_id: string;
+  ping_id: string;
   name: string;
   expected_lapse_ms: number;
   grace_period_ms: number;
-  status: "active" | "paused" | "deleted";
+  status: "idle" | "active" | "paused" | "timeout";
   last_beat_at?: string;
   created_at: string;
   updated_at: string;

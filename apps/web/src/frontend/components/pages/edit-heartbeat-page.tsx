@@ -16,9 +16,10 @@ export default function EditHeartbeatPage() {
   const updateHeartbeat = useMutation({
     mutationFn: async (data: {
       name: string;
-      expected_lapse_ms: number;
-      grace_period_ms: number;
-      workspace_id: string;
+      expectedLapseMs: number;
+      gracePeriodMs: number;
+      workspaceId: string;
+      pingId: string;
     }): Promise<Heartbeat> => {
       const {
         data: { session },
@@ -53,21 +54,22 @@ export default function EditHeartbeatPage() {
 
       return result.data;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       // Invalidate and refetch heartbeats
-      queryClient.invalidateQueries({ queryKey: ["heartbeats"] });
+      await queryClient.invalidateQueries({ queryKey: ["heartbeats"] });
+      navigate({ to: `/dashboard/${workspace?.name}/heartbeats` });
     },
   });
 
   const handleSubmit = async (data: {
     name: string;
-    expected_lapse_ms: number;
-    grace_period_ms: number;
-    workspace_id: string;
+    expectedLapseMs: number;
+    gracePeriodMs: number;
+    workspaceId: string;
+    pingId: string;
   }) => {
     try {
       await updateHeartbeat.mutateAsync(data);
-      navigate({ to: `/dashboard/${workspace?.name}/heartbeats` });
     } catch (error) {
       console.error("Failed to update heartbeat:", error);
     }

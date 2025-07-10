@@ -9,7 +9,7 @@ export default async function postMonitors(c: Context) {
     rawBody = await c.req.json();
   } catch {
     return c.json(
-      { success: false, error: "Invalid JSON payload provided." },
+      { data: null, success: false, error: "Invalid JSON payload provided." },
       400
     );
   }
@@ -20,6 +20,7 @@ export default async function postMonitors(c: Context) {
     console.error("Validation Error Details:", result.error.flatten());
     return c.json(
       {
+        data: null,
         success: false,
         error: "Request parameter validation failed.",
         details: result.error.flatten(),
@@ -46,11 +47,11 @@ export default async function postMonitors(c: Context) {
   const userId = c.get("userId");
 
   if (!userId) {
-    return c.json({ success: false, error: "User not authenticated." }, 401);
+    return c.json({ data: null, success: false, error: "User not authenticated." }, 401);
   }
 
   if (!workspaceId) {
-    return c.json({ success: false, error: "Workspace ID is required." }, 400);
+    return c.json({ data: null, success: false, error: "Workspace ID is required." }, 400);
   }
 
   const supabase = createSupabaseClient(c.env);
@@ -65,6 +66,7 @@ export default async function postMonitors(c: Context) {
   if (membershipError || !membership) {
     return c.json(
       {
+        data: null,
         success: false,
         error:
           "You do not have permission to create monitors in this workspace.",
@@ -76,6 +78,7 @@ export default async function postMonitors(c: Context) {
   if (membership.role === "viewer") {
     return c.json(
       {
+        data: null,
         success: false,
         error:
           "Viewers cannot create monitors. Contact a workspace admin or member.",
@@ -90,7 +93,7 @@ export default async function postMonitors(c: Context) {
       parsedHeaders = JSON.parse(headersString);
     } catch {
       return c.json(
-        { success: false, error: "Invalid headers JSON format." },
+        { data: null, success: false, error: "Invalid headers JSON format." },
         400
       );
     }
@@ -102,7 +105,7 @@ export default async function postMonitors(c: Context) {
       parsedBody = JSON.parse(bodyString);
     } catch {
       return c.json(
-        { success: false, error: "Invalid body JSON format." },
+        { data: null, success: false, error: "Invalid body JSON format." },
         400
       );
     }

@@ -1,6 +1,6 @@
 import { Context } from "hono";
-import { createSupabaseClient } from "../../lib/supabase/client";
 import { HeartbeatSchema } from "../../lib/schemas";
+import { createSupabaseClient } from "../../lib/supabase/client";
 
 export default async function putHeartbeat(c: Context) {
   const heartbeatId = c.req.param("id");
@@ -33,8 +33,7 @@ export default async function putHeartbeat(c: Context) {
     );
   }
 
-  const { name, expected_lapse_ms, grace_period_ms, workspace_id } =
-    result.data;
+  const { name, expectedLapseMs, gracePeriodMs, workspaceId, pingId } = result.data;
 
   const userId = c.get("userId");
 
@@ -47,7 +46,7 @@ export default async function putHeartbeat(c: Context) {
   const { data: membership, error: membershipError } = await supabase
     .from("workspace_members")
     .select("role")
-    .eq("workspace_id", workspace_id)
+    .eq("workspace_id", workspaceId)
     .eq("user_id", userId)
     .single();
 
@@ -83,7 +82,7 @@ export default async function putHeartbeat(c: Context) {
     return c.json({ success: false, error: "Heartbeat not found." }, 404);
   }
 
-  if (existingHeartbeat.workspace_id !== workspace_id) {
+  if (existingHeartbeat.workspace_id !== workspaceId) {
     return c.json(
       { success: false, error: "Heartbeat does not belong to this workspace." },
       403
@@ -95,8 +94,9 @@ export default async function putHeartbeat(c: Context) {
       .from("heartbeats")
       .update({
         name,
-        expected_lapse_ms,
-        grace_period_ms,
+        ping_id: pingId,
+        expected_lapse_ms: expectedLapseMs,
+        grace_period_ms: gracePeriodMs,
         updated_at: new Date().toISOString(),
       })
       .eq("id", heartbeatId)

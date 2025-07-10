@@ -4,8 +4,8 @@ import { createSupabaseClient } from "../../lib/supabase/client";
 
 const IncidentUpdatePostSchema = z.object({
   content: z.string().min(1).max(2000),
-  author_name: z.string().min(1).max(200),
-  author_email: z.string().email().max(200),
+  authorName: z.string().min(1).max(200),
+  authorEmail: z.string().email().max(200),
 });
 
 export default async function postIncidentUpdate(c: Context) {
@@ -46,7 +46,7 @@ export default async function postIncidentUpdate(c: Context) {
     );
   }
 
-  const { content, author_name, author_email } = result.data;
+  const { content, authorName, authorEmail } = result.data;
   const supabase = createSupabaseClient(c.env);
 
   const { data: incident, error: incidentError } = await supabase
@@ -89,8 +89,8 @@ export default async function postIncidentUpdate(c: Context) {
     .insert({
       incident_id: incidentId,
       author_id: userId,
-      author_name,
-      author_email,
+      author_name: authorName,
+      author_email: authorEmail,
       content,
       created_at: new Date().toISOString(),
     })

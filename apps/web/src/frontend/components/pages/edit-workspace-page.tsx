@@ -1,9 +1,10 @@
 import { Route } from "@/frontend/routes/dashboard/workspaces/$workspaceId";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 import { useAuth } from "@/frontend/lib/context/auth-context";
+import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
 import {
   ApiResponse,
   Workspace,
@@ -13,8 +14,8 @@ import WorkspaceForm from "../workspace-form";
 
 export default function EditWorkspacePage() {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const { session } = useAuth();
+  const { invalidateWorkspaces } = useWorkspaces();
   const router = useRouter();
   const workspace: Workspace = Route.useLoaderData();
 
@@ -43,7 +44,7 @@ export default function EditWorkspacePage() {
       throw new Error("Failed to delete workspace");
     }
 
-    queryClient.invalidateQueries({ queryKey: ["workspaces"] });
+    invalidateWorkspaces();
     router.invalidate();
     navigate({ to: "/dashboard/workspaces" });
   };
@@ -84,7 +85,7 @@ export default function EditWorkspacePage() {
     },
     onSuccess: () => {
       toast.success("Workspace updated successfully");
-      queryClient.invalidateQueries({ queryKey: ["workspaces"] });
+      invalidateWorkspaces();
       router.invalidate();
       navigate({ to: "/dashboard/workspaces" });
     },

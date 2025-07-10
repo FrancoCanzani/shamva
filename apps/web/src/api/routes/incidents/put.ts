@@ -37,7 +37,7 @@ export default async function putIncident(c: Context) {
     );
   }
 
-  const { acknowledged_at, resolved_at, post_mortem } = result.data;
+  const { acknowledged_at, post_mortem, resolved_at } = result.data;
   const supabase = createSupabaseClient(c.env);
 
   const { data: existingIncident, error: fetchError } = await supabase

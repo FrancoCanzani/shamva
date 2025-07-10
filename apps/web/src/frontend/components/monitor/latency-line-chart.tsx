@@ -1,5 +1,5 @@
 import type { Log } from "@/frontend/lib/types";
-import { format, startOfDay, startOfHour, differenceInDays } from "date-fns";
+import { format, startOfDay, differenceInDays, differenceInHours } from "date-fns";
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, Legend } from "recharts";
 import {
   type ChartConfig,
@@ -28,22 +28,103 @@ const getPercentile = (data: number[], percentile: number): number => {
   );
 };
 
-const groupLogsByHour = (logs: Partial<Log>[]) => {
-  const hourlyGroups = new Map<string, Partial<Log>[]>();
+const groupLogsBy5Minutes = (logs: Partial<Log>[]) => {
+  const fiveMinGroups = new Map<string, Partial<Log>[]>();
 
   logs.forEach((log) => {
     if (!log.created_at) return;
-    const date = startOfHour(new Date(log.created_at));
-    const dateKey = format(date, "yyyy-MM-dd-HH");
-    if (!hourlyGroups.has(dateKey)) {
-      hourlyGroups.set(dateKey, []);
+    const date = new Date(log.created_at);
+    const minutes = date.getMinutes();
+    const roundedMinutes = Math.floor(minutes / 5) * 5;
+    const roundedDate = new Date(date);
+    roundedDate.setMinutes(roundedMinutes, 0, 0);
+    
+    const dateKey = format(roundedDate, "yyyy-MM-dd-HH-mm");
+    if (!fiveMinGroups.has(dateKey)) {
+      fiveMinGroups.set(dateKey, []);
     }
-    hourlyGroups.get(dateKey)!.push(log);
+    fiveMinGroups.get(dateKey)!.push(log);
   });
 
-  return Array.from(hourlyGroups.entries())
-    .map(([dateKey, hourLogs]) => {
-      const latencies = hourLogs
+  return Array.from(fiveMinGroups.entries())
+    .map(([dateKey, fiveMinLogs]) => {
+      const latencies = fiveMinLogs
+        .map((log) => log.latency || 0)
+        .filter((l) => l > 0);
+      if (latencies.length === 0) return null;
+
+      const avg = Math.round(
+        latencies.reduce((sum, lat) => sum + lat, 0) / latencies.length
+      );
+      const median = getPercentile(latencies, 50);
+      const p95 = getPercentile(latencies, 95);
+      const p99 = getPercentile(latencies, 99);
+
+      return { date: dateKey, avg, median, p95, p99 };
+    })
+    .filter((entry): entry is NonNullable<typeof entry> => entry !== null)
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+};
+
+const groupLogsBy15Minutes = (logs: Partial<Log>[]) => {
+  const fifteenMinGroups = new Map<string, Partial<Log>[]>();
+
+  logs.forEach((log) => {
+    if (!log.created_at) return;
+    const date = new Date(log.created_at);
+    const minutes = date.getMinutes();
+    const roundedMinutes = Math.floor(minutes / 15) * 15;
+    const roundedDate = new Date(date);
+    roundedDate.setMinutes(roundedMinutes, 0, 0);
+    
+    const dateKey = format(roundedDate, "yyyy-MM-dd-HH-mm");
+    if (!fifteenMinGroups.has(dateKey)) {
+      fifteenMinGroups.set(dateKey, []);
+    }
+    fifteenMinGroups.get(dateKey)!.push(log);
+  });
+
+  return Array.from(fifteenMinGroups.entries())
+    .map(([dateKey, fifteenMinLogs]) => {
+      const latencies = fifteenMinLogs
+        .map((log) => log.latency || 0)
+        .filter((l) => l > 0);
+      if (latencies.length === 0) return null;
+
+      const avg = Math.round(
+        latencies.reduce((sum, lat) => sum + lat, 0) / latencies.length
+      );
+      const median = getPercentile(latencies, 50);
+      const p95 = getPercentile(latencies, 95);
+      const p99 = getPercentile(latencies, 99);
+
+      return { date: dateKey, avg, median, p95, p99 };
+    })
+    .filter((entry): entry is NonNullable<typeof entry> => entry !== null)
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+};
+
+const groupLogsBy30Minutes = (logs: Partial<Log>[]) => {
+  const thirtyMinGroups = new Map<string, Partial<Log>[]>();
+
+  logs.forEach((log) => {
+    if (!log.created_at) return;
+    const date = new Date(log.created_at);
+    const minutes = date.getMinutes();
+    const roundedMinutes = Math.floor(minutes / 30) * 30;
+    const roundedDate = new Date(date);
+    roundedDate.setMinutes(roundedMinutes, 0, 0);
+    
+    const dateKey = format(roundedDate, "yyyy-MM-dd-HH-mm");
+    if (!thirtyMinGroups.has(dateKey)) {
+      thirtyMinGroups.set(dateKey, []);
+    }
+    thirtyMinGroups.get(dateKey)!.push(log);
+  });
+
+  return Array.from(thirtyMinGroups.entries())
+    .map(([dateKey, thirtyMinLogs]) => {
+      const latencies = thirtyMinLogs
         .map((log) => log.latency || 0)
         .filter((l) => l > 0);
       if (latencies.length === 0) return null;
@@ -108,13 +189,28 @@ const groupLogsByTime = (logs: Partial<Log>[]) => {
   const firstDate = dates[0];
   const lastDate = dates[dates.length - 1];
   const daysDifference = differenceInDays(lastDate, firstDate);
+  const hoursDifference = differenceInHours(lastDate, firstDate);
 
-  // If there's only one day or less than 24 hours of data, group by hour
-  if (daysDifference === 0) {
-    return groupLogsByHour(logs);
+  if (hoursDifference < 2) {
+    return groupLogsBy5Minutes(logs);
   }
 
-  // Otherwise, group by day
+  if (hoursDifference < 6) {
+    return groupLogsBy15Minutes(logs);
+  }
+
+  if (hoursDifference < 12) {
+    return groupLogsBy30Minutes(logs);
+  }
+
+  if (daysDifference === 0) {
+    return groupLogsBy15Minutes(logs);
+  }
+
+  if (daysDifference <= 3) {
+    return groupLogsBy30Minutes(logs);
+  }
+
   return groupLogsByDay(logs);
 };
 
@@ -123,7 +219,6 @@ export default function LatencyLineChart({
   height = 200,
 }: LatencyLineChartProps) {
   const chartData = groupLogsByTime(logs);
-  const isHourlyData = chartData.length > 0 && chartData[0].date.includes("-");
 
   if (chartData.length === 0) {
     return (
@@ -158,21 +253,10 @@ export default function LatencyLineChart({
         <CartesianGrid vertical={false} />
         <XAxis
           dataKey="date"
-          tickFormatter={(value) => {
-            if (isHourlyData) {
-              const parts = value.split("-");
-              if (parts.length === 4) {
-                const hour = parts[3];
-                return `${hour}:00`;
-              }
-              return value;
-            } else {
-              return format(new Date(value), "MMM d");
-            }
-          }}
           tickLine={false}
           axisLine={false}
-          tickMargin={8}
+          tickMargin={0}
+          tick={false}
         />
         <YAxis
           tickLine={false}
@@ -185,29 +269,48 @@ export default function LatencyLineChart({
             <ChartTooltipContent
               labelFormatter={(label) => {
                 try {
-                  if (isHourlyData) {
+                  if (label.includes("-") && label.split("-").length === 5) {
                     const parts = label.split("-");
-                    if (parts.length === 4) {
-                      const [year, month, day, hour] = parts;
-                      const date = new Date(
-                        parseInt(year),
-                        parseInt(month) - 1,
-                        parseInt(day),
-                        parseInt(hour)
-                      );
-                      if (isNaN(date.getTime())) {
-                        return label;
-                      }
-                      return format(date, "MMM d, yyyy - HH:00");
+                    const [year, month, day, hour, minute] = parts;
+                    const date = new Date(
+                      parseInt(year),
+                      parseInt(month) - 1,
+                      parseInt(day),
+                      parseInt(hour),
+                      parseInt(minute)
+                    );
+                    if (!isNaN(date.getTime())) {
+                      return format(date, "MMM d, yyyy 'at' h:mm a");
                     }
-                    return label;
-                  } else {
-                    const date = new Date(label);
-                    if (isNaN(date.getTime())) {
-                      return label;
-                    }
-                    return format(date, "MMM d, yyyy");
                   }
+                  
+                  if (label.includes("-") && label.split("-").length === 4) {
+                    const parts = label.split("-");
+                    const [year, month, day, hour] = parts;
+                    const date = new Date(
+                      parseInt(year),
+                      parseInt(month) - 1,
+                      parseInt(day),
+                      parseInt(hour)
+                    );
+                    if (!isNaN(date.getTime())) {
+                      return format(date, "MMM d, yyyy 'at' h:00 a");
+                    }
+                  }
+                  
+                  if (label.includes("-") && label.split("-").length === 3) {
+                    const date = new Date(label);
+                    if (!isNaN(date.getTime())) {
+                      return format(date, "MMM d, yyyy");
+                    }
+                  }
+                  
+                  const date = new Date(label);
+                  if (!isNaN(date.getTime())) {
+                    return format(date, "MMM d, yyyy 'at' h:mm a");
+                  }
+                  
+                  return label;
                 } catch (error) {
                   console.error("Error formatting date label:", error, label);
                   return label;
@@ -249,3 +352,4 @@ export default function LatencyLineChart({
     </ChartContainer>
   );
 }
+

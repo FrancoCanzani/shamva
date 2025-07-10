@@ -7,13 +7,6 @@ export default async function getWorkspaces(c: Context) {
   const userId = c.get("userId");
   const workspaceId = c.req.param("id");
 
-  if (!userId) {
-    return c.json(
-      { data: null, success: false, error: "User not authenticated" },
-      401
-    );
-  }
-
   if (!workspaceId) {
     return c.json(
       { data: null, success: false, error: "Workspace ID is required" },

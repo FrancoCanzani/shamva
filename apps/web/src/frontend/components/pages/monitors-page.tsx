@@ -1,7 +1,7 @@
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors";
 import { useMemo, useState } from "react";
 import MonitorTypeSelector from "../monitor/monitor-type-selector";
-import { MonitorsTable } from "../monitors/monitors-table";
+import { MonitorsGrid } from "../monitors/monitors-grid";
 import NotFoundMessage from "../not-found-message";
 import { Input } from "../ui/input";
 
@@ -45,7 +45,9 @@ export default function MonitorsPage() {
         </div>
       </div>
       {filteredMonitors && filteredMonitors.length > 0 ? (
-        <MonitorsTable monitors={filteredMonitors} />
+        <div className="flex-1">
+          <MonitorsGrid monitors={filteredMonitors} />
+        </div>
       ) : searchQuery ? (
         <NotFoundMessage
           message={`No monitors found matching "${searchQuery}".`}

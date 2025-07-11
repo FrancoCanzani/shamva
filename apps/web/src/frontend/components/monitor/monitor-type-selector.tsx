@@ -7,7 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 const monitorTypes = [
   {
     type: "http",
-    title: "HTTP/HTTPS Check",
+    title: "HTTP Check",
     description: "Monitor web endpoints, APIs, and websites",
   },
   {
@@ -29,7 +29,7 @@ export default function MonitorTypeSelector() {
           New Monitor
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="p-0">
+      <PopoverContent className="rounded p-0">
         <div className="border-b p-2">
           <h3 className="text-sm font-medium">Select Monitor Type</h3>
         </div>
@@ -46,7 +46,7 @@ export default function MonitorTypeSelector() {
                 onClick={() => setIsOpen(false)}
                 className="block"
               >
-                <Card className="hover:bg-carbon-50 hover:dark:bg-carbon-800 cursor-pointer rounded-md border shadow-xs transition-colors">
+                <Card className="hover:bg-carbon-50/10 hover:dark:bg-carbon-800 cursor-pointer rounded border shadow-xs transition-colors">
                   <CardHeader className="p-1">
                     <CardTitle className="text-xs font-medium">
                       {monitorType.title}

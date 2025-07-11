@@ -24,7 +24,7 @@ export const monitorsTableColumns: ColumnDef<Monitor>[] = [
       <div className="flex h-full items-center justify-center">
         <div
           className={cn(
-            "h-2 w-2 rounded-xs",
+            "h-2 w-2 rounded-md",
             row.original.status === "active"
               ? "bg-green-700"
               : row.original.status === "broken" ||
@@ -68,7 +68,7 @@ export const monitorsTableColumns: ColumnDef<Monitor>[] = [
                 ? row.original.tcp_host_port
                 : row.original.url)}
           </Link>
-          <span className="text-muted-foreground truncate text-xs">
+          <span className="text-muted-foreground hidden truncate text-xs lg:block">
             {row.original.check_type === "tcp"
               ? row.original.tcp_host_port
               : row.original.url}

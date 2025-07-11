@@ -5,7 +5,6 @@ import MonitorIncidentsSection from "../monitor/monitor-incidents-section";
 import MonitorRecentChecks from "../monitor/monitor-recent-checks";
 import MonitorRegionLatencyCharts from "../monitor/monitor-region-latency-charts";
 import MonitorStats from "../monitor/monitor-stats";
-import { Separator } from "../ui/separator";
 
 export default function MonitorPage() {
   const monitor = Route.useLoaderData();
@@ -21,21 +20,9 @@ export default function MonitorPage() {
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 p-4">
       <MonitorHeader />
-
-      <Separator />
-
       <MonitorStats logs={filteredLogs} />
-
-      <Separator />
-
       <MonitorIncidentsSection incidents={monitor.incidents || []} />
-
-      <Separator />
-
       <MonitorRegionLatencyCharts logs={filteredLogs} height={36} />
-
-      <Separator />
-
       <MonitorRecentChecks logs={monitor.recent_logs} />
     </div>
   );

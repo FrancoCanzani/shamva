@@ -219,7 +219,7 @@ export default function IncidentPage() {
         </Link>
         <div className="flex flex-col gap-8 lg:flex-row">
           <div className="order-2 min-w-0 flex-1 space-y-6 lg:order-1">
-            <div className="rounded-xs border p-4 shadow-xs">
+            <div className="rounded-md border p-4 shadow-xs">
               <div className="mb-4 flex items-start justify-between">
                 <div className="space-y-3">
                   <h1 className="tracking-widetight font-mono text-xl font-medium uppercase">
@@ -267,7 +267,7 @@ export default function IncidentPage() {
                 </div>
               </div>
               {incident.monitors?.error_message && (
-                <div className="dark:bg-background rounded-xs border border-red-300 bg-red-50 p-3 shadow-xs dark:border-red-900">
+                <div className="dark:bg-background rounded-md border border-red-300 bg-red-50 p-3 shadow-xs dark:border-red-900">
                   <p className="tracking-widewide font-mono text-xs text-red-900">
                     {incident.monitors.error_message.toUpperCase()}
                   </p>
@@ -279,7 +279,7 @@ export default function IncidentPage() {
               <img
                 src={incident.screenshot_url}
                 alt="Incident screenshot"
-                className="w-full rounded-xs border shadow-xs lg:hidden"
+                className="w-full rounded-md border shadow-xs lg:hidden"
               />
             )}
 
@@ -287,7 +287,7 @@ export default function IncidentPage() {
               <IncidentTimeline events={timelineEvents} />
             </div>
 
-            <div className="rounded-xs border p-4 shadow-xs">
+            <div className="rounded-md border p-4 shadow-xs">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="font-mono text-sm font-medium">UPDATES</h2>
                 <Button
@@ -320,18 +320,18 @@ export default function IncidentPage() {
           <div className="lg order-1 hidden space-y-4 lg:order-2 lg:block">
             {incident.screenshot_url && (
               <Dialog>
-                <DialogTrigger className="group flex w-80 flex-col items-start rounded-xs border p-4 shadow-xs">
+                <DialogTrigger className="group flex w-80 flex-col items-start rounded-md border p-4 shadow-xs">
                   <h2 className="mb-4 font-mono text-sm font-medium">
                     Screenshot
                   </h2>
                   <div className="relative">
-                    <span className="bg-carbon-50 dark:bg-carbon-800 absolute inset-0 z-10 flex items-center justify-center rounded-xs font-mono text-xs font-medium opacity-0 transition-opacity duration-300 group-hover:opacity-100 dark:text-white">
+                    <span className="bg-carbon-50 dark:bg-carbon-800 absolute inset-0 z-10 flex items-center justify-center rounded-md font-mono text-xs font-medium opacity-0 transition-opacity duration-300 group-hover:opacity-100 dark:text-white">
                       Click to expand
                     </span>
                     <img
                       src={incident.screenshot_url}
                       alt="Incident screenshot"
-                      className="w-80 rounded-xs transition-all duration-200 group-hover:blur-xs"
+                      className="w-80 rounded-md transition-all duration-200 group-hover:blur-xs"
                     />
                   </div>
                 </DialogTrigger>
@@ -339,7 +339,7 @@ export default function IncidentPage() {
                   <img
                     src={incident.screenshot_url}
                     alt="Incident screenshot"
-                    className="w-full rounded-xs border shadow-xs"
+                    className="w-full rounded-md border shadow-xs"
                   />
                 </DialogContent>
               </Dialog>

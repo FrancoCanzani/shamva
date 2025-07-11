@@ -26,11 +26,11 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-medium">{`Statistics`} </h2>
+        <h2 className="text-sm font-medium">Statistics</h2>
       </div>
 
       <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
-        <div className="hover:bg-carbon-50 hover:dark:bg-carbon-800 rounded-xs border p-2 shadow-xs">
+        <div className="hover:bg-carbon-50/10 hover:dark:bg-carbon-800 rounded-md border p-2 shadow-xs">
           <h3 className="text-muted-foreground mb-2 text-sm font-medium">
             Success Rate
           </h3>
@@ -54,7 +54,7 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
           </div>
         </div>
 
-        <div className="hover:bg-carbon-50 hover:dark:bg-carbon-800 rounded-xs border p-2 shadow-xs">
+        <div className="hover:bg-carbon-50/10 hover:dark:bg-carbon-800 rounded-md border p-2 shadow-xs">
           <h3 className="text-muted-foreground mb-2 text-sm font-medium">
             Total Checks
           </h3>
@@ -69,7 +69,7 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
           </div>
         </div>
 
-        <div className="hover:bg-carbon-50 hover:dark:bg-carbon-800 rounded-xs border p-2 shadow-xs">
+        <div className="hover:bg-carbon-50/10 hover:dark:bg-carbon-800 rounded-md border p-2 shadow-xs">
           <h3 className="text-muted-foreground mb-2 text-sm font-medium">
             Successes
           </h3>
@@ -93,7 +93,7 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
           </div>
         </div>
 
-        <div className="hover:bg-carbon-50 hover:dark:bg-carbon-800 rounded-xs border p-2 shadow-xs">
+        <div className="hover:bg-carbon-50/10 hover:dark:bg-carbon-800 rounded-md border p-2 shadow-xs">
           <h3 className="text-muted-foreground mb-2 text-sm font-medium">
             Failures
           </h3>
@@ -119,7 +119,7 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
       </div>
 
       <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
-        <div className="hover:bg-carbon-50 hover:dark:bg-carbon-800 rounded-xs border p-2 shadow-xs">
+        <div className="hover:bg-carbon-50/10 hover:dark:bg-carbon-800 rounded-md border p-2 shadow-xs">
           <h3 className="text-muted-foreground mb-2 text-sm font-medium">
             P50 Latency
           </h3>
@@ -136,7 +136,7 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
           </div>
         </div>
 
-        <div className="hover:bg-carbon-50 hover:dark:bg-carbon-800 rounded-xs border p-2 shadow-xs">
+        <div className="hover:bg-carbon-50/10 hover:dark:bg-carbon-800 rounded-md border p-2 shadow-xs">
           <h3 className="text-muted-foreground mb-2 text-sm font-medium">
             P75 Latency
           </h3>
@@ -155,7 +155,7 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
           </div>
         </div>
 
-        <div className="hover:bg-carbon-50 hover:dark:bg-carbon-800 rounded-xs border p-2 shadow-xs">
+        <div className="hover:bg-carbon-50/10 hover:dark:bg-carbon-800 rounded-md border p-2 shadow-xs">
           <h3 className="text-muted-foreground mb-2 text-sm font-medium">
             P95 Latency
           </h3>
@@ -174,7 +174,7 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
           </div>
         </div>
 
-        <div className="hover:bg-carbon-50 hover:dark:bg-carbon-800 rounded-xs border p-2 shadow-xs">
+        <div className="hover:bg-carbon-50/10 hover:dark:bg-carbon-800 rounded-md border p-2 shadow-xs">
           <h3 className="text-muted-foreground mb-2 text-sm font-medium">
             P99 Latency
           </h3>

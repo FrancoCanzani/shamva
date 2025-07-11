@@ -30,7 +30,7 @@ export default function MonitorIncidentsSection({
     return (
       <div>
         <h2 className="mb-4 text-sm font-medium">Incidents</h2>
-        <div className="rounded-xs border border-dashed p-8">
+        <div className="rounded-md border border-dashed p-8">
           <p className="text-muted-foreground text-center text-sm">
             No incidents reported
           </p>
@@ -51,7 +51,7 @@ export default function MonitorIncidentsSection({
               to="/dashboard/$workspaceName/incidents/$id"
               params={{ workspaceName, id: incident.id! }}
               key={incident.id}
-              className="group hover:bg-carbon-50 dark:hover:bg-carbon-800 block rounded-xs border p-2 shadow-xs transition-colors"
+              className="group hover:bg-carbon-50 dark:hover:bg-carbon-800 block rounded-md border p-2 shadow-xs transition-colors"
             >
               <div className="mb-3 flex items-start justify-between">
                 <div className="min-w-0">

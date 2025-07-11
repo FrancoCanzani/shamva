@@ -1,9 +1,8 @@
-import { Button } from "../ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Link } from "@tanstack/react-router";
+import { Link, useParams } from "@tanstack/react-router";
 import { useState } from "react";
-import { useParams } from "@tanstack/react-router";
+import { Button } from "../ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
 const monitorTypes = [
   {
@@ -26,7 +25,7 @@ export default function MonitorTypeSelector() {
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger>
-        <Button variant={"outline"} size={"xs"}>
+        <Button variant={"outline"} size={"xs"} className="rounded">
           New Monitor
         </Button>
       </PopoverTrigger>
@@ -47,7 +46,7 @@ export default function MonitorTypeSelector() {
                 onClick={() => setIsOpen(false)}
                 className="block"
               >
-                <Card className="hover:bg-carbon-50 hover:dark:bg-carbon-800 cursor-pointer rounded-xs border shadow-xs transition-colors">
+                <Card className="hover:bg-carbon-50 hover:dark:bg-carbon-800 cursor-pointer rounded-md border shadow-xs transition-colors">
                   <CardHeader className="p-1">
                     <CardTitle className="text-xs font-medium">
                       {monitorType.title}

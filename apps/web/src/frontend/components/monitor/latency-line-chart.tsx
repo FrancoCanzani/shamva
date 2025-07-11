@@ -1,6 +1,6 @@
 import type { Log } from "@/frontend/lib/types";
 import { format, startOfDay, differenceInDays, differenceInHours } from "date-fns";
-import { LineChart, Line, CartesianGrid, XAxis, YAxis, Legend } from "recharts";
+import { AreaChart, Area, CartesianGrid, XAxis, YAxis, Legend } from "recharts";
 import {
   type ChartConfig,
   ChartContainer,
@@ -234,10 +234,7 @@ export default function LatencyLineChart({
   }
 
   const chartConfig = {
-    avg: { label: "Average", color: "#4c82f7" },
-    median: { label: "Median (p50)", color: "#22c55e" },
-    p95: { label: "p95", color: "#f97316" },
-    p99: { label: "p99", color: "#ef4444" },
+    avg: { label: "Average", color: "#87CEEB" },
   } satisfies ChartConfig;
 
   return (
@@ -246,7 +243,7 @@ export default function LatencyLineChart({
       className="max-h-80 w-full"
       style={{ height }}
     >
-      <LineChart
+      <AreaChart
         data={chartData}
         margin={{ top: 5, right: 20, left: -10, bottom: 5 }}
       >
@@ -320,35 +317,16 @@ export default function LatencyLineChart({
           }
         />
         <Legend />
-        <Line
+        <Area
           type="monotone"
           dataKey="avg"
-          stroke="var(--color-avg)"
+          stroke="#87CEEB"
+          fill="#87CEEB"
+          fillOpacity={0.6}
           strokeWidth={2}
           dot={false}
         />
-        <Line
-          type="monotone"
-          dataKey="median"
-          stroke="var(--color-median)"
-          strokeWidth={2}
-          dot={false}
-        />
-        <Line
-          type="monotone"
-          dataKey="p95"
-          stroke="var(--color-p95)"
-          strokeWidth={2}
-          dot={false}
-        />
-        <Line
-          type="monotone"
-          dataKey="p99"
-          stroke="var(--color-p99)"
-          strokeWidth={2}
-          dot={false}
-        />
-      </LineChart>
+      </AreaChart>
     </ChartContainer>
   );
 }

@@ -35,7 +35,7 @@ export function MonitorsTable({ monitors }: { monitors: Monitor[] }) {
   });
 
   return (
-    <div className="overflow-x-auto rounded-xs border shadow-xs">
+    <div className="overflow-x-auto rounded-md border shadow-xs">
       <Table>
         <TableHeader className="bg-background sticky top-0 z-10">
           {table.getHeaderGroups().map((headerGroup) => (

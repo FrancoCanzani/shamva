@@ -25,7 +25,7 @@ import {
 interface HeartbeatFormProps {
   workspaceId: string;
   heartbeat?: Heartbeat;
-  pingId?: string; 
+  pingId?: string;
   onSubmit: (data: z.infer<typeof HeartbeatSchema>) => Promise<void>;
   onCancel: () => void;
 }
@@ -71,11 +71,9 @@ export default function HeartbeatForm({
         <FormField
           control={form.control}
           name="pingId"
-          render={({ field }) => (
-            <input type="hidden" {...field} />
-          )}
+          render={({ field }) => <input type="hidden" {...field} />}
         />
-        
+
         <FormField
           control={form.control}
           name="name"
@@ -106,7 +104,7 @@ export default function HeartbeatForm({
             </p>
           </div>
 
-          <div className="w-full space-y-4 rounded-xs border p-4 shadow-xs">
+          <div className="w-full space-y-4 rounded-md border p-4 shadow-xs">
             <div className="space-y-4">
               <div className="space-y-2">
                 <FormField
@@ -247,15 +245,18 @@ export default function HeartbeatForm({
           <Button type="button" variant="outline" size="sm" onClick={onCancel}>
             Cancel
           </Button>
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             size="sm"
             disabled={form.formState.isSubmitting}
           >
-            {form.formState.isSubmitting 
-              ? (heartbeat ? "Updating..." : "Creating...") 
-              : (heartbeat ? "Update" : "Create")
-            }
+            {form.formState.isSubmitting
+              ? heartbeat
+                ? "Updating..."
+                : "Creating..."
+              : heartbeat
+                ? "Update"
+                : "Create"}
           </Button>
         </div>
       </form>

@@ -7,6 +7,9 @@ import { Input } from "../ui/input";
 
 export default function MonitorsPage() {
   const monitorsData = Route.useLoaderData();
+
+  console.log(monitorsData);
+
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredMonitors = useMemo(() => {
@@ -36,7 +39,7 @@ export default function MonitorsPage() {
             placeholder="Search monitors..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="h-7 text-xs placeholder:text-xs"
+            className="h-7 rounded text-xs placeholder:text-xs"
           />
           <MonitorTypeSelector />
         </div>

@@ -82,12 +82,12 @@ export default function MonitorRecentChecks({
               {displayLogs.map((log, index) => (
                 <TableRow
                   key={log.id || index}
-                  className="hover:bg-carbon-50 dark:hover:bg-carbon-800 rounded-xs border-dashed"
+                  className="hover:bg-carbon-50 dark:hover:bg-carbon-800 rounded-md border-dashed"
                 >
                   <TableCell className="py-2">
                     <div
                       className={cn(
-                        "size-2 rounded-xs",
+                        "size-2 rounded-md",
                         log.check_type === "http" &&
                           typeof log.status_code === "number"
                           ? getStatusColor(log.status_code)

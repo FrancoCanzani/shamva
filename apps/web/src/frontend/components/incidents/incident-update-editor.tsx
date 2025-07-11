@@ -38,7 +38,7 @@ export function IncidentUpdateEditor({
     editorProps: {
       attributes: {
         class:
-          "prose prose-xs max-w-none focus:outline-none min-h-[200px] p-4 border rounded-xs shadow-xs",
+          "prose prose-xs max-w-none focus:outline-none min-h-[200px] p-4 border rounded-md shadow-xs",
       },
     },
   });
@@ -137,7 +137,7 @@ export function IncidentUpdateEditor({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-2">
-      <div className="bg-carbon-50 dark:bg-carbon-800 flex items-center gap-1 overflow-auto rounded-xs border shadow-xs">
+      <div className="bg-carbon-50 dark:bg-carbon-800 flex items-center gap-1 overflow-auto rounded-md border shadow-xs">
         {toolbarItems.map((item, index) => {
           if (item.separator) {
             return (

@@ -1,9 +1,9 @@
 import { supabase } from "@/frontend/lib/supabase";
-import { cn, getRegionFlags, getStatusColor } from "@/frontend/lib/utils";
+import { cn, getStatusColor } from "@/frontend/lib/utils";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id";
+import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { useMutation } from "@tanstack/react-query";
 import { Link, redirect, useNavigate, useRouter } from "@tanstack/react-router";
-import { formatDistanceToNowStrict, parseISO } from "date-fns";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import ConfirmationDialog from "../comfirmation-dialog";
@@ -14,6 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 const PERIOD_OPTIONS = [
   { value: 1, label: "Last day" },
@@ -142,45 +143,58 @@ export default function MonitorHeader() {
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
   });
 
-  const lastCheck = monitor.last_check_at
-    ? formatDistanceToNowStrict(parseISO(monitor.last_check_at), {
-        addSuffix: true,
-      })
-    : "Never";
-
   const currentPeriod =
     PERIOD_OPTIONS.find((p) => p.value === days)?.label || `Last ${days} days`;
 
   return (
     <>
-      <div className="flex flex-col items-start justify-between gap-6">
-        <div>
-          <Link
-            to="/dashboard/$workspaceName/monitors"
-            params={{ workspaceName }}
-            className="text-muted-foreground flex items-center gap-1 text-xs"
-          >
-            <ArrowLeft className="size-3" />
-            <span className="hover:underline">Back to monitors</span>
-          </Link>
-        </div>
-      </div>
+      <Link
+        to="/dashboard/$workspaceName/monitors"
+        params={{ workspaceName }}
+        className="text-muted-foreground flex items-center gap-1 text-xs"
+      >
+        <ArrowLeft className="size-3" />
+        <span className="hover:underline">Back to monitors</span>
+      </Link>
 
       <div className="inline-flex justify-between">
-        <div className="flex items-center gap-2">
-          <span className="rounded-xs border p-1 text-sm font-medium uppercase">
-            {monitor.check_type}
-          </span>
-          <div className="inline-flex items-baseline gap-2">
-            <h2 className="flex-1 text-xl font-medium">{monitor.name}</h2>
+        <div className="flex items-center gap-3">
+          <div>
+            <div className="relative flex h-3 w-3">
+              <span
+                className={cn(
+                  "absolute h-full w-full animate-ping rounded-md duration-1000",
+                  getStatusColor(sortedLogs[0]?.ok ? 200 : 500)
+                )}
+              />
+              <span
+                className={cn(
+                  "absolute h-3 w-3 rounded-md",
+                  getStatusColor(sortedLogs[0]?.ok ? 200 : 500)
+                )}
+              />
+            </div>
+          </div>
 
-            {monitor.name && (
-              <span className="text-muted-foreground text-[0.6rem]">
-                {monitor.check_type === "tcp"
-                  ? monitor.tcp_host_port
-                  : monitor.url}
-              </span>
-            )}
+          <Tooltip>
+            <TooltipTrigger>
+              <h2 className="flex-1 text-2xl font-medium">{monitor.name}</h2>
+            </TooltipTrigger>
+            <TooltipContent>
+              {monitor.name && (
+                <>
+                  {monitor.check_type === "tcp"
+                    ? monitor.tcp_host_port
+                    : monitor.url}
+                </>
+              )}
+            </TooltipContent>
+          </Tooltip>
+          <span>▪︎</span>
+          <span className="font-medium uppercase">{monitor.check_type}</span>
+          <span>▪︎</span>
+          <div className="text-sm font-medium">
+            {monitor.interval / 60000} min.
           </div>
         </div>
 
@@ -210,7 +224,7 @@ export default function MonitorHeader() {
           <DropdownMenu>
             <DropdownMenuTrigger>
               <Button variant="outline" size="xs" className="text-xs">
-                Options
+                <DotsHorizontalIcon />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
@@ -252,47 +266,6 @@ export default function MonitorHeader() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        </div>
-      </div>
-
-      <div className="inline-flex justify-between">
-        <div className="flex items-center gap-2">
-          <div>
-            <span className="relative flex h-2 w-2">
-              <span
-                className={cn(
-                  "absolute h-full w-full animate-ping rounded-xs duration-[2000ms]",
-                  getStatusColor(sortedLogs[0]?.ok ? 200 : 500)
-                )}
-              />
-              <span
-                className={cn(
-                  "absolute h-2 w-2 rounded-xs",
-                  getStatusColor(sortedLogs[0]?.ok ? 200 : 500)
-                )}
-              />
-            </span>
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="font-medium capitalize">{monitor.status}</span>
-
-            <span className="text-muted-foreground text-xs">
-              Last checked {lastCheck}
-            </span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <div className="flex gap-2">
-            <div className="text-muted-foreground text-sm">Interval:</div>
-            <div className="text-sm font-medium">
-              {monitor.interval / 60000} min
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <div className="text-muted-foreground text-sm">Regions:</div>
-            <div className="text-sm">{getRegionFlags(monitor.regions)}</div>
-          </div>
         </div>
       </div>
     </>

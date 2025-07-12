@@ -1,5 +1,6 @@
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors";
 import { useMemo, useState } from "react";
+import DashboardHeader from "../dashboard-header";
 import MonitorTypeSelector from "../monitor/monitor-type-selector";
 import { MonitorsGrid } from "../monitors/monitors-grid";
 import NotFoundMessage from "../not-found-message";
@@ -7,8 +8,6 @@ import { Input } from "../ui/input";
 
 export default function MonitorsPage() {
   const monitorsData = Route.useLoaderData();
-
-  console.log(monitorsData);
 
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -26,35 +25,41 @@ export default function MonitorsPage() {
   }, [monitorsData, searchQuery]);
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 p-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-medium">Monitors</h2>
-          <p className="text-muted-foreground mt-1 hidden text-sm md:block">
-            A Monitor is a silent vigilante of your services
-          </p>
-        </div>
-        <div className="flex items-center space-x-1.5">
+    <div className="flex h-full flex-col">
+      <DashboardHeader>
+        <div className="flex items-center space-x-2">
           <Input
             placeholder="Search monitors..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="h-7 rounded text-xs placeholder:text-xs"
+            className="h-7 w-64 rounded text-sm"
           />
           <MonitorTypeSelector />
         </div>
-      </div>
-      {filteredMonitors && filteredMonitors.length > 0 ? (
-        <div className="flex-1">
-          <MonitorsGrid monitors={filteredMonitors} />
+      </DashboardHeader>
+
+      <main className="flex-1 overflow-auto p-6">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-6">
+            <h2 className="text-xl font-medium">Monitors</h2>
+            <p className="text-muted-foreground mt-1 text-sm">
+              A Monitor is a silent vigilante of your services
+            </p>
+          </div>
+
+          {filteredMonitors && filteredMonitors.length > 0 ? (
+            <div className="flex-1">
+              <MonitorsGrid monitors={filteredMonitors} />
+            </div>
+          ) : searchQuery ? (
+            <NotFoundMessage
+              message={`No monitors found matching "${searchQuery}".`}
+            />
+          ) : (
+            <NotFoundMessage message="No monitors found. Create one to get started." />
+          )}
         </div>
-      ) : searchQuery ? (
-        <NotFoundMessage
-          message={`No monitors found matching "${searchQuery}".`}
-        />
-      ) : (
-        <NotFoundMessage message="No monitors found. Create one to get started." />
-      )}
+      </main>
     </div>
   );
 }

@@ -54,10 +54,10 @@ export default function MonitorRegionLatencyCharts({
                 <h3 className="text-xs font-medium">
                   {getRegionNameFromCode(region)}
                 </h3>
-                <div className="text-muted-foreground space-x-3 text-xs">
-                  <span className="font-medium">Min: {minLatency}ms</span>
-                  <span className="font-medium">Avg: {avgLatency}ms</span>
-                  <span className="font-medium">Max: {maxLatency}ms</span>
+                <div className="text-muted-foreground font-medium space-x-3 text-xs">
+                  <span>Min: {minLatency}ms</span>
+                  <span>Avg: {avgLatency}ms</span>
+                  <span>Max: {maxLatency}ms</span>
                 </div>
               </div>
               <LatencyLineChart logs={regionLogs} height={perRegionHeight} />

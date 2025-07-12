@@ -4,7 +4,6 @@ import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { useMutation } from "@tanstack/react-query";
 import { Link, redirect, useNavigate, useRouter } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import ConfirmationDialog from "../comfirmation-dialog";
 import { Button } from "../ui/button";
@@ -148,28 +147,19 @@ export default function MonitorHeader() {
 
   return (
     <>
-      <Link
-        to="/dashboard/$workspaceName/monitors"
-        params={{ workspaceName }}
-        className="text-muted-foreground flex items-center gap-1 text-xs"
-      >
-        <ArrowLeft className="size-3" />
-        <span className="hover:underline">Back to monitors</span>
-      </Link>
-
       <div className="inline-flex justify-between">
         <div className="flex items-center gap-3">
           <div>
-            <div className="relative flex h-3 w-3">
+            <div className="relative flex h-2 w-2">
               <span
                 className={cn(
-                  "absolute h-full w-full animate-ping rounded-md duration-1000",
+                  "absolute h-full w-full animate-ping rounded-xs duration-1000",
                   getStatusColor(sortedLogs[0]?.ok ? 200 : 500)
                 )}
               />
               <span
                 className={cn(
-                  "absolute h-3 w-3 rounded-md",
+                  "absolute h-2 w-2 rounded-xs",
                   getStatusColor(sortedLogs[0]?.ok ? 200 : 500)
                 )}
               />

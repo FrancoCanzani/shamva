@@ -57,7 +57,7 @@ export function MonitorsGrid({ monitors }: MonitorsGridProps) {
             params={{ workspaceName: workspaceName, id: monitor.id }}
             search={{ days: 7 }}
             key={monitor.id}
-            className="hover:bg-carbon-50/10 dark:hover:bg-carbon-800 space-y-4 rounded-md border p-4 shadow-xs"
+            className="hover:bg-carbon-50/10 dark:hover:bg-carbon-800 space-y-4 rounded border p-4 shadow-xs"
           >
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">

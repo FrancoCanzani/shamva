@@ -320,10 +320,10 @@ export default function LatencyLineChart({
         <Area
           type="monotone"
           dataKey="avg"
-          stroke="#87CEEB"
-          fill="#87CEEB"
-          fillOpacity={0.6}
-          strokeWidth={2}
+          stroke="#b3b3b3"
+          fill="#b3b3b3"
+          fillOpacity={0.25}
+          strokeWidth={0.5}
           dot={false}
         />
       </AreaChart>

@@ -1,5 +1,9 @@
-import { DashboardNavbar } from "@/frontend/components/dashboard-navbar";
+import { DashboardSidebar } from "@/frontend/components/dashboard-sidebar";
 import NotFoundPage from "@/frontend/components/pages/not-found-page";
+import {
+  SidebarInset,
+  SidebarProvider,
+} from "@/frontend/components/ui/sidebar";
 import { useAuth } from "@/frontend/lib/context/auth-context";
 import fetchWorkspaces from "@/frontend/lib/loaders/workspaces";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
@@ -16,11 +20,11 @@ function DashboardLayout() {
   if (!isLoading && !user) throw redirect({ to: "/auth/login" });
 
   return (
-    <div className="mx-auto flex h-screen w-full min-w-0 flex-col overflow-hidden">
-      <DashboardNavbar />
-      <main className="flex flex-1 flex-col overflow-auto">
+    <SidebarProvider>
+      <DashboardSidebar />
+      <SidebarInset className="overflow-auto">
         <Outlet />
-      </main>
-    </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

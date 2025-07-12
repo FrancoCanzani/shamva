@@ -1,13 +1,13 @@
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id";
 import { subDays } from "date-fns";
+import { IncidentsTable } from "../monitor/incidents-table";
 import MonitorHeader from "../monitor/monitor-header";
-import MonitorIncidentsSection from "../monitor/monitor-incidents-section";
-import MonitorRecentChecks from "../monitor/monitor-recent-checks";
 import MonitorRegionLatencyCharts from "../monitor/monitor-region-latency-charts";
 import MonitorStats from "../monitor/monitor-stats";
 
 export default function MonitorPage() {
   const monitor = Route.useLoaderData();
+
   const { days } = Route.useSearch();
 
   const filterDate = subDays(new Date(), days);
@@ -18,12 +18,11 @@ export default function MonitorPage() {
   });
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 p-4">
+    <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col space-y-8 p-4 pb-8">
       <MonitorHeader />
       <MonitorStats logs={filteredLogs} />
-      <MonitorIncidentsSection incidents={monitor.incidents || []} />
       <MonitorRegionLatencyCharts logs={filteredLogs} height={36} />
-      <MonitorRecentChecks logs={monitor.recent_logs} />
+      <IncidentsTable data={monitor.incidents || []} />
     </div>
   );
 }

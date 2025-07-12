@@ -211,7 +211,7 @@ export default function IncidentPage() {
         <Link
           to="/dashboard/$workspaceName/monitors/$id"
           params={{ workspaceName, id: incident.monitor_id }}
-          search={{ days: 30 }}
+          search={{ days: 7 }}
           className="text-muted-foreground mb-6 flex items-center justify-start gap-1 text-xs"
         >
           <ArrowLeft className="size-3" />

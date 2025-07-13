@@ -14,7 +14,7 @@ interface IncidentTimelineProps {
 
 export default function IncidentTimeline({ events }: IncidentTimelineProps) {
   return (
-    <div className="h-fit w-full rounded-md border p-4 shadow-xs lg:w-80">
+    <div className="h-fit w-full rounded border p-4 shadow-xs lg:w-80">
       <h2 className="mb-4 font-mono text-sm font-medium">Timeline</h2>
       <div className="relative">
         <div className="bg-carbon-50 absolute top-0 bottom-0 left-1 w-0.5"></div>
@@ -24,7 +24,7 @@ export default function IncidentTimeline({ events }: IncidentTimelineProps) {
             <div key={event.id} className="relative flex items-start gap-2">
               <div className="relative z-10 flex-shrink-0">
                 <div
-                  className={`h-2.5 w-2.5 rounded-md shadow-xs ${event.color || "bg-blue-500"} shadow-sm`}
+                  className={`h-2.5 w-2.5 rounded shadow-xs ${event.color || "bg-blue-500"} shadow-sm`}
                 ></div>
               </div>
 

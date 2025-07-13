@@ -1,6 +1,7 @@
 import { Log } from "@/frontend/lib/types";
 import { calculatePercentile, cn, getLatencyColor } from "@/frontend/lib/utils";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id";
+import { UptimeStackedBar } from "./uptime-stacked-bar";
 
 export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
   const { days } = Route.useSearch();
@@ -12,6 +13,12 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
   const recentTotalCount = logs.length;
   const recentSuccessRate =
     recentTotalCount > 0 ? (recentSuccessCount / recentTotalCount) * 100 : 0;
+
+  const recentErrorCount = logs.filter(
+    (log) => typeof log.ok === "boolean" && log.ok === false
+  ).length;
+  const recentDegradedCount =
+    recentTotalCount - recentSuccessCount - recentErrorCount;
 
   const allLatencies = logs.map((log) => log.latency as number);
 
@@ -25,12 +32,10 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-sm font-medium">Statistics</h2>
-
       <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
-        <div className="hover:bg-carbon-50/10 hover:dark:bg-carbon-800 rounded-sm border p-2 shadow-xs">
+        <div className="hover:bg-carbon-50/10 hover:dark:bg-carbon-800 rounded border p-2 shadow-xs">
           <h3 className="text-muted-foreground mb-2 text-sm font-medium">
-            Success Rate
+            Uptime
           </h3>
 
           <div className="flex items-center justify-between">
@@ -52,55 +57,40 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
           </div>
         </div>
 
-        <div className="hover:bg-carbon-50/10 hover:dark:bg-carbon-800 rounded-sm border p-2 shadow-xs">
+        <div className="hover:bg-carbon-50/10 hover:dark:bg-carbon-800 rounded border p-2 shadow-xs">
           <h3 className="text-muted-foreground mb-2 text-sm font-medium">
-            Total Checks
+            Degraded
           </h3>
 
           <div className="flex items-center justify-between">
             <div>
               <div className="text-muted-foreground text-xs">Last {days}d</div>
-              <div className="font-mono font-medium">
-                {recentTotalCount.toLocaleString()}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="hover:bg-carbon-50/10 hover:dark:bg-carbon-800 rounded-sm border p-2 shadow-xs">
-          <h3 className="text-muted-foreground mb-2 text-sm font-medium">
-            Successes
-          </h3>
-
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-muted-foreground text-xs">Last {days}d</div>
-              <div className="font-mono font-medium text-green-700">
-                {recentSuccessCount.toLocaleString()}
+              <div className="font-mono font-medium text-yellow-500">
+                {recentDegradedCount.toLocaleString()}
               </div>
             </div>
 
             <div className="flex flex-col items-center">
               <div className="text-muted-foreground text-sm">of period</div>
-              <div className="font-mono text-sm font-medium text-green-700">
+              <div className="font-mono text-sm font-medium text-yellow-500">
                 {recentTotalCount > 0
-                  ? `${Math.round((recentSuccessCount / recentTotalCount) * 100)}%`
+                  ? `${Math.round((recentDegradedCount / recentTotalCount) * 100)}%`
                   : "0%"}
               </div>
             </div>
           </div>
         </div>
 
-        <div className="hover:bg-carbon-50/10 hover:dark:bg-carbon-800 rounded-sm border p-2 shadow-xs">
+        <div className="hover:bg-carbon-50/10 hover:dark:bg-carbon-800 rounded border p-2 shadow-xs">
           <h3 className="text-muted-foreground mb-2 text-sm font-medium">
-            Failures
+            Error
           </h3>
 
           <div className="flex items-center justify-between">
             <div>
               <div className="text-muted-foreground text-xs">Last {days}d</div>
               <div className="font-mono font-medium text-red-700">
-                {(recentTotalCount - recentSuccessCount).toLocaleString()}
+                {recentErrorCount.toLocaleString()}
               </div>
             </div>
 
@@ -108,16 +98,20 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
               <div className="text-muted-foreground text-sm">of period</div>
               <div className="font-mono text-sm font-medium text-red-700">
                 {recentTotalCount > 0
-                  ? `${Math.round(((recentTotalCount - recentSuccessCount) / recentTotalCount) * 100)}%`
+                  ? `${Math.round((recentErrorCount / recentTotalCount) * 100)}%`
                   : "0%"}
               </div>
             </div>
           </div>
         </div>
+
+        <div className="hover:bg-carbon-50/10 hover:dark:bg-carbon-800 rounded border p-2 shadow-xs">
+          <UptimeStackedBar logs={logs} />
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
-        <div className="hover:bg-carbon-50/10 hover:dark:bg-carbon-800 rounded-sm border p-2 shadow-xs">
+        <div className="hover:bg-carbon-50/10 hover:dark:bg-carbon-800 rounded border p-2 shadow-xs">
           <h3 className="text-muted-foreground mb-2 text-sm font-medium">
             P50 Latency
           </h3>
@@ -134,7 +128,7 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
           </div>
         </div>
 
-        <div className="hover:bg-carbon-50/10 hover:dark:bg-carbon-800 rounded-sm border p-2 shadow-xs">
+        <div className="hover:bg-carbon-50/10 hover:dark:bg-carbon-800 rounded border p-2 shadow-xs">
           <h3 className="text-muted-foreground mb-2 text-sm font-medium">
             P75 Latency
           </h3>
@@ -153,7 +147,7 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
           </div>
         </div>
 
-        <div className="hover:bg-carbon-50/10 hover:dark:bg-carbon-800 rounded-sm border p-2 shadow-xs">
+        <div className="hover:bg-carbon-50/10 hover:dark:bg-carbon-800 rounded border p-2 shadow-xs">
           <h3 className="text-muted-foreground mb-2 text-sm font-medium">
             P95 Latency
           </h3>
@@ -172,7 +166,7 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
           </div>
         </div>
 
-        <div className="hover:bg-carbon-50/10 hover:dark:bg-carbon-800 rounded-sm border p-2 shadow-xs">
+        <div className="hover:bg-carbon-50/10 hover:dark:bg-carbon-800 rounded border p-2 shadow-xs">
           <h3 className="text-muted-foreground mb-2 text-sm font-medium">
             P99 Latency
           </h3>

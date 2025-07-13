@@ -38,7 +38,7 @@ export default function CodeSamples({
   const currentSample = samples[activeTab];
 
   return (
-    <div className={cn("rounded-md border shadow-xs", className)}>
+    <div className={cn("rounded border shadow-xs", className)}>
       <div className="border-border flex border-b">
         {samples.map((sample, index) => (
           <button
@@ -71,7 +71,7 @@ export default function CodeSamples({
             {copied ? <Check /> : <Copy />}
           </Button>
         </div>
-        <pre className="bg-carbon-50/10 overflow-hidden rounded-md p-2 font-mono text-xs">
+        <pre className="bg-carbon-50/10 overflow-hidden rounded p-2 font-mono text-xs">
           {currentSample.code}
         </pre>
       </div>

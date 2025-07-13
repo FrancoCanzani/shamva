@@ -19,7 +19,7 @@ export function IncidentUpdatesSection({
 }) {
   if (updates.length === 0) {
     return (
-      <div className="text-muted-foreground rounded-md border border-dashed p-4 text-center text-sm">
+      <div className="text-muted-foreground rounded border border-dashed p-4 text-center text-sm">
         No updates yet
       </div>
     );
@@ -33,7 +33,7 @@ export function IncidentUpdatesSection({
         return (
           <div
             key={update.id}
-            className="bg-background rounded-md border p-3 shadow-xs"
+            className="bg-background rounded border p-3 shadow-xs"
           >
             <div className="mb-1 flex items-center justify-between">
               <span className="text-muted-foreground font-mono text-xs">

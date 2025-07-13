@@ -1,8 +1,5 @@
-import { useState } from "react";
-import { formatDistanceToNow } from "date-fns";
-import type { Heartbeat } from "@/frontend/lib/types";
-import { Button } from "@/frontend/components/ui/button";
 import { Badge } from "@/frontend/components/ui/badge";
+import { Button } from "@/frontend/components/ui/button";
 import {
   Table,
   TableBody,
@@ -11,7 +8,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/frontend/components/ui/table";
-import { Edit, Trash2, Activity } from "lucide-react";
+import type { Heartbeat } from "@/frontend/lib/types";
+import { formatDistanceToNow } from "date-fns";
+import { Activity, Edit, Trash2 } from "lucide-react";
+import { useState } from "react";
 
 interface HeartbeatTableProps {
   heartbeats: Heartbeat[];
@@ -80,7 +80,7 @@ export default function HeartbeatTable({
   };
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded border">
       <Table>
         <TableHeader>
           <TableRow>

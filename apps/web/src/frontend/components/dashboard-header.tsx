@@ -61,7 +61,7 @@ export default function DashboardHeader({ children }: DashboardHeaderProps) {
           <BreadcrumbSeparator />
           <BreadcrumbItem>
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-1 hover:underline">
+              <DropdownMenuTrigger className="flex items-center gap-1 hover:text-black hover:underline">
                 {workspaceName}
                 <ChevronDownIcon size={15} />
               </DropdownMenuTrigger>
@@ -71,6 +71,7 @@ export default function DashboardHeader({ children }: DashboardHeaderProps) {
                     <Link
                       to="/dashboard/$workspaceName/monitors"
                       params={{ workspaceName: workspace.name }}
+                      className="text-xs"
                     >
                       {workspace.name}
                     </Link>
@@ -85,7 +86,7 @@ export default function DashboardHeader({ children }: DashboardHeaderProps) {
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <DropdownMenu>
-                  <DropdownMenuTrigger className="flex items-center gap-1 capitalize hover:underline">
+                  <DropdownMenuTrigger className="flex items-center gap-1 capitalize hover:text-black hover:underline">
                     {sectionLabel}
                     <ChevronDownIcon size={15} />
                   </DropdownMenuTrigger>
@@ -94,6 +95,7 @@ export default function DashboardHeader({ children }: DashboardHeaderProps) {
                       <Link
                         to={`/dashboard/$workspaceName/monitors`}
                         params={{ workspaceName: workspaceName }}
+                        className="text-xs"
                       >
                         Monitors
                       </Link>
@@ -102,6 +104,7 @@ export default function DashboardHeader({ children }: DashboardHeaderProps) {
                       <Link
                         to={`/dashboard/$workspaceName/heartbeats`}
                         params={{ workspaceName: workspaceName }}
+                        className="text-xs"
                       >
                         Heartbeats
                       </Link>
@@ -110,6 +113,7 @@ export default function DashboardHeader({ children }: DashboardHeaderProps) {
                       <Link
                         to={"/dashboard/$workspaceName/logs"}
                         params={{ workspaceName: workspaceName }}
+                        className="text-xs"
                       >
                         Logs
                       </Link>
@@ -118,12 +122,15 @@ export default function DashboardHeader({ children }: DashboardHeaderProps) {
                       <Link
                         to={"/dashboard/$workspaceName/status-pages"}
                         params={{ workspaceName: workspaceName }}
+                        className="text-xs"
                       >
                         Status Pages
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link to={"/dashboard/workspaces"}>Workspaces</Link>
+                      <Link className="text-xs" to={"/dashboard/workspaces"}>
+                        Workspaces
+                      </Link>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -133,7 +140,8 @@ export default function DashboardHeader({ children }: DashboardHeaderProps) {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <Separator orientation="vertical" className="h-6" />
+      <Separator orientation="vertical" />
+
       <div className="inline-flex flex-1 justify-end">{children}</div>
     </header>
   );

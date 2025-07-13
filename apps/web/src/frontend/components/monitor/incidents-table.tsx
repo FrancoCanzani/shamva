@@ -246,7 +246,7 @@ export function IncidentsTable({ data }: IncidentsTableProps) {
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="text-muted-foreground h-24 text-center text-sm"
                 >
                   No incidents found.
                 </TableCell>

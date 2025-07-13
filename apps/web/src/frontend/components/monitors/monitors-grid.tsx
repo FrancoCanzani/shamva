@@ -61,7 +61,7 @@ export function MonitorsGrid({ monitors }: MonitorsGridProps) {
           >
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
-                <div className="mb-1 flex items-center gap-2">
+                <div className="flex items-center gap-2">
                   <div className="relative flex h-1.5 w-1.5">
                     <span
                       className={cn(
@@ -111,7 +111,7 @@ export function MonitorsGrid({ monitors }: MonitorsGridProps) {
                     : monitor.url}
                 </p>
               </div>
-              <div className="ml-2 flex-shrink-0 text-right">
+              <div className="flex-shrink-0 gap-2 text-right">
                 <div className="text-xs font-medium">
                   {calculateUptime(monitor.recent_logs)}%
                 </div>

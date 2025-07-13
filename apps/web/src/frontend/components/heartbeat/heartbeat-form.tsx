@@ -104,7 +104,7 @@ export default function HeartbeatForm({
             </p>
           </div>
 
-          <div className="w-full space-y-4 rounded-md border p-4 shadow-xs">
+          <div className="w-full space-y-4 rounded border p-4 shadow-xs">
             <div className="space-y-4">
               <div className="space-y-2">
                 <FormField

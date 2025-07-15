@@ -5,7 +5,7 @@ import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { useMutation } from "@tanstack/react-query";
 import { Link, redirect, useNavigate, useRouter } from "@tanstack/react-router";
-import { formatDistanceToNow, subDays } from "date-fns";
+import { formatDistanceToNowStrict, subDays } from "date-fns";
 import { toast } from "sonner";
 import ConfirmationDialog from "../comfirmation-dialog";
 import DashboardHeader from "../dashboard-header";
@@ -180,9 +180,11 @@ export default function MonitorPage() {
         <div className="flex items-center space-x-3">
           <StatusDot pulse color="bg-green-700" size="sm" />
           {monitor.last_check_at && (
-            <span className="text-sm">
+            <span className="hidden text-sm sm:block">
               Checked{" "}
-              {formatDistanceToNow(monitor.last_check_at, { addSuffix: true })}
+              {formatDistanceToNowStrict(monitor.last_check_at, {
+                addSuffix: true,
+              })}
             </span>
           )}
           <DropdownMenu>
@@ -286,7 +288,7 @@ export default function MonitorPage() {
       </DashboardHeader>
       <main className="flex-1 space-y-6 overflow-auto p-6">
         <MonitorHeader />
-        <MonitorStats logs={filteredLogs} />
+        <MonitorStats logs={filteredLogs} monitor={monitor} />
         <MonitorRegionLatencyCharts
           logs={filteredLogs}
           height={250}

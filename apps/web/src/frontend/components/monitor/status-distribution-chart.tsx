@@ -1,47 +1,95 @@
-import type { Log } from "@/frontend/lib/types";
+import type { Log, Monitor } from "@/frontend/lib/types";
 import { getRegionNameFromCode, groupLogsByRegion } from "@/frontend/lib/utils";
+import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id";
 import { format } from "date-fns";
 import { Bar, BarChart, XAxis } from "recharts";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "../ui/chart";
+import { ChartContainer, ChartTooltip } from "../ui/chart";
 
 interface StatusDistributionChartProps {
   logs: Partial<Log>[];
-  regionMode?: "combined" | "split";
+  monitor: Monitor;
 }
+
+type ChartSlot = {
+  time: string;
+  success: number;
+  error: number;
+  degraded: number;
+  timestamp: number;
+  successPercentage: number;
+  errorPercentage: number;
+  degradedPercentage: number;
+};
 
 export default function StatusDistributionChart({
   logs,
-  regionMode = "combined",
+  monitor,
 }: StatusDistributionChartProps) {
+  const { days, region } = Route.useSearch();
+
+  const getTimeConfig = (days: number, monitorInterval: number) => {
+    let bucketSize: number;
+    let buckets: number;
+    let formatString: string;
+    if (days === 1) {
+      // 24h: 24 buckets, 1-hour intervals
+      bucketSize = 60 * 60 * 1000;
+      buckets = 24;
+      formatString = "HH:mm";
+    } else if (days === 7) {
+      // 7d: 7 buckets, 1-day intervals
+      bucketSize = 24 * 60 * 60 * 1000;
+      buckets = 7;
+      formatString = "MMM dd";
+    } else {
+      // 14d: 14 buckets, 1-day intervals
+      bucketSize = 24 * 60 * 60 * 1000;
+      buckets = 14;
+      formatString = "MMM dd";
+    }
+    return {
+      buckets,
+      bucketSize,
+      formatString,
+      monitorInterval,
+      expectedChecksPerBucket: Math.max(
+        1,
+        Math.floor(bucketSize / monitorInterval)
+      ),
+    };
+  };
+
   const generateChartData = (inputLogs: Partial<Log>[]) => {
     if (inputLogs.length === 0) return [];
-
-    // Create 24 time slots for the last 24 hours
+    const config = getTimeConfig(days || 1, monitor.interval);
     const now = new Date();
-    const slots = [];
-
-    for (let i = 23; i >= 0; i--) {
-      const slotTime = new Date(now.getTime() - i * 60 * 60 * 1000);
+    const end = new Date(
+      Math.floor(now.getTime() / config.bucketSize) * config.bucketSize
+    );
+    const start = new Date(end.getTime() - config.buckets * config.bucketSize);
+    const slots: ChartSlot[] = [];
+    for (let i = 0; i < config.buckets; i++) {
+      const slotStart = new Date(start.getTime() + i * config.bucketSize);
       slots.push({
-        time: format(slotTime, "HH:mm"),
+        time: format(slotStart, config.formatString),
         success: 0,
         error: 0,
         degraded: 0,
-        timestamp: slotTime.getTime(),
+        timestamp: slotStart.getTime(),
+        successPercentage: 0,
+        errorPercentage: 0,
+        degradedPercentage: 0,
       });
     }
-
-    // Distribute logs into time slots
     inputLogs.forEach((log) => {
       if (!log.created_at) return;
-
       const logTime = new Date(log.created_at).getTime();
+      if (logTime < start.getTime() || logTime >= end.getTime()) return;
       const slotIndex = Math.floor(
-        (now.getTime() - logTime) / (60 * 60 * 1000)
+        (logTime - start.getTime()) / config.bucketSize
       );
-
-      if (slotIndex >= 0 && slotIndex < 24) {
-        const slot = slots[23 - slotIndex];
+      if (slotIndex >= 0 && slotIndex < config.buckets) {
+        const slot = slots[slotIndex];
         if (typeof log.ok === "boolean") {
           if (log.ok) {
             slot.success++;
@@ -53,28 +101,87 @@ export default function StatusDistributionChart({
         }
       }
     });
-
+    slots.forEach((slot) => {
+      const total = slot.success + slot.error + slot.degraded;
+      if (total > 0) {
+        slot.successPercentage = (slot.success / total) * 100;
+        slot.errorPercentage = (slot.error / total) * 100;
+        slot.degradedPercentage = (slot.degraded / total) * 100;
+      } else {
+        slot.successPercentage = 0;
+        slot.errorPercentage = 0;
+        slot.degradedPercentage = 0;
+      }
+    });
     return slots;
   };
 
   const chartConfig = {
-    success: {
+    successPercentage: {
       label: "Success",
-      color: "#10b981",
+      color: "#166534",
     },
-    error: {
+    errorPercentage: {
       label: "Error",
-      color: "#ef4444",
+      color: "#991b1b",
     },
-    degraded: {
+    degradedPercentage: {
       label: "Degraded",
-      color: "#f59e0b",
+      color: "#facc15",
     },
+  };
+
+  const CustomTooltip = ({
+    active,
+    payload,
+    label,
+  }: {
+    active?: boolean;
+    payload?: { payload: ChartSlot }[];
+    label?: string;
+  }) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div className="rounded border bg-white p-3 shadow-lg">
+          <p className="mb-2 text-sm font-medium">{label}</p>
+          <div className="space-y-1">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded bg-green-800"></div>
+                <span className="text-xs">Success</span>
+              </div>
+              <span className="text-xs font-medium">
+                {data.success} ({data.successPercentage.toFixed(1)}%)
+              </span>
+            </div>
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded bg-red-800"></div>
+                <span className="text-xs">Error</span>
+              </div>
+              <span className="text-xs font-medium">
+                {data.error} ({data.errorPercentage.toFixed(1)}%)
+              </span>
+            </div>
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded bg-yellow-400"></div>
+                <span className="text-xs">Degraded</span>
+              </div>
+              <span className="text-xs font-medium">
+                {data.degraded} ({data.degradedPercentage.toFixed(1)}%)
+              </span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return null;
   };
 
   const renderChart = (chartLogs: Partial<Log>[], regionLabel?: string) => {
     const chartData = generateChartData(chartLogs);
-
     if (chartData.length === 0) {
       return (
         <div className="space-y-4">
@@ -91,91 +198,61 @@ export default function StatusDistributionChart({
         </div>
       );
     }
-
     return (
-      <div className="space-y-4">
-        {regionLabel && (
-          <h4 className="text-muted-foreground text-sm font-medium">
-            {regionLabel}
-          </h4>
-        )}
+      <div className="space-y-2 rounded border px-3 pt-3 shadow-xs">
+        <h3 className="text-sm font-medium">Uptime</h3>
 
-        <div className="space-y-2">
-          <h3 className="text-sm font-medium">Uptime</h3>
-          <p className="text-muted-foreground text-xs">
-            Status across all regions
-          </p>
-        </div>
-
-        <ChartContainer config={chartConfig} className="h-[120px]">
-          <BarChart
-            data={chartData}
-            margin={{ top: 10, right: 0, left: 0, bottom: 20 }}
-          >
+        <ChartContainer config={chartConfig} className="h-[70px] w-full">
+          <BarChart data={chartData}>
             <XAxis
               dataKey="time"
               axisLine={false}
               tickLine={false}
               tick={{ fontSize: 10, fill: "#64748b" }}
-              interval="preserveStartEnd"
+              interval={3}
+              padding={{ left: 12, right: 12 }}
             />
             <ChartTooltip
-              content={<ChartTooltipContent />}
+              content={<CustomTooltip />}
               cursor={{ fill: "rgba(0, 0, 0, 0.1)" }}
             />
             <Bar
-              dataKey="success"
-              fill="var(--color-success)"
+              dataKey="successPercentage"
+              fill="var(--color-successPercentage)"
               stackId="status"
               radius={[0, 0, 0, 0]}
             />
             <Bar
-              dataKey="error"
-              fill="var(--color-error)"
+              dataKey="errorPercentage"
+              fill="var(--color-errorPercentage)"
               stackId="status"
               radius={[0, 0, 0, 0]}
             />
             <Bar
-              dataKey="degraded"
-              fill="var(--color-degraded)"
+              dataKey="degradedPercentage"
+              fill="var(--color-degradedPercentage)"
               stackId="status"
               radius={[0, 0, 0, 0]}
             />
           </BarChart>
         </ChartContainer>
-
-        {/* Simple legend */}
-        <div className="flex items-center justify-center gap-4 text-xs">
-          <div className="flex items-center gap-1">
-            <div className="h-2 w-2 rounded-sm bg-[#10b981]"></div>
-            <span className="text-muted-foreground">Success</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="h-2 w-2 rounded-sm bg-[#ef4444]"></div>
-            <span className="text-muted-foreground">Error</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="h-2 w-2 rounded-sm bg-[#f59e0b]"></div>
-            <span className="text-muted-foreground">Degraded</span>
-          </div>
-        </div>
       </div>
     );
   };
 
+  const regionMode = region === "split" ? "split" : "combined";
   if (regionMode === "split") {
     const grouped = groupLogsByRegion(logs) as Record<string, Partial<Log>[]>;
     return (
       <div className="space-y-6">
-        {Object.entries(grouped).map(([region, regionLogs]) =>
+        {Object.entries(grouped).map(([regionCode, regionLogs]) =>
           renderChart(
             regionLogs as Partial<Log>[],
-            getRegionNameFromCode(region)
+            getRegionNameFromCode(regionCode)
           )
         )}
       </div>
     );
   }
-
   return renderChart(logs);
 }

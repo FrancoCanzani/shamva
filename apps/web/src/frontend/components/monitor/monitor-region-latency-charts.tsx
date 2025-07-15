@@ -35,7 +35,7 @@ export default function MonitorRegionLatencyCharts({
 
   return (
     <div>
-      <h2 className="mb-4 text-sm font-medium">Latency Trends by Region</h2>
+      <h2 className="mb-4 text-sm font-medium">Latency</h2>
       {regionLabel && (
         <h3 className="mb-2 text-xs font-medium">{regionLabel}</h3>
       )}

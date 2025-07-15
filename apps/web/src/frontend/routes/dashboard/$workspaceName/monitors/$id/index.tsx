@@ -6,6 +6,7 @@ import z from "zod";
 
 const MonitorSearchSchema = z.object({
   days: z.number().int().min(1).max(14).default(7),
+  region: z.string().optional(),
 });
 
 export const Route = createFileRoute("/dashboard/$workspaceName/monitors/$id/")(

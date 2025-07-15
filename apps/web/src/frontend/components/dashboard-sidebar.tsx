@@ -1,11 +1,11 @@
 import { Link, useParams } from "@tanstack/react-router";
-import { 
-  Activity, 
-  Heart, 
-  FileText, 
-  Globe, 
+import {
+  Activity,
+  Heart,
+  FileText,
+  Globe,
   Settings,
-  LogOut
+  LogOut,
 } from "lucide-react";
 import { useMemo } from "react";
 import { supabase } from "../lib/supabase";
@@ -81,7 +81,7 @@ export function DashboardSidebar() {
           Shamva
         </Link>
       </SidebarHeader>
-      
+
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
@@ -137,4 +137,4 @@ export function DashboardSidebar() {
       </SidebarFooter>
     </Sidebar>
   );
-} 
+}

@@ -33,7 +33,8 @@ export default async function putHeartbeat(c: Context) {
     );
   }
 
-  const { name, expectedLapseMs, gracePeriodMs, workspaceId, pingId } = result.data;
+  const { name, expectedLapseMs, gracePeriodMs, workspaceId, pingId } =
+    result.data;
 
   const userId = c.get("userId");
 

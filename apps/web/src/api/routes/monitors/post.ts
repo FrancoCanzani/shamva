@@ -47,11 +47,17 @@ export default async function postMonitors(c: Context) {
   const userId = c.get("userId");
 
   if (!userId) {
-    return c.json({ data: null, success: false, error: "User not authenticated." }, 401);
+    return c.json(
+      { data: null, success: false, error: "User not authenticated." },
+      401
+    );
   }
 
   if (!workspaceId) {
-    return c.json({ data: null, success: false, error: "Workspace ID is required." }, 400);
+    return c.json(
+      { data: null, success: false, error: "Workspace ID is required." },
+      400
+    );
   }
 
   const supabase = createSupabaseClient(c.env);

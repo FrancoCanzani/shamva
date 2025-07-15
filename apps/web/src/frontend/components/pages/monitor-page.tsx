@@ -1,3 +1,4 @@
+import { monitoringRegions } from "@/frontend/lib/constants";
 import { supabase } from "@/frontend/lib/supabase";
 import { cn } from "@/frontend/lib/utils";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id";
@@ -30,7 +31,7 @@ const PERIOD_OPTIONS = [
 export default function MonitorPage() {
   const monitor = Route.useLoaderData();
 
-  const { days } = Route.useSearch();
+  const { days, region } = Route.useSearch();
 
   const navigate = useNavigate();
   const router = useRouter();
@@ -41,6 +42,15 @@ export default function MonitorPage() {
       to: "/dashboard/$workspaceName/monitors/$id",
       params: { workspaceName, id },
       search: { days: newDays },
+      replace: true,
+    });
+  };
+
+  const handleRegionChange = (newRegion: string | undefined) => {
+    navigate({
+      to: "/dashboard/$workspaceName/monitors/$id",
+      params: { workspaceName, id },
+      search: { days, region: newRegion },
       replace: true,
     });
   };
@@ -148,11 +158,21 @@ export default function MonitorPage() {
     PERIOD_OPTIONS.find((p) => p.value === days)?.label || `Last ${days} days`;
 
   const filterDate = subDays(new Date(), days);
-  const filteredLogs = (monitor.recent_logs || []).filter((log) => {
+  let filteredLogs = (monitor.recent_logs || []).filter((log) => {
     if (!log.created_at) return false;
     const logDate = new Date(log.created_at);
     return logDate >= filterDate;
   });
+  if (region) {
+    filteredLogs = filteredLogs.filter((log) => log.region === region);
+  }
+
+  const availableRegions = Array.from(
+    new Set(filteredLogs.map((log) => log.region).filter(Boolean))
+  );
+  const availableRegionObjs = availableRegions
+    .map((code) => monitoringRegions.find((r) => r.value === code))
+    .filter((r): r is NonNullable<typeof r> => Boolean(r));
 
   return (
     <div className="flex h-full flex-col">
@@ -165,7 +185,6 @@ export default function MonitorPage() {
               {formatDistanceToNow(monitor.last_check_at, { addSuffix: true })}
             </span>
           )}
-          <span className="text-muted-foreground text-sm">Sort:</span>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="xs" className="text-xs">
@@ -183,6 +202,36 @@ export default function MonitorPage() {
                   )}
                 >
                   {option.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="xs" className="text-xs">
+                {region
+                  ? monitoringRegions.find((r) => r.value === region)?.label ||
+                    region
+                  : "All Regions"}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onClick={() => handleRegionChange(undefined)}
+                className={cn("w-full text-xs", !region && "bg-accent")}
+              >
+                All Regions
+              </DropdownMenuItem>
+              {availableRegionObjs.map((r) => (
+                <DropdownMenuItem
+                  key={r.value}
+                  onClick={() => handleRegionChange(r.value)}
+                  className={cn(
+                    "w-full text-xs",
+                    region === r.value && "bg-accent"
+                  )}
+                >
+                  {r.label}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
@@ -238,7 +287,11 @@ export default function MonitorPage() {
       <main className="flex-1 space-y-6 overflow-auto p-6">
         <MonitorHeader />
         <MonitorStats logs={filteredLogs} />
-        <MonitorRegionLatencyCharts logs={filteredLogs} height={250} />
+        <MonitorRegionLatencyCharts
+          logs={filteredLogs}
+          height={250}
+          region={region}
+        />
         <IncidentsTable data={monitor.incidents || []} />
       </main>
     </div>

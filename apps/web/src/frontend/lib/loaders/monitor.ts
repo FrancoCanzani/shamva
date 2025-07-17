@@ -13,26 +13,20 @@ export default async function fetchMonitor({
 }) {
   const { id } = params;
 
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabase.auth.getSession();
-
-  if (sessionError || !session?.access_token) {
-    console.error("Session Error or no token:", sessionError);
+  const { data: sessionData, error: sessionError } =
+    await supabase.auth.getSession();
+  const accessToken = sessionData?.session?.access_token;
+  if (sessionError || !accessToken) {
     throw redirect({
       to: "/auth/login",
       search: { redirect: `/dashboard/monitors/${id}` },
       throw: true,
     });
   }
-
-  const token = session.access_token;
-
   try {
     const response = await fetch(`/api/monitors/${id}?days=${days}`, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",
       },
       signal: abortController?.signal,

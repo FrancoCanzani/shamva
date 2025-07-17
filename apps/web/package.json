@@ -95,8 +95,9 @@
     "deploy": "bun run build && wrangler deploy",
     "dev": "vite dev",
     "lint": "eslint . --no-warn-ignored",
-    "preview": "bunx wrangler dev --remote",
-    "types": "wrangler types"
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "preview": "bunx wrangler dev --remote"
   },
   "type": "module"
 }

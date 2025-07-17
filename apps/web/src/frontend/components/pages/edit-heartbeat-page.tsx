@@ -21,19 +21,16 @@ export default function EditHeartbeatPage() {
       workspaceId: string;
       pingId: string;
     }): Promise<Heartbeat> => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (!session?.access_token) {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token;
+      if (!accessToken) {
         throw new Error("Not authenticated");
       }
-
       const response = await fetch(`/api/heartbeats/${params.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${session.access_token}`,
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(data),
       });

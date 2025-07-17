@@ -6,23 +6,21 @@ interface LoadIncidentParams {
   abortController: AbortController;
 }
 
-export default async function loadIncident({
+export default async function fetchIncident({
   params,
   abortController,
 }: LoadIncidentParams): Promise<Incident> {
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabase.auth.getSession();
-
-  if (sessionError || !session?.access_token) {
+  const { data: sessionData, error: sessionError } =
+    await supabase.auth.getSession();
+  const accessToken = sessionData?.session?.access_token;
+  if (sessionError || !accessToken) {
     throw new Error("Authentication required");
   }
 
   const response = await fetch(`/api/incidents/${params.id}`, {
     signal: abortController.signal,
     headers: {
-      Authorization: `Bearer ${session.access_token}`,
+      Authorization: `Bearer ${accessToken}`,
     },
   });
 

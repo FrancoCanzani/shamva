@@ -3,6 +3,7 @@ import { createSupabaseClient } from "../supabase/client";
 
 export const authMiddleware = async (c: Context, next: Next) => {
   const authHeader = c.req.header("Authorization");
+
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return c.json({ error: "Missing or invalid Authorization header" }, 401);
   }

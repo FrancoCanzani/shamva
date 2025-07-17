@@ -26,23 +26,15 @@ const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
 );
 
 async function fetchWorkspaces() {
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabase.auth.getSession();
-
-  if (sessionError) {
-    console.error("Session Error:", sessionError);
+  const { data: sessionData, error: sessionError } =
+    await supabase.auth.getSession();
+  const accessToken = sessionData?.session?.access_token;
+  if (sessionError || !accessToken) {
     throw new Error("Failed to get authentication session");
   }
-
-  if (!session?.access_token) {
-    return [];
-  }
-
   const response = await fetch("/api/workspaces", {
     headers: {
-      Authorization: `Bearer ${session.access_token}`,
+      Authorization: `Bearer ${accessToken}`,
       "Content-Type": "application/json",
     },
   });
@@ -77,10 +69,8 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   // Check authentication status
   useEffect(() => {
     const checkAuth = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      setIsAuthenticated(!!session?.access_token);
+      const { data: sessionData } = await supabase.auth.getSession();
+      setIsAuthenticated(!!sessionData?.session?.access_token);
     };
     checkAuth();
 

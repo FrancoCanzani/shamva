@@ -9,13 +9,10 @@ export async function fetchLogs({
   abortController?: AbortController;
   params: Params;
 }): Promise<Log[]> {
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabase.auth.getSession();
-
-  if (sessionError) {
-    console.error("Session Error fetching logs:", sessionError);
+  const { data: sessionData, error: sessionError } =
+    await supabase.auth.getSession();
+  const accessToken = sessionData?.session?.access_token;
+  if (sessionError || !accessToken) {
     throw redirect({
       to: "/auth/login",
       search: { redirect: "/dashboard/logs" },
@@ -23,18 +20,7 @@ export async function fetchLogs({
     });
   }
 
-  if (!session?.access_token) {
-    console.log("No active session found, redirecting to login.");
-    throw redirect({
-      to: "/auth/login",
-      search: { redirect: "/dashboard/logs" },
-      throw: true,
-    });
-  }
-
-  const token = session.access_token;
   const workspaceNameFromParams = params.workspaceName;
-
   if (!workspaceNameFromParams) {
     console.warn(
       "Workspace name missing from route parameters, redirecting to workspace creation."
@@ -44,11 +30,10 @@ export async function fetchLogs({
       throw: true,
     });
   }
-
   try {
     const workspaceResponse = await fetch("/api/workspaces", {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",
       },
       signal: abortController?.signal,
@@ -109,7 +94,7 @@ export async function fetchLogs({
 
     const logsResponse = await fetch(`/api/logs?workspaceId=${workspaceId}`, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",
       },
       signal: abortController?.signal,

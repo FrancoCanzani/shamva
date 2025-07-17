@@ -14,6 +14,9 @@ import { Button } from "../ui/button";
 
 export default function IndexPage() {
   const { user, isLoading: authLoading } = useAuth();
+
+  console.log(user);
+
   const { workspaces, isLoading: workspacesLoading } = useWorkspaces();
 
   let dashboardLinkTo = "/auth/login";

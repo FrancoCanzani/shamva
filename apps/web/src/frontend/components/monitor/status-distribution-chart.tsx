@@ -1,5 +1,4 @@
 import type { Log, Monitor } from "@/frontend/lib/types";
-import { getRegionNameFromCode, groupLogsByRegion } from "@/frontend/lib/utils";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id";
 import { format } from "date-fns";
 import { Bar, BarChart, XAxis } from "recharts";
@@ -25,7 +24,7 @@ export default function StatusDistributionChart({
   logs,
   monitor,
 }: StatusDistributionChartProps) {
-  const { days, region } = Route.useSearch();
+  const { days } = Route.useSearch();
 
   const getTimeConfig = (days: number, monitorInterval: number) => {
     let bucketSize: number;
@@ -210,7 +209,6 @@ export default function StatusDistributionChart({
               tickLine={false}
               tick={{ fontSize: 10, fill: "#64748b" }}
               interval={3}
-              padding={{ left: 12, right: 12 }}
             />
             <ChartTooltip
               content={<CustomTooltip />}
@@ -239,20 +237,5 @@ export default function StatusDistributionChart({
       </div>
     );
   };
-
-  const regionMode = region === "split" ? "split" : "combined";
-  if (regionMode === "split") {
-    const grouped = groupLogsByRegion(logs) as Record<string, Partial<Log>[]>;
-    return (
-      <div className="space-y-6">
-        {Object.entries(grouped).map(([regionCode, regionLogs]) =>
-          renderChart(
-            regionLogs as Partial<Log>[],
-            getRegionNameFromCode(regionCode)
-          )
-        )}
-      </div>
-    );
-  }
   return renderChart(logs);
 }

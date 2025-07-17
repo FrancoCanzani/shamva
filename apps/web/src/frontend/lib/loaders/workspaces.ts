@@ -7,22 +7,10 @@ export default async function fetchWorkspaces({
 }: {
   abortController: AbortController;
 }): Promise<Workspace[]> {
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabase.auth.getSession();
-
-  if (sessionError) {
-    console.error("Session Error fetching workspaces:", sessionError);
-    throw redirect({
-      to: "/auth/login",
-      search: { redirect: "/dashboard/workspaces" },
-      throw: true,
-    });
-  }
-
-  if (!session?.access_token) {
-    console.log("No active session found, redirecting to login.");
+  const { data: sessionData, error: sessionError } =
+    await supabase.auth.getSession();
+  const accessToken = sessionData?.session?.access_token;
+  if (sessionError || !accessToken) {
     throw redirect({
       to: "/auth/login",
       search: { redirect: "/dashboard/workspaces" },
@@ -31,10 +19,9 @@ export default async function fetchWorkspaces({
   }
 
   try {
-    const token = session.access_token;
     const response = await fetch("/api/workspaces", {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${accessToken}`,
       },
       signal: abortController?.signal,
     });

@@ -9,43 +9,27 @@ export async function fetchHeartbeats({
   params: Params;
   abortController: AbortController;
 }): Promise<Heartbeat[]> {
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabase.auth.getSession();
-
-  if (sessionError) {
-    console.error("Session Error fetching heartbeats:", sessionError);
+  const { data: sessionData, error: sessionError } =
+    await supabase.auth.getSession();
+  const accessToken = sessionData?.session?.access_token;
+  if (sessionError || !accessToken) {
     throw redirect({
       to: "/auth/login",
       search: { redirect: "/dashboard/heartbeats" },
       throw: true,
     });
   }
-
-  if (!session?.access_token) {
-    console.log("No active session found, redirecting to login.");
-    throw redirect({
-      to: "/auth/login",
-      search: { redirect: "/dashboard/heartbeats" },
-      throw: true,
-    });
-  }
-
-  const token = session.access_token;
   const workspaceName = params.workspaceName;
-
   if (!workspaceName) {
     throw redirect({
       to: "/dashboard/workspaces/new",
       throw: true,
     });
   }
-
   try {
     const workspaceResponse = await fetch("/api/workspaces", {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",
       },
       signal: abortController?.signal,
@@ -108,7 +92,7 @@ export async function fetchHeartbeats({
       `/api/heartbeats?workspaceId=${workspaceId}`,
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
         signal: abortController?.signal,

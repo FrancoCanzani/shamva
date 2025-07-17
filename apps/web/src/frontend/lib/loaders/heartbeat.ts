@@ -11,13 +11,10 @@ export default async function fetchHeartbeat({
 }): Promise<Heartbeat> {
   const { id } = params;
 
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabase.auth.getSession();
-
-  if (sessionError || !session?.access_token) {
-    console.error("Session Error or no token:", sessionError);
+  const { data: sessionData, error: sessionError } =
+    await supabase.auth.getSession();
+  const accessToken = sessionData?.session?.access_token;
+  if (sessionError || !accessToken) {
     throw redirect({
       to: "/auth/login",
       search: { redirect: `/dashboard/heartbeats/${id}` },
@@ -25,12 +22,10 @@ export default async function fetchHeartbeat({
     });
   }
 
-  const token = session.access_token;
-
   try {
     const response = await fetch(`/api/heartbeats/${id}`, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",
       },
       signal: abortController?.signal,

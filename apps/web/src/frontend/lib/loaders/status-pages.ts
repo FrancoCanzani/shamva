@@ -9,13 +9,10 @@ export async function fetchStatusPages({
   params: Params;
   abortController: AbortController;
 }): Promise<StatusPage[]> {
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabase.auth.getSession();
-
-  if (sessionError) {
-    console.error("Session Error fetching status pages:", sessionError);
+  const { data: sessionData, error: sessionError } =
+    await supabase.auth.getSession();
+  const accessToken = sessionData?.session?.access_token;
+  if (sessionError || !accessToken) {
     throw redirect({
       to: "/auth/login",
       search: { redirect: "/dashboard/status" },
@@ -23,18 +20,7 @@ export async function fetchStatusPages({
     });
   }
 
-  if (!session?.access_token) {
-    console.log("No active session found, redirecting to login.");
-    throw redirect({
-      to: "/auth/login",
-      search: { redirect: "/dashboard/status" },
-      throw: true,
-    });
-  }
-
-  const token = session.access_token;
   const workspaceName = params.workspaceName;
-
   if (!workspaceName) {
     console.warn("Workspace name missing from route parameters, redirecting.");
     throw redirect({
@@ -42,11 +28,10 @@ export async function fetchStatusPages({
       throw: true,
     });
   }
-
   try {
     const workspaceResponse = await fetch("/api/workspaces", {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",
       },
       signal: abortController?.signal,
@@ -96,7 +81,7 @@ export async function fetchStatusPages({
       `/api/status-pages?workspaceId=${targetWorkspace.id}`,
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
         signal: abortController?.signal,

@@ -18,18 +18,15 @@ export default function HeartbeatsPage() {
 
   const deleteHeartbeat = useMutation({
     mutationFn: async (heartbeatId: string): Promise<void> => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (!session?.access_token) {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token;
+      if (!accessToken) {
         throw new Error("Not authenticated");
       }
-
       const response = await fetch(`/api/heartbeats/${heartbeatId}`, {
         method: "DELETE",
         headers: {
-          Authorization: `Bearer ${session.access_token}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       });
 

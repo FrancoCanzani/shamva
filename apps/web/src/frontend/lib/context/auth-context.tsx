@@ -1,6 +1,6 @@
 import type { Session, User } from "@supabase/supabase-js";
-import React, { createContext, useContext, useEffect, useState } from "react";
 import { redirect } from "@tanstack/react-router";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "../supabase";
 
 type AuthContextType = {
@@ -21,9 +21,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     setIsLoading(true);
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    supabase.auth.getClaims().then(({ data: claimsObj }) => {
+      const claims = claimsObj?.claims;
+      if (claims) {
+        setUser({
+          id: claims.sub,
+          aud: Array.isArray(claims.aud) ? claims.aud[0] : claims.aud,
+          role: claims.role,
+          email: claims.email,
+          phone: claims.phone,
+          app_metadata: claims.app_metadata || {},
+          user_metadata: claims.user_metadata || {},
+          created_at: claims.iat
+            ? new Date(claims.iat * 1000).toISOString()
+            : "",
+          updated_at: claims.exp
+            ? new Date(claims.exp * 1000).toISOString()
+            : "",
+          is_anonymous: claims.is_anonymous,
+          email_confirmed_at: undefined,
+          phone_confirmed_at: undefined,
+          confirmed_at: undefined,
+          last_sign_in_at: undefined,
+          identities: [],
+        });
+        setSession(null);
+      } else {
+        setUser(null);
+        setSession(null);
+      }
       setIsLoading(false);
     });
 

@@ -9,30 +9,16 @@ export async function fetchMonitors({
   params: Params;
   abortController: AbortController;
 }): Promise<Monitor[]> {
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabase.auth.getSession();
-
-  if (sessionError) {
-    console.error("Session Error fetching monitors:", sessionError);
+  const { data: sessionData, error: sessionError } =
+    await supabase.auth.getSession();
+  const accessToken = sessionData?.session?.access_token;
+  if (sessionError || !accessToken) {
     throw redirect({
       to: "/auth/login",
       search: { redirect: "/dashboard/monitors" },
       throw: true,
     });
   }
-
-  if (!session?.access_token) {
-    console.log("No active session found, redirecting to login.");
-    throw redirect({
-      to: "/auth/login",
-      search: { redirect: "/dashboard/monitors" },
-      throw: true,
-    });
-  }
-
-  const token = session.access_token;
 
   const workspaceName = params.workspaceName;
 
@@ -47,7 +33,7 @@ export async function fetchMonitors({
   try {
     const workspaceResponse = await fetch("/api/workspaces", {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",
       },
       signal: abortController?.signal,
@@ -110,7 +96,7 @@ export async function fetchMonitors({
       `/api/monitors?workspaceId=${workspaceId}`,
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
         signal: abortController?.signal,

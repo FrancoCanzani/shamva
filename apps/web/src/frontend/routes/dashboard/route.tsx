@@ -22,7 +22,7 @@ function DashboardLayout() {
   return (
     <SidebarProvider>
       <DashboardSidebar />
-      <SidebarInset className="overflow-auto">
+      <SidebarInset>
         <Outlet />
       </SidebarInset>
     </SidebarProvider>

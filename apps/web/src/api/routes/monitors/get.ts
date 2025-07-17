@@ -88,7 +88,12 @@ export default async function getMonitors(c: Context) {
     }
 
     const date = new Date();
-    date.setDate(date.getDate() - days);
+    if (days === 1) {
+      date.setDate(date.getDate() - (days + 1));
+    } else {
+      date.setDate(date.getDate() - days);
+    }
+
     const daysAgo = date.toISOString();
 
     const { data: recentLogs, error: logError } = await supabase

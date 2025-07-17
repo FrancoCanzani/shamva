@@ -1,5 +1,14 @@
 import { Log } from "@/frontend/lib/types";
 import {
+  cn,
+  getOkStatusColor,
+  getOkStatusTextColor,
+  getRegionNameFromCode,
+  getStatusColor,
+  getStatusRowClass,
+  getStatusTextColor,
+} from "@/frontend/lib/utils";
+import {
   ColumnDef,
   ColumnFiltersState,
   SortingState,
@@ -13,18 +22,7 @@ import {
 } from "@tanstack/react-table";
 import { format, parseISO } from "date-fns";
 import * as React from "react";
-import {
-  cn,
-  getRegionNameFromCode,
-  getOkStatusColor,
-  getOkStatusTextColor,
-  getStatusRowClass,
-  getStatusColor,
-  getStatusTextColor,
-} from "@/frontend/lib/utils";
 import { Route } from "../../routes/dashboard/$workspaceName/logs";
-import { LogsFiltersSidebar } from "./logs-data-table-filters-sidebar";
-import LogsSheet from "./logs-sheet";
 import { Button } from "../ui/button";
 import {
   Table,
@@ -34,6 +32,8 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
+import { LogsFiltersSidebar } from "./logs-data-table-filters-sidebar";
+import LogsSheet from "./logs-sheet";
 
 export const columns: ColumnDef<Log>[] = [
   {
@@ -389,7 +389,7 @@ export function LogsDataTable({ data }: LogsDataTableProps) {
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="text-muted-foreground h-24 text-center"
+                    className="text-muted-foreground text-center"
                   >
                     No logs found.
                   </TableCell>

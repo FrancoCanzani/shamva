@@ -24,7 +24,9 @@ export default async function fetchMonitor({
     });
   }
   try {
-    const response = await fetch(`/api/monitors/${id}?days=${days}`, {
+    // For 1-day stats, we fetch 2 days of logs to enable 24h progression comparison in the UI
+    const fetchDays = days === 1 ? 2 : days;
+    const response = await fetch(`/api/monitors/${id}?days=${fetchDays}`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",

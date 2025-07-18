@@ -82,11 +82,10 @@ function getTimelineBuckets(
   label: string;
   count: number;
 }[] {
-  // Align to requested period
   let startTime: Date;
   if (days === 1) {
     const now = new Date();
-    startTime = subHours(startOfHour(now), 23); // 23 hours ago at top of hour
+    startTime = subHours(startOfHour(now), 24); 
   } else if (days === 7) {
     startTime = startOfDay(subDays(new Date(), 7));
   } else if (days === 14) {
@@ -141,13 +140,11 @@ export default function MonitorTimelineChart({
   logs,
   className,
 }: MonitorTimelineChartProps) {
-  const { days = 1 } = Route.useSearch();
-  // Loading state
+  const { days } = Route.useSearch();
   if (!logs) {
     return <Skeleton className="h-24 w-full rounded-sm" />;
   }
   if (!logs.length) {
-    // Still show empty timeline for the period
     logs = [];
   }
   const buckets = getTimelineBuckets(logs, days);

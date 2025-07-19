@@ -239,7 +239,7 @@ export default function MonitorPage() {
       <main className="flex-1 space-y-6 overflow-auto p-6">
         <MonitorHeader />
         <MonitorStats logs={filteredLogs} />
-        <MonitorRegionLatencyCharts logs={filteredLogs} height={250} />
+        <MonitorRegionLatencyCharts logs={filteredLogs} />
         <IncidentsTable data={monitor.incidents || []} />
       </main>
     </div>

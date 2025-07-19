@@ -8,6 +8,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { format, parseISO } from "date-fns";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import {
   Table,
   TableBody,
@@ -177,11 +178,12 @@ export function IncidentsTable({ data }: IncidentsTableProps) {
   };
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-sm font-medium">Incidents</h2>
-
-      <div className="w-full">
-        <Table>
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-sm font-medium">Incidents</CardTitle>
+      </CardHeader>
+      <CardContent className="w-full">
+        <Table className="border">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="text-xs">
@@ -254,7 +256,7 @@ export function IncidentsTable({ data }: IncidentsTableProps) {
             )}
           </TableBody>
         </Table>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

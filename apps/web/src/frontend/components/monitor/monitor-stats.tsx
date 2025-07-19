@@ -157,7 +157,8 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
             </CardHeader>
             <CardContent className="flex items-center font-mono font-medium text-green-800">
               {recentTotalCount > 0
-                ? Math.round((recentSuccessCount / recentTotalCount) * 100) + "%"
+                ? Math.round((recentSuccessCount / recentTotalCount) * 100) +
+                  "%"
                 : "0%"}
               {getProgressionText(
                 recentTotalCount > 0
@@ -251,7 +252,7 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
           </Card>
         </div>
       </div>
-      <div className="w-full mt-6 lg:mt-0">
+      <div className="w-full">
         <MonitorTimelineChart logs={logs} />
       </div>
     </div>

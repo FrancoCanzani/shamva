@@ -73,6 +73,7 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
   let prevP50 = null;
   let prevP95 = null;
   let prevP99 = null;
+  let prevUptime = null;
 
   if (days === 1 || days === 7) {
     const prevLogs = getPrevPeriodLogs(logs, days);
@@ -90,6 +91,8 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
     prevP50 = getPercentile(prevLatencyArr, 50);
     prevP95 = getPercentile(prevLatencyArr, 95);
     prevP99 = getPercentile(prevLatencyArr, 99);
+    prevUptime =
+      prevTotal > 0 ? Math.round((prevSuccess / prevTotal) * 100) : 0;
   }
 
   function getProgressionText(
@@ -132,7 +135,7 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
     const diff = current - prev;
     if (diff === 0) return "from-gray-200/20";
 
-    // For latency metrics, lower is better (opposite of error/degraded counts)
+    // For latency, lower is better (opposite of error/degraded counts)
     if (isLatency) {
       if (diff > 0) return "from-red-300/20"; // Worse latency
       return "from-green-300/20"; // Better latency
@@ -144,24 +147,27 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-      <div className="col-span-2 space-y-4">
-        <div className="grid grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <div className="lg:col-span-2">
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
           <Card className="relative overflow-hidden">
             <div className="absolute bottom-0 -left-2 h-10 w-24 rounded-xl bg-gradient-to-tr from-green-300/20 via-transparent to-transparent"></div>
             <CardHeader>
               <CardTitle className="text-sm font-medium">Uptime</CardTitle>
             </CardHeader>
-            <CardContent className="flex items-center justify-between">
-              <div className={cn("font-mono font-medium text-green-800")}>
-                {recentTotalCount > 0
-                  ? Math.round((recentSuccessCount / recentTotalCount) * 100) +
-                    "%"
-                  : "0%"}
-              </div>
+            <CardContent className="flex items-center font-mono font-medium text-green-800">
+              {recentTotalCount > 0
+                ? Math.round((recentSuccessCount / recentTotalCount) * 100) + "%"
+                : "0%"}
+              {getProgressionText(
+                recentTotalCount > 0
+                  ? Math.round((recentSuccessCount / recentTotalCount) * 100)
+                  : 0,
+                prevUptime,
+                "%"
+              )}
             </CardContent>
           </Card>
-
           <Card className="relative overflow-hidden">
             <div
               className={cn(
@@ -172,12 +178,11 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
             <CardHeader>
               <CardTitle className="text-sm font-medium">Degraded</CardTitle>
             </CardHeader>
-            <CardContent className="inline-flex items-center justify-between font-mono font-medium text-yellow-500">
+            <CardContent className="inline-flex items-center font-mono font-medium text-yellow-500">
               {recentDegradedCount.toLocaleString()}
               {getProgressionText(recentDegradedCount, prevDegradedCount)}
             </CardContent>
           </Card>
-
           <Card className="relative overflow-hidden">
             <div
               className={cn(
@@ -188,14 +193,11 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
             <CardHeader>
               <CardTitle className="text-sm">Error</CardTitle>
             </CardHeader>
-            <CardContent className="inline-flex items-center justify-between font-mono font-medium text-red-800">
+            <CardContent className="inline-flex items-center font-mono font-medium text-red-800">
               {recentErrorCount.toLocaleString()}
               {getProgressionText(recentErrorCount, prevErrorCount)}
             </CardContent>
           </Card>
-        </div>
-
-        <div className="mt-4 grid grid-cols-3 gap-4">
           <Card className="relative overflow-hidden">
             <div
               className={cn(
@@ -213,7 +215,6 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
               {getProgressionText(p50, prevP50, "ms")}
             </CardContent>
           </Card>
-
           <Card className="relative overflow-hidden">
             <div
               className={cn(
@@ -231,7 +232,6 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
               {getProgressionText(p95, prevP95, "ms")}
             </CardContent>
           </Card>
-
           <Card className="relative overflow-hidden">
             <div
               className={cn(
@@ -251,7 +251,7 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
           </Card>
         </div>
       </div>
-      <div>
+      <div className="w-full mt-6 lg:mt-0">
         <MonitorTimelineChart logs={logs} />
       </div>
     </div>

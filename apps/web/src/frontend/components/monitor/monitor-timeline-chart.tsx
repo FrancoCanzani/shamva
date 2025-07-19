@@ -85,7 +85,7 @@ function getTimelineBuckets(
   let startTime: Date;
   if (days === 1) {
     const now = new Date();
-    startTime = subHours(startOfHour(now), 24); 
+    startTime = subHours(startOfHour(now), 24);
   } else if (days === 7) {
     startTime = startOfDay(subDays(new Date(), 7));
   } else if (days === 14) {
@@ -133,12 +133,10 @@ function getTimelineBuckets(
 interface MonitorTimelineChartProps {
   logs?: Partial<Log>[];
   height?: number;
-  className?: string;
 }
 
 export default function MonitorTimelineChart({
   logs,
-  className,
 }: MonitorTimelineChartProps) {
   const { days } = Route.useSearch();
   if (!logs) {
@@ -149,14 +147,14 @@ export default function MonitorTimelineChart({
   }
   const buckets = getTimelineBuckets(logs, days);
   return (
-    <Card className={className}>
+    <Card>
       <CardHeader>
         <CardTitle className="text-sm font-medium">Timeline</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         <div
-          className="flex w-full items-center gap-0.5 overflow-hidden rounded"
-          style={{ height: 66, minWidth: 200, maxWidth: 800 }}
+          className="flex w-full items-center gap-0.5 overflow-hidden"
+          style={{ height: 80, minWidth: 200, maxWidth: 800 }}
         >
           {buckets.map((bucket, i) => {
             const color = STATUS_COLORS[bucket.status] || STATUS_COLORS.empty;

@@ -1,6 +1,6 @@
 import { Context } from "hono";
 import { createSupabaseClient } from "../../lib/supabase/client";
-import { Log } from "../../lib/types";
+import { Incident } from "../../lib/types";
 
 export default async function getAllMonitors(c: Context) {
   const userId = c.get("userId");
@@ -65,40 +65,38 @@ export default async function getAllMonitors(c: Context) {
     }
 
     const monitorIds = monitors.map((m) => m.id);
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    const sevenDaysAgoISO = sevenDaysAgo.toISOString();
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const thirtyDaysAgoISO = thirtyDaysAgo.toISOString();
 
-    const { data: recentLogs, error: logError } = await supabase
-      .from("logs")
-      .select(
-        "id, monitor_id, created_at, status_code, ok, check_type, latency"
-      )
+    const { data: recentIncidents, error: incidentError } = await supabase
+      .from("incidents")
+      .select("*")
       .in("monitor_id", monitorIds)
-      .gte("created_at", sevenDaysAgoISO)
+      .gte("created_at", thirtyDaysAgoISO)
       .order("created_at", { ascending: false });
 
-    if (logError) {
-      console.error(`Error fetching recent logs:`, logError);
+    if (incidentError) {
+      console.error(`Error fetching recent incidents:`, incidentError);
     }
 
-    const logsByMonitorId = new Map<string, Partial<Log>[]>();
-    if (recentLogs) {
-      for (const log of recentLogs) {
-        if (!logsByMonitorId.has(log.monitor_id)) {
-          logsByMonitorId.set(log.monitor_id, []);
+    const incidentsByMonitorId = new Map<string, Partial<Incident>[]>();
+    if (recentIncidents) {
+      for (const incident of recentIncidents) {
+        if (!incidentsByMonitorId.has(incident.monitor_id)) {
+          incidentsByMonitorId.set(incident.monitor_id, []);
         }
-        logsByMonitorId.get(log.monitor_id)!.push(log);
+        incidentsByMonitorId.get(incident.monitor_id)!.push(incident);
       }
     }
 
-    const monitorsWithLogs = monitors.map((monitor) => ({
+    const monitorsWithIncidents = monitors.map((monitor) => ({
       ...monitor,
-      recent_logs: logsByMonitorId.get(monitor.id) || [],
+      incidents: incidentsByMonitorId.get(monitor.id) || [],
     }));
 
     return c.json({
-      data: monitorsWithLogs,
+      data: monitorsWithIncidents,
       success: true,
     });
   } catch (err) {

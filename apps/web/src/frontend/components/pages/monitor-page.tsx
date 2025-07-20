@@ -4,7 +4,7 @@ import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { useMutation } from "@tanstack/react-query";
 import { Link, redirect, useNavigate, useRouter } from "@tanstack/react-router";
-import { formatDistanceToNowStrict, subDays } from "date-fns";
+import { formatDistanceToNowStrict } from "date-fns";
 import { toast } from "sonner";
 import ConfirmationDialog from "../comfirmation-dialog";
 import DashboardHeader from "../dashboard-header";
@@ -80,10 +80,6 @@ export default function MonitorPage() {
     onSuccess: () => {
       router.invalidate();
       toast.success("Monitor deleted successfully");
-      navigate({
-        to: "/dashboard/$workspaceName/monitors",
-        params: { workspaceName },
-      });
     },
     onError: () => {
       toast.error("Failed to delete monitor");
@@ -147,20 +143,13 @@ export default function MonitorPage() {
   const currentPeriod =
     PERIOD_OPTIONS.find((p) => p.value === days)?.label || `Last ${days} days`;
 
-  const filterDate = subDays(new Date(), days);
-  const filteredLogs = (monitor.recent_logs || []).filter((log) => {
-    if (!log.created_at) return false;
-    const logDate = new Date(log.created_at);
-    return logDate >= filterDate;
-  });
-
   return (
     <div className="flex h-full flex-col">
       <DashboardHeader>
         <div className="flex items-center space-x-3">
           <StatusDot pulse color="bg-green-700" size="sm" />
           {monitor.last_check_at && (
-            <span className="hidden text-sm sm:block">
+            <span className="text-muted-foreground hidden text-sm sm:block">
               Checked{" "}
               {formatDistanceToNowStrict(monitor.last_check_at, {
                 addSuffix: true,
@@ -238,8 +227,8 @@ export default function MonitorPage() {
       </DashboardHeader>
       <main className="flex-1 space-y-6 overflow-auto p-6">
         <MonitorHeader />
-        <MonitorStats logs={filteredLogs} />
-        <MonitorRegionLatencyCharts logs={filteredLogs} />
+        <MonitorStats logs={monitor.recent_logs || []} />
+        <MonitorRegionLatencyCharts logs={monitor.recent_logs || []} />
         <IncidentsTable data={monitor.incidents || []} />
       </main>
     </div>

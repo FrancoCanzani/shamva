@@ -5,7 +5,6 @@ import {
   CardTitle,
 } from "@/frontend/components/ui/card";
 import { Log } from "@/frontend/lib/types";
-import { cn } from "@/frontend/lib/utils";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import MonitorTimelineChart from "./monitor-timeline-chart";
@@ -95,134 +94,135 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
       prevTotal > 0 ? Math.round((prevSuccess / prevTotal) * 100) : 0;
   }
 
-  function getProgressionText(
-    current: number,
-    prev: number | null,
-    unit?: string
-  ) {
-    if (prev == null) return null;
-    const diff = current - prev;
-    if (diff === 0)
-      return (
-        <span className="text-muted-foreground ml-1 flex items-center gap-1 text-xs">
-          <span>–</span> <span>same as last period</span>
-        </span>
-      );
-    if (diff > 0)
-      return (
-        <span className="ml-1 flex items-center gap-1 text-xs text-red-800">
-          <ChevronUp className="inline h-3 w-3" />+{Math.abs(diff)}
-          {unit || ""}
-          <span className="text-muted-foreground">vs last period</span>
-        </span>
-      );
-    return (
-      <span className="ml-1 flex items-center gap-1 text-xs text-green-800">
-        <ChevronDown className="inline h-3 w-3" />
-        {Math.abs(diff)}
-        {unit || ""}
-        <span className="text-muted-foreground">vs last period</span>
-      </span>
-    );
-  }
-
-  function getGradientClasses(
-    current: number,
-    prev: number | null,
-    isLatency: boolean = false
-  ) {
-    if (prev == null) return "from-gray-200/20";
-    const diff = current - prev;
-    if (diff === 0) return "from-gray-200/20";
-
-    // For latency, lower is better (opposite of error/degraded counts)
-    if (isLatency) {
-      if (diff > 0) return "from-red-300/20"; // Worse latency
-      return "from-green-300/20"; // Better latency
-    }
-
-    // For error/degraded counts, lower is better
-    if (diff > 0) return "from-red-300/20"; // More errors/degraded
-    return "from-green-300/20"; // Fewer errors/degraded
-  }
+  const currentUptime =
+    recentTotalCount > 0
+      ? Math.round((recentSuccessCount / recentTotalCount) * 100)
+      : 0;
+  const uptimeDiff = prevUptime !== null ? currentUptime - prevUptime : null;
+  const errorDiff =
+    prevErrorCount !== null ? recentErrorCount - prevErrorCount : null;
+  const degradedDiff =
+    prevDegradedCount !== null ? recentDegradedCount - prevDegradedCount : null;
+  const p50Diff = prevP50 !== null ? p50 - prevP50 : null;
+  const p95Diff = prevP95 !== null ? p95 - prevP95 : null;
+  const p99Diff = prevP99 !== null ? p99 - prevP99 : null;
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
       <div className="lg:col-span-2">
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
-          <Card className="relative overflow-hidden">
-            <div className="absolute bottom-0 -left-2 h-10 w-24 rounded-xl bg-gradient-to-tr from-green-300/20 via-transparent to-transparent"></div>
+          <Card>
             <CardHeader>
               <CardTitle className="text-sm font-medium">Uptime</CardTitle>
             </CardHeader>
-            <CardContent className="flex items-center font-mono font-medium text-green-800">
-              {recentTotalCount > 0
-                ? Math.round((recentSuccessCount / recentTotalCount) * 100) +
-                  "%"
-                : "0%"}
-              {getProgressionText(
-                recentTotalCount > 0
-                  ? Math.round((recentSuccessCount / recentTotalCount) * 100)
-                  : 0,
-                prevUptime,
-                "%"
+            <CardContent className="inline-flex items-center gap-1">
+              <span className="font-mono font-medium text-green-800">
+                {currentUptime}%
+              </span>
+              {uptimeDiff === null ? null : uptimeDiff === 0 ? (
+                <span className="text-muted-foreground text-xs">
+                  – Same as last period
+                </span>
+              ) : uptimeDiff > 0 ? (
+                <div className="inline-flex items-center gap-1 text-xs text-green-800">
+                  <ChevronUp className="inline h-3 w-3" />+
+                  {Math.abs(uptimeDiff)}%
+                  <span className="text-muted-foreground">vs last period</span>
+                </div>
+              ) : (
+                <div className="inline-flex items-center gap-1 text-xs text-red-800">
+                  <ChevronDown className="h-3 w-3" />
+                  {Math.abs(uptimeDiff)}%
+                  <span className="text-muted-foreground">vs last period</span>
+                </div>
               )}
             </CardContent>
           </Card>
-          <Card className="relative overflow-hidden">
-            <div
-              className={cn(
-                "absolute bottom-0 -left-2 h-10 w-24 rounded-xl bg-gradient-to-tr via-transparent to-transparent",
-                getGradientClasses(recentDegradedCount, prevDegradedCount)
-              )}
-            ></div>
+          <Card>
             <CardHeader>
               <CardTitle className="text-sm font-medium">Degraded</CardTitle>
             </CardHeader>
-            <CardContent className="inline-flex items-center font-mono font-medium text-yellow-500">
-              {recentDegradedCount.toLocaleString()}
-              {getProgressionText(recentDegradedCount, prevDegradedCount)}
+            <CardContent className="inline-flex items-center gap-1">
+              <span className="font-mono font-medium text-yellow-500">
+                {recentDegradedCount.toLocaleString()}
+              </span>
+              {degradedDiff === null ? null : degradedDiff === 0 ? (
+                <span className="text-muted-foreground text-xs">
+                  - Same as last period
+                </span>
+              ) : degradedDiff > 0 ? (
+                <div className="inline-flex items-center gap-1 text-xs text-red-800">
+                  <ChevronUp className="h-3 w-3" />+{Math.abs(degradedDiff)}
+                  <span className="text-muted-foreground">vs last period</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1 text-xs text-green-800">
+                  <ChevronDown className="h-3 w-3" />
+                  {Math.abs(degradedDiff)}
+                  <span className="text-muted-foreground">vs last period</span>
+                </div>
+              )}
             </CardContent>
           </Card>
-          <Card className="relative overflow-hidden">
-            <div
-              className={cn(
-                "absolute bottom-0 -left-2 h-10 w-24 rounded-xl bg-gradient-to-tr via-transparent to-transparent",
-                getGradientClasses(recentErrorCount, prevErrorCount)
-              )}
-            ></div>
+          <Card>
             <CardHeader>
               <CardTitle className="text-sm">Error</CardTitle>
             </CardHeader>
-            <CardContent className="inline-flex items-center font-mono font-medium text-red-800">
-              {recentErrorCount.toLocaleString()}
-              {getProgressionText(recentErrorCount, prevErrorCount)}
+            <CardContent className="inline-flex items-center gap-1">
+              <span className="font-mono font-medium text-red-800">
+                {recentErrorCount.toLocaleString()}
+              </span>
+              {errorDiff === null ? null : errorDiff === 0 ? (
+                <span className="text-muted-foreground text-xs">
+                  - Same as last period
+                </span>
+              ) : errorDiff > 0 ? (
+                <div className="inline-flex items-center gap-1 text-xs text-red-800">
+                  <ChevronUp className="inline h-3 w-3" />+{Math.abs(errorDiff)}
+                  <span className="text-muted-foreground">vs last period</span>
+                </div>
+              ) : (
+                <span className="ml-1 flex items-center gap-1 text-xs text-green-800">
+                  <ChevronDown className="inline h-3 w-3" />
+                  {Math.abs(errorDiff)}
+                  <span className="text-muted-foreground">vs last period</span>
+                </span>
+              )}
             </CardContent>
           </Card>
-          <Card className="relative overflow-hidden">
-            <div
-              className={cn(
-                "absolute bottom-0 -left-2 h-10 w-24 rounded-xl bg-gradient-to-tr via-transparent to-transparent",
-                getGradientClasses(p50, prevP50, true)
-              )}
-            ></div>
+          <Card>
             <CardHeader>
               <CardTitle className="text-sm font-medium">Latency p50</CardTitle>
             </CardHeader>
-            <CardContent className="flex items-center">
-              <span className="font-mono font-medium text-black dark:text-white">
-                {p50}ms
-              </span>
-              {getProgressionText(p50, prevP50, "ms")}
+            <CardContent className="inline-flex items-center gap-1">
+              <span className="font-mono font-medium text-black">{p50}ms</span>
+              {p50Diff === null ? null : p50Diff === 0 ? (
+                <span className="text-muted-foreground text-xs">
+                  - Same as last period
+                </span>
+              ) : p50Diff > 0 ? (
+                <div className="inline-flex items-center gap-1 text-xs text-red-800">
+                  <ChevronUp className="inline h-3 w-3" />+{Math.abs(p50Diff)}ms{" "}
+                  {prevP50 && prevP50 > 0
+                    ? `(+${Math.round((Math.abs(p50Diff) / prevP50) * 100)}%)`
+                    : ""}
+                  <span className="text-muted-foreground">vs last period</span>
+                </div>
+              ) : (
+                <div className="inline-flex items-center gap-1 text-xs text-green-800">
+                  <ChevronDown className="h-3 w-3" />
+                  {Math.abs(p50Diff)}ms{" "}
+                  {prevP50 && prevP50 > 0
+                    ? `(-${Math.round((Math.abs(p50Diff) / prevP50) * 100)}%)`
+                    : ""}
+                  <span className="text-muted-foreground truncate">
+                    vs last period
+                  </span>
+                </div>
+              )}
             </CardContent>
           </Card>
-          <Card className="relative overflow-hidden">
-            <div
-              className={cn(
-                "absolute bottom-0 -left-2 h-10 w-24 rounded-xl bg-gradient-to-tr via-transparent to-transparent",
-                getGradientClasses(p95, prevP95, true)
-              )}
-            ></div>
+          <Card>
             <CardHeader>
               <CardTitle className="text-sm font-medium">Latency p95</CardTitle>
             </CardHeader>
@@ -230,16 +230,33 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
               <span className="font-mono font-medium text-black dark:text-white">
                 {p95}ms
               </span>
-              {getProgressionText(p95, prevP95, "ms")}
+              {p95Diff === null ? null : p95Diff === 0 ? (
+                <span className="text-muted-foreground ml-1 flex items-center gap-1 text-xs">
+                  - Same as last period
+                </span>
+              ) : p95Diff > 0 ? (
+                <div className="ml-1 flex items-center gap-1 text-xs text-red-800">
+                  <ChevronUp className="inline h-3 w-3" />+{Math.abs(p95Diff)}ms{" "}
+                  {prevP95 && prevP95 > 0
+                    ? `(+${Math.round((Math.abs(p95Diff) / prevP95) * 100)}%)`
+                    : ""}
+                  <span className="text-muted-foreground">vs last period</span>
+                </div>
+              ) : (
+                <span className="ml-1 flex items-center gap-1 text-xs text-green-800">
+                  <ChevronDown className="inline h-3 w-3" />
+                  {Math.abs(p95Diff)}ms{" "}
+                  {prevP95 && prevP95 > 0
+                    ? `(-${Math.round((Math.abs(p95Diff) / prevP95) * 100)}%)`
+                    : ""}
+                  <span className="text-muted-foreground truncate">
+                    vs last period
+                  </span>
+                </span>
+              )}
             </CardContent>
           </Card>
-          <Card className="relative overflow-hidden">
-            <div
-              className={cn(
-                "absolute bottom-0 -left-2 h-10 w-24 rounded-xl bg-gradient-to-tr via-transparent to-transparent",
-                getGradientClasses(p99, prevP99, true)
-              )}
-            ></div>
+          <Card>
             <CardHeader>
               <CardTitle className="text-sm font-medium">Latency p99</CardTitle>
             </CardHeader>
@@ -247,7 +264,30 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
               <span className="font-mono font-medium text-black dark:text-white">
                 {p99}ms
               </span>
-              {getProgressionText(p99, prevP99, "ms")}
+              {p99Diff === null ? null : p99Diff === 0 ? (
+                <span className="text-muted-foreground ml-1 flex items-center gap-1 text-xs">
+                  <span>–</span> <span>same as last period</span>
+                </span>
+              ) : p99Diff > 0 ? (
+                <span className="ml-1 flex items-center gap-1 text-xs text-red-800">
+                  <ChevronUp className="inline h-3 w-3" />+{Math.abs(p99Diff)}ms{" "}
+                  {prevP99 && prevP99 > 0
+                    ? `(+${Math.round((Math.abs(p99Diff) / prevP99) * 100)}%)`
+                    : ""}
+                  <span className="text-muted-foreground">vs last period</span>
+                </span>
+              ) : (
+                <span className="ml-1 flex items-center gap-1 text-xs text-green-800">
+                  <ChevronDown className="inline h-3 w-3" />
+                  {Math.abs(p99Diff)}ms{" "}
+                  {prevP99 && prevP99 > 0
+                    ? `(-${Math.round((Math.abs(p99Diff) / prevP99) * 100)}%)`
+                    : ""}
+                  <span className="text-muted-foreground truncate">
+                    vs last period
+                  </span>
+                </span>
+              )}
             </CardContent>
           </Card>
         </div>

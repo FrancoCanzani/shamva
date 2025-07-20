@@ -11,6 +11,7 @@ import {
   TooltipTrigger,
 } from "@/frontend/components/ui/tooltip";
 import { Log } from "@/frontend/lib/types";
+import { cn } from "@/frontend/lib/utils";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id";
 import {
   addMinutes,
@@ -164,24 +165,19 @@ export default function MonitorTimelineChart({
               <Tooltip key={i}>
                 <TooltipTrigger asChild>
                   <div
-                    className={
-                      "h-full flex-1 cursor-pointer transition-colors duration-200 " +
-                      (isEmpty
-                        ? " border border-dotted border-black bg-[#f3f4f6]"
-                        : "")
-                    }
-                    style={{
-                      backgroundColor: color,
-                      borderRadius:
-                        i === 0
-                          ? "2px 0 0 2px"
-                          : i === buckets.length - 1
-                            ? "0 2px 2px 0"
-                            : undefined,
-                      minWidth: 2,
-                      width: `calc(100% / ${buckets.length})`,
-                      opacity: isEmpty ? 0.7 : 1,
-                    }}
+                    className={cn(
+                      "h-full flex-1 cursor-pointer transition-all duration-200 hover:scale-95",
+                      "min-w-[2px]",
+                      `w-[calc(100%/${buckets.length})`,
+                      isEmpty
+                        ? "border border-dotted border-black bg-gray-100 opacity-70"
+                        : "",
+                      !isEmpty && bucket.status === "active" && "bg-green-800",
+                      !isEmpty &&
+                        bucket.status === "degraded" &&
+                        "bg-yellow-500",
+                      !isEmpty && bucket.status === "error" && "bg-red-800"
+                    )}
                   />
                 </TooltipTrigger>
                 <TooltipContent

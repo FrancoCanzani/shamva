@@ -325,10 +325,10 @@ export default function MonitorsTable({ monitors }: { monitors: Monitor[] }) {
 
       <div className="ring-carbon-50 dark:ring-carbon-800 bg-carbon-50/40 rounded px-1 pb-1">
         {(errorMonitors.length > 0 || openIncidents > 0) && (
-          <div className="flex items-center gap-4 p-3">
+          <div className="flex items-center gap-4 px-3 py-2">
             {errorMonitors.length > 0 && (
               <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-red-500"></div>
+                <div className="h-2 w-2 rounded-xs bg-red-500"></div>
                 <span className="text-sm font-medium">
                   {errorMonitors.length} Monitor
                   {errorMonitors.length === 1 ? "" : "s"} with errors
@@ -337,7 +337,7 @@ export default function MonitorsTable({ monitors }: { monitors: Monitor[] }) {
             )}
             {openIncidents > 0 && (
               <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-orange-500"></div>
+                <div className="h-2 w-2 rounded-xs bg-orange-500"></div>
                 <span className="text-sm font-medium">
                   {openIncidents} Open incident{openIncidents === 1 ? "" : "s"}
                 </span>
@@ -345,7 +345,7 @@ export default function MonitorsTable({ monitors }: { monitors: Monitor[] }) {
             )}
           </div>
         )}
-        <div className="bg-background ring-carbon-50 dark:ring-carbon-800 rounded shadow-xs ring-1 ring-inset">
+        <div className="bg-background ring-carbon-50 dark:ring-carbon-800 rounded-sm shadow-xs ring-1 ring-inset">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (

@@ -1,18 +1,19 @@
 import { Link, useParams } from "@tanstack/react-router";
 import {
   Activity,
-  Heart,
+  Bell,
   FileText,
   Globe,
-  Settings,
+  Heart,
   LogOut,
+  Settings,
 } from "lucide-react";
 import { useMemo } from "react";
+import { WorkspaceDropdown } from "../features/workspaces/components/workspace-dropdown";
 import { supabase } from "../lib/supabase";
 import { Route } from "../routes/dashboard/route";
 import { Button } from "./ui/button";
-import { WorkspaceDropdown } from "./workspace-dropdown";
-import { ThemeToggle } from "./ui/theme-toggle";
+import { Workspace } from "../types/types";
 import {
   Sidebar,
   SidebarContent,
@@ -25,13 +26,14 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "./ui/sidebar";
+import { ThemeToggle } from "./ui/theme-toggle";
 
 export function DashboardSidebar() {
   const { workspaceName } = useParams({ strict: false });
   const workspaces = Route.useLoaderData();
 
   const currentWorkspace =
-    workspaces.find((w) => w.name === workspaceName) ?? workspaces[0];
+    workspaces.find((w: Workspace) => w.name === workspaceName) ?? workspaces[0];
 
   const navItems = useMemo(
     () => [
@@ -60,6 +62,12 @@ export function DashboardSidebar() {
         disabled: !currentWorkspace,
       },
       {
+        to: "/dashboard/$workspaceName/notifications",
+        label: "Notifications",
+        icon: Bell,
+        disabled: !currentWorkspace,
+      },
+      {
         to: "/dashboard/workspaces",
         label: "Workspaces",
         icon: Settings,
@@ -72,14 +80,7 @@ export function DashboardSidebar() {
   return (
     <Sidebar>
       <SidebarHeader>
-        <Link
-          to="/dashboard/$workspaceName/monitors"
-          params={{ workspaceName: currentWorkspace?.name }}
-          className="text-xl font-bold tracking-wide uppercase"
-          style={{ fontFamily: "Helvetica, Arial, sans-serif" }}
-        >
-          Shamva
-        </Link>
+        <h1 style={{ fontFamily: "Helvetica, Arial, sans-serif" }}>Shamva</h1>
       </SidebarHeader>
 
       <SidebarContent>

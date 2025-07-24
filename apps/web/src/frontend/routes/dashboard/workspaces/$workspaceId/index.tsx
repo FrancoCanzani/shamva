@@ -1,5 +1,5 @@
-import EditWorkspacePage from "@/frontend/components/pages/edit-workspace-page";
-import fetchWorkspace from "@/frontend/lib/loaders/workspace";
+import fetchWorkspace from "@/frontend/features/workspaces/api/workspace";
+import EditWorkspacePage from "@/frontend/features/workspaces/components/edit-workspace-page";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/dashboard/workspaces/$workspaceId/")({

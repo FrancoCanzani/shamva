@@ -1,5 +1,5 @@
-import EditMonitorPage from "@/frontend/components/pages/edit-monitor-page";
-import fetchMonitor from "@/frontend/lib/loaders/monitor";
+import fetchMonitor from "@/frontend/features/monitors/api/monitor";
+import EditMonitorPage from "@/frontend/features/monitors/components/edit-monitor-page";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute(

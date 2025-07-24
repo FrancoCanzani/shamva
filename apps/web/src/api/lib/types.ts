@@ -61,7 +61,13 @@ export interface Monitor {
   name: string;
   slack_webhook_url: string | null;
   recent_logs: Partial<Log>[];
-  incidents: Partial<Incident>[];
+  last_incident?: {
+    id: string;
+    status: "ongoing" | "acknowledged" | "mitigated";
+    created_at: string;
+    resolved_at: string | null;
+    acknowledged_at: string | null;
+  } | null;
 }
 
 export interface Heartbeat {

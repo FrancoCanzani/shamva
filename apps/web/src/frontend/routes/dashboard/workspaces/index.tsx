@@ -1,6 +1,6 @@
 import Loading from "@/frontend/components/loading";
-import WorkspacesPage from "@/frontend/components/pages/workspaces-page";
-import fetchWorkspaces from "@/frontend/lib/loaders/workspaces";
+import fetchWorkspaces from "@/frontend/features/workspaces/api/workspace";
+import WorkspacesPage from "@/frontend/features/workspaces/components/workspaces-page";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/dashboard/workspaces/")({

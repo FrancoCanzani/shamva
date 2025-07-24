@@ -1,5 +1,5 @@
-import EditStatusPagePage from "@/frontend/components/pages/edit-status-page-page";
-import fetchStatusPage from "@/frontend/lib/loaders/status-page";
+import fetchStatusPage from "@/frontend/features/status-pages/api/status-page";
+import EditStatusPagePage from "@/frontend/features/status-pages/components/edit-status-page-page";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute(

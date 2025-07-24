@@ -1,6 +1,6 @@
 import Loading from "@/frontend/components/loading";
-import { LogsDataTable } from "@/frontend/components/logs/logs-data-table";
-import { fetchLogs } from "@/frontend/lib/loaders/logs";
+import { fetchLogs } from "@/frontend/features/logs/api/logs";
+import { LogsDataTable } from "@/frontend/features/logs/components/logs-data-table";
 import { createFileRoute } from "@tanstack/react-router";
 
 type LogsSearch = {

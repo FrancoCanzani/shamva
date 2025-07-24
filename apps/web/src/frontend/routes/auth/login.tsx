@@ -1,10 +1,10 @@
 "use client";
 
+import { Button } from "@/frontend/components/ui/button";
+import { useAuth } from "@/frontend/lib/context/auth-context";
+import { supabase } from "@/frontend/lib/supabase";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Button } from "../../components/ui/button";
-import { useAuth } from "../../lib/context/auth-context";
-import { supabase } from "../../lib/supabase";
 
 export const Route = createFileRoute("/auth/login")({
   component: LoginComponent,

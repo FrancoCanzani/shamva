@@ -1,6 +1,6 @@
 import Loading from "@/frontend/components/loading";
-import MonitorPage from "@/frontend/components/pages/monitor-page";
-import fetchMonitor from "@/frontend/lib/loaders/monitor";
+import fetchMonitor from "@/frontend/features/monitors/api/monitor";
+import MonitorPage from "@/frontend/features/monitors/components/monitor-page";
 import { createFileRoute } from "@tanstack/react-router";
 import z from "zod";
 

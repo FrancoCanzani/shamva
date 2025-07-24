@@ -90,13 +90,29 @@ export default async function getAllMonitors(c: Context) {
       }
     }
 
-    const monitorsWithIncidents = monitors.map((monitor) => ({
-      ...monitor,
-      incidents: incidentsByMonitorId.get(monitor.id) || [],
-    }));
+    const monitorsWithLastIncident = monitors.map((monitor) => {
+      const monitorIncidents = incidentsByMonitorId.get(monitor.id) || [];
+      const lastIncident = monitorIncidents.length > 0 
+        ? monitorIncidents.sort((a, b) => 
+            new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
+          )[0]
+        : null;
+      
+      return {
+        ...monitor,
+        last_incident: lastIncident ? {
+          id: lastIncident.id,
+          status: lastIncident.resolved_at ? "mitigated" : 
+                  lastIncident.acknowledged_at ? "acknowledged" : "ongoing",
+          created_at: lastIncident.created_at,
+          resolved_at: lastIncident.resolved_at,
+          acknowledged_at: lastIncident.acknowledged_at
+        } : null
+      };
+    });
 
     return c.json({
-      data: monitorsWithIncidents,
+      data: monitorsWithLastIncident,
       success: true,
     });
   } catch (err) {

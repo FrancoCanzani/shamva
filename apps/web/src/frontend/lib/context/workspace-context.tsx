@@ -1,3 +1,4 @@
+import { ApiResponse, Workspace } from "@/frontend/types/types";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import React, {
@@ -9,7 +10,6 @@ import React, {
   useState,
 } from "react";
 import { supabase } from "../supabase";
-import { ApiResponse, Workspace } from "../types";
 
 interface WorkspaceContextType {
   workspaces: Workspace[];

@@ -1,6 +1,6 @@
+import fetchHeartbeat from "@/frontend/features/heartbeats/api/heartbeat";
+import HeartbeatPage from "@/frontend/features/heartbeats/components/heartbeat-page";
 import { createFileRoute } from "@tanstack/react-router";
-import fetchHeartbeat from "@/frontend/lib/loaders/heartbeat";
-import HeartbeatPage from "@/frontend/components/pages/heartbeat-page";
 
 export const Route = createFileRoute(
   "/dashboard/$workspaceName/heartbeats/$id/"

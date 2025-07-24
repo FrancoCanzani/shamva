@@ -115,7 +115,7 @@ export function showToastTimer(props: ToastTimerProps) {
   toast.dismiss();
   
   toast.custom(
-    (t) => <ToastTimerComponent {...props} />,
+    () => <ToastTimerComponent {...props} />,
     {
       duration: Infinity, // Keep the toast open until user action or timer expires
     }

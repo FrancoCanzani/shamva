@@ -1,9 +1,9 @@
-import StatusPage from "@/frontend/components/pages/status-page";
+import StatusPage from "@/frontend/features/status-pages/components/status-page";
 import {
   ApiResponse,
   PasswordRequiredResponse,
   PublicStatusPageData,
-} from "@/frontend/lib/types";
+} from "@/frontend/types/types";
 import { createFileRoute } from "@tanstack/react-router";
 
 type StatusPageResponse =

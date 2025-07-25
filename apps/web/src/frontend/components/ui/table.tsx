@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { cn } from "@/frontend/utils/utils"
+import { cn } from "@/frontend/utils/utils";
 function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
     <table
@@ -75,7 +75,7 @@ function TableCell({ className, ...props }: React.ComponentProps<"td">) {
     <td
       data-slot="table-cell"
       className={cn(
-        "p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+        "p-1.5 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
         className
       )}
       {...props}

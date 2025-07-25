@@ -4,8 +4,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/frontend/components/ui/card";
-import { Log } from "@/frontend/lib/types";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id";
+import { Log } from "@/frontend/types/types";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import MonitorTimelineChart from "./monitor-timeline-chart";
 

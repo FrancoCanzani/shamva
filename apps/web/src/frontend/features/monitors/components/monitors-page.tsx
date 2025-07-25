@@ -1,10 +1,19 @@
 import DashboardHeader from "@/frontend/components/dashboard-header";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors";
+import { Monitor } from "@/frontend/types/types";
+import { useState } from "react";
 import MonitorTypeSelector from "./monitor/monitor-type-selector";
+import FloatingActions from "./monitors/floating-actions";
 import MonitorsTable from "./monitors/monitors-table";
 
 export default function MonitorsPage() {
   const monitorsData = Route.useLoaderData();
+  const [selectedMonitors, setSelectedMonitors] = useState<Monitor[]>([]);
+
+  const handleSelectionChange = () => {
+    // Clear selection after bulk actions
+    setSelectedMonitors([]);
+  };
 
   return (
     <div className="flex h-full flex-col">
@@ -14,7 +23,7 @@ export default function MonitorsPage() {
         </div>
       </DashboardHeader>
 
-      <main className="flex-1 overflow-auto p-6">
+      <main className="flex-1 overflow-auto p-6 relative">
         <div className="mx-auto max-w-5xl">
           <div className="mb-6">
             <h2 className="text-xl font-medium">Monitors</h2>
@@ -23,8 +32,16 @@ export default function MonitorsPage() {
             </p>
           </div>
 
-          <MonitorsTable monitors={monitorsData} />
+          <MonitorsTable 
+            monitors={monitorsData} 
+            onSelectionChange={(selectedMonitors) => setSelectedMonitors(selectedMonitors)}
+          />
         </div>
+
+        <FloatingActions 
+          selectedMonitors={selectedMonitors}
+          onSelectionChange={handleSelectionChange}
+        />
       </main>
     </div>
   );

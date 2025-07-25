@@ -1,4 +1,18 @@
-import type { Incident } from "@/frontend/lib/types";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/frontend/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/frontend/components/ui/table";
+import { Incident } from "@/frontend/types/types";
 import { CheckIcon, ChevronRightIcon, Cross2Icon } from "@radix-ui/react-icons";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import {
@@ -8,15 +22,6 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { format, parseISO } from "date-fns";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../ui/table";
 
 const columns: ColumnDef<Partial<Incident>>[] = [
   {

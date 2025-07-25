@@ -14,7 +14,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { Separator } from "./ui/separator";
 import { SidebarTrigger } from "./ui/sidebar";
 
 interface DashboardHeaderProps {
@@ -47,7 +46,7 @@ export default function DashboardHeader({ children }: DashboardHeaderProps) {
   }
 
   return (
-    <header className="dark:bg-background sticky top-0 z-30 flex items-center gap-4 border-b bg-white/80 px-4 py-2 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+    <header className="dark:bg-background sticky top-0 z-30 flex items-center gap-4 bg-white/80 px-4 py-2 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <SidebarTrigger />
 
       <Breadcrumb className="hidden md:block">
@@ -113,6 +112,7 @@ export default function DashboardHeader({ children }: DashboardHeaderProps) {
                       <Link
                         to={"/dashboard/$workspaceName/logs"}
                         params={{ workspaceName: workspaceName }}
+                        search={{ logId: undefined }}
                         className="text-xs"
                       >
                         Logs
@@ -139,8 +139,6 @@ export default function DashboardHeader({ children }: DashboardHeaderProps) {
           )}
         </BreadcrumbList>
       </Breadcrumb>
-
-      <Separator orientation="vertical" />
 
       <div className="inline-flex flex-1 justify-end">{children}</div>
     </header>

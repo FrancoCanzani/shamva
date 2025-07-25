@@ -10,9 +10,9 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/frontend/components/ui/tooltip";
-import { Log } from "@/frontend/lib/types";
-import { cn } from "@/frontend/utils/utils";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id";
+import { Log } from "@/frontend/types/types";
+import { cn } from "@/frontend/utils/utils";
 import {
   addMinutes,
   format as formatDate,

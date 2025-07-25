@@ -12,15 +12,14 @@ import { useMemo } from "react";
 import { WorkspaceDropdown } from "../features/workspaces/components/workspace-dropdown";
 import { supabase } from "../lib/supabase";
 import { Route } from "../routes/dashboard/route";
-import { Button } from "./ui/button";
 import { Workspace } from "../types/types";
+import { Button } from "./ui/button";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -33,7 +32,8 @@ export function DashboardSidebar() {
   const workspaces = Route.useLoaderData();
 
   const currentWorkspace =
-    workspaces.find((w: Workspace) => w.name === workspaceName) ?? workspaces[0];
+    workspaces.find((w: Workspace) => w.name === workspaceName) ??
+    workspaces[0];
 
   const navItems = useMemo(
     () => [
@@ -78,14 +78,13 @@ export function DashboardSidebar() {
   );
 
   return (
-    <Sidebar>
+    <Sidebar className="border-none">
       <SidebarHeader>
-        <h1 style={{ fontFamily: "Helvetica, Arial, sans-serif" }}>Shamva</h1>
+        <h1 className="text-xl font-medium">Shamva</h1>
       </SidebarHeader>
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => {

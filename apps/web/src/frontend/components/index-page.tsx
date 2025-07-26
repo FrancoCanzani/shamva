@@ -1,9 +1,6 @@
 import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
 import { useAuth } from "@/frontend/lib/context/auth-context";
-import { supabase } from "@/frontend/lib/supabase";
-import { ApiResponse, Monitor as MonitorType } from "@/frontend/types/types";
-import { Link } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
+import { Link, useRouter } from "@tanstack/react-router";
 import {
   BarChart3,
   Bell,
@@ -19,42 +16,20 @@ import { Button } from "./ui/button";
 export default function IndexPage() {
   const { user, isLoading: authLoading } = useAuth();
   const { workspaces, isLoading: workspacesLoading } = useWorkspaces();
-  const queryClient = useQueryClient();
+  const router = useRouter();
 
-  console.log(user);
-
-  // Preload monitors data when user is signed in and has workspaces
   useEffect(() => {
     if (user && !workspacesLoading && workspaces && workspaces.length > 0) {
       const firstWorkspace = workspaces[0];
       const workspaceName = firstWorkspace.name;
-      
-      // Prefetch monitors data
-      queryClient.prefetchQuery({
-        queryKey: ["monitors", workspaceName],
-        queryFn: async () => {
-          const { data: sessionData } = await supabase.auth.getSession();
-          const accessToken = sessionData?.session?.access_token;
-          
-          if (!accessToken) return [];
-          
-          const workspaceId = firstWorkspace.id;
-          const response = await fetch(`/api/monitors?workspaceId=${workspaceId}`, {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              "Content-Type": "application/json",
-            },
-          });
-          
-          if (!response.ok) return [];
-          
-          const result: ApiResponse<MonitorType[]> = await response.json();
-          return result.success ? result.data : [];
-        },
-        staleTime: 30_000,
+
+      // Preload monitors route
+      router.preloadRoute({
+        to: "/dashboard/$workspaceName/monitors",
+        params: { workspaceName },
       });
     }
-  }, [user, workspacesLoading, workspaces, queryClient]);
+  }, [user, workspacesLoading, workspaces, router]);
 
   let dashboardLinkTo = "/auth/login";
   if (!authLoading && user) {
@@ -75,9 +50,8 @@ export default function IndexPage() {
   };
 
   return (
-    <div className="bg-background min-h-screen">
-      <div className="mx-auto max-w-4xl p-4">
-        {/* Header */}
+    <div className="bg-background mx-auto min-h-screen max-w-4xl p-4">
+      <div className="">
         <header className="py-8">
           <nav className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -110,7 +84,6 @@ export default function IndexPage() {
           </nav>
         </header>
 
-        {/* Hero Section */}
         <main className="space-y-8 py-20 text-center">
           <div className="space-y-4">
             <h1 className="text-foreground text-4xl font-medium">
@@ -139,7 +112,6 @@ export default function IndexPage() {
           </div>
         </main>
 
-        {/* Features Section */}
         <section className="space-y-8 py-20">
           <div className="space-y-4 text-center">
             <h2 className="text-foreground text-2xl font-medium">

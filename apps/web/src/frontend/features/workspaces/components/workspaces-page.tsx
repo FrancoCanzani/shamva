@@ -1,7 +1,7 @@
+import { Button } from "@/frontend/components/ui/button";
+import { Separator } from "@/frontend/components/ui/separator";
 import { Route } from "@/frontend/routes/dashboard/workspaces";
 import { Link } from "@tanstack/react-router";
-import { Button } from "../ui/button";
-import { Separator } from "../ui/separator";
 
 export default function WorkspacesPage() {
   const workspaces = Route.useLoaderData();

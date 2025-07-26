@@ -8,7 +8,7 @@ export default async function fetchWorkspace({
 }: {
   params: Params;
   abortController: AbortController;
-}): Promise<Workspace> {
+}): Promise<Workspace[]> {
   const { data: sessionData, error: sessionError } =
     await supabase.auth.getSession();
   const accessToken = sessionData?.session?.access_token;
@@ -29,7 +29,6 @@ export default async function fetchWorkspace({
 
   if (!response.ok) {
     const err: ApiResponse<null> = await response.json();
-    console.error(`API Error fetching workspace ${params.workspaceId}:`, err);
     if (response.status === 404) {
       throw new Error("Workspace not found or access denied");
     }
@@ -38,7 +37,7 @@ export default async function fetchWorkspace({
     );
   }
 
-  const result: ApiResponse<Workspace> = await response.json();
+  const result: ApiResponse<Workspace[]> = await response.json();
 
   if (!result.success || !result.data) {
     console.error("API Result indicates failure or no data:", result);

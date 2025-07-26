@@ -1,9 +1,9 @@
-import { ApiResponse, PublicStatusPageData } from "@/frontend/lib/types";
+import { Button } from "@/frontend/components/ui/button";
+import { Input } from "@/frontend/components/ui/input";
+import { Label } from "@/frontend/components/ui/label";
+import { ApiResponse, PublicStatusPageData } from "@/frontend/types/types";
 import type React from "react";
 import { useState } from "react";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
 
 export default function StatusPagePasswordForm({
   slug,

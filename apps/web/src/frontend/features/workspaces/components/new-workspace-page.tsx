@@ -1,14 +1,14 @@
-import { useAuth } from "@/frontend/lib/context/auth-context";
 import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
+import { useAuth } from "@/frontend/lib/context/auth-context";
 import {
   ApiResponse,
   Workspace,
   WorkspaceFormValues,
-} from "@/frontend/lib/types";
+} from "@/frontend/types/types";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import WorkspaceForm from "../workspace-form";
+import WorkspaceForm from "./workspace-form";
 
 export default function NewWorkspacePage() {
   const navigate = useNavigate();

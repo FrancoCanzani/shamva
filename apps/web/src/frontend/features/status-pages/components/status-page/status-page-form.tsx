@@ -1,14 +1,14 @@
+import { Button } from "@/frontend/components/ui/button";
+import { Input } from "@/frontend/components/ui/input";
+import { Label } from "@/frontend/components/ui/label";
+import { Textarea } from "@/frontend/components/ui/textarea";
 import { StatusPageSchema } from "@/frontend/lib/schemas";
-import { Monitor, StatusPageFormValues } from "@/frontend/lib/types";
+import { Monitor, StatusPageFormValues } from "@/frontend/types/types";
 import { cn } from "@/frontend/utils/utils";
 import { useForm } from "@tanstack/react-form";
 import { Check, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { z } from "zod";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Textarea } from "../ui/textarea";
 
 interface StatusPageFormProps {
   initialValues?: Partial<StatusPageFormValues>;

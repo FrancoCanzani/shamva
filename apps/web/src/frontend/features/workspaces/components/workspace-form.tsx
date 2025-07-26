@@ -10,14 +10,14 @@ import {
 } from "@/frontend/components/ui/select";
 import { Separator } from "@/frontend/components/ui/separator";
 import { Textarea } from "@/frontend/components/ui/textarea";
+import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
+import { MemberInviteSchema, WorkspaceSchema } from "@/frontend/lib/schemas";
+import { MemberInvite, WorkspaceFormValues } from "@/frontend/types/types";
 import { useForm } from "@tanstack/react-form";
 import { X } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
 import { z } from "zod";
-import { useWorkspaces } from "../hooks/use-workspaces";
-import { MemberInviteSchema, WorkspaceSchema } from "../lib/schemas";
-import { MemberInvite, WorkspaceFormValues } from "../lib/types";
 
 interface MonitorWorkspaceFormProps {
   initialValues?: Partial<WorkspaceFormValues>;

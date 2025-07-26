@@ -1,5 +1,5 @@
 import Loading from "@/frontend/components/loading";
-import fetchWorkspaces from "@/frontend/features/workspaces/api/workspace";
+import fetchWorkspaces from "@/frontend/features/workspaces/api/workspaces";
 import WorkspacesPage from "@/frontend/features/workspaces/components/workspaces-page";
 import { createFileRoute } from "@tanstack/react-router";
 

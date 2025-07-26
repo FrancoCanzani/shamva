@@ -3,14 +3,14 @@ import { useMutation } from "@tanstack/react-query";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 import { toast } from "sonner";
 
-import { useAuth } from "@/frontend/lib/context/auth-context";
 import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
+import { useAuth } from "@/frontend/lib/context/auth-context";
 import {
   ApiResponse,
   Workspace,
   WorkspaceFormValues,
-} from "@/frontend/lib/types";
-import WorkspaceForm from "../workspace-form";
+} from "@/frontend/types/types";
+import WorkspaceForm from "./workspace-form";
 
 export default function EditWorkspacePage() {
   const navigate = useNavigate();

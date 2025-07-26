@@ -79,6 +79,7 @@ export function DashboardSidebar() {
                       <Link
                         to={item.to}
                         params={{ workspaceName: currentWorkspace.name }}
+                        preload="intent"
                       >
                         <span>{item.label}</span>
                       </Link>

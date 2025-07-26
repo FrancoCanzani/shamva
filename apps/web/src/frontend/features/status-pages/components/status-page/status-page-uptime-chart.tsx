@@ -1,5 +1,9 @@
-import { PublicMonitor } from "@/frontend/lib/types";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/frontend/components/ui/tooltip";
+import { PublicMonitor } from "@/frontend/types/types";
 
 export default function StatusPageUptimeChart({
   monitor,

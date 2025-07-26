@@ -1,6 +1,9 @@
 import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
 import { useAuth } from "@/frontend/lib/context/auth-context";
+import { supabase } from "@/frontend/lib/supabase";
+import { ApiResponse, Monitor as MonitorType } from "@/frontend/types/types";
 import { Link } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   BarChart3,
   Bell,
@@ -10,14 +13,48 @@ import {
   Monitor,
   Users,
 } from "lucide-react";
+import { useEffect } from "react";
 import { Button } from "./ui/button";
 
 export default function IndexPage() {
   const { user, isLoading: authLoading } = useAuth();
+  const { workspaces, isLoading: workspacesLoading } = useWorkspaces();
+  const queryClient = useQueryClient();
 
   console.log(user);
 
-  const { workspaces, isLoading: workspacesLoading } = useWorkspaces();
+  // Preload monitors data when user is signed in and has workspaces
+  useEffect(() => {
+    if (user && !workspacesLoading && workspaces && workspaces.length > 0) {
+      const firstWorkspace = workspaces[0];
+      const workspaceName = firstWorkspace.name;
+      
+      // Prefetch monitors data
+      queryClient.prefetchQuery({
+        queryKey: ["monitors", workspaceName],
+        queryFn: async () => {
+          const { data: sessionData } = await supabase.auth.getSession();
+          const accessToken = sessionData?.session?.access_token;
+          
+          if (!accessToken) return [];
+          
+          const workspaceId = firstWorkspace.id;
+          const response = await fetch(`/api/monitors?workspaceId=${workspaceId}`, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+          });
+          
+          if (!response.ok) return [];
+          
+          const result: ApiResponse<MonitorType[]> = await response.json();
+          return result.success ? result.data : [];
+        },
+        staleTime: 30_000,
+      });
+    }
+  }, [user, workspacesLoading, workspaces, queryClient]);
 
   let dashboardLinkTo = "/auth/login";
   if (!authLoading && user) {

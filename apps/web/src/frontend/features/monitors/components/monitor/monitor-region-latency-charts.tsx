@@ -1,10 +1,4 @@
 import { Button } from "@/frontend/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/frontend/components/ui/card";
 import { ChartContainer, ChartTooltip } from "@/frontend/components/ui/chart";
 import {
   Select,
@@ -95,25 +89,6 @@ function getChartData(
   });
 }
 
-function getStats(logs: Partial<Log>[], selectedRegion: string | null) {
-  const regionLogs = selectedRegion
-    ? logs.filter(
-        (log) => log.region === selectedRegion && log.latency && log.latency > 0
-      )
-    : logs.filter((log) => log.latency && log.latency > 0);
-
-  if (regionLogs.length === 0) return { min: 0, max: 0, avg: 0 };
-
-  const latencies = regionLogs.map((log) => log.latency!);
-  const min = Math.round(Math.min(...latencies));
-  const max = Math.round(Math.max(...latencies));
-  const avg = Math.round(
-    latencies.reduce((sum, val) => sum + val, 0) / latencies.length
-  );
-
-  return { min, max, avg };
-}
-
 export default function MonitorRegionLatencyCharts({
   logs,
 }: {
@@ -143,11 +118,6 @@ export default function MonitorRegionLatencyCharts({
         availableRegions
       ),
     [logs, isSplitRegions, selectedRegion, availableRegions]
-  );
-
-  const stats = useMemo(
-    () => getStats(logs, isSplitRegions ? selectedRegion : null),
-    [logs, isSplitRegions, selectedRegion]
   );
 
   const chartConfig = useMemo((): ChartConfig => {
@@ -191,27 +161,35 @@ export default function MonitorRegionLatencyCharts({
 
   if (availableRegions.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm font-medium">Latency</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-muted-foreground border border-dashed p-8 text-center text-sm">
-            No latency data available
-          </div>
-        </CardContent>
-      </Card>
+      <div className="p-4">
+        <div className="text-muted-foreground rounded border border-dashed p-8 text-center text-sm">
+          No latency data available
+        </div>
+      </div>
     );
   }
 
   return (
-    <Card>
-      <CardHeader className="inline-flex w-full flex-row items-center justify-between">
-        <CardTitle className="text-sm font-medium">Latency by Region</CardTitle>
+    <div className="w-full space-y-8">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <h3 className="text-sm font-medium">
+            Average latency for{" "}
+            <span className="inline-flex items-center gap-1">
+              {isSplitRegions
+                ? getRegionNameFromCode(selectedRegion)
+                : availableRegions.length === 1
+                  ? getRegionNameFromCode(availableRegions[0])
+                  : "all regions"}
+            </span>
+          </h3>
+        </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="xs" onClick={toggleSplitRegions}>
-            {isSplitRegions ? "Combine Regions" : "Split Regions"}
-          </Button>
+          {availableRegions.length > 1 && (
+            <Button variant="outline" size="xs" onClick={toggleSplitRegions}>
+              {isSplitRegions ? "Combine Regions" : "Split Regions"}
+            </Button>
+          )}
           {isSplitRegions && (
             <Select value={selectedRegion} onValueChange={setSelectedRegion}>
               <SelectTrigger className="max-h-7 px-1.5 py-1 text-xs">
@@ -231,124 +209,114 @@ export default function MonitorRegionLatencyCharts({
             </Select>
           )}
         </div>
-      </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig} className="aspect-auto h-80 px-1">
-          <LineChart
-            data={chartData}
-            height={250}
-            margin={{ top: 5, right: 25, left: 5, bottom: 5 }}
-          >
-            <XAxis
-              dataKey="date"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={15}
-              className="font-mono tracking-tighter"
-              tickFormatter={(value) => format(new Date(value), "MMM d")}
-              minTickGap={70}
-              interval="preserveStartEnd"
-            />
-            <YAxis
-              tickLine={false}
-              axisLine={false}
-              className="font-mono"
-              tickFormatter={(value) => {
-                const rounded = Math.ceil(value / 100) * 100;
-                return `${rounded}ms`;
-              }}
-              width={50}
-              domain={["dataMin - 10", "dataMax + 10"]}
-            />
-            <ChartTooltip
-              cursor={{
-                stroke: "hsl(var(--border))",
-                strokeWidth: 1,
-                strokeDasharray: "4 4",
-              }}
-              content={({ active, payload }) => {
-                if (!active || !payload || !payload.length) return null;
+      </div>
 
-                const timestamp = format(
-                  new Date(payload[0].payload.date),
-                  "MMM d, h:mm a"
-                );
+      <ChartContainer config={chartConfig} className="aspect-auto h-72">
+        <LineChart data={chartData} height={320}>
+          <XAxis
+            dataKey="date"
+            tickLine={false}
+            axisLine={false}
+            tickMargin={8}
+            className="text-xs text-gray-500"
+            tickFormatter={(value) => format(new Date(value), "MMM d")}
+            minTickGap={80}
+            interval="equidistantPreserveStart"
+          />
+          <YAxis
+            tickLine={false}
+            axisLine={false}
+            className="text-xs text-gray-500"
+            tickFormatter={(value) => {
+              // Round to nice intervals
+              if (value >= 1000) {
+                return `${Math.round(value / 100) * 100}ms`;
+              } else if (value >= 100) {
+                return `${Math.round(value / 50) * 50}ms`;
+              } else {
+                return `${Math.round(value / 10) * 10}ms`;
+              }
+            }}
+            width={50}
+            domain={["dataMin - 5", "dataMax + 10"]}
+            tickCount={6}
+          />
+          <ChartTooltip
+            cursor={{
+              stroke: "#e5e7eb",
+              strokeWidth: 1,
+              strokeDasharray: "2 2",
+            }}
+            content={({ active, payload }) => {
+              if (!active || !payload || !payload.length) return null;
 
-                return (
-                  <div className="bg-background rounded border p-2 shadow-sm">
-                    <div className="text-xs font-medium">{timestamp}</div>
-                    {payload.map((entry, index) => {
-                      const regionName = isSplitRegions
-                        ? getRegionNameFromCode(selectedRegion)
-                        : getRegionNameFromCode(
-                            typeof entry.dataKey === "string"
-                              ? entry.dataKey.replace("latency_", "")
-                              : ""
-                          );
-                      return (
-                        <div
-                          key={index}
-                          className="flex items-center gap-2 text-xs"
-                        >
-                          <div
-                            className="h-2 w-2 rounded-xs"
-                            style={{ backgroundColor: entry.color }}
-                          />
-                          <span>{regionName}</span>
-                          <span className="text-muted-foreground">
-                            {entry.value}ms
-                          </span>
-                        </div>
-                      );
-                    })}
+              const timestamp = format(
+                new Date(payload[0].payload.date),
+                "MMM d, h:mm a"
+              );
+
+              return (
+                <div className="bg-background rounded border p-1.5 text-xs shadow-xs">
+                  <div className="mb-1 font-medium text-gray-900">
+                    {timestamp}
                   </div>
-                );
+                  <div className="text-muted-foreground">
+                    {payload[0].value ? `${payload[0].value}ms` : "No data"}
+                  </div>
+                </div>
+              );
+            }}
+          />
+          {isSplitRegions ? (
+            <Line
+              dataKey="latency"
+              type="monotone"
+              stroke="#6B7280"
+              strokeWidth={1.5}
+              dot={false}
+              activeDot={{
+                r: 3,
+                fill: "#6B7280",
+                stroke: "#ffffff",
+                strokeWidth: 2,
               }}
+              connectNulls={false}
+              name={getRegionNameFromCode(selectedRegion)}
             />
-            {isSplitRegions ? (
-              <Line
-                dataKey="latency"
-                type="monotone"
-                stroke="var(--color-latency)"
-                strokeWidth={1.5}
-                dot={false}
-                activeDot={{
-                  r: 4,
-                  fill: "var(--color-latency)",
-                  stroke: "hsl(var(--background))",
-                  strokeWidth: 2,
-                }}
-                connectNulls
-                name={getRegionNameFromCode(selectedRegion)}
-              />
-            ) : (
-              availableRegions.map((region) => (
+          ) : (
+            availableRegions.map((region, index) => {
+              const colors = [
+                "#6B7280",
+                "#EF4444",
+                "#10B981",
+                "#3B82F6",
+                "#8B5CF6",
+                "#F59E0B",
+              ];
+              const color = colors[index % colors.length];
+
+              return (
                 <Line
                   key={region}
                   dataKey={`latency_${region}`}
                   type="monotone"
-                  stroke={`var(--color-latency_${region})`}
+                  stroke={color}
                   strokeWidth={1.5}
                   dot={false}
                   activeDot={{
-                    r: 4,
-                    fill: `var(--color-latency_${region})`,
-                    stroke: "hsl(var(--background))",
+                    r: 3,
+                    fill: color,
+                    stroke: "#ffffff",
                     strokeWidth: 2,
                   }}
-                  connectNulls
+                  connectNulls={false}
                   name={getRegionNameFromCode(region)}
                 />
-              ))
-            )}
-          </LineChart>
-        </ChartContainer>
-        <div className="text-muted-foreground mt-3 flex justify-center gap-6 font-mono text-xs">
-          <span>Min: {stats.min}ms</span>
-          <span>Avg: {stats.avg}ms</span>
-          <span>Max: {stats.max}ms</span>
-        </div>
-      </CardContent>
-    </Card>
+              );
+            })
+          )}
+        </LineChart>
+      </ChartContainer>
+    </div>
   );
 }

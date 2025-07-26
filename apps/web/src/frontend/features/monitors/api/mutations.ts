@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/frontend/lib/supabase";
+import { MonitorFormData } from "@/frontend/types/types";
 
 export function usePauseResumeMonitor() {
   const queryClient = useQueryClient();
@@ -85,7 +86,7 @@ export function useCreateMonitor() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (monitorData: any) => {
+    mutationFn: async (monitorData: MonitorFormData) => {
       const {
         data: { session },
         error: sessionError,
@@ -122,7 +123,7 @@ export function useUpdateMonitor() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ monitorId, data }: { monitorId: string; data: any }) => {
+    mutationFn: async ({ monitorId, data }: { monitorId: string; data: MonitorFormData }) => {
       const {
         data: { session },
         error: sessionError,

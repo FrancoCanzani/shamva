@@ -1,13 +1,4 @@
 import { Link, useParams } from "@tanstack/react-router";
-import {
-  Activity,
-  Bell,
-  FileText,
-  Globe,
-  Heart,
-  LogOut,
-  Settings,
-} from "lucide-react";
 import { useMemo } from "react";
 import { WorkspaceDropdown } from "../features/workspaces/components/workspace-dropdown";
 import { supabase } from "../lib/supabase";
@@ -40,37 +31,31 @@ export function DashboardSidebar() {
       {
         to: "/dashboard/$workspaceName/monitors",
         label: "Monitors",
-        icon: Activity,
         disabled: !currentWorkspace,
       },
       {
         to: "/dashboard/$workspaceName/heartbeats",
         label: "Heartbeats",
-        icon: Heart,
         disabled: !currentWorkspace,
       },
       {
         to: "/dashboard/$workspaceName/logs",
         label: "Logs",
-        icon: FileText,
         disabled: !currentWorkspace,
       },
       {
         to: "/dashboard/$workspaceName/status-pages",
         label: "Status Pages",
-        icon: Globe,
         disabled: !currentWorkspace,
       },
       {
         to: "/dashboard/$workspaceName/notifications",
         label: "Notifications",
-        icon: Bell,
         disabled: !currentWorkspace,
       },
       {
         to: "/dashboard/workspaces",
         label: "Workspaces",
-        icon: Settings,
         disabled: !currentWorkspace,
       },
     ],
@@ -87,29 +72,24 @@ export function DashboardSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <SidebarMenuItem key={item.label}>
-                    {currentWorkspace && !item.disabled ? (
-                      <SidebarMenuButton asChild>
-                        <Link
-                          to={item.to}
-                          params={{ workspaceName: currentWorkspace.name }}
-                        >
-                          <Icon />
-                          <span>{item.label}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    ) : (
-                      <SidebarMenuButton disabled>
-                        <Icon />
+              {navItems.map((item) => (
+                <SidebarMenuItem key={item.label}>
+                  {currentWorkspace && !item.disabled ? (
+                    <SidebarMenuButton asChild>
+                      <Link
+                        to={item.to}
+                        params={{ workspaceName: currentWorkspace.name }}
+                      >
                         <span>{item.label}</span>
-                      </SidebarMenuButton>
-                    )}
-                  </SidebarMenuItem>
-                );
-              })}
+                      </Link>
+                    </SidebarMenuButton>
+                  ) : (
+                    <SidebarMenuButton disabled>
+                      <span>{item.label}</span>
+                    </SidebarMenuButton>
+                  )}
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -129,7 +109,6 @@ export function DashboardSidebar() {
                 window.location.href = "/";
               }}
             >
-              <LogOut className="mr-2 h-4 w-4" />
               Sign out
             </Button>
           </SidebarGroupContent>

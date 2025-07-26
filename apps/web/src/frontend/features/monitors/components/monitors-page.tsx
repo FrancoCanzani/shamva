@@ -11,7 +11,6 @@ export default function MonitorsPage() {
   const [selectedMonitors, setSelectedMonitors] = useState<Monitor[]>([]);
 
   const handleSelectionChange = () => {
-    // Clear selection after bulk actions
     setSelectedMonitors([]);
   };
 
@@ -23,8 +22,8 @@ export default function MonitorsPage() {
         </div>
       </DashboardHeader>
 
-      <main className="flex-1 overflow-auto p-6 relative">
-        <div className="mx-auto max-w-5xl">
+      <main className="relative flex-1 overflow-auto">
+        <div className="mx-auto max-w-5xl flex-1 space-y-8 overflow-auto p-6">
           <div className="mb-6">
             <h2 className="text-xl font-medium">Monitors</h2>
             <p className="text-muted-foreground mt-1 text-sm">
@@ -32,13 +31,15 @@ export default function MonitorsPage() {
             </p>
           </div>
 
-          <MonitorsTable 
-            monitors={monitorsData} 
-            onSelectionChange={(selectedMonitors) => setSelectedMonitors(selectedMonitors)}
+          <MonitorsTable
+            monitors={monitorsData}
+            onSelectionChange={(selectedMonitors) =>
+              setSelectedMonitors(selectedMonitors)
+            }
           />
         </div>
 
-        <FloatingActions 
+        <FloatingActions
           selectedMonitors={selectedMonitors}
           onSelectionChange={handleSelectionChange}
         />

@@ -1,10 +1,4 @@
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/frontend/components/ui/card";
-import {
   Table,
   TableBody,
   TableCell,
@@ -13,7 +7,7 @@ import {
   TableRow,
 } from "@/frontend/components/ui/table";
 import { Incident } from "@/frontend/types/types";
-import { CheckIcon, ChevronRightIcon, Cross2Icon } from "@radix-ui/react-icons";
+import { ChevronRightIcon } from "@radix-ui/react-icons";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import {
   ColumnDef,
@@ -40,13 +34,9 @@ const columns: ColumnDef<Partial<Incident>>[] = [
           }`}
         >
           {isResolved ? (
-            <span className="inline-flex gap-1">
-              <CheckIcon /> Resolved
-            </span>
+            <span className="inline-flex gap-1">Resolved</span>
           ) : (
-            <span className="inline-flex animate-pulse gap-1">
-              <Cross2Icon /> Ongoing
-            </span>
+            <span className="inline-flex animate-pulse gap-1">Ongoing</span>
           )}
         </div>
       );
@@ -183,15 +173,13 @@ export function IncidentsTable({ data }: IncidentsTableProps) {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-sm font-medium">Incidents</CardTitle>
-      </CardHeader>
-      <CardContent className="w-full">
-        <Table className="border">
-          <TableHeader>
+    <div className="w-full space-y-6">
+      <h3 className="text-sm font-medium">Incidents</h3>
+      <div className="w-full">
+        <Table>
+          <TableHeader className="text-muted-foreground border-dashed">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="text-xs">
+              <TableRow key={headerGroup.id} className="border-dashed text-xs">
                 {headerGroup.headers.map((header) => {
                   const isResolvedColumn = header.column.id === "resolved_at";
                   const isAcknowledgedColumn =
@@ -261,7 +249,7 @@ export function IncidentsTable({ data }: IncidentsTableProps) {
             )}
           </TableBody>
         </Table>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

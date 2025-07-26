@@ -117,7 +117,7 @@ export default async function getMonitors(c: Context) {
       .from("incidents")
       .select("*")
       .eq("monitor_id", monitorId)
-      .gte("created_at", daysAgo)
+      .or(`created_at.gte.${daysAgo},resolved_at.is.null`)
       .order("created_at", { ascending: false });
 
     if (incidentError) {

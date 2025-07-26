@@ -1,11 +1,6 @@
-import { TcpMonitorSchema } from "@/frontend/lib/schemas";
-import { cn } from "@/frontend/utils/utils";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, FormProvider, useForm } from "react-hook-form";
-import { z } from "zod";
-import { Button } from "../../ui/button";
-import { Input } from "../../ui/input";
-import { Label } from "../../ui/label";
+import { Button } from "@/frontend/components/ui/button";
+import { Input } from "@/frontend/components/ui/input";
+import { Label } from "@/frontend/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -13,7 +8,12 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../ui/select";
+} from "@/frontend/components/ui/select";
+import { TcpMonitorSchema } from "@/frontend/lib/schemas";
+import { cn } from "@/frontend/utils/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, FormProvider, useForm } from "react-hook-form";
+import { z } from "zod";
 import { MonitorFormRegionsSection } from "./monitor-form-regions-section";
 
 const checkIntervals = [

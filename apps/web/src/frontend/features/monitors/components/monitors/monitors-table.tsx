@@ -25,13 +25,14 @@ import {
   type ColumnSort,
 } from "@tanstack/react-table";
 import { useEffect, useMemo, useState } from "react";
+import { MonitorWithLastIncident } from "../../types";
 import { columns } from "./columns";
 
 export default function MonitorsTable({
   monitors,
   onSelectionChange,
 }: {
-  monitors: Monitor[];
+  monitors: MonitorWithLastIncident[];
   onSelectionChange: (selectedMonitors: Monitor[]) => void;
 }) {
   const navigate = Route.useNavigate();
@@ -162,8 +163,8 @@ export default function MonitorsTable({
               ?.setFilterValue(value === "all" ? "" : value)
           }
         >
-          <SelectTrigger className="!h-8 text-xs uppercase">
-            <SelectValue placeholder="Filter by type" />
+          <SelectTrigger className="!h-8 text-xs capitalize">
+            <SelectValue className="uppercase" placeholder="Filter by type" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all" className="text-xs">
@@ -248,7 +249,7 @@ export default function MonitorsTable({
       {table.getFilteredSelectedRowModel().rows.length > 0 && (
         <div className="text-muted-foreground text-center text-xs">
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} monitor(s) selected.
+          {table.getFilteredRowModel().rows.length} monitor(s) selected
         </div>
       )}
     </div>

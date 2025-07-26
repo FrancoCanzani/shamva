@@ -7,13 +7,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/frontend/components/ui/tooltip";
-import { Monitor } from "@/frontend/types/types";
 import { cn } from "@/frontend/utils/utils";
 import { ChevronRightIcon, InfoCircledIcon } from "@radix-ui/react-icons";
 import { ColumnDef } from "@tanstack/react-table";
 import { formatDistanceToNowStrict } from "date-fns";
+import { MonitorWithLastIncident } from "../../types";
 
-export const columns: ColumnDef<Monitor>[] = [
+export const columns: ColumnDef<MonitorWithLastIncident>[] = [
   {
     id: "select",
     header: () => <span className="sr-only">Select</span>,
@@ -73,7 +73,7 @@ export const columns: ColumnDef<Monitor>[] = [
       const monitor = row.original;
       const url =
         monitor.check_type === "tcp" ? monitor.tcp_host_port : monitor.url;
-      
+
       return (
         <div className="flex items-center gap-2">
           <span className="font-medium">{monitor.name}</span>
@@ -93,6 +93,26 @@ export const columns: ColumnDef<Monitor>[] = [
     size: 0,
     maxSize: 0,
     minSize: 0,
+  },
+  {
+    id: "active_incident",
+    header: () => <span className="sr-only">Active Incident</span>,
+    cell: ({ row }) => {
+      const monitor = row.original;
+      if (monitor.last_incident?.status === "ongoing") {
+        return (
+          <div className="flex items-center justify-end">
+            <span className="bg-muted animate-pulse rounded border px-1.5 py-0.5 text-xs font-medium text-red-800 dark:text-red-50">
+              Ongoing incident
+            </span>
+          </div>
+        );
+      }
+      return null;
+    },
+    enableSorting: false,
+    enableHiding: false,
+    size: 60,
   },
   {
     id: "actions",

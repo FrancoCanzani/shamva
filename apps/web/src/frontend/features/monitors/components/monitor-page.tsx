@@ -8,14 +8,15 @@ import {
   DropdownMenuTrigger,
 } from "@/frontend/components/ui/dropdown-menu";
 import { StatusDot } from "@/frontend/components/ui/status-dot";
-import { supabase } from "@/frontend/lib/supabase";
+import {
+  useDeleteMonitor,
+  usePauseResumeMonitor,
+} from "@/frontend/features/monitors/api/mutations";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id";
 import { cn } from "@/frontend/utils/utils";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { useMutation } from "@tanstack/react-query";
-import { Link, redirect, useNavigate, useRouter } from "@tanstack/react-router";
+import { Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { formatDistanceToNowStrict } from "date-fns";
-import { toast } from "sonner";
 import { IncidentsTable } from "./monitor/incidents-table";
 import MonitorHeader from "./monitor/monitor-header";
 import MonitorRegionLatencyCharts from "./monitor/monitor-region-latency-charts";
@@ -36,6 +37,9 @@ export default function MonitorPage() {
   const router = useRouter();
   const { id, workspaceName } = Route.useParams();
 
+  const deleteMonitorMutation = useDeleteMonitor();
+  const pauseResumeMutation = usePauseResumeMonitor();
+
   const handleDaysChange = (newDays: number) => {
     navigate({
       to: "/dashboard/$workspaceName/monitors/$id",
@@ -45,99 +49,13 @@ export default function MonitorPage() {
     });
   };
 
-  const deleteMonitorMutation = useMutation({
-    mutationFn: async () => {
-      const {
-        data: { session },
-        error: sessionError,
-      } = await supabase.auth.getSession();
-
-      if (sessionError || !session?.access_token) {
-        console.error("Session Error or no token:", sessionError);
-        throw redirect({
-          to: "/auth/login",
-          search: { redirect: `/dashboard/monitors/${id}` },
-          throw: true,
-        });
-      }
-
-      const token = session.access_token;
-
-      const response = await fetch(`/api/monitors/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete monitor");
-      }
-
-      return response.json();
-    },
-    onSuccess: () => {
-      router.invalidate();
-      toast.success("Monitor deleted successfully");
-    },
-    onError: () => {
-      toast.error("Failed to delete monitor");
-    },
-  });
-
   const handleDelete = () => {
-    deleteMonitorMutation.mutate();
+    deleteMonitorMutation.mutate(id);
   };
 
-  const pauseOrResumeMutation = useMutation({
-    mutationFn: async () => {
-      const {
-        data: { session },
-        error: sessionError,
-      } = await supabase.auth.getSession();
-
-      if (sessionError || !session?.access_token) {
-        console.error("Session Error or no token:", sessionError);
-        throw redirect({
-          to: "/auth/login",
-          search: { redirect: `/dashboard/monitors/${id}` },
-          throw: true,
-        });
-      }
-
-      const token = session.access_token;
-
-      const response = await fetch(`/api/monitors/${id}`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(
-          monitor.status === "paused"
-            ? { status: "active" }
-            : { status: "paused" }
-        ),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete monitor");
-      }
-
-      return response.json();
-    },
-    onSuccess: () => {
-      router.invalidate();
-      toast.success("Monitor updated successfully");
-    },
-    onError: () => {
-      toast.error("Failed to update monitor");
-    },
-  });
-
   const handlePauseOrResumeMonitor = () => {
-    pauseOrResumeMutation.mutate();
+    const newStatus = monitor.status === "paused" ? "active" : "paused";
+    pauseResumeMutation.mutate({ monitorId: id, status: newStatus });
   };
 
   const currentPeriod =
@@ -189,6 +107,7 @@ export default function MonitorPage() {
                 <Link
                   to="/dashboard/$workspaceName/monitors/$id/edit"
                   params={{ id: monitor.id, workspaceName }}
+                  search={{ days }}
                   className="w-full text-xs"
                 >
                   Configure
@@ -225,7 +144,7 @@ export default function MonitorPage() {
           </DropdownMenu>
         </div>
       </DashboardHeader>
-      <main className="flex-1 space-y-6 overflow-auto p-6">
+      <main className="mx-auto max-w-5xl flex-1 space-y-8 overflow-auto p-6">
         <MonitorHeader />
         <MonitorStats logs={monitor.recent_logs || []} />
         <MonitorRegionLatencyCharts logs={monitor.recent_logs || []} />

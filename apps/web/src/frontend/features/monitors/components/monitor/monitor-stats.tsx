@@ -64,13 +64,11 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
     .map((log) => log.latency as number);
 
   const p50 = getPercentile(latencyArr, 50);
-  const p95 = getPercentile(latencyArr, 95);
   const p99 = getPercentile(latencyArr, 99);
 
   let prevErrorCount = null;
   let prevDegradedCount = null;
   let prevP50 = null;
-  let prevP95 = null;
   let prevP99 = null;
   let prevUptime = null;
 
@@ -88,7 +86,6 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
       .filter((log) => typeof log.latency === "number" && log.latency > 0)
       .map((log) => log.latency as number);
     prevP50 = getPercentile(prevLatencyArr, 50);
-    prevP95 = getPercentile(prevLatencyArr, 95);
     prevP99 = getPercentile(prevLatencyArr, 99);
     prevUptime =
       prevTotal > 0 ? Math.round((prevSuccess / prevTotal) * 100) : 0;
@@ -104,13 +101,12 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
   const degradedDiff =
     prevDegradedCount !== null ? recentDegradedCount - prevDegradedCount : null;
   const p50Diff = prevP50 !== null ? p50 - prevP50 : null;
-  const p95Diff = prevP95 !== null ? p95 - prevP95 : null;
   const p99Diff = prevP99 !== null ? p99 - prevP99 : null;
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
       <div className="lg:col-span-2">
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+        <div className="grid grid-cols-3 gap-4">
           <Card>
             <CardHeader>
               <CardTitle className="text-sm font-medium">Uptime</CardTitle>
@@ -166,7 +162,7 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm">Error</CardTitle>
+              <CardTitle className="text-sm font-medium">Error</CardTitle>
             </CardHeader>
             <CardContent className="inline-flex items-center gap-1">
               <span className="font-mono font-medium text-red-800">
@@ -190,6 +186,8 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
               )}
             </CardContent>
           </Card>
+        </div>
+        <div className="mt-4 grid grid-cols-2 gap-4">
           <Card>
             <CardHeader>
               <CardTitle className="text-sm font-medium">Latency p50</CardTitle>
@@ -219,40 +217,6 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
                     vs last period
                   </span>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm font-medium">Latency p95</CardTitle>
-            </CardHeader>
-            <CardContent className="flex items-center">
-              <span className="font-mono font-medium text-black dark:text-white">
-                {p95}ms
-              </span>
-              {p95Diff === null ? null : p95Diff === 0 ? (
-                <span className="text-muted-foreground ml-1 flex items-center gap-1 text-xs">
-                  - Same as last period
-                </span>
-              ) : p95Diff > 0 ? (
-                <div className="ml-1 flex items-center gap-1 text-xs text-red-800">
-                  <ChevronUp className="inline h-3 w-3" />+{Math.abs(p95Diff)}ms{" "}
-                  {prevP95 && prevP95 > 0
-                    ? `(+${Math.round((Math.abs(p95Diff) / prevP95) * 100)}%)`
-                    : ""}
-                  <span className="text-muted-foreground">vs last period</span>
-                </div>
-              ) : (
-                <span className="ml-1 flex items-center gap-1 text-xs text-green-800">
-                  <ChevronDown className="inline h-3 w-3" />
-                  {Math.abs(p95Diff)}ms{" "}
-                  {prevP95 && prevP95 > 0
-                    ? `(-${Math.round((Math.abs(p95Diff) / prevP95) * 100)}%)`
-                    : ""}
-                  <span className="text-muted-foreground truncate">
-                    vs last period
-                  </span>
-                </span>
               )}
             </CardContent>
           </Card>

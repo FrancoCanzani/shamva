@@ -1,7 +1,7 @@
-import { monitoringRegions } from "@/frontend/lib/constants";
+import { monitoringRegions } from "@/frontend/utils/constants";
 import { cn } from "@/frontend/utils/utils";
-import { Controller, useFormContext } from "react-hook-form";
 import { Check } from "lucide-react";
+import { Controller, useFormContext } from "react-hook-form";
 
 const regionsByContinent = monitoringRegions.reduce(
   (acc, region) => {

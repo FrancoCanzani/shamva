@@ -1,6 +1,7 @@
 import { supabase } from "@/frontend/lib/supabase";
-import { ApiResponse, Monitor } from "@/frontend/types/types";
+import { ApiResponse } from "@/frontend/types/types";
 import { redirect } from "@tanstack/react-router";
+import { MonitorWithIncidents } from "../types";
 
 export default async function fetchMonitor({
   params,
@@ -56,7 +57,8 @@ export default async function fetchMonitor({
       throw new Error(`Failed to fetch monitor (Status: ${response.status})`);
     }
 
-    const result: ApiResponse<Monitor> = await response.json();
+    const result: ApiResponse<MonitorWithIncidents> = await response.json();
+
     if (!result.success || !result.data) {
       console.error(
         `API Error fetching monitor ${id}:`,

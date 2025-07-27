@@ -18,8 +18,7 @@ export const Route = createFileRoute("/dashboard/logs/")({
       logId: typeof search?.logId === "string" ? search.logId : undefined,
     };
   },
-  loader: ({ params, context }) =>
-    fetchLogs({ params, context }),
+  loader: ({ params, context }) => fetchLogs({ params, context }),
   component: RouteComponent,
   pendingComponent: Loading,
 });

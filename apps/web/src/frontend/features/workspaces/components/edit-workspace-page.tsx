@@ -1,11 +1,9 @@
 import { Route } from "@/frontend/routes/dashboard/workspaces/$workspaceId";
 import { useNavigate, useRouter } from "@tanstack/react-router";
-import { toast } from "sonner";
 
 import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
 import { useRouteContext } from "@tanstack/react-router";
 import {
-  ApiResponse,
   Workspace,
   WorkspaceFormValues,
 } from "@/frontend/types/types";
@@ -14,7 +12,9 @@ import { useUpdateWorkspace, useDeleteWorkspace } from "../api/mutations";
 
 export default function EditWorkspacePage() {
   const navigate = useNavigate();
-  const { auth } = useRouteContext({ from: "/dashboard/workspaces/$workspaceId/" });
+  const { auth } = useRouteContext({
+    from: "/dashboard/workspaces/$workspaceId/",
+  });
   const { invalidateWorkspaces } = useWorkspaces();
   const router = useRouter();
   const workspace: Workspace = Route.useLoaderData();
@@ -52,7 +52,10 @@ export default function EditWorkspacePage() {
         ...formData,
         creatorEmail: auth.session?.user?.email,
       };
-      await updateWorkspaceMutation.mutateAsync({ workspaceId: workspace.id, data: formDataWithCreatorEmail });
+      await updateWorkspaceMutation.mutateAsync({
+        workspaceId: workspace.id,
+        data: formDataWithCreatorEmail,
+      });
       invalidateWorkspaces();
       router.invalidate();
       navigate({ to: "/dashboard/workspaces" });

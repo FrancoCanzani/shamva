@@ -3,9 +3,10 @@ import { fetchStatusPages } from "@/frontend/features/status-pages/api/status-pa
 import StatusPagesPage from "@/frontend/features/status-pages/components/status-pages-page";
 import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/dashboard/$workspaceName/status-pages/")({
-  loader: ({ params, context }) =>
-    fetchStatusPages({ params, context }),
-  component: StatusPagesPage,
-  pendingComponent: Loading,
-});
+export const Route = createFileRoute("/dashboard/$workspaceName/status-pages/")(
+  {
+    loader: ({ params, context }) => fetchStatusPages({ params, context }),
+    component: StatusPagesPage,
+    pendingComponent: Loading,
+  }
+);

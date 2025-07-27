@@ -4,8 +4,7 @@ import HeartbeatsPage from "@/frontend/features/heartbeats/components/heartbeats
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/dashboard/$workspaceName/heartbeats/")({
-  loader: ({ params, context }) =>
-    fetchHeartbeats({ params, context }),
+  loader: ({ params, context }) => fetchHeartbeats({ params, context }),
   staleTime: 30_000,
   component: HeartbeatsPage,
   pendingComponent: Loading,

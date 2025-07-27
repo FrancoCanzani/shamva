@@ -7,7 +7,9 @@ export function useCreateWorkspace() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (workspaceData: WorkspaceFormValues): Promise<Workspace> => {
+    mutationFn: async (
+      workspaceData: WorkspaceFormValues
+    ): Promise<Workspace> => {
       const {
         data: { session },
         error: sessionError,

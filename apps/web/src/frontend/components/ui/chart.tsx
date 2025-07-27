@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as RechartsPrimitive from "recharts";
 
-import { cn } from "@/frontend/utils/utils"
+import { cn } from "@/frontend/utils/utils";
 const THEMES = { light: "", dark: ".dark" } as const;
 
 export type ChartConfig = {

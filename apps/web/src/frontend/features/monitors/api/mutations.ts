@@ -123,7 +123,13 @@ export function useUpdateMonitor() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ monitorId, data }: { monitorId: string; data: MonitorFormData }) => {
+    mutationFn: async ({
+      monitorId,
+      data,
+    }: {
+      monitorId: string;
+      data: MonitorFormData;
+    }) => {
       const {
         data: { session },
         error: sessionError,
@@ -155,4 +161,4 @@ export function useUpdateMonitor() {
       toast.error("Failed to update monitor");
     },
   });
-} 
+}

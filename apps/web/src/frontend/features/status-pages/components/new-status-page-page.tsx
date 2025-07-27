@@ -37,13 +37,16 @@ async function fetchMonitors(workspaceId: string, accessToken: string) {
 export default function NewStatusPage() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { auth } = useRouteContext({ from: "/dashboard/$workspaceName/status-pages/new/" });
+  const { auth } = useRouteContext({
+    from: "/dashboard/$workspaceName/status-pages/new/",
+  });
   const { workspaceName } = Route.useParams();
   const { currentWorkspace } = useWorkspaces();
 
   const { data: availableMonitors = [] } = useQuery({
     queryKey: ["monitors", currentWorkspace?.id],
-    queryFn: () => fetchMonitors(currentWorkspace!.id, auth.session!.access_token),
+    queryFn: () =>
+      fetchMonitors(currentWorkspace!.id, auth.session!.access_token),
     enabled: !!(auth.session?.access_token && currentWorkspace?.id),
   });
 

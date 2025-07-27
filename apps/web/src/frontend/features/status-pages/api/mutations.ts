@@ -7,7 +7,9 @@ export function useCreateStatusPage() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (statusPageData: StatusPageFormValues): Promise<StatusPage> => {
+    mutationFn: async (
+      statusPageData: StatusPageFormValues
+    ): Promise<StatusPage> => {
       const {
         data: { session },
         error: sessionError,
@@ -44,7 +46,13 @@ export function useUpdateStatusPage() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ statusPageId, data }: { statusPageId: string; data: StatusPageFormValues }): Promise<StatusPage> => {
+    mutationFn: async ({
+      statusPageId,
+      data,
+    }: {
+      statusPageId: string;
+      data: StatusPageFormValues;
+    }): Promise<StatusPage> => {
       const {
         data: { session },
         error: sessionError,
@@ -111,4 +119,4 @@ export function useDeleteStatusPage() {
       toast.error("Failed to delete status page");
     },
   });
-} 
+}

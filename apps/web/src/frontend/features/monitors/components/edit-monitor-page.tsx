@@ -17,7 +17,9 @@ export default function EditMonitorPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const monitor = Route.useLoaderData();
 
-  const { auth } = useRouteContext({ from: "/dashboard/$workspaceName/monitors/$id/edit/" });
+  const { auth } = useRouteContext({
+    from: "/dashboard/$workspaceName/monitors/$id/edit/",
+  });
   const { currentWorkspace } = useWorkspaces(workspaceName);
 
   const handleSubmit = async (formData: MonitorFormData) => {

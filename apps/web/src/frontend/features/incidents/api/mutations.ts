@@ -79,7 +79,13 @@ export function useCreateIncidentUpdate() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ incidentId, data }: { incidentId: string; data: IncidentUpdateData }): Promise<IncidentUpdate> => {
+    mutationFn: async ({
+      incidentId,
+      data,
+    }: {
+      incidentId: string;
+      data: IncidentUpdateData;
+    }): Promise<IncidentUpdate> => {
       const {
         data: { session },
         error: sessionError,
@@ -116,7 +122,13 @@ export function useDeleteIncidentUpdate() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ incidentId, updateId }: { incidentId: string; updateId: string }): Promise<void> => {
+    mutationFn: async ({
+      incidentId,
+      updateId,
+    }: {
+      incidentId: string;
+      updateId: string;
+    }): Promise<void> => {
       const {
         data: { session },
         error: sessionError,
@@ -126,22 +138,19 @@ export function useDeleteIncidentUpdate() {
         throw new Error("Authentication required");
       }
       const token = session.access_token;
-      const response = await fetch(`/api/incidents/${incidentId}/updates/${updateId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `/api/incidents/${incidentId}/updates/${updateId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       if (!response.ok) {
         throw new Error("Failed to delete update");
       }
       return response.json();
-    },
-    onMutate: (variables) => {
-      // This will be handled by the component
-    },
-    onSettled: () => {
-      // This will be handled by the component
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["incident"] });
@@ -151,4 +160,4 @@ export function useDeleteIncidentUpdate() {
       toast.error("Failed to delete update");
     },
   });
-} 
+}

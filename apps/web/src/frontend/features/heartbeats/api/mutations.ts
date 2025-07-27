@@ -8,7 +8,9 @@ export function useCreateHeartbeat() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (heartbeatData: HeartbeatFormData): Promise<Heartbeat> => {
+    mutationFn: async (
+      heartbeatData: HeartbeatFormData
+    ): Promise<Heartbeat> => {
       const {
         data: { session },
         error: sessionError,
@@ -45,7 +47,13 @@ export function useUpdateHeartbeat() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ heartbeatId, data }: { heartbeatId: string; data: HeartbeatFormData }): Promise<Heartbeat> => {
+    mutationFn: async ({
+      heartbeatId,
+      data,
+    }: {
+      heartbeatId: string;
+      data: HeartbeatFormData;
+    }): Promise<Heartbeat> => {
       const {
         data: { session },
         error: sessionError,
@@ -112,4 +120,4 @@ export function useDeleteHeartbeat() {
       toast.error("Failed to delete heartbeat");
     },
   });
-} 
+}

@@ -1,4 +1,4 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "./button";
 import { X } from "lucide-react";
@@ -19,7 +19,7 @@ function ToastTimerComponent({
   confirmText,
   cancelText = "Cancel",
   onConfirm,
-  duration = 10000, 
+  duration = 10000,
   variant = "default",
 }: ToastTimerProps) {
   const [timeLeft, setTimeLeft] = useState(duration);
@@ -30,7 +30,8 @@ function ToastTimerComponent({
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
-        if (prev <= 1000) { // Check if less than 1 second remaining
+        if (prev <= 1000) {
+          // Check if less than 1 second remaining
           clearInterval(timer);
           onConfirm();
           toast.dismiss();
@@ -57,7 +58,7 @@ function ToastTimerComponent({
   const timeLeftSeconds = Math.ceil(timeLeft / 1000);
 
   return (
-    <div className="w-80 space-y-3 rounded-lg border bg-background p-4 shadow-lg">
+    <div className="bg-background w-80 space-y-3 rounded-lg border p-4 shadow-lg">
       <div className="flex items-start justify-between">
         <div>
           <h4 className="font-medium">{title}</h4>
@@ -72,13 +73,13 @@ function ToastTimerComponent({
           <X className="h-3 w-3" />
         </Button>
       </div>
-      
+
       <div className="space-y-2">
         <div className="flex items-center justify-between text-sm">
           <span>Time remaining:</span>
           <span className="font-mono">{timeLeftSeconds}s</span>
         </div>
-        <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+        <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
           <div
             className={`h-full transition-all duration-1000 ease-linear ${
               variant === "destructive" ? "bg-red-500" : "bg-blue-500"
@@ -113,11 +114,8 @@ function ToastTimerComponent({
 export function showToastTimer(props: ToastTimerProps) {
   // Dismiss any existing toasts first to prevent multiple toasts
   toast.dismiss();
-  
-  toast.custom(
-    () => <ToastTimerComponent {...props} />,
-    {
-      duration: Infinity, // Keep the toast open until user action or timer expires
-    }
-  );
-} 
+
+  toast.custom(() => <ToastTimerComponent {...props} />, {
+    duration: Infinity, // Keep the toast open until user action or timer expires
+  });
+}

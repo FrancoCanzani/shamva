@@ -37,7 +37,9 @@ export default function NewMonitorPage() {
   const navigate = useNavigate();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { auth } = useRouteContext({ from: "/dashboard/$workspaceName/monitors/new/$type/" });
+  const { auth } = useRouteContext({
+    from: "/dashboard/$workspaceName/monitors/new/$type/",
+  });
   const { currentWorkspace } = useWorkspaces();
 
   const handleSubmit = async (formData: MonitorFormData) => {

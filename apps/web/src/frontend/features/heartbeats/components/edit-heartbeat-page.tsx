@@ -1,9 +1,7 @@
 import { useWorkspaces } from "@/frontend/lib/context/workspace-context";
 import { Route as EditHeartbeatRoute } from "@/frontend/routes/dashboard/$workspaceName/heartbeats/$id/edit";
-import { Heartbeat } from "@/frontend/types/types";
 import { useNavigate } from "@tanstack/react-router";
 import HeartbeatForm from "./heartbeat-form";
-import { useRouteContext } from "@tanstack/react-router";
 import { useUpdateHeartbeat } from "../api/mutations";
 
 export default function EditHeartbeatPage() {

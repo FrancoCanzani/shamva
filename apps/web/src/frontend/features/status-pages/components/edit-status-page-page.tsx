@@ -38,7 +38,9 @@ export default function EditStatusPagePage() {
   const { id, workspaceName } = Route.useParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const statusPage = Route.useLoaderData();
-  const { auth } = useRouteContext({ from: "/dashboard/$workspaceName/status-pages/$id/edit/" });
+  const { auth } = useRouteContext({
+    from: "/dashboard/$workspaceName/status-pages/$id/edit/",
+  });
 
   const { data: availableMonitors = [] } = useQuery({
     queryKey: ["monitors"],

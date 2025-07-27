@@ -4,4 +4,4 @@ export interface HeartbeatFormData {
   gracePeriodMs: number;
   workspaceId: string;
   pingId: string;
-} 
+}

@@ -12,11 +12,11 @@ import { Link, useRouter } from "@tanstack/react-router";
 import { format, formatDistanceToNowStrict, parseISO } from "date-fns";
 import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
-import { 
-  useAcknowledgeIncident, 
-  useResolveIncident, 
-  useCreateIncidentUpdate, 
-  useDeleteIncidentUpdate 
+import {
+  useAcknowledgeIncident,
+  useResolveIncident,
+  useCreateIncidentUpdate,
+  useDeleteIncidentUpdate,
 } from "../api/mutations";
 import { IncidentWithUpdates } from "../types";
 import IncidentTimeline from "./incident-timeline";
@@ -27,7 +27,9 @@ export default function IncidentPage() {
   const { workspaceName, id } = Route.useParams();
   const incident = Route.useLoaderData() as IncidentWithUpdates;
   const router = useRouter();
-  const { auth } = useRouteContext({ from: "/dashboard/$workspaceName/incidents/$id/" });
+  const { auth } = useRouteContext({
+    from: "/dashboard/$workspaceName/incidents/$id/",
+  });
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showEditor, setShowEditor] = useState(false);
 
@@ -210,13 +212,16 @@ export default function IncidentPage() {
                   <IncidentUpdateEditor
                     onSubmit={async (content) => {
                       if (!auth.session?.user) return;
-                      await updateMutation.mutateAsync({ 
-                        incidentId: id, 
+                      await updateMutation.mutateAsync({
+                        incidentId: id,
                         data: {
                           content,
-                          author_name: auth.session.user.user_metadata?.name || auth.session.user.email || "",
+                          author_name:
+                            auth.session.user.user_metadata?.name ||
+                            auth.session.user.email ||
+                            "",
                           author_email: auth.session.user.email || "",
-                        }
+                        },
                       });
                       await router.invalidate();
                       setShowEditor(false);
@@ -231,7 +236,10 @@ export default function IncidentPage() {
                 onDelete={async (updateId) => {
                   setDeletingId(updateId);
                   try {
-                    await deleteUpdateMutation.mutateAsync({ incidentId: id, updateId });
+                    await deleteUpdateMutation.mutateAsync({
+                      incidentId: id,
+                      updateId,
+                    });
                     await router.invalidate();
                   } finally {
                     setDeletingId(null);

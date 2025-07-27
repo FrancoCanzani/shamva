@@ -7,7 +7,12 @@ export interface PublicStatusPageData {
   title: string;
   description: string;
   show_values: boolean;
-  monitors: any[];
+  monitors: Array<{
+    id: string;
+    name: string;
+    status: string;
+    [key: string]: unknown;
+  }>;
   needsPassword: boolean;
 }
 
@@ -19,9 +24,7 @@ interface StatusPageResponse {
 
 export const Route = createFileRoute("/status/$slug/")({
   component: StatusPage,
-  loader: async ({
-    params,
-  }): Promise<PublicStatusPageData> => {
+  loader: async ({ params }): Promise<PublicStatusPageData> => {
     try {
       const response = await fetch(`/status/${params.slug}`);
 

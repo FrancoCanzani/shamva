@@ -7,7 +7,6 @@ import {
 import { Heartbeat } from "@/frontend/types/types";
 import { Link, useNavigate } from "@tanstack/react-router";
 import HeartbeatTable from "./heartbeat-table";
-import { useRouteContext } from "@tanstack/react-router";
 import { useDeleteHeartbeat } from "../api/mutations";
 
 export default function HeartbeatsPage() {

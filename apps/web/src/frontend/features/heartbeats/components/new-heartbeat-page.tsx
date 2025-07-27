@@ -1,7 +1,5 @@
 import { useWorkspaces } from "@/frontend/lib/context/workspace-context";
-import { ApiResponse, Heartbeat } from "@/frontend/types/types";
 import HeartbeatForm from "./heartbeat-form";
-import { useRouteContext } from "@tanstack/react-router";
 
 import CodeSamples from "@/frontend/components/code-samples";
 import { Alert, AlertDescription } from "@/frontend/components/ui/alert";
@@ -21,7 +19,6 @@ export default function NewHeartbeatPage() {
   const { currentWorkspace: workspace } = useWorkspaces();
   const router = useRouter();
   const params = NewHeartbeatRoute.useParams();
-  const { auth } = useRouteContext({ from: "/dashboard/$workspaceName/heartbeats/new/" });
 
   const apiEndpoint = `https://api.yourapp.com/api/heartbeat?id=${uuid}`;
 

@@ -5,8 +5,7 @@ import { createFileRoute } from "@tanstack/react-router";
 export const Route = createFileRoute(
   "/dashboard/$workspaceName/heartbeats/$id/edit/"
 )({
-  loader: ({ params, context }) =>
-    fetchHeartbeat({ params, context }),
+  loader: ({ params, context }) => fetchHeartbeat({ params, context }),
   staleTime: 30_000,
   component: EditHeartbeatPage,
 });

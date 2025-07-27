@@ -12,7 +12,14 @@ import { Log } from "@/frontend/types/types";
 import { getRegionNameFromCode } from "@/frontend/utils/utils";
 import { format } from "date-fns";
 import { useMemo, useState } from "react";
-import { Line, LineChart, XAxis, YAxis, CartesianGrid, ReferenceLine } from "recharts";
+import {
+  Line,
+  LineChart,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  ReferenceLine,
+} from "recharts";
 import { useTheme } from "@/frontend/lib/context/theme-context";
 
 type ChartDataPoint = {
@@ -91,23 +98,30 @@ function getChartData(
 }
 
 // Helper function to calculate average latency
-function calculateAverageLatency(chartData: ChartDataPoint[], isSplitRegions: boolean, selectedRegion: string | null): number {
+function calculateAverageLatency(
+  chartData: ChartDataPoint[],
+  isSplitRegions: boolean
+): number {
   const validData = chartData
-    .map(point => {
+    .map((point) => {
       if (isSplitRegions) {
         return point.latency;
       } else {
         // For combined view, calculate average across all regions
         const values = Object.keys(point)
-          .filter(key => key.startsWith('latency_'))
-          .map(key => point[key])
-          .filter(value => value !== null && typeof value === 'number');
-        return values.length > 0 ? values.reduce((a, b) => a + b, 0) / values.length : null;
+          .filter((key) => key.startsWith("latency_"))
+          .map((key) => point[key])
+          .filter((value) => value !== null && typeof value === "number");
+        return values.length > 0
+          ? values.reduce((a, b) => a + b, 0) / values.length
+          : null;
       }
     })
-    .filter(value => value !== null && typeof value === 'number') as number[];
+    .filter((value) => value !== null && typeof value === "number") as number[];
 
-  return validData.length > 0 ? validData.reduce((a, b) => a + b, 0) / validData.length : 0;
+  return validData.length > 0
+    ? validData.reduce((a, b) => a + b, 0) / validData.length
+    : 0;
 }
 
 export default function MonitorRegionLatencyCharts({
@@ -143,8 +157,8 @@ export default function MonitorRegionLatencyCharts({
   );
 
   const averageLatency = useMemo(
-    () => calculateAverageLatency(chartData, isSplitRegions, selectedRegion),
-    [chartData, isSplitRegions, selectedRegion]
+    () => calculateAverageLatency(chartData, isSplitRegions),
+    [chartData, isSplitRegions]
   );
 
   const chartConfig = useMemo((): ChartConfig => {
@@ -187,8 +201,8 @@ export default function MonitorRegionLatencyCharts({
   };
 
   // Theme-aware colors
-  const averageLineColor = theme === 'dark' ? '#ffffff' : '#000000';
-  const averageTextColor = theme === 'dark' ? '#ffffff' : '#000000';
+  const averageLineColor = theme === "dark" ? "#ffffff" : "#000000";
+  const averageTextColor = theme === "dark" ? "#ffffff" : "#000000";
 
   if (availableRegions.length === 0) {
     return (
@@ -244,9 +258,9 @@ export default function MonitorRegionLatencyCharts({
 
       <ChartContainer config={chartConfig} className="aspect-auto h-72">
         <LineChart data={chartData} height={320}>
-          <CartesianGrid 
-            strokeDasharray="3 3" 
-            stroke="#e5e7eb" 
+          <CartesianGrid
+            strokeDasharray="3 3"
+            stroke="#e5e7eb"
             opacity={0.3}
             vertical={false}
           />
@@ -312,7 +326,7 @@ export default function MonitorRegionLatencyCharts({
               strokeWidth={1.5}
               label={{
                 value: `Avg: ${Math.round(averageLatency)}ms`,
-                position: 'insideTopRight',
+                position: "insideTopRight",
                 fill: averageTextColor,
                 fontSize: 10,
                 fontWeight: 500,

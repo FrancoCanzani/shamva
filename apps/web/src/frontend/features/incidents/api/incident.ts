@@ -1,26 +1,18 @@
-import { supabase } from "@/frontend/lib/supabase";
+import { RouterContext } from "@/frontend/routes/__root";
 import { Incident } from "@/frontend/types/types";
 
 interface LoadIncidentParams {
   params: { id: string };
-  abortController: AbortController;
+  context: RouterContext;
 }
 
 export default async function fetchIncident({
   params,
-  abortController,
+  context,
 }: LoadIncidentParams): Promise<Incident> {
-  const { data: sessionData, error: sessionError } =
-    await supabase.auth.getSession();
-  const accessToken = sessionData?.session?.access_token;
-  if (sessionError || !accessToken) {
-    throw new Error("Authentication required");
-  }
-
   const response = await fetch(`/api/incidents/${params.id}`, {
-    signal: abortController.signal,
     headers: {
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${context.auth.session?.access_token}`,
     },
   });
 

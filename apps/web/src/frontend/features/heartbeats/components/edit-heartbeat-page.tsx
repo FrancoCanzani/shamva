@@ -1,62 +1,18 @@
 import { useWorkspaces } from "@/frontend/lib/context/workspace-context";
-import { supabase } from "@/frontend/lib/supabase";
 import { Route as EditHeartbeatRoute } from "@/frontend/routes/dashboard/$workspaceName/heartbeats/$id/edit";
 import { Heartbeat } from "@/frontend/types/types";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import HeartbeatForm from "./heartbeat-form";
+import { useRouteContext } from "@tanstack/react-router";
+import { useUpdateHeartbeat } from "../api/mutations";
 
 export default function EditHeartbeatPage() {
   const navigate = useNavigate();
   const { currentWorkspace: workspace } = useWorkspaces();
-  const queryClient = useQueryClient();
   const heartbeat = EditHeartbeatRoute.useLoaderData();
   const params = EditHeartbeatRoute.useParams();
 
-  const updateHeartbeat = useMutation({
-    mutationFn: async (data: {
-      name: string;
-      expectedLapseMs: number;
-      gracePeriodMs: number;
-      workspaceId: string;
-      pingId: string;
-    }): Promise<Heartbeat> => {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const accessToken = sessionData?.session?.access_token;
-      if (!accessToken) {
-        throw new Error("Not authenticated");
-      }
-      const response = await fetch(`/api/heartbeats/${params.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const errorData = (await response.json()) as { error?: string };
-        throw new Error(errorData.error || "Failed to update heartbeat");
-      }
-
-      const result = (await response.json()) as {
-        success: boolean;
-        data?: Heartbeat;
-        error?: string;
-      };
-      if (!result.success || !result.data) {
-        throw new Error(result.error || "Failed to update heartbeat");
-      }
-
-      return result.data;
-    },
-    onSuccess: async () => {
-      // Invalidate and refetch heartbeats
-      await queryClient.invalidateQueries({ queryKey: ["heartbeats"] });
-      navigate({ to: `/dashboard/${workspace?.name}/heartbeats` });
-    },
-  });
+  const updateHeartbeat = useUpdateHeartbeat();
 
   const handleSubmit = async (data: {
     name: string;
@@ -66,7 +22,8 @@ export default function EditHeartbeatPage() {
     pingId: string;
   }) => {
     try {
-      await updateHeartbeat.mutateAsync(data);
+      await updateHeartbeat.mutateAsync({ heartbeatId: params.id, data });
+      navigate({ to: `/dashboard/${workspace?.name}/heartbeats` });
     } catch (error) {
       console.error("Failed to update heartbeat:", error);
     }

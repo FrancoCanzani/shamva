@@ -10,8 +10,7 @@ export type MonitorsSearch = z.infer<typeof MonitorsSearchSchema>;
 
 export const Route = createFileRoute("/dashboard/$workspaceName/monitors/")({
   validateSearch: (search) => MonitorsSearchSchema.parse(search),
-  loader: ({ params, abortController }) =>
-    fetchMonitors({ params, abortController }),
+  loader: ({ params, context }) => fetchMonitors({ params, context }),
   staleTime: 30_000,
   component: MonitorsPage,
   pendingComponent: Loading,

@@ -1,4 +1,4 @@
-import { useAuth } from "@/frontend/lib/context/auth-context";
+import { useRouteContext } from "@tanstack/react-router";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/status-pages/$id/edit";
 import {
   ApiResponse,
@@ -38,19 +38,19 @@ export default function EditStatusPagePage() {
   const { id, workspaceName } = Route.useParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const statusPage = Route.useLoaderData();
-  const { session } = useAuth();
+  const { auth } = useRouteContext({ from: "/dashboard/$workspaceName/status-pages/$id/edit/" });
 
   const { data: availableMonitors = [] } = useQuery({
     queryKey: ["monitors"],
     queryFn: () =>
-      fetchMonitors(statusPage.workspace_id, session!.access_token),
-    enabled: !!(session?.access_token && statusPage.workspace_id),
+      fetchMonitors(statusPage.workspace_id, auth.session!.access_token),
+    enabled: !!(auth.session?.access_token && statusPage.workspace_id),
   });
 
   const handleSubmit = async (formData: StatusPageFormValues) => {
     setIsSubmitting(true);
     try {
-      if (!session?.access_token) {
+      if (!auth.session?.access_token) {
         throw new Error("Authentication error. Please log in again.");
       }
 
@@ -63,7 +63,7 @@ export default function EditStatusPagePage() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${session.access_token}`,
+          Authorization: `Bearer ${auth.session.access_token}`,
         },
         body: JSON.stringify(statusPageRequest),
       });

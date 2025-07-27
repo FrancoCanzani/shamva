@@ -1,12 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/frontend/lib/supabase";
+import { StatusPage, StatusPageFormValues } from "@/frontend/types/types";
 
 export function useCreateStatusPage() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (statusPageData: any) => {
+    mutationFn: async (statusPageData: StatusPageFormValues): Promise<StatusPage> => {
       const {
         data: { session },
         error: sessionError,
@@ -43,7 +44,7 @@ export function useUpdateStatusPage() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ statusPageId, data }: { statusPageId: string; data: any }) => {
+    mutationFn: async ({ statusPageId, data }: { statusPageId: string; data: StatusPageFormValues }): Promise<StatusPage> => {
       const {
         data: { session },
         error: sessionError,
@@ -81,7 +82,7 @@ export function useDeleteStatusPage() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (statusPageId: string) => {
+    mutationFn: async (statusPageId: string): Promise<void> => {
       const {
         data: { session },
         error: sessionError,

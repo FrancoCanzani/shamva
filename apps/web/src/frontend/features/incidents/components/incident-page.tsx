@@ -5,141 +5,38 @@ import {
   DialogTrigger,
 } from "@/frontend/components/ui/dialog";
 import { Separator } from "@/frontend/components/ui/separator";
-import { useAuth } from "@/frontend/lib/context/auth-context";
+import { useRouteContext } from "@tanstack/react-router";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/incidents/$id";
-import { Incident as IncidentBase } from "@/frontend/types/types";
 import { getRegionFlags } from "@/frontend/utils/utils";
-import { useMutation } from "@tanstack/react-query";
 import { Link, useRouter } from "@tanstack/react-router";
 import { format, formatDistanceToNowStrict, parseISO } from "date-fns";
 import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
+import { 
+  useAcknowledgeIncident, 
+  useResolveIncident, 
+  useCreateIncidentUpdate, 
+  useDeleteIncidentUpdate 
+} from "../api/mutations";
+import { IncidentWithUpdates } from "../types";
 import IncidentTimeline from "./incident-timeline";
 import { IncidentUpdateEditor } from "./incident-update-editor";
 import { IncidentUpdatesSection } from "./incident-updates-section";
 
-interface IncidentUpdate {
-  id: string;
-  author: string;
-  author_name?: string;
-  author_email?: string;
-  content: string;
-  created_at: string;
-  author_id?: string;
-}
-
-type Incident = IncidentBase & { updates?: IncidentUpdate[] };
-
 export default function IncidentPage() {
   const { workspaceName, id } = Route.useParams();
-  const incident = Route.useLoaderData() as Incident;
+  const incident = Route.useLoaderData() as IncidentWithUpdates;
   const router = useRouter();
-  const { session } = useAuth();
+  const { auth } = useRouteContext({ from: "/dashboard/$workspaceName/incidents/$id/" });
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showEditor, setShowEditor] = useState(false);
 
-  const acknowledgeMutation = useMutation({
-    mutationFn: async () => {
-      if (!session?.access_token) {
-        throw new Error("Authentication error. Please log in again.");
-      }
-      const response = await fetch(`/api/incidents/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({ acknowledged_at: new Date().toISOString() }),
-      });
-      if (!response.ok) throw new Error("Failed to acknowledge incident");
-    },
-    onSuccess: async () => {
-      toast.success("Incident acknowledged");
-      await router.invalidate();
-    },
-    onError: () => toast.error("Failed to acknowledge incident"),
-  });
+  const acknowledgeMutation = useAcknowledgeIncident();
+  const resolveMutation = useResolveIncident();
+  const updateMutation = useCreateIncidentUpdate();
+  const deleteUpdateMutation = useDeleteIncidentUpdate();
 
-  const resolveMutation = useMutation({
-    mutationFn: async () => {
-      if (!session?.access_token) {
-        throw new Error("Authentication error. Please log in again.");
-      }
-      const response = await fetch(`/api/incidents/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({ resolved_at: new Date().toISOString() }),
-      });
-      if (!response.ok) throw new Error("Failed to resolve incident");
-    },
-    onSuccess: async () => {
-      toast.success("Incident resolved");
-      await router.invalidate();
-    },
-    onError: () => toast.error("Failed to resolve incident"),
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: async ({ content }: { content: string }) => {
-      if (!session?.access_token || !session?.user)
-        throw new Error("Not authenticated");
-      const res = await fetch(`/api/incidents/${id}/updates`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({
-          content,
-          author_name:
-            session.user.user_metadata?.name || session.user.email || "",
-          author_email: session.user.email || "",
-        }),
-      });
-      if (!res.ok) throw new Error("Failed to post update");
-      return res.json();
-    },
-    onSuccess: async () => {
-      toast.success("Update posted");
-      await router.invalidate();
-      setShowEditor(false);
-    },
-    onError: (error) => {
-      toast.error("Failed to post update");
-      console.error(error);
-    },
-  });
-
-  const deleteUpdateMutation = useMutation({
-    mutationFn: async (updateId: string) => {
-      if (!session?.access_token) throw new Error("Not authenticated");
-      const res = await fetch(`/api/incidents/${id}/updates/${updateId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
-      });
-      if (!res.ok) throw new Error("Failed to delete update");
-      return res.json();
-    },
-    onMutate: (updateId: string) => {
-      setDeletingId(updateId);
-    },
-    onSettled: () => {
-      setDeletingId(null);
-    },
-    onSuccess: async () => {
-      toast.success("Update deleted");
-      await router.invalidate();
-    },
-    onError: () => toast.error("Failed to delete update"),
-  });
-
-  const getIncidentStatus = (incident: Incident) => {
+  const getIncidentStatus = (incident: IncidentWithUpdates) => {
     if (incident.resolved_at) {
       return { status: "resolved", label: "Resolved", color: "bg-green-600" };
     }
@@ -248,7 +145,10 @@ export default function IncidentPage() {
                 <div className="flex items-center gap-3">
                   {status.status === "active" && (
                     <Button
-                      onClick={() => acknowledgeMutation.mutate()}
+                      onClick={async () => {
+                        await acknowledgeMutation.mutateAsync(id);
+                        await router.invalidate();
+                      }}
                       disabled={acknowledgeMutation.isPending}
                       size="xs"
                       variant={"outline"}
@@ -260,7 +160,10 @@ export default function IncidentPage() {
                   )}
                   {status.status === "acknowledged" && (
                     <Button
-                      onClick={() => resolveMutation.mutate()}
+                      onClick={async () => {
+                        await resolveMutation.mutateAsync(id);
+                        await router.invalidate();
+                      }}
                       disabled={resolveMutation.isPending}
                       size="xs"
                       variant={"outline"}
@@ -306,8 +209,17 @@ export default function IncidentPage() {
                 <>
                   <IncidentUpdateEditor
                     onSubmit={async (content) => {
-                      if (!session?.user) return;
-                      await updateMutation.mutateAsync({ content });
+                      if (!auth.session?.user) return;
+                      await updateMutation.mutateAsync({ 
+                        incidentId: id, 
+                        data: {
+                          content,
+                          author_name: auth.session.user.user_metadata?.name || auth.session.user.email || "",
+                          author_email: auth.session.user.email || "",
+                        }
+                      });
+                      await router.invalidate();
+                      setShowEditor(false);
                     }}
                     loading={updateMutation.isPending}
                   />
@@ -316,7 +228,15 @@ export default function IncidentPage() {
               )}
               <IncidentUpdatesSection
                 updates={incident.updates || []}
-                onDelete={(updateId) => deleteUpdateMutation.mutate(updateId)}
+                onDelete={async (updateId) => {
+                  setDeletingId(updateId);
+                  try {
+                    await deleteUpdateMutation.mutateAsync({ incidentId: id, updateId });
+                    await router.invalidate();
+                  } finally {
+                    setDeletingId(null);
+                  }
+                }}
                 deletingId={deletingId || undefined}
               />
             </div>

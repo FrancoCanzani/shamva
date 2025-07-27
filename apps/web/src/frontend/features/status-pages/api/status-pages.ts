@@ -1,25 +1,14 @@
-import { supabase } from "@/frontend/lib/supabase";
+import { RouterContext } from "@/frontend/routes/__root";
 import { ApiResponse, StatusPage, Workspace } from "@/frontend/types/types";
 import { redirect } from "@tanstack/react-router";
 
 export async function fetchStatusPages({
   params,
-  abortController,
+  context,
 }: {
   params: Params;
-  abortController: AbortController;
+  context: RouterContext;
 }): Promise<StatusPage[]> {
-  const { data: sessionData, error: sessionError } =
-    await supabase.auth.getSession();
-  const accessToken = sessionData?.session?.access_token;
-  if (sessionError || !accessToken) {
-    throw redirect({
-      to: "/auth/login",
-      search: { redirect: "/dashboard/status" },
-      throw: true,
-    });
-  }
-
   const workspaceName = params.workspaceName;
   if (!workspaceName) {
     console.warn("Workspace name missing from route parameters, redirecting.");
@@ -28,13 +17,13 @@ export async function fetchStatusPages({
       throw: true,
     });
   }
+
   try {
     const workspaceResponse = await fetch("/api/workspaces", {
       headers: {
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${context.auth.session?.access_token}`,
         "Content-Type": "application/json",
       },
-      signal: abortController?.signal,
     });
 
     if (workspaceResponse.status === 401) {
@@ -81,10 +70,9 @@ export async function fetchStatusPages({
       `/api/status-pages?workspaceId=${targetWorkspace.id}`,
       {
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${context.auth.session?.access_token}`,
           "Content-Type": "application/json",
         },
-        signal: abortController?.signal,
       }
     );
 
@@ -105,11 +93,6 @@ export async function fetchStatusPages({
 
     return statusPagesResult.data;
   } catch (error) {
-    if (error instanceof DOMException && error.name === "AbortError") {
-      console.log("Status pages fetch aborted.");
-      return [];
-    }
-
     console.error("Error in fetchStatusPages loader:", error);
     throw error;
   }

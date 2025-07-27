@@ -3,7 +3,7 @@ import EditWorkspacePage from "@/frontend/features/workspaces/components/edit-wo
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/dashboard/workspaces/$workspaceId/")({
-  loader: ({ params, abortController }) =>
-    fetchWorkspace({ params, abortController }),
+  loader: ({ params, context }) =>
+    fetchWorkspace({ params, context }),
   component: EditWorkspacePage,
 });

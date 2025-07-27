@@ -5,20 +5,26 @@ import {
   SidebarProvider,
 } from "@/frontend/components/ui/sidebar";
 import fetchWorkspaces from "@/frontend/features/workspaces/api/workspaces";
-import { useAuth } from "@/frontend/lib/context/auth-context";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/dashboard")({
   component: DashboardLayout,
   notFoundComponent: NotFoundPage,
   loader: fetchWorkspaces,
+  beforeLoad: ({ context }) => {
+    if (context.auth.isLoading) {
+      return;
+    }
+
+    if (!context.auth.session) {
+      throw redirect({
+        to: "/",
+      });
+    }
+  },
 });
 
 function DashboardLayout() {
-  const { user, isLoading } = useAuth();
-
-  if (!isLoading && !user) throw redirect({ to: "/auth/login" });
-
   return (
     <SidebarProvider>
       <DashboardSidebar />

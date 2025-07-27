@@ -1,34 +1,22 @@
-import { supabase } from "@/frontend/lib/supabase";
+import { RouterContext } from "@/frontend/routes/__root";
 import { ApiResponse, Heartbeat } from "@/frontend/types/types";
 import { redirect } from "@tanstack/react-router";
 
 export default async function fetchHeartbeat({
   params,
-  abortController,
+  context,
 }: {
   params: Params;
-  abortController: AbortController;
+  context: RouterContext;
 }): Promise<Heartbeat> {
   const { id } = params;
-
-  const { data: sessionData, error: sessionError } =
-    await supabase.auth.getSession();
-  const accessToken = sessionData?.session?.access_token;
-  if (sessionError || !accessToken) {
-    throw redirect({
-      to: "/auth/login",
-      search: { redirect: `/dashboard/heartbeats/${id}` },
-      throw: true,
-    });
-  }
 
   try {
     const response = await fetch(`/api/heartbeats/${id}`, {
       headers: {
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${context.auth.session?.access_token}`,
         "Content-Type": "application/json",
       },
-      signal: abortController?.signal,
     });
 
     if (response.status === 401) {
@@ -65,10 +53,6 @@ export default async function fetchHeartbeat({
 
     return result.data;
   } catch (error) {
-    if (error instanceof DOMException && error.name === "AbortError") {
-      console.log(`Heartbeat fetch (${id}) aborted.`);
-      throw error;
-    }
     if (
       error &&
       typeof error === "object" &&

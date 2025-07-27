@@ -1,5 +1,5 @@
 import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
-import { useAuth } from "@/frontend/lib/context/auth-context";
+import { useRouteContext } from "@tanstack/react-router";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/status-pages/new";
 import {
   ApiResponse,
@@ -37,21 +37,21 @@ async function fetchMonitors(workspaceId: string, accessToken: string) {
 export default function NewStatusPage() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { session } = useAuth();
+  const { auth } = useRouteContext({ from: "/dashboard/$workspaceName/status-pages/new/" });
   const { workspaceName } = Route.useParams();
   const { currentWorkspace } = useWorkspaces();
 
   const { data: availableMonitors = [] } = useQuery({
     queryKey: ["monitors", currentWorkspace?.id],
-    queryFn: () => fetchMonitors(currentWorkspace!.id, session!.access_token),
-    enabled: !!(session?.access_token && currentWorkspace?.id),
+    queryFn: () => fetchMonitors(currentWorkspace!.id, auth.session!.access_token),
+    enabled: !!(auth.session?.access_token && currentWorkspace?.id),
   });
 
   const handleSubmit = async (formData: StatusPageFormValues) => {
     setIsSubmitting(true);
 
     try {
-      if (!session?.access_token) {
+      if (!auth.session?.access_token) {
         throw new Error("Authentication error. Please log in again.");
       }
 
@@ -70,7 +70,7 @@ export default function NewStatusPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${session.access_token}`,
+          Authorization: `Bearer ${auth.session.access_token}`,
         },
         body: JSON.stringify(statusPageRequest),
       });

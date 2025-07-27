@@ -1,6 +1,5 @@
 import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
-import { useAuth } from "@/frontend/lib/context/auth-context";
-import { Link, useRouter } from "@tanstack/react-router";
+import { Link, useRouteContext, useRouter } from "@tanstack/react-router";
 import {
   BarChart3,
   Bell,
@@ -14,12 +13,20 @@ import { useEffect } from "react";
 import { Button } from "./ui/button";
 
 export default function IndexPage() {
-  const { user, isLoading: authLoading } = useAuth();
+  const { auth } = useRouteContext({ from: "/" });
+
+  console.log(auth);
+
   const { workspaces, isLoading: workspacesLoading } = useWorkspaces();
   const router = useRouter();
 
   useEffect(() => {
-    if (user && !workspacesLoading && workspaces && workspaces.length > 0) {
+    if (
+      auth.user &&
+      !workspacesLoading &&
+      workspaces &&
+      workspaces.length > 0
+    ) {
       const firstWorkspace = workspaces[0];
       const workspaceName = firstWorkspace.name;
 
@@ -29,10 +36,10 @@ export default function IndexPage() {
         params: { workspaceName },
       });
     }
-  }, [user, workspacesLoading, workspaces, router]);
+  }, [auth.user, workspacesLoading, workspaces, router]);
 
   let dashboardLinkTo = "/auth/login";
-  if (!authLoading && user) {
+  if (!auth.isLoading && auth.user) {
     if (workspacesLoading) {
       dashboardLinkTo = "#";
     } else if (workspaces && workspaces.length > 0) {
@@ -44,7 +51,7 @@ export default function IndexPage() {
   }
 
   const getDashboardButtonText = () => {
-    if (!user) return "Get Started";
+    if (!auth.user) return "Get Started";
     if (workspacesLoading) return "Loading...";
     return "Go to Dashboard";
   };
@@ -66,7 +73,7 @@ export default function IndexPage() {
               </span>
             </div>
             <div className="flex items-center space-x-4">
-              {user ? (
+              {auth.user ? (
                 <Button asChild>
                   <Link to={dashboardLinkTo}>{getDashboardButtonText()}</Link>
                 </Button>

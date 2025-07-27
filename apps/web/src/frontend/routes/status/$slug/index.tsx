@@ -1,25 +1,29 @@
 import StatusPage from "@/frontend/features/status-pages/components/status-page";
-import {
-  ApiResponse,
-  PasswordRequiredResponse,
-  PublicStatusPageData,
-} from "@/frontend/types/types";
 import { createFileRoute } from "@tanstack/react-router";
 
-type StatusPageResponse =
-  | ApiResponse<PublicStatusPageData>
-  | ApiResponse<PasswordRequiredResponse>;
+export interface PublicStatusPageData {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  show_values: boolean;
+  monitors: any[];
+  needsPassword: boolean;
+}
+
+interface StatusPageResponse {
+  success: boolean;
+  data?: PublicStatusPageData;
+  error?: string;
+}
 
 export const Route = createFileRoute("/status/$slug/")({
   component: StatusPage,
   loader: async ({
     params,
-    abortController,
   }): Promise<PublicStatusPageData> => {
     try {
-      const response = await fetch(`/status/${params.slug}`, {
-        signal: abortController?.signal,
-      });
+      const response = await fetch(`/status/${params.slug}`);
 
       if (!response.ok) {
         if (response.status === 404) {
@@ -54,9 +58,6 @@ export const Route = createFileRoute("/status/$slug/")({
 
       throw new Error(result.error || "Failed to load status page");
     } catch (error) {
-      if (error instanceof DOMException && error.name === "AbortError") {
-        throw error;
-      }
       console.error("Error loading status page:", error);
       throw error;
     }

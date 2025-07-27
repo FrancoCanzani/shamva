@@ -1,9 +1,15 @@
+import Loading from "@/frontend/components/loading";
 import { fetchLogs } from "@/frontend/features/logs/api/logs";
 import { LogsDataTable } from "@/frontend/features/logs/components/logs-data-table";
 import { createFileRoute } from "@tanstack/react-router";
 
-type LogsSearch = {
+export type LogsSearch = {
   logId?: string;
+};
+
+const RouteComponent = () => {
+  const logsData = Route.useLoaderData();
+  return <LogsDataTable data={logsData} />;
 };
 
 export const Route = createFileRoute("/dashboard/logs/")({
@@ -12,19 +18,8 @@ export const Route = createFileRoute("/dashboard/logs/")({
       logId: typeof search?.logId === "string" ? search.logId : undefined,
     };
   },
-  loader: ({ abortController, params }) =>
-    fetchLogs({ params, abortController }),
+  loader: ({ params, context }) =>
+    fetchLogs({ params, context }),
   component: RouteComponent,
+  pendingComponent: Loading,
 });
-
-function RouteComponent() {
-  const logsData = Route.useLoaderData();
-
-  return (
-    <div className="flex min-h-screen w-full flex-col">
-      <div className="flex min-h-0 flex-1 flex-col">
-        <LogsDataTable data={logsData} />
-      </div>
-    </div>
-  );
-}

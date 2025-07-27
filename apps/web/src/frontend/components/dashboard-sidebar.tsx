@@ -1,10 +1,10 @@
 import { Link, useParams } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { WorkspaceDropdown } from "../features/workspaces/components/workspace-dropdown";
-import { supabase } from "../lib/supabase";
 import { Route } from "../routes/dashboard/route";
 import { Workspace } from "../types/types";
 import { Button } from "./ui/button";
+import { useRouteContext } from "@tanstack/react-router";
 import {
   Sidebar,
   SidebarContent,
@@ -21,6 +21,7 @@ import { ThemeToggle } from "./ui/theme-toggle";
 export function DashboardSidebar() {
   const { workspaceName } = useParams({ strict: false });
   const workspaces = Route.useLoaderData();
+  const { auth } = useRouteContext({ from: "/dashboard" });
 
   const currentWorkspace =
     workspaces.find((w: Workspace) => w.name === workspaceName) ??
@@ -106,7 +107,7 @@ export function DashboardSidebar() {
               size="sm"
               className="w-full"
               onClick={async () => {
-                await supabase.auth.signOut();
+                await auth.signOut();
                 window.location.href = "/";
               }}
             >

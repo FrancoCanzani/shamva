@@ -1,16 +1,13 @@
 import { supabase } from "@/frontend/lib/supabase";
+import { AuthContextType } from "@/frontend/types/types";
 import type { Session, User } from "@supabase/supabase-js";
 import { redirect } from "@tanstack/react-router";
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
+import { router } from "../../main";
 
-type AuthContextType = {
-  user: User | null;
-  session: Session | null;
-  isLoading: boolean;
-  signOut: () => Promise<void>;
-};
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined
+);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -20,49 +17,67 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setIsLoading(true);
-    supabase.auth.getClaims().then(({ data: claimsObj }) => {
-      const claims = claimsObj?.claims;
-      if (claims) {
-        setUser({
-          id: claims.sub,
-          aud: Array.isArray(claims.aud) ? claims.aud[0] : claims.aud,
-          role: claims.role,
-          email: claims.email,
-          phone: claims.phone,
-          app_metadata: claims.app_metadata || {},
-          user_metadata: claims.user_metadata || {},
-          created_at: claims.iat
-            ? new Date(claims.iat * 1000).toISOString()
-            : "",
-          updated_at: claims.exp
-            ? new Date(claims.exp * 1000).toISOString()
-            : "",
-          is_anonymous: claims.is_anonymous,
-          email_confirmed_at: undefined,
-          phone_confirmed_at: undefined,
-          confirmed_at: undefined,
-          last_sign_in_at: undefined,
-          identities: [],
-        });
-        setSession(null);
-      } else {
+    const getInitialAuth = async () => {
+      try {
+        const { data: claimsData, error: claimsError } =
+          await supabase.auth.getClaims();
+        if (claimsError) {
+          console.error("Error getting claims:", claimsError);
+          setUser(null);
+          setSession(null);
+          redirect({ to: "/" });
+          return;
+        }
+        if (claimsData?.claims) {
+          const {
+            data: { session },
+            error: sessionError,
+          } = await supabase.auth.getSession();
+          if (sessionError) {
+            console.error("Error getting session:", sessionError);
+            setUser(null);
+            setSession(null);
+            redirect({ to: "/" });
+            return;
+          }
+          setSession(session);
+          setUser(session?.user ?? null);
+        } else {
+          setUser(null);
+          setSession(null);
+        }
+      } catch (error) {
+        console.error("Error in getInitialAuth:", error);
         setUser(null);
         setSession(null);
+        redirect({ to: "/" });
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
-    });
+    };
+
+    getInitialAuth();
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
+      router.invalidate();
       setIsLoading(false);
 
-      // Redirect to origin when user signs out
-      if (event === "SIGNED_OUT") {
-        redirect({ to: "/" });
+      switch (event) {
+        case "SIGNED_OUT":
+          redirect({ to: "/" });
+          break;
+        case "SIGNED_IN":
+          break;
+        case "TOKEN_REFRESHED":
+          break;
+        case "USER_UPDATED":
+          break;
+        case "PASSWORD_RECOVERY":
+          break;
       }
     });
 
@@ -72,8 +87,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    // State updates will happen via onAuthStateChange listener
+    try {
+      setIsLoading(true);
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        throw error;
+      }
+    } catch (error) {
+      setUser(null);
+      setSession(null);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const value = {
@@ -84,12 +110,4 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
-
-export const useAuth = (): AuthContextType => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
 };

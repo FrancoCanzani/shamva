@@ -1,25 +1,14 @@
-import { supabase } from "@/frontend/lib/supabase";
+import { RouterContext } from "@/frontend/routes/__root";
 import { ApiResponse, Monitor, Workspace } from "@/frontend/types/types";
 import { redirect } from "@tanstack/react-router";
 
 export async function fetchMonitors({
   params,
-  abortController,
+  context,
 }: {
   params: Params;
-  abortController: AbortController;
+  context: RouterContext;
 }): Promise<Monitor[]> {
-  const { data: sessionData, error: sessionError } =
-    await supabase.auth.getSession();
-  const accessToken = sessionData?.session?.access_token;
-  if (sessionError || !accessToken) {
-    throw redirect({
-      to: "/auth/login",
-      search: { redirect: "/dashboard/monitors" },
-      throw: true,
-    });
-  }
-
   const workspaceName = params.workspaceName;
 
   if (!workspaceName) {
@@ -33,10 +22,9 @@ export async function fetchMonitors({
   try {
     const workspaceResponse = await fetch("/api/workspaces", {
       headers: {
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${context.auth.session?.access_token}`,
         "Content-Type": "application/json",
       },
-      signal: abortController?.signal,
     });
 
     if (workspaceResponse.status === 401) {
@@ -96,10 +84,9 @@ export async function fetchMonitors({
       `/api/monitors?workspaceId=${workspaceId}`,
       {
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${context.auth.session?.access_token}`,
           "Content-Type": "application/json",
         },
-        signal: abortController?.signal,
       }
     );
 
@@ -139,10 +126,6 @@ export async function fetchMonitors({
 
     return monitorsResult.data;
   } catch (error) {
-    if (error instanceof DOMException && error.name === "AbortError") {
-      console.log("Fetch aborted.");
-      return [];
-    }
     if (
       error &&
       typeof error === "object" &&

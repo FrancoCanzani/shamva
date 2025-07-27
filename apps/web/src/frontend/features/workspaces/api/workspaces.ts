@@ -2,11 +2,7 @@ import { supabase } from "@/frontend/lib/supabase";
 import { ApiResponse, Workspace } from "@/frontend/types/types";
 import { redirect } from "@tanstack/react-router";
 
-export default async function fetchWorkspaces({
-  abortController,
-}: {
-  abortController: AbortController;
-}): Promise<Workspace[]> {
+export default async function fetchWorkspaces(): Promise<Workspace[]> {
   const { data: sessionData, error: sessionError } =
     await supabase.auth.getSession();
   const accessToken = sessionData?.session?.access_token;
@@ -23,7 +19,6 @@ export default async function fetchWorkspaces({
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
-      signal: abortController?.signal,
     });
 
     if (!response.ok) {

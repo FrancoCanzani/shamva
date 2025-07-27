@@ -1,5 +1,5 @@
 import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
-import { useAuth } from "@/frontend/lib/context/auth-context";
+import { useRouteContext } from "@tanstack/react-router";
 import {
   ApiResponse,
   Workspace,
@@ -16,13 +16,13 @@ export default function NewWorkspacePage() {
   const { invalidateWorkspaces } = useWorkspaces();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { session } = useAuth();
+  const { auth } = useRouteContext({ from: "/dashboard/workspaces/new/" });
 
   const handleSubmit = async (formData: WorkspaceFormValues) => {
     setIsSubmitting(true);
 
     try {
-      if (!session?.access_token) {
+      if (!auth.session?.access_token) {
         throw new Error("Authentication error. Please log in again.");
       }
 
@@ -30,14 +30,14 @@ export default function NewWorkspacePage() {
         name: formData.name,
         description: formData.description,
         members: formData.members,
-        creatorEmail: session.user.email,
+        creatorEmail: auth.session.user.email,
       };
 
       const response = await fetch("/api/workspaces", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${session.access_token}`,
+          Authorization: `Bearer ${auth.session.access_token}`,
         },
         body: JSON.stringify(workspaceRequest),
       });

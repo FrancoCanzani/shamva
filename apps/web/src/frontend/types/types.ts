@@ -1,4 +1,4 @@
-import type { User } from "@supabase/supabase-js";
+import type { Session, User } from "@supabase/supabase-js";
 import z from "zod";
 import {
   MemberInviteSchema,
@@ -192,3 +192,10 @@ export interface Heartbeat {
   created_at: string;
   updated_at: string;
 }
+
+export type AuthContextType = {
+  user: User | null;
+  session: Session | null;
+  isLoading: boolean;
+  signOut: () => Promise<void>;
+};

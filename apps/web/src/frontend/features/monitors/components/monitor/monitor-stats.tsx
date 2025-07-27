@@ -193,7 +193,7 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
               <CardTitle className="text-sm font-medium">Latency p50</CardTitle>
             </CardHeader>
             <CardContent className="inline-flex items-center gap-1">
-              <span className="font-mono font-medium text-black">{p50}ms</span>
+              <span className="font-mono font-medium">{p50}ms</span>
               {p50Diff === null ? null : p50Diff === 0 ? (
                 <span className="text-muted-foreground text-xs">
                   - Same as last period

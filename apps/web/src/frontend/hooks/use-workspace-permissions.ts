@@ -1,24 +1,24 @@
 import { useWorkspaces } from "./use-workspaces";
-import { useAuth } from "../lib/context/auth-context";
+import { useRouteContext } from "@tanstack/react-router";
 import { useMemo } from "react";
 
 export type WorkspaceRole = "admin" | "member" | "viewer";
 
 export function useWorkspacePermissions(workspaceName?: string) {
   const { currentWorkspace } = useWorkspaces(workspaceName);
-  const { user } = useAuth();
+  const { auth } = useRouteContext({ from: "/dashboard" });
 
   const userRole = useMemo(() => {
-    if (!user || !currentWorkspace?.workspace_members) {
+    if (!auth.user || !currentWorkspace?.workspace_members) {
       return null;
     }
 
     const member = currentWorkspace.workspace_members.find(
-      (m) => m.user_id === user.id && m.invitation_status === "accepted"
+      (m) => m.user_id === auth.user!.id && m.invitation_status === "accepted"
     );
 
     return member?.role || null;
-  }, [user, currentWorkspace]);
+  }, [auth.user, currentWorkspace]);
 
   const permissions = useMemo(() => {
     if (!userRole) {

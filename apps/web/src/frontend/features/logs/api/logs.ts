@@ -1,25 +1,14 @@
-import { supabase } from "@/frontend/lib/supabase";
+import { RouterContext } from "@/frontend/routes/__root";
 import { ApiResponse, Log, Workspace } from "@/frontend/types/types";
 import { redirect } from "@tanstack/react-router";
 
 export async function fetchLogs({
-  abortController,
   params,
+  context,
 }: {
-  abortController?: AbortController;
   params: Params;
+  context: RouterContext;
 }): Promise<Log[]> {
-  const { data: sessionData, error: sessionError } =
-    await supabase.auth.getSession();
-  const accessToken = sessionData?.session?.access_token;
-  if (sessionError || !accessToken) {
-    throw redirect({
-      to: "/auth/login",
-      search: { redirect: "/dashboard/logs" },
-      throw: true,
-    });
-  }
-
   const workspaceNameFromParams = params.workspaceName;
   if (!workspaceNameFromParams) {
     console.warn(
@@ -30,13 +19,13 @@ export async function fetchLogs({
       throw: true,
     });
   }
+
   try {
     const workspaceResponse = await fetch("/api/workspaces", {
       headers: {
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${context.auth.session?.access_token}`,
         "Content-Type": "application/json",
       },
-      signal: abortController?.signal,
     });
 
     if (workspaceResponse.status === 401) {
@@ -94,10 +83,9 @@ export async function fetchLogs({
 
     const logsResponse = await fetch(`/api/logs?workspaceId=${workspaceId}`, {
       headers: {
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${context.auth.session?.access_token}`,
         "Content-Type": "application/json",
       },
-      signal: abortController?.signal,
     });
 
     if (logsResponse.status === 401) {
@@ -131,10 +119,6 @@ export async function fetchLogs({
 
     return logsResult.data;
   } catch (error) {
-    if (error instanceof DOMException && error.name === "AbortError") {
-      console.log("Logs fetch aborted.");
-      return [];
-    }
     if (
       error &&
       typeof error === "object" &&

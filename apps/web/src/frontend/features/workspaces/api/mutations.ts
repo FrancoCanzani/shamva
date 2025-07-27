@@ -1,12 +1,13 @@
 import { supabase } from "@/frontend/lib/supabase";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { Workspace, WorkspaceFormValues } from "@/frontend/types/types";
 
 export function useCreateWorkspace() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (workspaceData) => {
+    mutationFn: async (workspaceData: WorkspaceFormValues): Promise<Workspace> => {
       const {
         data: { session },
         error: sessionError,
@@ -48,8 +49,8 @@ export function useUpdateWorkspace() {
       data,
     }: {
       workspaceId: string;
-      data: any;
-    }) => {
+      data: WorkspaceFormValues;
+    }): Promise<Workspace> => {
       const {
         data: { session },
         error: sessionError,
@@ -87,7 +88,7 @@ export function useDeleteWorkspace() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (workspaceId: string) => {
+    mutationFn: async (workspaceId: string): Promise<void> => {
       const {
         data: { session },
         error: sessionError,

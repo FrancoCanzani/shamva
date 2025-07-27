@@ -1,12 +1,14 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/frontend/lib/supabase";
+import { Heartbeat } from "@/frontend/types/types";
+import { HeartbeatFormData } from "../types";
 
 export function useCreateHeartbeat() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (heartbeatData: any) => {
+    mutationFn: async (heartbeatData: HeartbeatFormData): Promise<Heartbeat> => {
       const {
         data: { session },
         error: sessionError,
@@ -43,7 +45,7 @@ export function useUpdateHeartbeat() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ heartbeatId, data }: { heartbeatId: string; data: any }) => {
+    mutationFn: async ({ heartbeatId, data }: { heartbeatId: string; data: HeartbeatFormData }): Promise<Heartbeat> => {
       const {
         data: { session },
         error: sessionError,
@@ -81,7 +83,7 @@ export function useDeleteHeartbeat() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (heartbeatId: string) => {
+    mutationFn: async (heartbeatId: string): Promise<void> => {
       const {
         data: { session },
         error: sessionError,

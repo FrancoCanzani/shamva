@@ -1,33 +1,22 @@
-import { supabase } from "@/frontend/lib/supabase";
+import { RouterContext } from "@/frontend/routes/__root";
 import { ApiResponse, StatusPage } from "@/frontend/types/types";
 import { redirect } from "@tanstack/react-router";
 
 export default async function fetchStatusPage({
   params,
-  abortController,
+  context,
 }: {
   params: Params;
-  abortController: AbortController;
+  context: RouterContext;
 }): Promise<StatusPage> {
   const { id } = params;
-  const { data: sessionData, error: sessionError } =
-    await supabase.auth.getSession();
-  const accessToken = sessionData?.session?.access_token;
-  if (sessionError || !accessToken) {
-    throw redirect({
-      to: "/auth/login",
-      search: { redirect: `/dashboard/status-pages/${id}` },
-      throw: true,
-    });
-  }
 
   try {
     const response = await fetch(`/api/status-pages/${id}`, {
       headers: {
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${context.auth.session?.access_token}`,
         "Content-Type": "application/json",
       },
-      signal: abortController?.signal,
     });
 
     if (response.status === 401) {
@@ -67,10 +56,6 @@ export default async function fetchStatusPage({
 
     return result.data;
   } catch (error) {
-    if (error instanceof DOMException && error.name === "AbortError") {
-      console.log(`Status page fetch (${id}) aborted.`);
-      throw error;
-    }
     if (
       error &&
       typeof error === "object" &&

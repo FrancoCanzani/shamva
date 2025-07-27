@@ -5,7 +5,7 @@ import { createFileRoute } from "@tanstack/react-router";
 export const Route = createFileRoute(
   "/dashboard/$workspaceName/status-pages/$id/edit/"
 )({
+  loader: ({ params, context }) =>
+    fetchStatusPage({ params, context }),
   component: EditStatusPagePage,
-  loader: ({ params, abortController }) =>
-    fetchStatusPage({ params, abortController }),
 });

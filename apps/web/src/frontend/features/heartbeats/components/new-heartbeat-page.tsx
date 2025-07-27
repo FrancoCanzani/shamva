@@ -1,17 +1,17 @@
 import { useWorkspaces } from "@/frontend/lib/context/workspace-context";
-import { supabase } from "@/frontend/lib/supabase";
 import { ApiResponse, Heartbeat } from "@/frontend/types/types";
 import HeartbeatForm from "./heartbeat-form";
+import { useRouteContext } from "@tanstack/react-router";
 
 import CodeSamples from "@/frontend/components/code-samples";
 import { Alert, AlertDescription } from "@/frontend/components/ui/alert";
 import { Button } from "@/frontend/components/ui/button";
 import { Route as NewHeartbeatRoute } from "@/frontend/routes/dashboard/$workspaceName/heartbeats/new";
-import { useMutation } from "@tanstack/react-query";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 import { AlertCircleIcon, Check, Copy } from "lucide-react";
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { useCreateHeartbeat } from "../api/mutations";
 
 export default function NewHeartbeatPage() {
   const [copied, setCopied] = useState(false);
@@ -21,49 +21,11 @@ export default function NewHeartbeatPage() {
   const { currentWorkspace: workspace } = useWorkspaces();
   const router = useRouter();
   const params = NewHeartbeatRoute.useParams();
+  const { auth } = useRouteContext({ from: "/dashboard/$workspaceName/heartbeats/new/" });
 
   const apiEndpoint = `https://api.yourapp.com/api/heartbeat?id=${uuid}`;
 
-  const createHeartbeat = useMutation({
-    mutationFn: async (data: {
-      name: string;
-      expectedLapseMs: number;
-      gracePeriodMs: number;
-      workspaceId: string;
-      pingId: string;
-    }): Promise<Heartbeat> => {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const accessToken = sessionData?.session?.access_token;
-      if (!accessToken) {
-        throw new Error("Not authenticated");
-      }
-      const response = await fetch(`/api/heartbeats`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const errorData = (await response.json()) as { error?: string };
-        throw new Error(errorData.error || "Failed to create heartbeat");
-      }
-
-      const result: ApiResponse<Heartbeat> = await response.json();
-
-      if (!result.success || !result.data) {
-        throw new Error(result.error || "Failed to create heartbeat");
-      }
-
-      return result.data;
-    },
-    onSuccess: async () => {
-      await router.invalidate();
-      navigate({ to: `/dashboard/${params.workspaceName}/heartbeats` });
-    },
-  });
+  const createHeartbeat = useCreateHeartbeat();
 
   const handleSubmit = async (data: {
     name: string;
@@ -74,6 +36,8 @@ export default function NewHeartbeatPage() {
   }) => {
     try {
       await createHeartbeat.mutateAsync(data);
+      await router.invalidate();
+      navigate({ to: `/dashboard/${params.workspaceName}/heartbeats` });
     } catch (error) {
       console.error("Failed to create heartbeat:", error);
     }

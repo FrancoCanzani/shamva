@@ -1,12 +1,5 @@
 import { format, parseISO } from "date-fns";
-
-type TimelineEvent = {
-  id: string;
-  title: string;
-  time: string;
-  description?: string;
-  color?: string;
-};
+import { TimelineEvent } from "../types";
 
 interface IncidentTimelineProps {
   events: TimelineEvent[];

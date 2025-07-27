@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/frontend/components/ui/button";
-import { useAuth } from "@/frontend/lib/context/auth-context";
+import { useAuth } from "@/frontend/hooks/use-auth";
 import { supabase } from "@/frontend/lib/supabase";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";

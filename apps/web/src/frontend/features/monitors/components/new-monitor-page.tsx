@@ -1,5 +1,5 @@
 import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
-import { useAuth } from "@/frontend/lib/context/auth-context";
+import { useRouteContext } from "@tanstack/react-router";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/new/$type";
 import { ApiResponse, Monitor } from "@/frontend/types/types";
 import { useNavigate, useRouter } from "@tanstack/react-router";
@@ -37,14 +37,14 @@ export default function NewMonitorPage() {
   const navigate = useNavigate();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { session } = useAuth();
+  const { auth } = useRouteContext({ from: "/dashboard/$workspaceName/monitors/new/$type/" });
   const { currentWorkspace } = useWorkspaces();
 
   const handleSubmit = async (formData: MonitorFormData) => {
     setIsSubmitting(true);
 
     try {
-      if (!session?.access_token) {
+      if (!auth.session?.access_token) {
         throw new Error("Authentication error. Please log in again.");
       }
 
@@ -63,7 +63,7 @@ export default function NewMonitorPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${session.access_token}`,
+          Authorization: `Bearer ${auth.session.access_token}`,
         },
         body: JSON.stringify(monitorRequest),
       });

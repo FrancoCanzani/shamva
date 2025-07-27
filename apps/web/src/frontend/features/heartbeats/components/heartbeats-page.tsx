@@ -1,45 +1,21 @@
 import NotFoundMessage from "@/frontend/components/not-found-message";
 import { Button } from "@/frontend/components/ui/button";
-import { supabase } from "@/frontend/lib/supabase";
 import {
   Route as HeartbeatsRoute,
   Route,
 } from "@/frontend/routes/dashboard/$workspaceName/heartbeats/index";
 import { Heartbeat } from "@/frontend/types/types";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import HeartbeatTable from "./heartbeat-table";
+import { useRouteContext } from "@tanstack/react-router";
+import { useDeleteHeartbeat } from "../api/mutations";
 
 export default function HeartbeatsPage() {
   const navigate = useNavigate();
   const { workspaceName } = Route.useParams();
   const heartbeats = HeartbeatsRoute.useLoaderData();
-  const queryClient = useQueryClient();
 
-  const deleteHeartbeat = useMutation({
-    mutationFn: async (heartbeatId: string): Promise<void> => {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const accessToken = sessionData?.session?.access_token;
-      if (!accessToken) {
-        throw new Error("Not authenticated");
-      }
-      const response = await fetch(`/api/heartbeats/${heartbeatId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-
-      if (!response.ok) {
-        const errorData = (await response.json()) as { error?: string };
-        throw new Error(errorData.error || "Failed to delete heartbeat");
-      }
-    },
-    onSuccess: () => {
-      // Invalidate and refetch heartbeats
-      queryClient.invalidateQueries({ queryKey: ["heartbeats"] });
-    },
-  });
+  const deleteHeartbeat = useDeleteHeartbeat();
 
   const handleEdit = (heartbeat: Heartbeat) => {
     navigate({
@@ -58,7 +34,6 @@ export default function HeartbeatsPage() {
   const handleCopyEndpoint = (heartbeatId: string) => {
     const endpointUrl = `/api/heartbeat?id=${heartbeatId}`;
     navigator.clipboard.writeText(endpointUrl);
-    // You could add a toast notification here
   };
 
   return (

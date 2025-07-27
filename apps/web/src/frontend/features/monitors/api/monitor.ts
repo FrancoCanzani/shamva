@@ -1,38 +1,27 @@
-import { supabase } from "@/frontend/lib/supabase";
+import { RouterContext } from "@/frontend/routes/__root";
 import { ApiResponse } from "@/frontend/types/types";
 import { redirect } from "@tanstack/react-router";
 import { MonitorWithIncidents } from "../types";
 
 export default async function fetchMonitor({
   params,
-  abortController,
+  context,
   days,
 }: {
   params: Params;
-  abortController: AbortController;
+  context: RouterContext;
   days: number;
 }) {
   const { id } = params;
 
-  const { data: sessionData, error: sessionError } =
-    await supabase.auth.getSession();
-  const accessToken = sessionData?.session?.access_token;
-  if (sessionError || !accessToken) {
-    throw redirect({
-      to: "/auth/login",
-      search: { redirect: `/dashboard/monitors/${id}` },
-      throw: true,
-    });
-  }
   try {
     // For 1-day stats, we fetch 2 days of logs to enable 24h progression comparison in the UI
     const fetchDays = days === 1 ? 2 : days;
     const response = await fetch(`/api/monitors/${id}?days=${fetchDays}`, {
       headers: {
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${context.auth.session?.access_token}`,
         "Content-Type": "application/json",
       },
-      signal: abortController?.signal,
     });
 
     if (response.status === 401) {
@@ -70,10 +59,6 @@ export default async function fetchMonitor({
 
     return result.data;
   } catch (error) {
-    if (error instanceof DOMException && error.name === "AbortError") {
-      console.log(`Monitor fetch (${id}) aborted.`);
-      throw error;
-    }
     if (
       error &&
       typeof error === "object" &&

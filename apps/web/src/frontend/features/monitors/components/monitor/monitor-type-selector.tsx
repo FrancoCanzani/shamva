@@ -33,7 +33,7 @@ export default function MonitorTypeSelector() {
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <PopoverTrigger>
+      <PopoverTrigger asChild>
         <Button variant={"outline"} size={"xs"} className="rounded">
           New Monitor
         </Button>

@@ -1,19 +1,11 @@
-interface IncidentUpdate {
-  id: string;
-  author: string;
-  author_name?: string;
-  author_email?: string;
-  content: string;
-  created_at: string;
-  author_id?: string;
-}
+import { IncidentUpdateWithAuthor } from "../types";
 
 export function IncidentUpdatesSection({
   updates = [],
   onDelete,
   deletingId,
 }: {
-  updates: IncidentUpdate[];
+  updates: IncidentUpdateWithAuthor[];
   onDelete?: (id: string) => void;
   deletingId?: string;
 }) {

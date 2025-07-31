@@ -17,6 +17,7 @@ import {
   SidebarMenuItem,
 } from "./ui/sidebar";
 import { ThemeToggle } from "./ui/theme-toggle";
+import { FeedbackForm } from "./feedback-form";
 
 export function DashboardSidebar() {
   const { workspaceName } = useParams({ strict: false });
@@ -102,6 +103,7 @@ export function DashboardSidebar() {
           <SidebarGroupContent>
             <WorkspaceDropdown />
             <ThemeToggle />
+            <FeedbackForm />
             <Button
               variant="outline"
               size="sm"

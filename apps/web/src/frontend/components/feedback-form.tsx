@@ -8,8 +8,8 @@ import { Textarea } from "@/frontend/components/ui/textarea";
 import { cn } from "@/frontend/utils/utils";
 import { useRouteContext } from "@tanstack/react-router";
 import { useState } from "react";
-import { z } from "zod";
 import { toast } from "sonner";
+import { z } from "zod";
 
 const feedbackSchema = z.object({
   message: z.string().min(1).max(1000),
@@ -26,8 +26,6 @@ export function FeedbackForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-
-
     const formData = {
       message: message.trim(),
     };
@@ -39,9 +37,10 @@ export function FeedbackForm() {
         (error) => error.path[0] === "message"
       );
 
-      const errorMessage = messageError?.code === "too_small"
-        ? "Please enter a message"
-        : "Message must be 1000 characters or less";
+      const errorMessage =
+        messageError?.code === "too_small"
+          ? "Please enter a message"
+          : "Message must be 1000 characters or less";
 
       toast.error(errorMessage);
       return;
@@ -78,7 +77,7 @@ export function FeedbackForm() {
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="w-full">
+        <Button variant="outline" size="sm" className="flex-1">
           Feedback
         </Button>
       </PopoverTrigger>

@@ -97,6 +97,9 @@ export default function NotificationsPage() {
               </Card>
             </Link>
           ))}
+          <Card className="bg-carbon-50/10 text-muted-foreground flex items-center justify-center space-y-1 border border-dashed p-2.5 text-sm ring-0">
+            More integrations coming soon
+          </Card>
         </div>
       </main>
     </div>

@@ -1,10 +1,11 @@
 import { Link, useParams } from "@tanstack/react-router";
+import { Settings } from "lucide-react";
 import { useMemo } from "react";
 import { WorkspaceDropdown } from "../features/workspaces/components/workspace-dropdown";
 import { Route } from "../routes/dashboard/route";
 import { Workspace } from "../types/types";
+import { FeedbackForm } from "./feedback-form";
 import { Button } from "./ui/button";
-import { useRouteContext } from "@tanstack/react-router";
 import {
   Sidebar,
   SidebarContent,
@@ -17,12 +18,10 @@ import {
   SidebarMenuItem,
 } from "./ui/sidebar";
 import { ThemeToggle } from "./ui/theme-toggle";
-import { FeedbackForm } from "./feedback-form";
 
 export function DashboardSidebar() {
   const { workspaceName } = useParams({ strict: false });
   const workspaces = Route.useLoaderData();
-  const { auth } = useRouteContext({ from: "/dashboard" });
 
   const currentWorkspace =
     workspaces.find((w: Workspace) => w.name === workspaceName) ??
@@ -67,7 +66,7 @@ export function DashboardSidebar() {
   return (
     <Sidebar className="border-none">
       <SidebarHeader>
-        <h1 className="text-xl font-medium">Shamva</h1>
+        <h1 className="pl-2 text-xl font-medium">Shamva</h1>
       </SidebarHeader>
 
       <SidebarContent>
@@ -100,21 +99,17 @@ export function DashboardSidebar() {
 
       <SidebarFooter>
         <SidebarGroup>
-          <SidebarGroupContent>
+          <SidebarGroupContent className="flex flex-col space-y-1">
             <WorkspaceDropdown />
-            <ThemeToggle />
-            <FeedbackForm />
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full"
-              onClick={async () => {
-                await auth.signOut();
-                window.location.href = "/";
-              }}
-            >
-              Sign out
-            </Button>
+            <div className="flex items-center space-x-1">
+              <FeedbackForm />
+              <Link to="/dashboard/settings">
+                <Button variant={"outline"} size={"sm"}>
+                  <Settings className="h-4 w-4" />
+                </Button>
+              </Link>
+              <ThemeToggle />
+            </div>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarFooter>

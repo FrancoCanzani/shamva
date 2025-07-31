@@ -35,8 +35,8 @@ export function WorkspaceDropdown({ workspaceName }: WorkspaceDropdownProps) {
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          size={"xs"}
-          className="flex w-full max-w-[240px] justify-between"
+          size={"sm"}
+          className="flex w-full justify-between"
           disabled={isLoading}
         >
           {isLoading

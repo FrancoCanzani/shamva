@@ -7,20 +7,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/frontend/components/ui/select";
+import { useTheme } from "@/frontend/lib/context/theme-context";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id";
 import { Log } from "@/frontend/types/types";
 import { getRegionNameFromCode } from "@/frontend/utils/utils";
 import { format } from "date-fns";
 import { useMemo, useState } from "react";
 import {
+  CartesianGrid,
   Line,
   LineChart,
+  ReferenceArea,
   XAxis,
   YAxis,
-  CartesianGrid,
-  ReferenceLine,
 } from "recharts";
-import { useTheme } from "@/frontend/lib/context/theme-context";
 
 type ChartDataPoint = {
   date: string;
@@ -97,7 +97,6 @@ function getChartData(
   });
 }
 
-// Helper function to calculate average latency
 function calculateAverageLatency(
   chartData: ChartDataPoint[],
   isSplitRegions: boolean
@@ -200,7 +199,6 @@ export default function MonitorRegionLatencyCharts({
     });
   };
 
-  // Theme-aware colors
   const averageLineColor = theme === "dark" ? "#ffffff" : "#000000";
   const averageTextColor = theme === "dark" ? "#ffffff" : "#000000";
 
@@ -261,7 +259,7 @@ export default function MonitorRegionLatencyCharts({
           <CartesianGrid
             strokeDasharray="3 3"
             stroke="#e5e7eb"
-            opacity={0.3}
+            opacity={1}
             vertical={false}
           />
           <XAxis
@@ -269,7 +267,6 @@ export default function MonitorRegionLatencyCharts({
             tickLine={false}
             axisLine={false}
             tickMargin={8}
-            className="text-xs"
             tickFormatter={(value) => format(new Date(value), "MMM d")}
             minTickGap={80}
             interval="equidistantPreserveStart"
@@ -277,9 +274,8 @@ export default function MonitorRegionLatencyCharts({
           <YAxis
             tickLine={false}
             axisLine={false}
-            className="text-xs"
             tickFormatter={(value) => {
-              // Round to nice intervals
+              // Round the intervals
               if (value >= 1000) {
                 return `${Math.round(value / 100) * 100}ms`;
               } else if (value >= 100) {
@@ -319,11 +315,14 @@ export default function MonitorRegionLatencyCharts({
             }}
           />
           {averageLatency > 0 && (
-            <ReferenceLine
-              y={averageLatency}
+            <ReferenceArea
+              y1={averageLatency - 10}
+              y2={averageLatency + 10}
+              fill={averageLineColor}
+              fillOpacity={0.1}
               stroke={averageLineColor}
-              strokeDasharray="5 5"
-              strokeWidth={1.5}
+              strokeDasharray="3 3"
+              strokeWidth={0.8}
               label={{
                 value: `Avg: ${Math.round(averageLatency)}ms`,
                 position: "insideTopRight",
@@ -338,28 +337,30 @@ export default function MonitorRegionLatencyCharts({
               dataKey="latency"
               type="monotone"
               stroke={averageLineColor}
-              strokeWidth={1.5}
+              strokeWidth={1.2}
               dot={false}
               activeDot={{
                 r: 3,
                 fill: averageLineColor,
                 stroke: "#ffffff",
-                strokeWidth: 2,
+                strokeWidth: 1,
               }}
               connectNulls={false}
               name={getRegionNameFromCode(selectedRegion)}
             />
           ) : (
             availableRegions.map((region, index) => {
-              const colors = [
-                "#6B7280",
-                "#EF4444",
-                "#10B981",
-                "#3B82F6",
-                "#8B5CF6",
-                "#F59E0B",
-              ];
-              const color = colors[index % colors.length];
+              const color =
+                availableRegions.length === 1
+                  ? averageLineColor
+                  : [
+                      "#6B7280",
+                      "#EF4444",
+                      "#10B981",
+                      "#3B82F6",
+                      "#8B5CF6",
+                      "#F59E0B",
+                    ][index % 6];
 
               return (
                 <Line
@@ -367,13 +368,13 @@ export default function MonitorRegionLatencyCharts({
                   dataKey={`latency_${region}`}
                   type="monotone"
                   stroke={color}
-                  strokeWidth={1.5}
+                  strokeWidth={1.2}
                   dot={false}
                   activeDot={{
                     r: 3,
                     fill: color,
                     stroke: "#ffffff",
-                    strokeWidth: 2,
+                    strokeWidth: 1,
                   }}
                   connectNulls={false}
                   name={getRegionNameFromCode(region)}

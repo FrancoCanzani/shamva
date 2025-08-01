@@ -1,9 +1,10 @@
-import { Link, useParams } from "@tanstack/react-router";
+import { Link, useParams, useRouterState } from "@tanstack/react-router";
 import { Settings } from "lucide-react";
 import { useMemo } from "react";
 import { WorkspaceDropdown } from "../features/workspaces/components/workspace-dropdown";
 import { Route } from "../routes/dashboard/route";
 import { Workspace } from "../types/types";
+import { cn } from "../utils/utils";
 import { FeedbackForm } from "./feedback-form";
 import { Button } from "./ui/button";
 import {
@@ -22,6 +23,7 @@ import { ThemeToggle } from "./ui/theme-toggle";
 export function DashboardSidebar() {
   const { workspaceName } = useParams({ strict: false });
   const workspaces = Route.useLoaderData();
+  const router = useRouterState();
 
   const currentWorkspace =
     workspaces.find((w: Workspace) => w.name === workspaceName) ??
@@ -64,7 +66,7 @@ export function DashboardSidebar() {
   );
 
   return (
-    <Sidebar className="border-none">
+    <Sidebar>
       <SidebarHeader>
         <h1 className="pl-2 text-xl font-medium">Shamva</h1>
       </SidebarHeader>
@@ -81,6 +83,12 @@ export function DashboardSidebar() {
                         to={item.to}
                         params={{ workspaceName: currentWorkspace.name }}
                         preload="intent"
+                        className={cn(
+                          "",
+                          router.location.pathname.includes(
+                            item.to.split("/").pop()!
+                          ) && "font-medium"
+                        )}
                       >
                         <span>{item.label}</span>
                       </Link>

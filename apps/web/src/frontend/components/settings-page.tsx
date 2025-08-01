@@ -11,8 +11,6 @@ export default function SettingsPage() {
 
   const user = auth.user!;
 
-  console.log(user);
-
   if (!user) return;
 
   const handleSignOut = () => {

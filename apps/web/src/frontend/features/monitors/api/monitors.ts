@@ -11,13 +11,6 @@ export async function fetchMonitors({
 }): Promise<Monitor[]> {
   const workspaceName = params.workspaceName;
 
-  if (!workspaceName) {
-    console.warn("Workspace name missing from route parameters, redirecting.");
-    throw redirect({
-      to: "/dashboard/workspaces/new",
-      throw: true,
-    });
-  }
 
   try {
     const workspaceResponse = await fetch("/api/workspaces", {

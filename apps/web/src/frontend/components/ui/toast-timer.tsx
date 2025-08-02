@@ -58,11 +58,11 @@ function ToastTimerComponent({
   const timeLeftSeconds = Math.ceil(timeLeft / 1000);
 
   return (
-    <div className="bg-background w-80 space-y-3 rounded-lg border p-4 shadow-lg">
+    <div className="bg-background space-y-2 rounded p-2 shadow">
       <div className="flex items-start justify-between">
         <div>
-          <h4 className="font-medium">{title}</h4>
-          <p className="text-muted-foreground text-sm">{description}</p>
+          <h4 className="text-sm font-medium">{title}</h4>
+          <p className="text-muted-foreground text-xs">{description}</p>
         </div>
         <Button
           variant="ghost"
@@ -74,24 +74,14 @@ function ToastTimerComponent({
         </Button>
       </div>
 
-      <div className="space-y-2">
-        <div className="flex items-center justify-between text-sm">
-          <span>Time remaining:</span>
-          <span className="font-mono">{timeLeftSeconds}s</span>
-        </div>
-        <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
-          <div
-            className={`h-full transition-all duration-1000 ease-linear ${
-              variant === "destructive" ? "bg-red-500" : "bg-blue-500"
-            }`}
-            style={{ width: `${(timeLeft / duration) * 100}%` }}
-          />
-        </div>
+      <div className="flex items-center justify-between text-xs">
+        <span>Time remaining:</span>
+        <span className="font-mono">{timeLeftSeconds}s</span>
       </div>
 
       <div className="flex items-center gap-2">
         <Button
-          size="sm"
+          size="xs"
           variant={variant === "destructive" ? "destructive" : "default"}
           onClick={handleConfirm}
           className="flex-1"
@@ -99,7 +89,7 @@ function ToastTimerComponent({
           {confirmText}
         </Button>
         <Button
-          size="sm"
+          size="xs"
           variant="outline"
           onClick={handleCancel}
           className="flex-1"

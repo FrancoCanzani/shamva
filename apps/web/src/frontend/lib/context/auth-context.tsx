@@ -1,4 +1,4 @@
-import { supabase } from "@/frontend/lib/supabase";
+import supabase from "@/frontend/lib/supabase";
 import { AuthContextType } from "@/frontend/types/types";
 import type { Session, User } from "@supabase/supabase-js";
 import { redirect } from "@tanstack/react-router";
@@ -21,6 +21,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       try {
         const { data: claimsData, error: claimsError } =
           await supabase.auth.getClaims();
+
+        console.log(claimsData);
+
         if (claimsError) {
           console.error("Error getting claims:", claimsError);
           setUser(null);
@@ -63,6 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
+      
       router.invalidate();
       setIsLoading(false);
 

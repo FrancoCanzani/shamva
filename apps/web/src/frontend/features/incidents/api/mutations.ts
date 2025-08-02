@@ -1,7 +1,7 @@
+import supabase from "@/frontend/lib/supabase";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { supabase } from "@/frontend/lib/supabase";
-import { IncidentUpdateData, IncidentUpdate } from "../types";
+import { IncidentUpdate, IncidentUpdateData } from "../types";
 
 export function useAcknowledgeIncident() {
   const queryClient = useQueryClient();

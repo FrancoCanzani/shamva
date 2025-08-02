@@ -1,4 +1,4 @@
-import { supabase } from "@/frontend/lib/supabase";
+import supabase from "@/frontend/lib/supabase";
 import { ApiResponse, Workspace } from "@/frontend/types/types";
 import { redirect } from "@tanstack/react-router";
 

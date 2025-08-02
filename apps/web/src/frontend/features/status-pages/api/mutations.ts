@@ -1,7 +1,7 @@
+import supabase from "@/frontend/lib/supabase";
+import { StatusPage, StatusPageFormValues } from "@/frontend/types/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { supabase } from "@/frontend/lib/supabase";
-import { StatusPage, StatusPageFormValues } from "@/frontend/types/types";
 
 export function useCreateStatusPage() {
   const queryClient = useQueryClient();

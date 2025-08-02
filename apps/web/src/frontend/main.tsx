@@ -6,10 +6,10 @@ import {
 } from "@tanstack/react-router";
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
-import { AuthProvider } from "./lib/context/auth-context";
-import { supabase } from "./lib/supabase";
-import { routeTree } from "./routeTree.gen";
 import { useAuth } from "./hooks/use-auth";
+import { AuthProvider } from "./lib/context/auth-context";
+import supabase from "./lib/supabase";
+import { routeTree } from "./routeTree.gen";
 
 const queryClient = new QueryClient();
 
@@ -29,15 +29,20 @@ declare module "@tanstack/react-router" {
 }
 
 function AppWithRouter() {
-  const auth = useAuth();
-
+  const { user, session, isLoading, signOut } = useAuth();
+  
   return (
     <RouterProvider
       router={router}
       context={{
         queryClient,
         supabase,
-        auth,
+        auth: {
+          user,
+          session,
+          isLoading,
+          signOut,
+        },
       }}
     />
   );

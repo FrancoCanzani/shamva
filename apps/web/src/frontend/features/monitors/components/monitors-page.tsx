@@ -27,7 +27,7 @@ export default function MonitorsPage() {
           <div className="mb-6">
             <h2 className="text-xl font-medium">Monitors</h2>
             <p className="text-muted-foreground mt-1 text-sm">
-              A Monitor is a silent vigilante of your services
+              A Monitor is a silent vigilante of your services.
             </p>
           </div>
 

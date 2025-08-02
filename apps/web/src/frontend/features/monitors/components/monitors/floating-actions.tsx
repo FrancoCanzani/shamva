@@ -90,7 +90,7 @@ export default function FloatingActions({
           setIsDeleteToastOpen(true);
           showToastTimer({
             title: "Delete Selected Monitors",
-            description: `Are you sure you want to delete ${selectedMonitors.length} monitor(s)? This action cannot be undone.`,
+            description: `Are you sure you want to delete ${selectedMonitors.length} monitor(s)?`,
             confirmText: "Delete",
             cancelText: "Cancel",
             variant: "destructive",
@@ -98,7 +98,7 @@ export default function FloatingActions({
               handleBulkDelete();
               setIsDeleteToastOpen(false);
             },
-            duration: 5000,
+            duration: 500000,
           });
         }}
         className="h-6 px-2 text-xs"

@@ -3,7 +3,6 @@ import { AuthContextType } from "@/frontend/types/types";
 import type { Session, User } from "@supabase/supabase-js";
 import { redirect } from "@tanstack/react-router";
 import React, { createContext, useEffect, useState } from "react";
-import { router } from "../../main";
 
 export const AuthContext = createContext<AuthContextType | undefined>(
   undefined
@@ -19,39 +18,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const getInitialAuth = async () => {
       try {
-        const { data: claimsData, error: claimsError } =
-          await supabase.auth.getClaims();
+        const {
+          data: { session },
+          error: sessionError,
+        } = await supabase.auth.getSession();
 
-        if (claimsError) {
-          console.error("Error getting claims:", claimsError);
+        if (sessionError) {
+          console.error("Error getting session:", sessionError);
           setUser(null);
           setSession(null);
-          redirect({ to: "/" });
-          return;
-        }
-        if (claimsData?.claims) {
-          const {
-            data: { session },
-            error: sessionError,
-          } = await supabase.auth.getSession();
-          if (sessionError) {
-            console.error("Error getting session:", sessionError);
-            setUser(null);
-            setSession(null);
-            redirect({ to: "/" });
-            return;
-          }
+        } else {
           setSession(session);
           setUser(session?.user ?? null);
-        } else {
-          setUser(null);
-          setSession(null);
         }
       } catch (error) {
         console.error("Error in getInitialAuth:", error);
         setUser(null);
         setSession(null);
-        redirect({ to: "/" });
       } finally {
         setIsLoading(false);
       }
@@ -64,9 +47,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
-
-      router.invalidate();
-      setIsLoading(false);
 
       switch (event) {
         case "SIGNED_OUT":
@@ -109,6 +89,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     session,
     isLoading,
     signOut,
+    isAuthenticated: !!session?.user,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

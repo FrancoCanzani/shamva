@@ -16,9 +16,9 @@ export const Route = createFileRoute("/dashboard")({
       return;
     }
 
-    if (!context.auth.session) {
+    if (!context.auth.isAuthenticated) {
       throw redirect({
-        to: "/",
+        to: "/auth/login",
       });
     }
   },

@@ -1,7 +1,7 @@
-import supabase from "@/frontend/lib/supabase";
-import { Workspace, WorkspaceFormValues } from "@/frontend/types/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import supabase from "@/frontend/lib/supabase";
+import { Workspace, WorkspaceFormValues } from "@/frontend/types/types";
 
 export function useCreateWorkspace() {
   const queryClient = useQueryClient();
@@ -14,15 +14,22 @@ export function useCreateWorkspace() {
         data: { session },
         error: sessionError,
       } = await supabase.auth.getSession();
+      
       if (sessionError || !session?.access_token) {
-        console.error("Session Error or no token:", sessionError);
-        throw new Error("Authentication required");
+        throw new Error("Failed to get authentication session");
       }
-      const token = session.access_token;
+
+      
+      const { data: claimsData, error: claimsError } =
+        await supabase.auth.getClaims();
+      if (claimsError || !claimsData?.claims) {
+        throw new Error("Failed to validate authentication claims");
+      }
+      
       const response = await fetch(`/api/workspaces`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${session.access_token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(workspaceData),
@@ -57,15 +64,22 @@ export function useUpdateWorkspace() {
         data: { session },
         error: sessionError,
       } = await supabase.auth.getSession();
+      
       if (sessionError || !session?.access_token) {
-        console.error("Session Error or no token:", sessionError);
-        throw new Error("Authentication required");
+        throw new Error("Failed to get authentication session");
       }
-      const token = session.access_token;
+
+      
+      const { data: claimsData, error: claimsError } =
+        await supabase.auth.getClaims();
+      if (claimsError || !claimsData?.claims) {
+        throw new Error("Failed to validate authentication claims");
+      }
+      
       const response = await fetch(`/api/workspaces/${workspaceId}`, {
         method: "PUT",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${session.access_token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
@@ -95,21 +109,28 @@ export function useDeleteWorkspace() {
         data: { session },
         error: sessionError,
       } = await supabase.auth.getSession();
+      
       if (sessionError || !session?.access_token) {
-        console.error("Session Error or no token:", sessionError);
-        throw new Error("Authentication required");
+        throw new Error("Failed to get authentication session");
       }
-      const token = session.access_token;
+
+      
+      const { data: claimsData, error: claimsError } =
+        await supabase.auth.getClaims();
+      if (claimsError || !claimsData?.claims) {
+        throw new Error("Failed to validate authentication claims");
+      }
+      
       const response = await fetch(`/api/workspaces/${workspaceId}`, {
         method: "DELETE",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${session.access_token}`,
+          "Content-Type": "application/json",
         },
       });
       if (!response.ok) {
         throw new Error("Failed to delete workspace");
       }
-      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["workspaces"] });

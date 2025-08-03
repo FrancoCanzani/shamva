@@ -144,7 +144,7 @@ export default function MonitorPage() {
           </DropdownMenu>
         </div>
       </DashboardHeader>
-      <main className="mx-auto max-w-5xl flex-1 space-y-8 overflow-auto p-6">
+      <main className="mx-auto w-full max-w-5xl flex-1 space-y-8 overflow-auto p-6">
         <MonitorHeader />
         <MonitorStats logs={monitor.recent_logs || []} />
         <MonitorRegionLatencyCharts logs={monitor.recent_logs || []} />

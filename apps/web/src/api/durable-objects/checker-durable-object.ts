@@ -436,14 +436,36 @@ export class CheckerDurableObject extends DurableObject {
             .single();
 
           if (monitor) {
-            const { data: activeIncident, error: incidentError } = await this.supabase
-              .from("incidents")
-              .select("*")
-              .eq("monitor_id", config.monitorId)
-              .is("resolved_at", null)
-              .single();
+            const { data: activeIncidents, error: incidentError } =
+              await this.supabase
+                .from("incidents")
+                .select("*")
+                .eq("monitor_id", config.monitorId)
+                .is("resolved_at", null)
+                .order("created_at", { ascending: false })
+                .limit(1);
 
-            if (incidentError && incidentError.code === "PGRST116") {
+            const activeIncident = activeIncidents?.[0];
+
+            console.log(
+              `DO ${this.doId}: Monitor ${config.monitorId} check result:`,
+              {
+                monitorId: config.monitorId,
+                region: config.region,
+                isSuccess,
+                activeIncident: activeIncident?.id,
+                activeIncidentResolvedAt: activeIncident?.resolved_at,
+                incidentError: incidentError?.code,
+                errorMessage: incidentError?.message,
+              }
+            );
+
+            if (incidentError) {
+              console.error(
+                `DO ${this.doId}: Error fetching active incident:`,
+                incidentError
+              );
+            } else if (!activeIncident) {
               // No active incident found, create a new one
               const incident = await this.createIncident(
                 config.monitorId,
@@ -482,8 +504,6 @@ export class CheckerDurableObject extends DurableObject {
                   })
                 );
               }
-            } else if (incidentError) {
-              console.error(`DO ${this.doId}: Error fetching active incident:`, incidentError);
             } else if (activeIncident) {
               // Update the regions_affected array in the incident
               const updatedRegions = [

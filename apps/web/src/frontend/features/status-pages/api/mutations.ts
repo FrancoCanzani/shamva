@@ -1,31 +1,53 @@
-import supabase from "@/frontend/lib/supabase";
-import { StatusPage, StatusPageFormValues } from "@/frontend/types/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import supabase from "@/frontend/lib/supabase";
+import { StatusPage } from "@/frontend/types/types";
 
 export function useCreateStatusPage() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (
-      statusPageData: StatusPageFormValues
-    ): Promise<StatusPage> => {
+    mutationFn: async ({
+      workspaceName,
+      statusPageData,
+    }: {
+      workspaceName: string;
+      statusPageData: {
+        title: string;
+        description: string;
+        slug: string;
+        is_public: boolean;
+        show_values: boolean;
+        password?: string;
+        monitors: string[];
+      };
+    }): Promise<StatusPage> => {
       const {
         data: { session },
         error: sessionError,
       } = await supabase.auth.getSession();
+      
       if (sessionError || !session?.access_token) {
-        console.error("Session Error or no token:", sessionError);
-        throw new Error("Authentication required");
+        throw new Error("Failed to get authentication session");
       }
-      const token = session.access_token;
+
+      
+      const { data: claimsData, error: claimsError } =
+        await supabase.auth.getClaims();
+      if (claimsError || !claimsData?.claims) {
+        throw new Error("Failed to validate authentication claims");
+      }
+      
       const response = await fetch(`/api/status-pages`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${session.access_token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(statusPageData),
+        body: JSON.stringify({
+          ...statusPageData,
+          workspaceName,
+        }),
       });
       if (!response.ok) {
         throw new Error("Failed to create status page");
@@ -51,21 +73,36 @@ export function useUpdateStatusPage() {
       data,
     }: {
       statusPageId: string;
-      data: StatusPageFormValues;
+      data: {
+        title: string;
+        description: string;
+        slug: string;
+        is_public: boolean;
+        show_values: boolean;
+        password?: string;
+        monitors: string[];
+      };
     }): Promise<StatusPage> => {
       const {
         data: { session },
         error: sessionError,
       } = await supabase.auth.getSession();
+      
       if (sessionError || !session?.access_token) {
-        console.error("Session Error or no token:", sessionError);
-        throw new Error("Authentication required");
+        throw new Error("Failed to get authentication session");
       }
-      const token = session.access_token;
+
+      
+      const { data: claimsData, error: claimsError } =
+        await supabase.auth.getClaims();
+      if (claimsError || !claimsData?.claims) {
+        throw new Error("Failed to validate authentication claims");
+      }
+      
       const response = await fetch(`/api/status-pages/${statusPageId}`, {
         method: "PUT",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${session.access_token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
@@ -95,21 +132,28 @@ export function useDeleteStatusPage() {
         data: { session },
         error: sessionError,
       } = await supabase.auth.getSession();
+      
       if (sessionError || !session?.access_token) {
-        console.error("Session Error or no token:", sessionError);
-        throw new Error("Authentication required");
+        throw new Error("Failed to get authentication session");
       }
-      const token = session.access_token;
+
+      
+      const { data: claimsData, error: claimsError } =
+        await supabase.auth.getClaims();
+      if (claimsError || !claimsData?.claims) {
+        throw new Error("Failed to validate authentication claims");
+      }
+      
       const response = await fetch(`/api/status-pages/${statusPageId}`, {
         method: "DELETE",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${session.access_token}`,
+          "Content-Type": "application/json",
         },
       });
       if (!response.ok) {
         throw new Error("Failed to delete status page");
       }
-      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["status-pages"] });

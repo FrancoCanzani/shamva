@@ -1,49 +1,34 @@
+import { Workspace } from "@/frontend/types/types";
 import supabase from "@/frontend/lib/supabase";
-import { ApiResponse, Workspace } from "@/frontend/types/types";
-import { redirect } from "@tanstack/react-router";
+import { ApiResponse } from "@/frontend/types/types";
 
 export default async function fetchWorkspaces(): Promise<Workspace[]> {
-  const { data: sessionData, error: sessionError } =
-    await supabase.auth.getSession();
-  const accessToken = sessionData?.session?.access_token;
-  if (sessionError || !accessToken) {
-    throw redirect({
-      to: "/auth/login",
-      search: { redirect: "/dashboard/workspaces" },
-      throw: true,
-    });
+  const { data: claimsData, error: claimsError } =
+    await supabase.auth.getClaims();
+  if (claimsError || !claimsData?.claims) {
+    throw new Error("Failed to get authentication claims");
   }
 
-  try {
-    const response = await fetch("/api/workspaces", {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        throw redirect({
-          to: "/auth/login",
-          search: { redirect: "/dashboard/workspaces" },
-          throw: true,
-        });
-      }
-      throw new Error("Failed to fetch workspaces");
-    }
-
-    const result: ApiResponse<Workspace[]> = await response.json();
-
-    if (!result.success) {
-      throw new Error(result.error || "Failed to fetch workspaces");
-    }
-
-    return result.data ?? [];
-  } catch (error) {
-    if (error instanceof Error && error.message.includes("Failed to fetch")) {
-      console.error("Error fetching workspaces:", error);
-      throw new Error("Failed to fetch workspaces");
-    }
-    throw error;
+  const {
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession();
+  if (sessionError || !session?.access_token) {
+    throw new Error("Failed to get access token");
   }
+
+  const response = await fetch("/api/workspaces", {
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  const data: ApiResponse<Workspace[]> = await response.json();
+
+  if (!data.success) {
+    throw new Error(data.error || "Failed to fetch workspaces");
+  }
+
+  return data.data ?? [];
 }

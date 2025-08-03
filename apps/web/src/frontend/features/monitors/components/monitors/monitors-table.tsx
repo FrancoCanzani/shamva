@@ -181,9 +181,14 @@ export default function MonitorsTable({
               to="/dashboard/$workspaceName/monitors/$id"
               params={{ workspaceName, id: monitor.id }}
               search={{ days: 7 }}
-              className={cn("", selectedMonitors.has(monitor.id) && "ring-1")}
+              className="mb-2 block last:mb-0"
             >
-              <Card className="group flex flex-row items-center justify-between rounded p-2.5">
+              <Card
+                className={cn(
+                  "group flex flex-row items-center justify-between rounded p-2.5 hover:bg-stone-50",
+                  selectedMonitors.has(monitor.id) && "bg-stone-50"
+                )}
+              >
                 <div className="flex items-center justify-start gap-3">
                   <div className="flex items-center gap-3">
                     <Checkbox

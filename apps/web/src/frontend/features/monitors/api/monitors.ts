@@ -1,3 +1,4 @@
+import supabase from "@/frontend/lib/supabase";
 import { RouterContext } from "@/frontend/routes/__root";
 import { ApiResponse, Monitor, Workspace } from "@/frontend/types/types";
 import { redirect } from "@tanstack/react-router";
@@ -9,16 +10,25 @@ export async function fetchMonitors({
   params: Params;
   context: RouterContext;
 }): Promise<Monitor[]> {
-  console.log("Monitors Auth");
-  console.log(context.auth);
-  console.log("----------------");
-
   const workspaceName = params.workspaceName;
 
   try {
+    // Use the session from the context instead of getting it again
+    const session = context.auth.session;
+    
+    if (!session?.access_token) {
+      throw new Error("No valid session found");
+    }
+
+    const { data: claimsData, error: claimsError } =
+      await supabase.auth.getClaims();
+    if (claimsError || !claimsData?.claims) {
+      throw new Error("Failed to validate authentication claims");
+    }
+
     const workspaceResponse = await fetch("/api/workspaces", {
       headers: {
-        Authorization: `Bearer ${context.auth.session?.access_token}`,
+        Authorization: `Bearer ${session.access_token}`,
         "Content-Type": "application/json",
       },
     });
@@ -69,7 +79,7 @@ export async function fetchMonitors({
       `/api/monitors?workspaceId=${workspaceId}`,
       {
         headers: {
-          Authorization: `Bearer ${context.auth.session?.access_token}`,
+          Authorization: `Bearer ${session.access_token}`,
           "Content-Type": "application/json",
         },
       }
@@ -102,19 +112,10 @@ export async function fetchMonitors({
 
     return monitorsResult.data;
   } catch (error) {
-    if (
-      error &&
-      typeof error === "object" &&
-      "status" in error &&
-      error.status === 302
-    ) {
-      throw error;
-    }
-
     console.error("Error in fetchMonitors loader:", error);
     if (error instanceof Error) {
       throw new Error(`Failed to load monitors data: ${error.message}`);
     }
-    throw new Error("An unknown error occurred while fetching monitors data.");
+    throw new Error("Failed to load monitors data: Unknown error");
   }
 }

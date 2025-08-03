@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-router";
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
+import Loading from "./components/loading";
 import { useAuth } from "./hooks/use-auth";
 import { AuthProvider } from "./lib/context/auth-context";
 import supabase from "./lib/supabase";
@@ -29,7 +30,11 @@ declare module "@tanstack/react-router" {
 }
 
 function AppWithRouter() {
-  const { user, session, isLoading, signOut } = useAuth();
+  const { user, session, isLoading, signOut, isAuthenticated } = useAuth();
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <RouterProvider
@@ -42,6 +47,7 @@ function AppWithRouter() {
           session,
           isLoading,
           signOut,
+          isAuthenticated,
         },
       }}
     />

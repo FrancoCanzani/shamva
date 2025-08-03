@@ -1,19 +1,17 @@
-import { ApiResponse, Workspace } from "@/frontend/types/types";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import React, { useCallback, useEffect, useMemo, createContext, useContext } from "react";
 import { useLocation, useNavigate } from "@tanstack/react-router";
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-} from "react";
-import supabase from "../supabase";
+import supabase from "@/frontend/lib/supabase";
+import { ApiResponse, Workspace } from "@/frontend/types/types";
 
 interface WorkspaceContextType {
   workspaces: Workspace[];
   currentWorkspace: Workspace | null;
   setCurrentWorkspace: (workspace: Workspace | null) => void;
+  isLoading: boolean;
+  error: Error | null;
+  refetch: () => void;
+  invalidateWorkspaces: () => void;
 }
 
 const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
@@ -21,15 +19,24 @@ const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
 );
 
 async function fetchWorkspaces() {
-  const { data: sessionData, error: sessionError } =
-    await supabase.auth.getSession();
-  const accessToken = sessionData?.session?.access_token;
-  if (sessionError || !accessToken) {
+  const {
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession();
+  
+  if (sessionError || !session?.access_token) {
     throw new Error("Failed to get authentication session");
   }
+
+  const { data: claimsData, error: claimsError } =
+    await supabase.auth.getClaims();
+  if (claimsError || !claimsData?.claims) {
+    throw new Error("Failed to validate authentication claims");
+  }
+
   const response = await fetch("/api/workspaces", {
     headers: {
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${session.access_token}`,
       "Content-Type": "application/json",
     },
   });
@@ -49,6 +56,7 @@ const LAST_LOCATION_KEY = "shamva-last-location";
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
 
   const [currentWorkspaceId, setCurrentWorkspaceId] = React.useState<
     string | null
@@ -139,8 +147,12 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       workspaces,
       currentWorkspace,
       setCurrentWorkspace,
+      isLoading: query.isLoading,
+      error: query.error,
+      refetch: query.refetch,
+      invalidateWorkspaces: () => queryClient.invalidateQueries({ queryKey: ["workspaces"] }),
     }),
-    [workspaces, currentWorkspace, setCurrentWorkspace]
+    [workspaces, currentWorkspace, setCurrentWorkspace, query.isLoading, query.error, query.refetch, queryClient]
   );
 
   return (

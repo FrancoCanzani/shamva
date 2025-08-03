@@ -198,4 +198,5 @@ export type AuthContextType = {
   session: Session | null;
   isLoading: boolean;
   signOut: () => Promise<void>;
+  isAuthenticated: boolean;
 };

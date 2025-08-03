@@ -1,5 +1,5 @@
 import { ApiResponse, Workspace } from "@/frontend/types/types";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import React, {
   createContext,
@@ -7,7 +7,6 @@ import React, {
   useContext,
   useEffect,
   useMemo,
-  useState,
 } from "react";
 import supabase from "../supabase";
 
@@ -15,10 +14,6 @@ interface WorkspaceContextType {
   workspaces: Workspace[];
   currentWorkspace: Workspace | null;
   setCurrentWorkspace: (workspace: Workspace | null) => void;
-  isLoading: boolean;
-  error: string | null;
-  refetch: () => void;
-  invalidateWorkspaces: () => void;
 }
 
 const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
@@ -54,8 +49,6 @@ const LAST_LOCATION_KEY = "shamva-last-location";
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const queryClient = useQueryClient();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   const [currentWorkspaceId, setCurrentWorkspaceId] = React.useState<
     string | null
@@ -66,35 +59,14 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     return null;
   });
 
-  // Check authentication status
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: sessionData } = await supabase.auth.getSession();
-      setIsAuthenticated(!!sessionData?.session?.access_token);
-    };
-    checkAuth();
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      setIsAuthenticated(!!session?.access_token);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
   const query = useQuery({
     queryKey: ["workspaces"],
     queryFn: fetchWorkspaces,
     staleTime: 5 * 60 * 1000, // 5 minutes
-    retry: false, // Don't retry on authentication errors
-    enabled: isAuthenticated === true, // Only run query when authenticated
   });
 
-  // Memoize workspaces array to prevent unnecessary re-renders
   const workspaces = useMemo(() => query.data ?? [], [query.data]);
 
-  // Memoize current workspace calculation
   const currentWorkspace = useMemo(() => {
     if (!currentWorkspaceId) {
       return workspaces.length > 0 ? workspaces[0] : null;
@@ -102,7 +74,6 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     return workspaces.find((w) => w.id === currentWorkspaceId) || null;
   }, [workspaces, currentWorkspaceId]);
 
-  // Memoize the setCurrentWorkspace function to prevent re-renders
   const setCurrentWorkspace = useCallback(
     (workspace: Workspace | null) => {
       const workspaceId = workspace?.id || null;
@@ -138,36 +109,15 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     [navigate, location.pathname]
   );
 
-  // Memoize the invalidate function to prevent re-renders
-  const invalidateWorkspaces = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: ["workspaces"] });
-  }, [queryClient]);
-
-  // Memoize loading state to prevent unnecessary re-renders
-  const isLoading = useMemo(() => {
-    return isAuthenticated === null || query.isLoading;
-  }, [isAuthenticated, query.isLoading]);
-
-  // Memoize error state to prevent unnecessary re-renders
-  const error = useMemo(() => {
-    return query.error ? (query.error as Error).message : null;
-  }, [query.error]);
-
   useEffect(() => {
     // Only redirect to create workspace if we're authenticated and have no workspaces
-    if (
-      isAuthenticated &&
-      !query.isLoading &&
-      workspaces.length === 0 &&
-      !query.error
-    ) {
+    if (!query.isLoading && workspaces.length === 0 && !query.error) {
       // Only redirect if we're not already on the workspaces page
       if (!location.pathname.includes("/workspaces")) {
         navigate({ to: "/dashboard/workspaces/new" });
       }
     }
   }, [
-    isAuthenticated,
     workspaces.length,
     query.isLoading,
     query.error,
@@ -184,26 +134,13 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     }
   }, [workspaces, currentWorkspaceId, setCurrentWorkspace]);
 
-  // Memoize the context value with stable references
   const value = useMemo(
     () => ({
       workspaces,
       currentWorkspace,
       setCurrentWorkspace,
-      isLoading,
-      error,
-      refetch: query.refetch,
-      invalidateWorkspaces,
     }),
-    [
-      workspaces,
-      currentWorkspace,
-      setCurrentWorkspace,
-      isLoading,
-      error,
-      query.refetch,
-      invalidateWorkspaces,
-    ]
+    [workspaces, currentWorkspace, setCurrentWorkspace]
   );
 
   return (

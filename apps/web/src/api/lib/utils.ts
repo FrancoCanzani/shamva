@@ -34,15 +34,18 @@ export function calculateDowntime(
   }
 }
 
-export function handleBodyParsing(rawBody: unknown): unknown {
+export function handleBodyParsing(rawBody: unknown): string | object | null {
   if (typeof rawBody === "string") {
     try {
       return JSON.parse(rawBody);
     } catch {
-      throw new Error("Invalid JSON format");
+      return rawBody;
     }
   }
-  return rawBody;
+  if (rawBody === null || rawBody === undefined) {
+    return null;
+  }
+  return rawBody as object;
 }
 
 export default handleBodyParsing;

@@ -34,7 +34,7 @@ export default function MonitorTypeSelector() {
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button variant={"outline"} size={"xs"} className="rounded">
+        <Button variant={"outline"} size={"xs"}>
           New Monitor
         </Button>
       </PopoverTrigger>
@@ -55,7 +55,7 @@ export default function MonitorTypeSelector() {
                 onClick={() => setIsOpen(false)}
                 className="block"
               >
-                <Card className="hover:bg-carbon-50/10 hover:dark:bg-carbon-800 cursor-pointer rounded border shadow-xs transition-colors">
+                <Card className="p-1">
                   <CardHeader className="p-1">
                     <CardTitle className="text-xs font-medium">
                       {monitorType.title}

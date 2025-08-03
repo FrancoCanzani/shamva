@@ -1,7 +1,6 @@
 import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
-import { Link, useRouteContext, useRouter } from "@tanstack/react-router";
+import { Link, useRouteContext } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
-import { useEffect } from "react";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 
@@ -9,31 +8,11 @@ export default function LandingPage() {
   const { auth } = useRouteContext({ from: "/" });
 
   const { workspaces, isLoading: workspacesLoading } = useWorkspaces();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (
-      auth.user &&
-      !workspacesLoading &&
-      workspaces &&
-      workspaces.length > 0
-    ) {
-      const firstWorkspace = workspaces[0];
-      const workspaceName = firstWorkspace.name;
-
-      router.preloadRoute({
-        to: "/dashboard/$workspaceName/monitors",
-        params: { workspaceName },
-      });
-    }
-  }, [auth.user, workspacesLoading, workspaces, router]);
 
   let dashboardLinkTo = "/auth/login";
 
   if (!auth.isLoading && auth.user) {
-    if (workspacesLoading) {
-      dashboardLinkTo = "#";
-    } else if (workspaces && workspaces.length > 0) {
+    if (workspaces && workspaces.length > 0) {
       const firstworkspaceName = workspaces[0].name;
       dashboardLinkTo = `/dashboard/${firstworkspaceName}/monitors`;
     } else {
@@ -64,7 +43,7 @@ export default function LandingPage() {
               <a href="#" className="hover:underline">
                 Docs
               </a>
-              <a href="#" className="hover:underline">
+              <a href="#pricing" className="hover:underline">
                 Pricing
               </a>
             </div>
@@ -90,24 +69,13 @@ export default function LandingPage() {
           </div>
 
           <div className="flex items-center justify-start">
-            {auth.user ? (
-              <div className="cursor-pointer rounded-lg bg-gradient-to-b from-stone-300/40 to-transparent p-0.5 transition-all duration-200 hover:scale-95">
-                <div className="group cursor-pointer rounded-md bg-gradient-to-b from-white to-stone-200/40 p-[4px] shadow-md">
-                  <button className="cursor-pointer rounded-sm bg-gradient-to-b from-stone-200/40 to-white/80 p-2 text-sm">
-                    <Link to={dashboardLinkTo}>{getDashboardButtonText()}</Link>
-                  </button>
-                </div>
+            <div className="cursor-pointer rounded-lg bg-gradient-to-b from-stone-300/40 to-transparent p-0.5 transition-all duration-200 hover:scale-95">
+              <div className="group cursor-pointer rounded-md bg-gradient-to-b from-white to-stone-200/40 p-[4px] shadow-md">
+                <button className="cursor-pointer rounded-sm bg-gradient-to-b from-stone-200/40 to-white/80 p-2 text-sm">
+                  <Link to={dashboardLinkTo}>{getDashboardButtonText()}</Link>
+                </button>
               </div>
-            ) : (
-              <>
-                <Button variant="ghost" asChild>
-                  <Link to="/auth/login">Sign In</Link>
-                </Button>
-                <Button asChild>
-                  <Link to="/auth/login">Get Started</Link>
-                </Button>
-              </>
-            )}
+            </div>
           </div>
         </main>
 
@@ -249,7 +217,10 @@ export default function LandingPage() {
 
         <section className="py-16">
           <div className="space-y-6">
-            <h2 className="text-foreground w-fit bg-stone-50 text-xl font-medium underline underline-offset-4">
+            <h2
+              id="pricing"
+              className="text-foreground w-fit bg-stone-50 text-xl font-medium underline underline-offset-4"
+            >
               Pricing
             </h2>
             <div className="grid gap-8 md:grid-cols-3">

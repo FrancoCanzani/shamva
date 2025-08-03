@@ -131,7 +131,7 @@ export class CheckerDurableObject extends DurableObject {
       result.ok = response.ok;
       result.statusCode = response.status;
       result.headers = Object.fromEntries(response.headers.entries());
-      result.bodyContent = await handleBodyParsing(response);
+      result.bodyContent = handleBodyParsing(await response.text());
     } catch (error: unknown) {
       result.latencyMs = performance.now() - checkStartTime;
       result.checkError =
@@ -436,14 +436,15 @@ export class CheckerDurableObject extends DurableObject {
             .single();
 
           if (monitor) {
-            const { data: activeIncident } = await this.supabase
+            const { data: activeIncident, error: incidentError } = await this.supabase
               .from("incidents")
               .select("*")
               .eq("monitor_id", config.monitorId)
               .is("resolved_at", null)
               .single();
 
-            if (!activeIncident) {
+            if (incidentError && incidentError.code === "PGRST116") {
+              // No active incident found, create a new one
               const incident = await this.createIncident(
                 config.monitorId,
                 config.region,
@@ -481,12 +482,13 @@ export class CheckerDurableObject extends DurableObject {
                   })
                 );
               }
-            } else {
+            } else if (incidentError) {
+              console.error(`DO ${this.doId}: Error fetching active incident:`, incidentError);
+            } else if (activeIncident) {
               // Update the regions_affected array in the incident
               const updatedRegions = [
                 ...new Set([...activeIncident.regions_affected, config.region]),
               ];
-              // Use ctx.waitUntil for updateIncident
               this.ctx.waitUntil(
                 this.updateIncident(activeIncident.id, {
                   regions_affected: updatedRegions,

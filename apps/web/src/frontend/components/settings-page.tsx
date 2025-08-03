@@ -1,4 +1,6 @@
 import { useRouteContext } from "@tanstack/react-router";
+import { toast } from "sonner";
+import supabase from "../lib/supabase";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
@@ -13,8 +15,12 @@ export default function SettingsPage() {
 
   if (!user) return;
 
-  const handleSignOut = () => {
-    console.log("Sign out");
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      toast.error("Error signing out. Please try again.");
+    }
   };
 
   const handleUpgrade = () => {

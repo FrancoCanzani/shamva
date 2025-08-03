@@ -1,7 +1,4 @@
-"use client";
-
 import { Button } from "@/frontend/components/ui/button";
-import { useAuth } from "@/frontend/hooks/use-auth";
 import supabase from "@/frontend/lib/supabase";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
@@ -11,7 +8,6 @@ export const Route = createFileRoute("/auth/login")({
 });
 
 function LoginComponent() {
-  const { isLoading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
 
   const handleGitHubLogin = async () => {
@@ -28,14 +24,6 @@ function LoginComponent() {
       setLoading(false);
     }
   };
-
-  if (authLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-muted-foreground">Loading...</div>
-      </div>
-    );
-  }
 
   return (
     <div className="bg-background flex min-h-screen w-full items-center justify-center">

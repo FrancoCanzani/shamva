@@ -3,10 +3,7 @@ import { useNavigate, useRouter } from "@tanstack/react-router";
 
 import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
 import { useRouteContext } from "@tanstack/react-router";
-import {
-  Workspace,
-  WorkspaceFormValues,
-} from "@/frontend/types/types";
+import { Workspace, WorkspaceFormValues } from "@/frontend/types/types";
 import WorkspaceForm from "./workspace-form";
 import { useUpdateWorkspace, useDeleteWorkspace } from "../api/mutations";
 

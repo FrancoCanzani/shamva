@@ -183,7 +183,7 @@ export default function MonitorsTable({
               search={{ days: 7 }}
               className={cn("", selectedMonitors.has(monitor.id) && "ring-1")}
             >
-              <Card className="group flex flex-row items-center justify-between rounded-md p-2.5">
+              <Card className="group flex flex-row items-center justify-between rounded p-2.5">
                 <div className="flex items-center justify-start gap-3">
                   <div className="flex items-center gap-3">
                     <Checkbox
@@ -200,7 +200,7 @@ export default function MonitorsTable({
                   </div>
                   <div className="flex items-center gap-2">
                     <h3 className="text-sm font-medium">{monitor.name}</h3>
-                    <p className="text-muted-foreground font-mono text-xs">
+                    <p className="text-muted-foreground text-xs">
                       {monitor.check_type === "tcp"
                         ? monitor.tcp_host_port
                         : monitor.url}
@@ -210,7 +210,7 @@ export default function MonitorsTable({
 
                 <div className="flex items-center justify-end gap-2.5">
                   {monitor.last_check_at && (
-                    <span className="text-muted-foreground text-xs font-medium">
+                    <span className="text-muted-foreground text-xs">
                       Checked{" "}
                       {formatDistanceToNowStrict(
                         new Date(monitor.last_check_at),

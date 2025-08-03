@@ -9,8 +9,11 @@ export async function fetchMonitors({
   params: Params;
   context: RouterContext;
 }): Promise<Monitor[]> {
-  const workspaceName = params.workspaceName;
+  console.log("Monitors Auth");
+  console.log(context.auth);
+  console.log("----------------");
 
+  const workspaceName = params.workspaceName;
 
   try {
     const workspaceResponse = await fetch("/api/workspaces", {
@@ -19,17 +22,6 @@ export async function fetchMonitors({
         "Content-Type": "application/json",
       },
     });
-
-    if (workspaceResponse.status === 401) {
-      console.log(
-        "API returned 401 fetching workspaces, redirecting to login."
-      );
-      throw redirect({
-        to: "/auth/login",
-        search: { redirect: `/dashboard/${workspaceName}/monitors` },
-        throw: true,
-      });
-    }
 
     if (!workspaceResponse.ok) {
       const errorText = await workspaceResponse.text();
@@ -82,15 +74,6 @@ export async function fetchMonitors({
         },
       }
     );
-
-    if (monitorsResponse.status === 401) {
-      console.log("API returned 401 fetching monitors, redirecting to login.");
-      throw redirect({
-        to: "/auth/login",
-        search: { redirect: `/dashboard/${workspaceName}/monitors` },
-        throw: true,
-      });
-    }
 
     if (!monitorsResponse.ok) {
       const errorText = await monitorsResponse.text();

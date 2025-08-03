@@ -30,7 +30,7 @@ declare module "@tanstack/react-router" {
 
 function AppWithRouter() {
   const { user, session, isLoading, signOut } = useAuth();
-  
+
   return (
     <RouterProvider
       router={router}

@@ -22,8 +22,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         const { data: claimsData, error: claimsError } =
           await supabase.auth.getClaims();
 
-        console.log(claimsData);
-
         if (claimsError) {
           console.error("Error getting claims:", claimsError);
           setUser(null);
@@ -66,7 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
-      
+
       router.invalidate();
       setIsLoading(false);
 

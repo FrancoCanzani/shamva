@@ -1,4 +1,4 @@
-import NewMonitorPage from "@/frontend/components/pages/new-monitor-page";
+import NewMonitorPage from "@/frontend/features/monitors/components/new-monitor-page";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/dashboard/$workspaceName/monitors/new/")(

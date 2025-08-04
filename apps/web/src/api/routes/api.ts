@@ -32,6 +32,7 @@ import postHeartbeat from "./heartbeat/post";
 import putHeartbeat from "./heartbeat/put";
 import deleteHeartbeat from "./heartbeat/delete";
 import postFeedback from "./feedback/post";
+import postAiCheck from "./incidents/post-ai-check";
 
 const apiRoutes = new Hono<{
   Bindings: EnvBindings;
@@ -85,6 +86,7 @@ apiRoutes.get("/api/incidents/:id", getIncident);
 apiRoutes.put("/api/incidents/:id", putIncident);
 apiRoutes.post("/api/incidents/:id/updates", postIncidentUpdate);
 apiRoutes.delete("/api/incidents/:id/updates/:updateId", deleteIncidentUpdate);
+apiRoutes.post("/api/incidents/:id/ai-check", postAiCheck);
 
 // Feedback routes
 apiRoutes.post("/api/feedback", postFeedback);

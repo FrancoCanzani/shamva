@@ -178,6 +178,13 @@ export interface Incident {
   created_at: string;
   updated_at: string;
   monitors?: Partial<Monitor>;
+  ai_analysis?: {
+    rootCause: string;
+    solutions: string[];
+    prevention: string[];
+    confidence: number;
+    summary: string;
+  };
 }
 
 export interface Heartbeat {

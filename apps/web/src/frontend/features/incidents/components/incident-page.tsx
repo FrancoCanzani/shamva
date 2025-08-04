@@ -21,6 +21,7 @@ import { IncidentWithUpdates } from "../types";
 import IncidentTimeline from "./incident-timeline";
 import { IncidentUpdateEditor } from "./incident-update-editor";
 import { IncidentUpdatesSection } from "./incident-updates-section";
+import AiIncidentAnalysis from "./ai-incident-analysis";
 
 export default function IncidentPage() {
   const { workspaceName, id } = Route.useParams();
@@ -195,6 +196,8 @@ export default function IncidentPage() {
               <IncidentTimeline events={timelineEvents} />
             </div>
 
+            <AiIncidentAnalysis incident={incident} />
+
             <div className="rounded border p-4 shadow-xs">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="font-mono text-sm font-medium">UPDATES</h2>
@@ -213,13 +216,9 @@ export default function IncidentPage() {
                       if (!auth.session?.user) return;
                       await updateMutation.mutateAsync({
                         incidentId: id,
-                        data: {
-                          content,
-                          author_name:
-                            auth.session.user.user_metadata?.name ||
-                            auth.session.user.email ||
-                            "",
-                          author_email: auth.session.user.email || "",
+                        update: {
+                          message: content,
+                          status: "investigating",
                         },
                       });
                       await router.invalidate();

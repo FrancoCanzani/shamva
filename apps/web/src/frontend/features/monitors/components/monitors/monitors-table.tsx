@@ -100,7 +100,7 @@ export default function MonitorsTable({
   return (
     <div className="space-y-4">
       {(stats.errorMonitors > 0 || stats.openIncidents > 0) && (
-        <div className="dark:bg-carbon-800 bg-carbon-50/20 flex items-center gap-4 rounded-md px-4 py-2">
+        <div className="bg-background flex items-center gap-4 rounded border px-3.5 py-2">
           {stats.errorMonitors > 0 && (
             <div className="flex items-center gap-2">
               <div className="h-2 w-2 rounded-xs bg-red-500"></div>
@@ -185,8 +185,9 @@ export default function MonitorsTable({
             >
               <Card
                 className={cn(
-                  "group flex flex-row items-center justify-between rounded p-2.5 hover:bg-stone-50",
-                  selectedMonitors.has(monitor.id) && "bg-stone-50"
+                  "group flex flex-row items-center justify-between rounded p-2.5 hover:bg-stone-50 dark:hover:bg-stone-900",
+                  selectedMonitors.has(monitor.id) &&
+                    "bg-stone-50 dark:bg-stone-900"
                 )}
               >
                 <div className="flex items-center justify-start gap-3">

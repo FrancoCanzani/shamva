@@ -1,6 +1,7 @@
 import { Button } from "@/frontend/components/ui/button";
 import { showToastTimer } from "@/frontend/components/ui/toast-timer";
 import { Monitor } from "@/frontend/types/types";
+import { Zap } from "lucide-react";
 import { useState } from "react";
 import { useDeleteMonitor, usePauseResumeMonitor } from "../../api/mutations";
 
@@ -51,9 +52,7 @@ export default function FloatingActions({
     onSelectionChange();
   };
 
-  const canPause = selectedMonitors.some(
-    (m) => m.status !== "paused" && m.status !== "error"
-  );
+  const canPause = selectedMonitors.some((m) => m.status !== "paused");
   const canResume = selectedMonitors.some((m) => m.status === "paused");
 
   if (selectedMonitors.length === 0) {
@@ -62,6 +61,8 @@ export default function FloatingActions({
 
   return (
     <div className="absolute bottom-4 left-1/2 z-50 flex -translate-x-1/2 items-center gap-1.5 rounded-md bg-white/10 p-2 shadow-lg ring-1 ring-black/5 backdrop-blur-xl">
+      <Zap className="h-3 w-3" />
+      <span className="text-xs font-medium">Quick actions</span>
       <Button
         variant="outline"
         size="xs"

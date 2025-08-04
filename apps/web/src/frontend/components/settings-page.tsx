@@ -1,4 +1,4 @@
-import { useRouteContext } from "@tanstack/react-router";
+import { useNavigate, useRouteContext } from "@tanstack/react-router";
 import { toast } from "sonner";
 import supabase from "../lib/supabase";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
@@ -10,6 +10,7 @@ export default function SettingsPage() {
   const { auth } = useRouteContext({
     from: "/dashboard",
   });
+  const navigate = useNavigate({ from: "/dashboard/settings" });
 
   const user = auth.user!;
 
@@ -18,6 +19,9 @@ export default function SettingsPage() {
   const handleSignOut = async () => {
     try {
       await supabase.auth.signOut();
+      navigate({
+        to: "/",
+      });
     } catch {
       toast.error("Error signing out. Please try again.");
     }

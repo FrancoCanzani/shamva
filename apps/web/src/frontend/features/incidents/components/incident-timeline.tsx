@@ -10,7 +10,7 @@ export default function IncidentTimeline({ events }: IncidentTimelineProps) {
     <div className="h-fit w-full rounded border p-4 shadow-xs lg:w-80">
       <h2 className="mb-4 font-mono text-sm font-medium">Timeline</h2>
       <div className="relative">
-        <div className="bg-carbon-50 absolute top-0 bottom-0 left-1 w-0.5"></div>
+        <div className="absolute top-0 bottom-0 left-1 w-0.5 bg-stone-50"></div>
 
         <div className="flex flex-col gap-4">
           {events.map((event) => (

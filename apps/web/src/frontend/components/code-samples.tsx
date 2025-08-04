@@ -71,7 +71,7 @@ export default function CodeSamples({
             {copied ? <Check /> : <Copy />}
           </Button>
         </div>
-        <pre className="bg-carbon-50/10 overflow-hidden rounded p-2 font-mono text-xs">
+        <pre className="overflow-hidden rounded bg-stone-50/10 p-2 font-mono text-xs">
           {currentSample.code}
         </pre>
       </div>

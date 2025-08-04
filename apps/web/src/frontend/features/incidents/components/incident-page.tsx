@@ -5,18 +5,17 @@ import {
   DialogTrigger,
 } from "@/frontend/components/ui/dialog";
 import { Separator } from "@/frontend/components/ui/separator";
-import { useRouteContext } from "@tanstack/react-router";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/incidents/$id";
 import { getRegionFlags } from "@/frontend/utils/utils";
-import { Link, useRouter } from "@tanstack/react-router";
+import { Link, useRouteContext, useRouter } from "@tanstack/react-router";
 import { format, formatDistanceToNowStrict, parseISO } from "date-fns";
 import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import {
   useAcknowledgeIncident,
-  useResolveIncident,
   useCreateIncidentUpdate,
   useDeleteIncidentUpdate,
+  useResolveIncident,
 } from "../api/mutations";
 import { IncidentWithUpdates } from "../types";
 import IncidentTimeline from "./incident-timeline";
@@ -257,7 +256,7 @@ export default function IncidentPage() {
                     Screenshot
                   </h2>
                   <div className="relative">
-                    <span className="bg-carbon-50 dark:bg-carbon-800 absolute inset-0 z-10 flex items-center justify-center rounded font-mono text-xs font-medium opacity-0 transition-opacity duration-300 group-hover:opacity-100 dark:text-white">
+                    <span className="absolute inset-0 z-10 flex items-center justify-center rounded bg-stone-50 font-mono text-xs font-medium opacity-0 transition-opacity duration-300 group-hover:opacity-100 dark:bg-stone-800 dark:text-white">
                       Click to expand
                     </span>
                     <img

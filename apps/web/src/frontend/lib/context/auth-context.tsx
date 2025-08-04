@@ -18,6 +18,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const getInitialAuth = async () => {
       try {
+        const { data: claimsData } = await supabase.auth.getClaims();
+        
         const {
           data: { session },
           error: sessionError,
@@ -29,7 +31,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           setSession(null);
         } else {
           setSession(session);
-          setUser(session?.user ?? null);
+          
+          // Use claims to determine authentication status
+          const isAuthenticated = claimsData?.claims?.aud === "authenticated";
+          
+          if (isAuthenticated && session?.user) {
+            setUser(session.user);
+          } else {
+            setUser(null);
+          }
         }
       } catch (error) {
         console.error("Error in getInitialAuth:", error);
@@ -68,28 +78,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     };
   }, []);
 
-  const signOut = async () => {
-    try {
-      setIsLoading(true);
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        throw error;
-      }
-    } catch (error) {
-      setUser(null);
-      setSession(null);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const value = {
     user,
     session,
     isLoading,
-    signOut,
-    isAuthenticated: !!session?.user,
+    isAuthenticated: !!user,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

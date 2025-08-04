@@ -34,7 +34,7 @@ export default function StatusPagesPage() {
           {statusPages.map((statusPage: StatusPage) => (
             <div
               key={statusPage.id}
-              className="hover:bg-carbon-50 border border-dashed p-4"
+              className="border border-dashed p-4 hover:bg-stone-50"
             >
               <div className="flex items-start justify-between">
                 <div className="space-y-1">

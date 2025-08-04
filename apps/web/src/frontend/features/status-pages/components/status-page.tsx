@@ -101,7 +101,7 @@ export default function StatusPage() {
             <h2 className="mb-6 text-lg text-black uppercase">SERVICES</h2>
             <div className="space-y-4">
               {data.monitors.map((monitor) => (
-                <div key={monitor.id} className="hover:bg-carbon-50 border">
+                <div key={monitor.id} className="border hover:bg-stone-50">
                   <div className="border-l-2 px-6 py-6">
                     <div className="flex items-start justify-between">
                       <div className="flex flex-col items-start space-y-2">

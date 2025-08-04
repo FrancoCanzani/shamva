@@ -328,7 +328,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                         {headersArray.map(({ key, value }, index) => (
                           <tr
                             key={index}
-                            className="odd:bg-carbon-50 dark:odd:bg-carbon-800"
+                            className="odd:bg-stone-50 dark:odd:bg-stone-800"
                           >
                             <td className="px-2 py-1.5 text-left font-mono font-medium">
                               {key}
@@ -369,7 +369,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
                   </Button>
                 </div>
                 <div className="relative flex min-h-0 flex-grow flex-col">
-                  <pre className="bg-carbon-50 dark:bg-carbon-800 mt-2 flex-grow overflow-auto border p-2 font-mono text-xs break-words whitespace-pre-wrap">
+                  <pre className="mt-2 flex-grow overflow-auto border bg-stone-50 p-2 font-mono text-xs break-words whitespace-pre-wrap dark:bg-stone-800">
                     {(() => {
                       try {
                         if (

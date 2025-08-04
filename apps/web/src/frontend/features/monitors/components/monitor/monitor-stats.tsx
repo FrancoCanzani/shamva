@@ -112,7 +112,7 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
               <CardTitle className="text-sm font-medium">Uptime</CardTitle>
             </CardHeader>
             <CardContent className="inline-flex items-center gap-1">
-              <span className="font-mono font-medium text-green-800">
+              <span className="font-mono font-medium text-green-800 proportional-nums">
                 {currentUptime}%
               </span>
               {uptimeDiff === null ? null : uptimeDiff === 0 ? (
@@ -139,7 +139,7 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
               <CardTitle className="text-sm font-medium">Degraded</CardTitle>
             </CardHeader>
             <CardContent className="inline-flex items-center gap-1">
-              <span className="font-mono font-medium text-yellow-500">
+              <span className="font-mono font-medium text-yellow-500 proportional-nums">
                 {recentDegradedCount.toLocaleString()}
               </span>
               {degradedDiff === null ? null : degradedDiff === 0 ? (
@@ -165,7 +165,7 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
               <CardTitle className="text-sm font-medium">Error</CardTitle>
             </CardHeader>
             <CardContent className="inline-flex items-center gap-1">
-              <span className="font-mono font-medium text-red-800">
+              <span className="font-mono font-medium text-red-800 proportional-nums">
                 {recentErrorCount.toLocaleString()}
               </span>
               {errorDiff === null ? null : errorDiff === 0 ? (
@@ -193,7 +193,9 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
               <CardTitle className="text-sm font-medium">Latency p50</CardTitle>
             </CardHeader>
             <CardContent className="inline-flex items-center gap-1">
-              <span className="font-mono font-medium">{p50}ms</span>
+              <span className="font-mono font-medium proportional-nums">
+                {p50}ms
+              </span>
               {p50Diff === null ? null : p50Diff === 0 ? (
                 <span className="text-muted-foreground text-xs">
                   - Same as last period
@@ -225,7 +227,7 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
               <CardTitle className="text-sm font-medium">Latency p99</CardTitle>
             </CardHeader>
             <CardContent className="flex items-center">
-              <span className="font-mono font-medium text-black dark:text-white">
+              <span className="font-mono font-medium text-black proportional-nums dark:text-white">
                 {p99}ms
               </span>
               {p99Diff === null ? null : p99Diff === 0 ? (

@@ -84,7 +84,7 @@ export function DashboardSidebar() {
                         params={{ workspaceName: currentWorkspace.name }}
                         preload="intent"
                         className={cn(
-                          "",
+                          "rounded",
                           router.location.pathname.includes(
                             item.to.split("/").pop()!
                           ) && "font-medium"

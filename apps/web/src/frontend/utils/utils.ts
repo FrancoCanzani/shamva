@@ -73,7 +73,7 @@ export const getStatusRowClass = (status: number | unknown): string => {
     return "";
   }
   if (status >= 200 && status < 300) {
-    return "hover:bg-slate-100 dark:hover:bg-carbon-800";
+    return "hover:bg-slate-100 dark:hover:bg-stone-800";
   } else if (status >= 300 && status < 400) {
     return "bg-blue-50 dark:bg-blue-900/20 hover:!bg-blue-100/80 dark:hover:!bg-blue-800/40";
   } else if (status >= 400 && status < 500) {

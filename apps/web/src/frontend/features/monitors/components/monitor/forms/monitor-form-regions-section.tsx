@@ -72,9 +72,9 @@ export function MonitorFormRegionsSection() {
                             <div
                               key={region.value}
                               className={cn(
-                                "hover:bg-carbon-50 dark:hover:bg-carbon-800 flex cursor-pointer items-center justify-between border p-2 transition-colors",
+                                "flex cursor-pointer items-center justify-between border p-2 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800",
                                 isSelected
-                                  ? "border-primary bg-carbon-50 dark:bg-carbon-800"
+                                  ? "border-primary bg-stone-50 dark:bg-stone-800"
                                   : ""
                               )}
                               onClick={() => {

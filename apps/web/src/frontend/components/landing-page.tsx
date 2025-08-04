@@ -6,9 +6,7 @@ import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 
 export default function LandingPage() {
-  const { isAuthenticated, session, user, isLoading } = useAuth();
-
-  console.log(session, user, isAuthenticated);
+  const { isAuthenticated, isLoading } = useAuth();
 
   const { workspaces, isLoading: workspacesLoading } = useWorkspaces();
 

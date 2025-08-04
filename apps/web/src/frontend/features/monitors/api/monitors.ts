@@ -13,9 +13,8 @@ export async function fetchMonitors({
   const workspaceName = params.workspaceName;
 
   try {
-    // Use the session from the context instead of getting it again
     const session = context.auth.session;
-    
+
     if (!session?.access_token) {
       throw new Error("No valid session found");
     }

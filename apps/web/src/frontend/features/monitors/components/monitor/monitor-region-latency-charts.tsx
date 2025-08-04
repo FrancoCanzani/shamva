@@ -21,6 +21,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { ChartLegend, ChartLegendContent } from "@/frontend/components/ui/chart";
 
 type ChartDataPoint = {
   date: string;
@@ -381,6 +382,13 @@ export default function MonitorRegionLatencyCharts({
                 />
               );
             })
+          )}
+          {!isSplitRegions && availableRegions.length > 1 && (
+            <ChartLegend
+              content={<ChartLegendContent />}
+              verticalAlign="bottom"
+              align="center"
+            />
           )}
         </LineChart>
       </ChartContainer>

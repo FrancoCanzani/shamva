@@ -10,14 +10,8 @@ export function useAuth() {
 
   return {
     user: context.user,
-    userId: context.user?.id,
-    userEmail: context.user?.email,
-
     session: context.session,
-
     isAuthenticated: context.isAuthenticated,
     isLoading: context.isLoading,
-
-    signOut: context.signOut,
   };
 }

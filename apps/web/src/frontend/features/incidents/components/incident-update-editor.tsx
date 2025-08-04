@@ -137,7 +137,7 @@ export function IncidentUpdateEditor({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-2">
-      <div className="bg-carbon-50 dark:bg-carbon-800 flex items-center gap-1 overflow-auto rounded border shadow-xs">
+      <div className="flex items-center gap-1 overflow-auto rounded border bg-stone-50 shadow-xs dark:bg-stone-800">
         {toolbarItems.map((item, index) => {
           if (item.separator) {
             return (

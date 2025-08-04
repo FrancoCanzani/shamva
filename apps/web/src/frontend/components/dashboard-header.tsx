@@ -4,7 +4,6 @@ import { Route } from "../routes/dashboard/route";
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "./ui/breadcrumb";
@@ -28,7 +27,6 @@ export default function DashboardHeader({ children }: DashboardHeaderProps) {
   const pathname = location.pathname;
   const segments = pathname.split("/").filter(Boolean);
 
-  // Determine the section (monitors, heartbeats, etc.)
   const section = segments.find((segment) =>
     [
       "monitors",
@@ -51,11 +49,7 @@ export default function DashboardHeader({ children }: DashboardHeaderProps) {
 
       <Breadcrumb className="hidden md:block">
         <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/dashboard">Dashboard</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
+          <BreadcrumbItem>Dashboard</BreadcrumbItem>
 
           <BreadcrumbSeparator />
           <BreadcrumbItem>

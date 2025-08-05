@@ -1,10 +1,13 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ApiResponse, Incident } from "@/frontend/types/types";
+import { useMutation } from "@tanstack/react-query";
+import { useRouteContext, useRouter } from "@tanstack/react-router";
 import { toast } from "sonner";
-import supabase from "@/frontend/lib/supabase";
-import { Incident } from "@/frontend/types/types";
 
 export function useCreateIncidentUpdate() {
-  const queryClient = useQueryClient();
+  const context = useRouteContext({
+    from: "/dashboard/$workspaceName/incidents/$id/",
+  });
+  const router = useRouter();
 
   return useMutation({
     mutationFn: async ({
@@ -17,26 +20,14 @@ export function useCreateIncidentUpdate() {
         status: "investigating" | "identified" | "monitoring" | "resolved";
       };
     }): Promise<Incident> => {
-      const {
-        data: { session },
-        error: sessionError,
-      } = await supabase.auth.getSession();
-      
-      if (sessionError || !session?.access_token) {
+      if (!context.auth.session?.access_token) {
         throw new Error("Failed to get authentication session");
       }
 
-      
-      const { data: claimsData, error: claimsError } =
-        await supabase.auth.getClaims();
-      if (claimsError || !claimsData?.claims) {
-        throw new Error("Failed to validate authentication claims");
-      }
-      
       const response = await fetch(`/api/incidents/${incidentId}/updates`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${session.access_token}`,
+          Authorization: `Bearer ${context.auth.session.access_token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(update),
@@ -44,11 +35,14 @@ export function useCreateIncidentUpdate() {
       if (!response.ok) {
         throw new Error("Failed to create incident update");
       }
-      return response.json();
+      const result: ApiResponse<Incident> = await response.json();
+      if (!result.data) {
+        throw new Error("No data returned from server");
+      }
+      return result.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["incidents"] });
-      queryClient.invalidateQueries({ queryKey: ["incident"] });
+      router.invalidate();
       toast.success("Incident update created successfully");
     },
     onError: () => {
@@ -58,7 +52,10 @@ export function useCreateIncidentUpdate() {
 }
 
 export function useUpdateIncident() {
-  const queryClient = useQueryClient();
+  const context = useRouteContext({
+    from: "/dashboard/$workspaceName/incidents/$id/",
+  });
+  const router = useRouter();
 
   return useMutation({
     mutationFn: async ({
@@ -68,26 +65,14 @@ export function useUpdateIncident() {
       incidentId: string;
       data: { post_mortem?: string; screenshot_url?: string };
     }): Promise<Incident> => {
-      const {
-        data: { session },
-        error: sessionError,
-      } = await supabase.auth.getSession();
-      
-      if (sessionError || !session?.access_token) {
+      if (!context.auth.session?.access_token) {
         throw new Error("Failed to get authentication session");
       }
 
-      
-      const { data: claimsData, error: claimsError } =
-        await supabase.auth.getClaims();
-      if (claimsError || !claimsData?.claims) {
-        throw new Error("Failed to validate authentication claims");
-      }
-      
       const response = await fetch(`/api/incidents/${incidentId}`, {
         method: "PUT",
         headers: {
-          Authorization: `Bearer ${session.access_token}`,
+          Authorization: `Bearer ${context.auth.session.access_token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
@@ -95,11 +80,14 @@ export function useUpdateIncident() {
       if (!response.ok) {
         throw new Error("Failed to update incident");
       }
-      return response.json();
+      const result: ApiResponse<Incident> = await response.json();
+      if (!result.data) {
+        throw new Error("No data returned from server");
+      }
+      return result.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["incidents"] });
-      queryClient.invalidateQueries({ queryKey: ["incident"] });
+      router.invalidate();
       toast.success("Incident updated successfully");
     },
     onError: () => {
@@ -109,7 +97,10 @@ export function useUpdateIncident() {
 }
 
 export function useDeleteIncidentUpdate() {
-  const queryClient = useQueryClient();
+  const context = useRouteContext({
+    from: "/dashboard/$workspaceName/incidents/$id/",
+  });
+  const router = useRouter();
 
   return useMutation({
     mutationFn: async ({
@@ -119,28 +110,16 @@ export function useDeleteIncidentUpdate() {
       incidentId: string;
       updateId: string;
     }): Promise<void> => {
-      const {
-        data: { session },
-        error: sessionError,
-      } = await supabase.auth.getSession();
-      
-      if (sessionError || !session?.access_token) {
+      if (!context.auth.session?.access_token) {
         throw new Error("Failed to get authentication session");
       }
 
-      
-      const { data: claimsData, error: claimsError } =
-        await supabase.auth.getClaims();
-      if (claimsError || !claimsData?.claims) {
-        throw new Error("Failed to validate authentication claims");
-      }
-      
       const response = await fetch(
         `/api/incidents/${incidentId}/updates/${updateId}`,
         {
           method: "DELETE",
           headers: {
-            Authorization: `Bearer ${session.access_token}`,
+            Authorization: `Bearer ${context.auth.session.access_token}`,
             "Content-Type": "application/json",
           },
         }
@@ -150,8 +129,7 @@ export function useDeleteIncidentUpdate() {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["incidents"] });
-      queryClient.invalidateQueries({ queryKey: ["incident"] });
+      router.invalidate();
       toast.success("Incident update deleted successfully");
     },
     onError: () => {
@@ -161,88 +139,84 @@ export function useDeleteIncidentUpdate() {
 }
 
 export function useAcknowledgeIncident() {
-  const queryClient = useQueryClient();
+  const context = useRouteContext({
+    from: "/dashboard/$workspaceName/incidents/$id/",
+  });
+  const router = useRouter();
 
   return useMutation({
     mutationFn: async (incidentId: string): Promise<Incident> => {
-      const {
-        data: { session },
-        error: sessionError,
-      } = await supabase.auth.getSession();
-      
-      if (sessionError || !session?.access_token) {
+      if (!context.auth.session?.access_token) {
         throw new Error("Failed to get authentication session");
       }
 
-      
-      const { data: claimsData, error: claimsError } =
-        await supabase.auth.getClaims();
-      if (claimsError || !claimsData?.claims) {
-        throw new Error("Failed to validate authentication claims");
-      }
-      
-      const response = await fetch(`/api/incidents/${incidentId}/acknowledge`, {
-        method: "POST",
+      const response = await fetch(`/api/incidents/${incidentId}`, {
+        method: "PUT",
         headers: {
-          Authorization: `Bearer ${session.access_token}`,
+          Authorization: `Bearer ${context.auth.session.access_token}`,
           "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+          acknowledged_at: new Date().toISOString(),
+        }),
       });
       if (!response.ok) {
         throw new Error("Failed to acknowledge incident");
       }
-      return response.json();
+      const result: ApiResponse<Incident> = await response.json();
+      if (!result.data) {
+        throw new Error("No data returned from server");
+      }
+      return result.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["incidents"] });
-      queryClient.invalidateQueries({ queryKey: ["incident"] });
+      router.invalidate();
       toast.success("Incident acknowledged successfully");
     },
-    onError: () => {
+    onError: (error) => {
+      console.log(error);
       toast.error("Failed to acknowledge incident");
     },
   });
 }
 
 export function useResolveIncident() {
-  const queryClient = useQueryClient();
+  const context = useRouteContext({
+    from: "/dashboard/$workspaceName/incidents/$id/",
+  });
+  const router = useRouter();
 
   return useMutation({
     mutationFn: async (incidentId: string): Promise<Incident> => {
-      const {
-        data: { session },
-        error: sessionError,
-      } = await supabase.auth.getSession();
-      
-      if (sessionError || !session?.access_token) {
+      if (!context.auth.session?.access_token) {
         throw new Error("Failed to get authentication session");
       }
 
-      
-      const { data: claimsData, error: claimsError } =
-        await supabase.auth.getClaims();
-      if (claimsError || !claimsData?.claims) {
-        throw new Error("Failed to validate authentication claims");
-      }
-      
-      const response = await fetch(`/api/incidents/${incidentId}/resolve`, {
-        method: "POST",
+      const response = await fetch(`/api/incidents/${incidentId}`, {
+        method: "PUT",
         headers: {
-          Authorization: `Bearer ${session.access_token}`,
+          Authorization: `Bearer ${context.auth.session.access_token}`,
           "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+          resolved_at: new Date().toISOString(),
+        }),
       });
       if (!response.ok) {
         throw new Error("Failed to resolve incident");
       }
-      return response.json();
+      const result: ApiResponse<Incident> = await response.json();
+      if (!result.data) {
+        throw new Error("No data returned from server");
+      }
+      return result.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["incidents"] });
-      queryClient.invalidateQueries({ queryKey: ["incident"] });
+      router.invalidate();
       toast.success("Incident resolved successfully");
     },
-    onError: () => {
+    onError: (error) => {
+      console.log(error);
       toast.error("Failed to resolve incident");
     },
   });

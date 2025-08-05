@@ -13,3 +13,12 @@ export interface MonitorWithLastIncident extends Monitor {
     acknowledged_at: string | null;
   } | null;
 }
+
+export interface TimelineEvent {
+  id: string;
+  type: "incident_start" | "incident_end";
+  title: string;
+  timestamp: string;
+  duration?: number | null;
+  regions?: string[];
+}

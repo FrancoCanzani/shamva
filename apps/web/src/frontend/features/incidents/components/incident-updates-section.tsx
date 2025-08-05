@@ -17,8 +17,6 @@ export function IncidentUpdatesSection({
     );
   }
 
-  console.log(updates);
-
   return (
     <div className="space-y-4">
       {updates.map((update) => {

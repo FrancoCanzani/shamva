@@ -12,10 +12,6 @@ export default async function postIncidentUpdate(c: Context) {
   const userId = c.get("userId");
   const incidentId = c.req.param("id");
 
-  console.log("POST /api/incidents/:id/updates");
-  console.log("userId:", userId);
-  console.log("incidentId:", incidentId);
-
   if (!userId) {
     return c.json({ success: false, error: "User not authenticated" }, 401);
   }

@@ -33,7 +33,7 @@ function AppWithRouter() {
   const { user, session, isLoading, isAuthenticated } = useAuth();
 
   if (isLoading) {
-    return <Loading />;
+    return <Loading className="bg-red-50" />;
   }
 
   return (

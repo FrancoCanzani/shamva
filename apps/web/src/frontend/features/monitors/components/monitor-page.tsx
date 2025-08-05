@@ -17,10 +17,10 @@ import { cn } from "@/frontend/utils/utils";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { formatDistanceToNowStrict } from "date-fns";
-import { IncidentsTable } from "./monitor/incidents-table";
 import MonitorHeader from "./monitor/monitor-header";
 import MonitorRegionLatencyCharts from "./monitor/monitor-region-latency-charts";
 import MonitorStats from "./monitor/monitor-stats";
+import { MonitorTimeline } from "./monitor/monitor-timeline";
 
 const PERIOD_OPTIONS = [
   { value: 1, label: "Last day" },
@@ -148,7 +148,7 @@ export default function MonitorPage() {
         <MonitorHeader />
         <MonitorStats logs={monitor.recent_logs || []} />
         <MonitorRegionLatencyCharts logs={monitor.recent_logs || []} />
-        <IncidentsTable data={monitor.incidents || []} />
+        <MonitorTimeline incidents={monitor.incidents || []} />
       </main>
     </div>
   );

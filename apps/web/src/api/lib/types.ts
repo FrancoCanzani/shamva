@@ -153,6 +153,7 @@ export interface Incident {
   post_mortem: string | null;
   downtime_duration_ms: number | null;
   regions_affected: string[];
+  error_message: string | null;
   created_at: string;
   updated_at: string;
 }

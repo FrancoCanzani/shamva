@@ -1,5 +1,10 @@
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/frontend/components/ui/accordion";
 import { Button } from "@/frontend/components/ui/button";
-import { Card, CardContent } from "@/frontend/components/ui/card";
 import { Incident } from "@/frontend/types/types";
 import { getRegionNameFromCode } from "@/frontend/utils/utils";
 import { useNavigate, useParams } from "@tanstack/react-router";
@@ -24,152 +29,151 @@ function formatDuration(ms: number | null): string {
   }
 }
 
-function IncidentDetails({ incident }: { incident: Partial<Incident> }) {
-  const details = [];
-
-  if (incident.regions_affected && incident.regions_affected.length > 0) {
-    const regionNames = incident.regions_affected.map((code) =>
-      getRegionNameFromCode(code)
-    );
-    details.push(`Regions: ${regionNames.join(", ")}`);
-  }
-
-  if (incident.downtime_duration_ms) {
-    details.push(`Duration: ${formatDuration(incident.downtime_duration_ms)}`);
-  }
-
-  return (
-    <div className="space-y-0.5">
-      {details.map((detail, index) => (
-        <p key={index} className="text-xs text-gray-500">
-          {detail}
-        </p>
-      ))}
-    </div>
-  );
-}
-
-export function MonitorTimeline({ incidents }: MonitorTimelineProps) {
+function IncidentTimeline({ incident }: { incident: Partial<Incident> }) {
   const navigate = useNavigate();
   const { workspaceName } = useParams({ strict: false });
 
-  const handleSeeDetails = (incidentId: string) => {
-    if (!workspaceName) return;
+  const handleSeeDetails = () => {
+    if (!workspaceName || !incident.id) return;
 
     navigate({
       to: "/dashboard/$workspaceName/incidents/$id",
       params: {
         workspaceName,
-        id: incidentId,
+        id: incident.id,
       },
     });
   };
 
+  const events = [];
+
+  if (incident.started_at) {
+    events.push({
+      title: "Incident Started",
+      timestamp: incident.started_at,
+      details: incident.regions_affected?.length
+        ? `Regions: ${incident.regions_affected.map((code) => getRegionNameFromCode(code)).join(", ")}`
+        : null,
+    });
+  }
+
+  if (incident.acknowledged_at) {
+    events.push({
+      title: "Incident Acknowledged",
+      timestamp: incident.acknowledged_at,
+      details: null,
+    });
+  }
+
+  if (incident.resolved_at) {
+    events.push({
+      title: "Incident Resolved",
+      timestamp: incident.resolved_at,
+      details: incident.downtime_duration_ms
+        ? `Duration: ${formatDuration(incident.downtime_duration_ms)}`
+        : null,
+    });
+  }
+
+  events.sort(
+    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+  );
+
+  return (
+    <div className="space-y-4 pt-2">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium">Timeline</span>
+        <Button
+          variant="link"
+          size="sm"
+          onClick={handleSeeDetails}
+          className="h-auto p-0 text-xs"
+        >
+          View Details
+        </Button>
+      </div>
+
+      <div className="space-y-3">
+        {events.map((event, index) => (
+          <div key={index} className="flex gap-3">
+            <div className="flex flex-col items-center">
+              <div className="h-2 w-2 rounded-full bg-gray-400" />
+              {index < events.length - 1 && (
+                <div className="mt-1 h-6 w-px bg-gray-200" />
+              )}
+            </div>
+
+            <div className="flex-1 pb-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm">{event.title}</span>
+                <span className="text-xs text-gray-500">
+                  {format(parseISO(event.timestamp), "MMM d, HH:mm")}
+                </span>
+              </div>
+              {event.details && (
+                <p className="mt-1 text-xs text-gray-500">{event.details}</p>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function MonitorTimeline({ incidents }: MonitorTimelineProps) {
   if (incidents.length === 0) {
     return (
-      <div className="w-full space-y-4">
+      <div className="space-y-4">
         <h3 className="text-sm font-medium">Incidents Timeline</h3>
-        <div className="rounded-lg border border-gray-200 bg-gray-50 p-8 text-center">
-          <div className="space-y-2">
-            <div className="text-2xl">📊</div>
-            <h4 className="font-medium text-gray-900">No incidents</h4>
-            <p className="text-sm text-gray-600">
-              Your monitor has been running smoothly.
-            </p>
-          </div>
+        <div className="rounded-lg border-2 border-dashed border-gray-200 p-8 text-center">
+          <div className="text-2xl">📊</div>
+          <div className="mt-2 text-sm text-gray-500">No incidents found</div>
         </div>
       </div>
     );
   }
 
-  const timelineEvents = incidents.flatMap((incident) => {
-    const events = [];
-
-    if (incident.started_at) {
-      events.push({
-        id: `start-${incident.id}`,
-        incidentId: incident.id!,
-        title: "Incident Started",
-        date: format(parseISO(incident.started_at), "dd/MM/yyyy h:mm a"),
-        timestamp: incident.started_at,
-        incident,
-        hasDetails: true,
-        type: "start",
-      });
-    }
-
-    if (incident.acknowledged_at) {
-      events.push({
-        id: `ack-${incident.id}`,
-        incidentId: incident.id!,
-        title: "Incident Acknowledged",
-        date: format(parseISO(incident.acknowledged_at), "dd/MM/yyyy h:mm a"),
-        timestamp: incident.acknowledged_at,
-        incident,
-        hasDetails: false,
-        type: "acknowledged",
-      });
-    }
-
-    if (incident.resolved_at) {
-      events.push({
-        id: `end-${incident.id}`,
-        incidentId: incident.id!,
-        title: "Incident Resolved",
-        date: format(parseISO(incident.resolved_at), "dd/MM/yyyy h:mm a"),
-        timestamp: incident.resolved_at,
-        incident,
-        hasDetails: true,
-        type: "resolved",
-      });
-    }
-
-    return events;
+  const sortedIncidents = [...incidents].sort((a, b) => {
+    const aTime = a.started_at ? new Date(a.started_at).getTime() : 0;
+    const bTime = b.started_at ? new Date(b.started_at).getTime() : 0;
+    return bTime - aTime;
   });
 
-  // Sort by timestamp (oldest first for chronological order)
-  timelineEvents.sort(
-    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-  );
-
   return (
-    <div className="w-full space-y-4">
-      <h3 className="text-sm font-medium">Incidents Timeline</h3>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-medium">Incidents Timeline</h3>
+        <span className="text-muted-foreground text-xs">
+          {incidents.length} total
+        </span>
+      </div>
 
-      <Card className="w-full bg-white">
-        <CardContent className="space-y-3 p-4">
-          {timelineEvents.map((item, index) => (
-            <div key={item.id} className="flex gap-3">
-              <div className="flex flex-col items-center">
-                <div className="mt-1 h-1.5 w-1.5 rounded-full bg-gray-400"></div>
-                {index < timelineEvents.length - 1 && (
-                  <div className="mt-1 h-8 w-px bg-gray-200"></div>
+      <Accordion type="single" collapsible>
+        {sortedIncidents.map((incident) => (
+          <AccordionItem key={incident.id} value={incident.id!}>
+            <AccordionTrigger className="text-left">
+              <div className="flex items-center space-x-1.5 text-xs">
+                {incident.created_at && (
+                  <div className="font-medium">
+                    {format(
+                      new Date(incident.created_at),
+                      "LLL dd, y HH:mm:ss"
+                    )}
+                  </div>
                 )}
+                <span className="truncate font-normal text-red-800 dark:text-red-50">
+                  {incident.error_message}
+                </span>
               </div>
+            </AccordionTrigger>
 
-              <div className="flex-1">
-                <div className="mb-1 flex items-start justify-between">
-                  <h3 className="text-sm font-medium">{item.title}</h3>
-                  {item.hasDetails && (
-                    <Button
-                      variant="link"
-                      className="h-auto p-0 text-xs text-green-600"
-                      onClick={() => handleSeeDetails(item.incidentId)}
-                    >
-                      See Details
-                    </Button>
-                  )}
-                </div>
-                <p className="mb-1 text-xs text-gray-500">{item.date}</p>
-
-                {item.hasDetails && (
-                  <IncidentDetails incident={item.incident} />
-                )}
-              </div>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
+            <AccordionContent>
+              <IncidentTimeline incident={incident} />
+            </AccordionContent>
+          </AccordionItem>
+        ))}
+      </Accordion>
     </div>
   );
 }

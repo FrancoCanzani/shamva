@@ -175,10 +175,10 @@ export default function IncidentPage() {
                   )}
                 </div>
               </div>
-              {incident.monitors?.error_message && (
+              {(incident.error_message || incident.monitors?.error_message) && (
                 <div className="dark:bg-background rounded border border-red-300 bg-red-50 p-3 shadow-xs dark:border-red-900">
                   <p className="tracking-widewide font-mono text-xs text-red-900">
-                    {incident.monitors.error_message.toUpperCase()}
+                    {(incident.error_message || incident.monitors?.error_message)?.toUpperCase()}
                   </p>
                 </div>
               )}

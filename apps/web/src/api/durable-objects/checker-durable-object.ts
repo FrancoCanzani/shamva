@@ -147,7 +147,8 @@ export class CheckerDurableObject extends DurableObject {
     monitorId: string,
     region: string | null,
     url: string,
-    checkType?: "http" | "tcp"
+    checkType?: "http" | "tcp",
+    errorMessage?: string | null
   ): Promise<Incident | null> {
     try {
       const { data: incident, error } = await this.supabase
@@ -156,6 +157,7 @@ export class CheckerDurableObject extends DurableObject {
           monitor_id: monitorId,
           started_at: new Date().toISOString(),
           regions_affected: region ? [region] : [],
+          error_message: errorMessage || null,
         })
         .select()
         .single();
@@ -467,11 +469,16 @@ export class CheckerDurableObject extends DurableObject {
               );
             } else if (!activeIncident) {
               // No active incident found, create a new one
+              const errorMessage = config.checkType === "tcp"
+                ? (result.checkError ?? "TCP connection failed")
+                : (result.checkError ?? `HTTP status ${result.statusCode}`);
+              
               const incident = await this.createIncident(
                 config.monitorId,
                 config.region,
                 targetUrl,
-                config.checkType
+                config.checkType,
+                errorMessage
               );
 
               if (incident) {

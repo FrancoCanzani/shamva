@@ -264,7 +264,7 @@ export const IncidentUpdateSchema = z.object({
   resolved_at: z.string().datetime().optional(),
   post_mortem: z
     .string()
-    .max(2000, "Post-mortem cannot exceed 2000 characters")
+    .max(100000, "Post-mortem cannot exceed 100000 characters")
     .optional(),
 });
 

@@ -13,7 +13,6 @@ import putHeartbeat from "./heartbeat/put";
 import deleteIncidentUpdate from "./incidents/delete-incident-update";
 import getIncident from "./incidents/get";
 import getAllIncidents from "./incidents/get-all";
-import postAiCheck from "./incidents/post-ai-check";
 import postIncidentUpdate from "./incidents/post-incident-update";
 import putIncident from "./incidents/put";
 import getLogs from "./logs/get";
@@ -86,7 +85,6 @@ apiRoutes.get("/api/incidents/:id", getIncident);
 apiRoutes.put("/api/incidents/:id", putIncident);
 apiRoutes.post("/api/incidents/:id/updates", postIncidentUpdate);
 apiRoutes.delete("/api/incidents/:id/updates/:updateId", deleteIncidentUpdate);
-apiRoutes.post("/api/incidents/:id/ai-check", postAiCheck);
 
 // Feedback routes
 apiRoutes.post("/api/feedback", postFeedback);

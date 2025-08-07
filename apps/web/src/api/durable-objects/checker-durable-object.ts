@@ -507,7 +507,7 @@ export class CheckerDurableObject extends DurableObject {
 
                 this.ctx.waitUntil(
                   this.updateIncident(incident.id, {
-                    notified_at: new Date(now).toISOString(),
+                    notified_at: new Date().toISOString(),
                   })
                 );
               }

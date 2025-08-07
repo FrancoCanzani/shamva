@@ -51,28 +51,32 @@ export default function DashboardHeader({ children }: DashboardHeaderProps) {
         <BreadcrumbList>
           <BreadcrumbItem>Dashboard</BreadcrumbItem>
 
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-1 hover:text-black hover:underline">
-                {workspaceName}
-                <ChevronDownIcon size={15} />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
-                {workspaces.map((workspace) => (
-                  <DropdownMenuItem key={workspace.id} asChild>
-                    <Link
-                      to="/dashboard/$workspaceName/monitors"
-                      params={{ workspaceName: workspace.name }}
-                      className="text-xs"
-                    >
-                      {workspace.name}
-                    </Link>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </BreadcrumbItem>
+          {workspaceName ? (
+            <>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="flex items-center gap-1 hover:text-black hover:underline">
+                    {workspaceName}
+                    <ChevronDownIcon size={15} />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start">
+                    {workspaces.map((workspace) => (
+                      <DropdownMenuItem key={workspace.id} asChild>
+                        <Link
+                          to="/dashboard/$workspaceName/monitors"
+                          params={{ workspaceName: workspace.name }}
+                          className="text-xs"
+                        >
+                          {workspace.name}
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </BreadcrumbItem>
+            </>
+          ) : null}
 
           {section && workspaceName && (
             <>

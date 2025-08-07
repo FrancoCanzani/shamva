@@ -26,11 +26,11 @@ export function IncidentUpdatesSection({
             className="bg-background rounded border p-3 shadow-xs"
           >
             <div className="mb-1 flex items-center justify-between">
-              <span className="text-muted-foreground font-mono text-xs">
+              <span className="text-muted-foreground text-xs">
                 {new Date(update.created_at).toLocaleString()}
               </span>
-              <div className="text-muted-foreground inline-flex space-x-2 text-right font-mono text-xs">
-                <div>{update.author_name}</div>
+              <div className="text-muted-foreground inline-flex space-x-2 text-right text-xs">
+                <div>By {update.author_name}</div>
                 {update.author_email && (
                   <div className="text-muted-foreground hidden md:block">
                     ({update.author_email})
@@ -46,7 +46,7 @@ export function IncidentUpdatesSection({
               </div>
             </div>
             <div
-              className="text-sm whitespace-pre-line"
+              className="prose prose-sm text-sm whitespace-pre-line"
               dangerouslySetInnerHTML={{ __html: update.content }}
             />
           </div>

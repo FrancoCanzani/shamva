@@ -37,7 +37,7 @@ function IncidentTimeline({ incident }: { incident: Partial<Incident> }) {
 
   if (incident.started_at) {
     events.push({
-      title: "Incident Started",
+      title: "Incident started",
       timestamp: incident.started_at,
       details: incident.regions_affected?.length
         ? `Regions: ${incident.regions_affected
@@ -47,21 +47,17 @@ function IncidentTimeline({ incident }: { incident: Partial<Incident> }) {
     });
   }
 
-  if (incident.notified_at && incident.started_at) {
-    const notified = new Date(incident.notified_at).getTime();
-    const started = new Date(incident.started_at).getTime();
-    if (notified >= started) {
-      events.push({
-        title: "Notifications Sent",
-        timestamp: incident.notified_at,
-        details: null,
-      });
-    }
+  if (incident.notified_at) {
+    events.push({
+      title: "Notifications sent",
+      timestamp: incident.notified_at,
+      details: null,
+    });
   }
 
   if (incident.acknowledged_at) {
     events.push({
-      title: "Incident Acknowledged",
+      title: "Incident acknowledged",
       timestamp: incident.acknowledged_at,
       details: null,
     });
@@ -69,7 +65,7 @@ function IncidentTimeline({ incident }: { incident: Partial<Incident> }) {
 
   if (incident.resolved_at) {
     events.push({
-      title: "Incident Resolved",
+      title: "Incident resolved",
       timestamp: incident.resolved_at,
       details: incident.downtime_duration_ms
         ? `Duration: ${formatDuration(incident.downtime_duration_ms)}`
@@ -99,10 +95,10 @@ function IncidentTimeline({ incident }: { incident: Partial<Incident> }) {
 
       <div className="space-y-3 divide-y divide-dashed">
         {events.map((event, index) => (
-          <div key={index} className="flex gap-3">
+          <div key={index} className="flex gap-3 text-xs">
             <div className="flex-1 pb-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm">{event.title}</span>
+                <span>{event.title}</span>
                 <span className="text-muted-foreground text-xs">
                   {format(parseISO(event.timestamp), "MMM d, HH:mm")}
                 </span>
@@ -124,9 +120,9 @@ export function MonitorTimeline({ incidents }: MonitorTimelineProps) {
   if (incidents.length === 0) {
     return (
       <div className="space-y-4">
-        <h3 className="text-sm font-medium">Incidents Timeline</h3>
+        <h3 className="text-sm font-medium">Incidents</h3>
         <div className="rounded border border-dashed p-4 text-center">
-          <div className="text-muted-foreground text-sm">
+          <div className="text-muted-foreground text-xs">
             No incidents found
           </div>
         </div>
@@ -143,7 +139,7 @@ export function MonitorTimeline({ incidents }: MonitorTimelineProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium">Incidents Timeline</h3>
+        <h3 className="text-sm font-medium">Incidents</h3>
         <span className="text-muted-foreground text-xs">
           {incidents.length} total
         </span>
@@ -153,16 +149,16 @@ export function MonitorTimeline({ incidents }: MonitorTimelineProps) {
         {sortedIncidents.map((incident) => (
           <AccordionItem key={incident.id} value={incident.id!}>
             <AccordionTrigger className="text-left">
-              <div className="flex items-center space-x-1.5 text-xs">
+              <div className="flex w-full min-w-0 items-center space-x-1.5 text-xs">
                 {incident.created_at && (
-                  <div className="font-medium">
+                  <div className="shrink-0 font-medium">
                     {format(
                       new Date(incident.created_at),
                       "LLL dd, y HH:mm:ss"
                     )}
                   </div>
                 )}
-                <span className="truncate font-normal text-red-800 dark:text-red-50">
+                <span className="truncate flex-1 font-normal text-red-800 dark:text-red-50">
                   {incident.error_message}
                 </span>
               </div>

@@ -12,17 +12,32 @@ export function useCreateIncidentUpdate() {
   return useMutation({
     mutationFn: async ({
       incidentId,
-      update,
+      content,
     }: {
       incidentId: string;
-      update: {
-        message: string;
-        status: "investigating" | "identified" | "monitoring" | "resolved";
-      };
+      content: string;
     }): Promise<Incident> => {
-      if (!context.auth.session?.access_token) {
+      if (!context.auth.session?.access_token || !context.auth.session.user) {
         throw new Error("Failed to get authentication session");
       }
+
+      const user = context.auth.session.user as unknown as {
+        email?: string | null;
+        user_metadata?: Record<string, unknown>;
+      };
+      const email = user?.email ?? "";
+      const userMeta = (user?.user_metadata ?? {}) as Record<string, unknown>;
+      const authorName =
+        (userMeta["full_name"] as string) ||
+        (userMeta["name"] as string) ||
+        (userMeta["user_name"] as string) ||
+        (email ? (email.split("@")[0] as string) : "");
+
+      const payload = {
+        content,
+        authorName: authorName || "User",
+        authorEmail: email || "unknown@local",
+      };
 
       const response = await fetch(`/api/incidents/${incidentId}/updates`, {
         method: "POST",
@@ -30,10 +45,11 @@ export function useCreateIncidentUpdate() {
           Authorization: `Bearer ${context.auth.session.access_token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(update),
+        body: JSON.stringify(payload),
       });
       if (!response.ok) {
-        throw new Error("Failed to create incident update");
+        const errText = await response.text().catch(() => "");
+        throw new Error(`Failed to create incident update${errText ? `: ${errText}` : ""}`);
       }
       const result: ApiResponse<Incident> = await response.json();
       if (!result.data) {

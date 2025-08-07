@@ -4,11 +4,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/frontend/components/ui/accordion";
-import { Button } from "@/frontend/components/ui/button";
 import { Incident } from "@/frontend/types/types";
 import { getRegionNameFromCode } from "@/frontend/utils/utils";
-import { useNavigate, useParams } from "@tanstack/react-router";
+import { Link, useParams } from "@tanstack/react-router";
 import { format, parseISO } from "date-fns";
+import { ArrowUpRight } from "lucide-react";
 
 interface MonitorTimelineProps {
   incidents: Partial<Incident>[];
@@ -30,31 +30,33 @@ function formatDuration(ms: number | null): string {
 }
 
 function IncidentTimeline({ incident }: { incident: Partial<Incident> }) {
-  const navigate = useNavigate();
   const { workspaceName } = useParams({ strict: false });
 
-  const handleSeeDetails = () => {
-    if (!workspaceName || !incident.id) return;
-
-    navigate({
-      to: "/dashboard/$workspaceName/incidents/$id",
-      params: {
-        workspaceName,
-        id: incident.id,
-      },
-    });
-  };
-
-  const events = [];
+  const events: { title: string; timestamp: string; details: string | null }[] =
+    [];
 
   if (incident.started_at) {
     events.push({
       title: "Incident Started",
       timestamp: incident.started_at,
       details: incident.regions_affected?.length
-        ? `Regions: ${incident.regions_affected.map((code) => getRegionNameFromCode(code)).join(", ")}`
+        ? `Regions: ${incident.regions_affected
+            .map((code) => getRegionNameFromCode(code))
+            .join(", ")}`
         : null,
     });
+  }
+
+  if (incident.notified_at && incident.started_at) {
+    const notified = new Date(incident.notified_at).getTime();
+    const started = new Date(incident.started_at).getTime();
+    if (notified >= started) {
+      events.push({
+        title: "Notifications Sent",
+        timestamp: incident.notified_at,
+        details: null,
+      });
+    }
   }
 
   if (incident.acknowledged_at) {
@@ -82,36 +84,33 @@ function IncidentTimeline({ incident }: { incident: Partial<Incident> }) {
   return (
     <div className="space-y-4 pt-2">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium">Timeline</span>
-        <Button
-          variant="link"
-          size="sm"
-          onClick={handleSeeDetails}
-          className="h-auto p-0 text-xs"
+        <span className="text-xs font-medium">Timeline</span>
+        <Link
+          to="/dashboard/$workspaceName/incidents/$id"
+          params={{
+            workspaceName: workspaceName!,
+            id: incident.id!,
+          }}
+          className="text-primary inline-flex h-auto items-center gap-1 p-0 text-xs hover:underline"
         >
-          View Details
-        </Button>
+          View Details <ArrowUpRight className="size-3" />
+        </Link>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-3 divide-y divide-dashed">
         {events.map((event, index) => (
           <div key={index} className="flex gap-3">
-            <div className="flex flex-col items-center">
-              <div className="h-2 w-2 rounded-full bg-gray-400" />
-              {index < events.length - 1 && (
-                <div className="mt-1 h-6 w-px bg-gray-200" />
-              )}
-            </div>
-
             <div className="flex-1 pb-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm">{event.title}</span>
-                <span className="text-xs text-gray-500">
+                <span className="text-muted-foreground text-xs">
                   {format(parseISO(event.timestamp), "MMM d, HH:mm")}
                 </span>
               </div>
               {event.details && (
-                <p className="mt-1 text-xs text-gray-500">{event.details}</p>
+                <p className="text-muted-foreground mt-1 text-xs">
+                  {event.details}
+                </p>
               )}
             </div>
           </div>
@@ -126,9 +125,10 @@ export function MonitorTimeline({ incidents }: MonitorTimelineProps) {
     return (
       <div className="space-y-4">
         <h3 className="text-sm font-medium">Incidents Timeline</h3>
-        <div className="rounded-lg border-2 border-dashed border-gray-200 p-8 text-center">
-          <div className="text-2xl">📊</div>
-          <div className="mt-2 text-sm text-gray-500">No incidents found</div>
+        <div className="rounded border border-dashed p-4 text-center">
+          <div className="text-muted-foreground text-sm">
+            No incidents found
+          </div>
         </div>
       </div>
     );

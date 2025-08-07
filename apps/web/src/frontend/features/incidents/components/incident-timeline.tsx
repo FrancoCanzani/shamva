@@ -7,36 +7,27 @@ interface IncidentTimelineProps {
 
 export default function IncidentTimeline({ events }: IncidentTimelineProps) {
   return (
-    <div className="h-fit w-full rounded border p-4 shadow-xs lg:w-80">
-      <h2 className="mb-4 font-mono text-sm font-medium">Timeline</h2>
-      <div className="relative">
-        <div className="absolute top-0 bottom-0 left-1 w-0.5 bg-stone-50"></div>
-
-        <div className="flex flex-col gap-4">
-          {events.map((event) => (
-            <div key={event.id} className="relative flex items-start gap-2">
-              <div className="relative z-10 flex-shrink-0">
-                <div
-                  className={`h-2.5 w-2.5 rounded shadow-xs ${event.color || "bg-blue-500"} shadow-sm`}
-                ></div>
+    <div className="rounded border p-4">
+      <div className="mb-4">
+        <span className="text-sm font-medium">Timeline</span>
+      </div>
+      
+      <div className="space-y-3 divide-y divide-dashed">
+        {events.map((event) => (
+          <div key={event.id} className="flex gap-3 pt-3 first:pt-0">
+            <div className="flex-1 pb-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm">{event.title}</span>
+                <span className="text-xs text-muted-foreground font-mono">
+                  {format(parseISO(event.time), "HH:mm:ss")}
+                </span>
               </div>
-
-              <div className="min-w-0 flex-1 pb-4">
-                <div className="mb-1 flex items-center gap-2">
-                  <span className="font-mono text-xs">
-                    {format(parseISO(event.time), "HH:mm:ss")}
-                  </span>
-                  <span className="font-mono text-xs font-medium">
-                    {event.title}
-                  </span>
-                </div>
-                {event.description && (
-                  <p className="text-xs">{event.description}</p>
-                )}
-              </div>
+              {event.description && (
+                <p className="mt-1 text-xs text-muted-foreground">{event.description}</p>
+              )}
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
     </div>
   );

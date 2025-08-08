@@ -116,7 +116,7 @@ export default function IncidentPage() {
             </div>
           </div>
 
-          <div className="flex flex-col items-start justify-between space-y-1.5 lg:space-y-0 lg:flex-row">
+          <div className="flex flex-col items-start justify-between space-y-1.5 lg:flex-row lg:space-y-0">
             <div className="flex items-center gap-3">
               <span className="text-muted-foreground text-xs">
                 Started {startedDate}, <span>{startedTime}</span> (

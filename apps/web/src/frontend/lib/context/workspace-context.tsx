@@ -1,5 +1,11 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import React, { useCallback, useEffect, useMemo, createContext, useContext } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  createContext,
+  useContext,
+} from "react";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import supabase from "@/frontend/lib/supabase";
 import { ApiResponse, Workspace } from "@/frontend/types/types";
@@ -23,7 +29,7 @@ async function fetchWorkspaces() {
     data: { session },
     error: sessionError,
   } = await supabase.auth.getSession();
-  
+
   if (sessionError || !session?.access_token) {
     throw new Error("Failed to get authentication session");
   }
@@ -150,9 +156,18 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       isLoading: query.isLoading,
       error: query.error,
       refetch: query.refetch,
-      invalidateWorkspaces: () => queryClient.invalidateQueries({ queryKey: ["workspaces"] }),
+      invalidateWorkspaces: () =>
+        queryClient.invalidateQueries({ queryKey: ["workspaces"] }),
     }),
-    [workspaces, currentWorkspace, setCurrentWorkspace, query.isLoading, query.error, query.refetch, queryClient]
+    [
+      workspaces,
+      currentWorkspace,
+      setCurrentWorkspace,
+      query.isLoading,
+      query.error,
+      query.refetch,
+      queryClient,
+    ]
   );
 
   return (

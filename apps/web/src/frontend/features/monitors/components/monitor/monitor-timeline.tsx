@@ -158,7 +158,7 @@ export function MonitorTimeline({ incidents }: MonitorTimelineProps) {
                     )}
                   </div>
                 )}
-                <span className="truncate flex-1 font-normal text-red-800 dark:text-red-50">
+                <span className="flex-1 truncate font-normal text-red-800 dark:text-red-50">
                   {incident.error_message}
                 </span>
               </div>

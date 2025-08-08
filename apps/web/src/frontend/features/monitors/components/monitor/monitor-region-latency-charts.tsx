@@ -21,7 +21,10 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { ChartLegend, ChartLegendContent } from "@/frontend/components/ui/chart";
+import {
+  ChartLegend,
+  ChartLegendContent,
+} from "@/frontend/components/ui/chart";
 
 type ChartDataPoint = {
   date: string;

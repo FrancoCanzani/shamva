@@ -49,7 +49,9 @@ export function useCreateIncidentUpdate() {
       });
       if (!response.ok) {
         const errText = await response.text().catch(() => "");
-        throw new Error(`Failed to create incident update${errText ? `: ${errText}` : ""}`);
+        throw new Error(
+          `Failed to create incident update${errText ? `: ${errText}` : ""}`
+        );
       }
       const result: ApiResponse<Incident> = await response.json();
       if (!result.data) {

@@ -26,18 +26,17 @@ export function useCreateStatusPage() {
         data: { session },
         error: sessionError,
       } = await supabase.auth.getSession();
-      
+
       if (sessionError || !session?.access_token) {
         throw new Error("Failed to get authentication session");
       }
 
-      
       const { data: claimsData, error: claimsError } =
         await supabase.auth.getClaims();
       if (claimsError || !claimsData?.claims) {
         throw new Error("Failed to validate authentication claims");
       }
-      
+
       const response = await fetch(`/api/status-pages`, {
         method: "POST",
         headers: {
@@ -87,18 +86,17 @@ export function useUpdateStatusPage() {
         data: { session },
         error: sessionError,
       } = await supabase.auth.getSession();
-      
+
       if (sessionError || !session?.access_token) {
         throw new Error("Failed to get authentication session");
       }
 
-      
       const { data: claimsData, error: claimsError } =
         await supabase.auth.getClaims();
       if (claimsError || !claimsData?.claims) {
         throw new Error("Failed to validate authentication claims");
       }
-      
+
       const response = await fetch(`/api/status-pages/${statusPageId}`, {
         method: "PUT",
         headers: {
@@ -132,18 +130,17 @@ export function useDeleteStatusPage() {
         data: { session },
         error: sessionError,
       } = await supabase.auth.getSession();
-      
+
       if (sessionError || !session?.access_token) {
         throw new Error("Failed to get authentication session");
       }
 
-      
       const { data: claimsData, error: claimsError } =
         await supabase.auth.getClaims();
       if (claimsError || !claimsData?.claims) {
         throw new Error("Failed to validate authentication claims");
       }
-      
+
       const response = await fetch(`/api/status-pages/${statusPageId}`, {
         method: "DELETE",
         headers: {

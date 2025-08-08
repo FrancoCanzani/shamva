@@ -14,6 +14,7 @@ export { CheckerDurableObject };
 
 const app = new Hono<{ Bindings: EnvBindings }>();
 
+
 // Middleware
 app.use(logger());
 app.use(prettyJSON());

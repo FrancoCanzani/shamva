@@ -469,10 +469,11 @@ export class CheckerDurableObject extends DurableObject {
               );
             } else if (!activeIncident) {
               // No active incident found, create a new one
-              const errorMessage = config.checkType === "tcp"
-                ? (result.checkError ?? "TCP connection failed")
-                : (result.checkError ?? `HTTP status ${result.statusCode}`);
-              
+              const errorMessage =
+                config.checkType === "tcp"
+                  ? (result.checkError ?? "TCP connection failed")
+                  : (result.checkError ?? `HTTP status ${result.statusCode}`);
+
               const incident = await this.createIncident(
                 config.monitorId,
                 config.region,

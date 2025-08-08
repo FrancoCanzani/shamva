@@ -68,7 +68,9 @@ export function DashboardSidebar() {
   return (
     <Sidebar>
       <SidebarHeader>
-        <h1 className="pl-2 text-xl font-medium">Shamva</h1>
+        <h1 className="pl-2 font-mono text-xl font-medium tracking-wide">
+          Shamva
+        </h1>
       </SidebarHeader>
 
       <SidebarContent>
@@ -84,10 +86,11 @@ export function DashboardSidebar() {
                         params={{ workspaceName: currentWorkspace.name }}
                         preload="intent"
                         className={cn(
-                          "rounded",
+                          "rounded hover:rounded-md hover:border hover:bg-stone-50",
                           router.location.pathname.includes(
                             item.to.split("/").pop()!
-                          ) && "font-medium"
+                          ) &&
+                            "rounded-md border bg-stone-50 font-medium shadow-xs"
                         )}
                       >
                         <span>{item.label}</span>

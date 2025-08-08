@@ -68,7 +68,7 @@ export default function WorkspaceForm({
         } catch (error) {
           if (error instanceof z.ZodError) {
             const fieldErrors: Record<string, string> = {};
-            error.errors.forEach((err) => {
+            error.issues.forEach((err) => {
               const path = err.path.join(".");
               fieldErrors[path] = err.message;
             });
@@ -258,7 +258,7 @@ export default function WorkspaceForm({
                       setNewMemberRole("member");
                     } catch (error) {
                       if (error instanceof z.ZodError) {
-                        error.errors.forEach((err) => {
+                        error.issues.forEach((err) => {
                           toast.error(err.message);
                         });
                       } else {

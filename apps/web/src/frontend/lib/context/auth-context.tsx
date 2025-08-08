@@ -19,7 +19,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const getInitialAuth = async () => {
       try {
         const { data: claimsData } = await supabase.auth.getClaims();
-        
+
         const {
           data: { session },
           error: sessionError,
@@ -31,10 +31,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           setSession(null);
         } else {
           setSession(session);
-          
+
           // Use claims to determine authentication status
           const isAuthenticated = claimsData?.claims?.aud === "authenticated";
-          
+
           if (isAuthenticated && session?.user) {
             setUser(session.user);
           } else {

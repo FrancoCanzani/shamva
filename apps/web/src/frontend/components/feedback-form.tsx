@@ -1,9 +1,13 @@
 import { Button } from "@/frontend/components/ui/button";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/frontend/components/ui/popover";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/frontend/components/ui/dialog";
 import { Textarea } from "@/frontend/components/ui/textarea";
 import { cn } from "@/frontend/utils/utils";
 import { useRouteContext } from "@tanstack/react-router";
@@ -23,17 +27,18 @@ export function FeedbackForm() {
   const { auth } = useRouteContext({
     from: "/dashboard",
   });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const formData = {
-      message: message.trim(),
+      message: message,
     };
 
     const validationResult = feedbackSchema.safeParse(formData);
 
     if (!validationResult.success) {
-      const messageError = validationResult.error.errors.find(
+      const messageError = validationResult.error.issues.find(
         (error) => error.path[0] === "message"
       );
 
@@ -75,49 +80,109 @@ export function FeedbackForm() {
   };
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <PopoverTrigger asChild>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="flex-1">
           Feedback
         </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-64 p-2" align="end">
-        <form onSubmit={handleSubmit} className="space-y-2">
-          <div className="space-y-2">
-            <label htmlFor="feedback-message" className="sr-only">
-              Tell us more
+      </DialogTrigger>
+      <DialogContent className="p-2 sm:max-w-lg [&>button:last-child]:hidden">
+        <DialogHeader className="gap-1 p-2">
+          <DialogTitle className="font-medium">Feedback</DialogTitle>
+          <DialogDescription className="text-xs">
+            What do you think?
+          </DialogDescription>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-3 px-2">
+          <div className="grid gap-2">
+            <label
+              htmlFor="feedback-from"
+              className="text-muted-foreground text-xs"
+            >
+              From
+            </label>
+            <span className="text-muted-foreground rounded border p-2 text-xs">
+              {auth.session?.user?.email}
+            </span>
+          </div>
+
+          <div className="grid gap-2">
+            <label
+              htmlFor="feedback-to"
+              className="text-muted-foreground text-xs"
+            >
+              To
+            </label>
+            <span className="text-muted-foreground rounded border p-2 text-xs">
+              feedback@shamva.app
+            </span>
+          </div>
+
+          <div className="grid gap-2">
+            <label
+              htmlFor="feedback-subject"
+              className="text-muted-foreground text-xs"
+            >
+              Subject
+            </label>
+            <span className="text-muted-foreground rounded border p-2 text-xs">
+              Feedback
+            </span>
+          </div>
+
+          <div className="grid gap-2">
+            <label
+              htmlFor="feedback-message"
+              className="text-muted-foreground text-xs"
+            >
+              Message
             </label>
             <Textarea
               id="feedback-message"
-              placeholder="Share your thoughts..."
+              className="text-xs placeholder:text-xs"
+              placeholder="Write your message..."
               value={message}
-              rows={6}
+              rows={10}
               onChange={(e) => setMessage(e.target.value)}
-              className="field-sizing-content flex-1 resize-none rounded-none border-none p-0 text-xs shadow-none ring-0 placeholder:text-xs focus-visible:border-none focus-visible:ring-0"
             />
           </div>
 
-          <div className="flex items-center justify-end gap-2">
+          <DialogFooter className="items-center pb-2">
             <span
               className={cn(
-                "text-muted-foreground text-xs",
+                "text-muted-foreground mr-auto text-xs",
                 message.length > 1000 && "text-red-800"
               )}
             >
               {message.length}/1000 characters
             </span>
-
-            <Button
-              type="submit"
-              variant={"outline"}
-              size="xs"
-              disabled={isSubmitting || message.length > 1000}
-            >
-              {isSubmitting ? "Submitting..." : <>Submit</>}
-            </Button>
-          </div>
+            <div className="flex items-center gap-x-1.5">
+              <Button
+                variant={"outline"}
+                size="xs"
+                disabled={isSubmitting}
+                onClick={() => {
+                  setMessage("");
+                  setIsOpen(false);
+                }}
+              >
+                Close
+              </Button>
+              <Button
+                type="submit"
+                variant={"outline"}
+                size="xs"
+                disabled={
+                  isSubmitting || message.length === 0 || message.length > 1000
+                }
+              >
+                {isSubmitting ? "Sending..." : <>Send</>}
+              </Button>
+            </div>
+          </DialogFooter>
         </form>
-      </PopoverContent>
-    </Popover>
+      </DialogContent>
+    </Dialog>
   );
 }

@@ -22,18 +22,17 @@ export function useCreateHeartbeat() {
         data: { session },
         error: sessionError,
       } = await supabase.auth.getSession();
-      
+
       if (sessionError || !session?.access_token) {
         throw new Error("Failed to get authentication session");
       }
 
-      
       const { data: claimsData, error: claimsError } =
         await supabase.auth.getClaims();
       if (claimsError || !claimsData?.claims) {
         throw new Error("Failed to validate authentication claims");
       }
-      
+
       const response = await fetch(`/api/heartbeats`, {
         method: "POST",
         headers: {
@@ -79,18 +78,17 @@ export function useUpdateHeartbeat() {
         data: { session },
         error: sessionError,
       } = await supabase.auth.getSession();
-      
+
       if (sessionError || !session?.access_token) {
         throw new Error("Failed to get authentication session");
       }
 
-      
       const { data: claimsData, error: claimsError } =
         await supabase.auth.getClaims();
       if (claimsError || !claimsData?.claims) {
         throw new Error("Failed to validate authentication claims");
       }
-      
+
       const response = await fetch(`/api/heartbeats/${heartbeatId}`, {
         method: "PUT",
         headers: {
@@ -124,18 +122,17 @@ export function useDeleteHeartbeat() {
         data: { session },
         error: sessionError,
       } = await supabase.auth.getSession();
-      
+
       if (sessionError || !session?.access_token) {
         throw new Error("Failed to get authentication session");
       }
 
-      
       const { data: claimsData, error: claimsError } =
         await supabase.auth.getClaims();
       if (claimsError || !claimsData?.claims) {
         throw new Error("Failed to validate authentication claims");
       }
-      
+
       const response = await fetch(`/api/heartbeats/${heartbeatId}`, {
         method: "DELETE",
         headers: {

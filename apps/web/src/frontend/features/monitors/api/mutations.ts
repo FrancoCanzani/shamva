@@ -18,18 +18,17 @@ export function useCreateMonitor() {
         data: { session },
         error: sessionError,
       } = await supabase.auth.getSession();
-      
+
       if (sessionError || !session?.access_token) {
         throw new Error("Failed to get authentication session");
       }
 
-      
       const { data: claimsData, error: claimsError } =
         await supabase.auth.getClaims();
       if (claimsError || !claimsData?.claims) {
         throw new Error("Failed to validate authentication claims");
       }
-      
+
       const response = await fetch(`/api/monitors`, {
         method: "POST",
         headers: {
@@ -71,18 +70,17 @@ export function useUpdateMonitor() {
         data: { session },
         error: sessionError,
       } = await supabase.auth.getSession();
-      
+
       if (sessionError || !session?.access_token) {
         throw new Error("Failed to get authentication session");
       }
 
-      
       const { data: claimsData, error: claimsError } =
         await supabase.auth.getClaims();
       if (claimsError || !claimsData?.claims) {
         throw new Error("Failed to validate authentication claims");
       }
-      
+
       const response = await fetch(`/api/monitors/${monitorId}`, {
         method: "PUT",
         headers: {
@@ -116,18 +114,17 @@ export function useDeleteMonitor() {
         data: { session },
         error: sessionError,
       } = await supabase.auth.getSession();
-      
+
       if (sessionError || !session?.access_token) {
         throw new Error("Failed to get authentication session");
       }
 
-      
       const { data: claimsData, error: claimsError } =
         await supabase.auth.getClaims();
       if (claimsError || !claimsData?.claims) {
         throw new Error("Failed to validate authentication claims");
       }
-      
+
       const response = await fetch(`/api/monitors/${monitorId}`, {
         method: "DELETE",
         headers: {
@@ -164,18 +161,17 @@ export function usePauseResumeMonitor() {
         data: { session },
         error: sessionError,
       } = await supabase.auth.getSession();
-      
+
       if (sessionError || !session?.access_token) {
         throw new Error("Failed to get authentication session");
       }
 
-      
       const { data: claimsData, error: claimsError } =
         await supabase.auth.getClaims();
       if (claimsError || !claimsData?.claims) {
         throw new Error("Failed to validate authentication claims");
       }
-      
+
       const response = await fetch(`/api/monitors/${monitorId}`, {
         method: "PATCH",
         headers: {

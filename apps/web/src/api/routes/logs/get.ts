@@ -1,21 +1,49 @@
 import { Context } from "hono";
+import z from "zod";
 import { createSupabaseClient } from "../../lib/supabase/client";
+
+const LogsQuerySchema = z.object({
+  workspaceId: z.uuid("Invalid workspace ID format"),
+  limit: z
+    .string()
+    .transform((val) => {
+      const parsed = Number(val);
+      if (Number.isFinite(parsed)) return parsed;
+      return 100;
+    })
+    .optional(),
+  // Accept any non-empty string; DB can handle timestamp formats it returned
+  cursorCreatedAt: z.string().min(1).optional(),
+  cursorId: z.string().optional(),
+});
 
 export default async function getLogs(c: Context): Promise<Response> {
   const userId = c.get("userId");
-  const workspaceId = c.req.query("workspaceId");
+  const queryParams = c.req.query();
+  const parsed = LogsQuerySchema.safeParse(queryParams);
+  if (!parsed.success) {
+    const messages = parsed.error.issues
+      .map((issue) => issue.message)
+      .join(", ");
+    return c.json(
+      {
+        data: null,
+        success: false,
+        error: messages,
+      },
+      400
+    );
+  }
+  const { workspaceId, cursorCreatedAt, cursorId } = parsed.data;
+  let limit = parsed.data.limit ?? 100;
+  // Clamp to a reasonable range
+  if (limit < 20) limit = 20;
+  if (limit > 500) limit = 500;
 
   if (!userId) {
     return c.json(
       { data: null, success: false, error: "User not authenticated" },
       401
-    );
-  }
-
-  if (!workspaceId) {
-    return c.json(
-      { data: null, success: false, error: "Workspace ID is required" },
-      400
     );
   }
 
@@ -84,14 +112,26 @@ export default async function getLogs(c: Context): Promise<Response> {
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
     const sevenDaysAgoISO = sevenDaysAgo.toISOString();
 
-    const { data: logs, error: logError } = await supabase
+    let query = supabase
       .from("logs")
       .select("*")
       .in("monitor_id", monitorIds)
       .gte("created_at", sevenDaysAgoISO)
-      .order("created_at", {
-        ascending: false,
-      });
+      .order("created_at", { ascending: false })
+      .order("id", { ascending: false })
+      .limit(limit);
+
+    // Keyset pagination: (created_at, id) < (cursorCreatedAt, cursorId)
+    if (cursorCreatedAt && cursorId) {
+      query = query.or(
+        `created_at.lt.${cursorCreatedAt},and(created_at.eq.${cursorCreatedAt},id.lt.${cursorId})`
+      );
+    } else if (cursorCreatedAt) {
+      // Fallback if only timestamp provided
+      query = query.lt("created_at", cursorCreatedAt);
+    }
+
+    const { data: logs, error: logError } = await query;
 
     if (logError) {
       console.error(
@@ -108,8 +148,20 @@ export default async function getLogs(c: Context): Promise<Response> {
         500
       );
     }
+    const nextCursor =
+      logs && logs.length === limit
+        ? {
+            createdAt: logs[logs.length - 1].created_at as string,
+            id: logs[logs.length - 1].id as string,
+          }
+        : null;
 
-    return c.json({ data: logs || [], success: true, error: null });
+    return c.json({
+      data: logs || [],
+      success: true,
+      error: null,
+      nextCursor,
+    });
   } catch (unexpectedError) {
     console.error(
       `Unexpected error getting logs for workspace ${workspaceId}:`,

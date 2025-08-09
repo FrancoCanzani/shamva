@@ -1,5 +1,7 @@
 import { RouterContext } from "@/frontend/routes/__root";
 import { ApiResponse, StatusPage, Workspace } from "@/frontend/types/types";
+import { queryClient } from "@/frontend/lib/query-client";
+import fetchWorkspaces from "@/frontend/features/workspaces/api/workspaces";
 import { redirect } from "@tanstack/react-router";
 
 export async function fetchStatusPages({
@@ -11,7 +13,6 @@ export async function fetchStatusPages({
 }): Promise<StatusPage[]> {
   const workspaceName = params.workspaceName;
   if (!workspaceName) {
-    console.warn("Workspace name missing from route parameters, redirecting.");
     throw redirect({
       to: "/dashboard/workspaces/new",
       throw: true,
@@ -19,40 +20,14 @@ export async function fetchStatusPages({
   }
 
   try {
-    const workspaceResponse = await fetch("/api/workspaces", {
-      headers: {
-        Authorization: `Bearer ${context.auth.session?.access_token}`,
-        "Content-Type": "application/json",
-      },
-    });
+    const allWorkspaces: Workspace[] =
+      queryClient.getQueryData<Workspace[]>(["workspaces"]) ??
+      (await queryClient.ensureQueryData<Workspace[]>({
+        queryKey: ["workspaces"],
+        queryFn: fetchWorkspaces,
+      }));
 
-    if (workspaceResponse.status === 401) {
-      console.log(
-        "API returned 401 fetching workspaces, redirecting to login."
-      );
-      throw redirect({
-        to: "/auth/login",
-        search: { redirect: `/dashboard/${workspaceName}/status` },
-        throw: true,
-      });
-    }
-
-    if (!workspaceResponse.ok) {
-      throw new Error(
-        `Failed to fetch workspaces (Status: ${workspaceResponse.status})`
-      );
-    }
-
-    const workspaceResult: ApiResponse<Workspace[]> =
-      await workspaceResponse.json();
-
-    if (!workspaceResult.success || !workspaceResult.data) {
-      throw new Error(
-        workspaceResult.error || "Failed to fetch workspaces from API"
-      );
-    }
-
-    const targetWorkspace = workspaceResult.data.find(
+    const targetWorkspace = allWorkspaces.find(
       (ws) => ws.name === workspaceName
     );
 

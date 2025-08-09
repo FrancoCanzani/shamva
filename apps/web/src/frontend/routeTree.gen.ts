@@ -15,7 +15,6 @@ import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settin
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as StatusSlugIndexRouteImport } from './routes/status/$slug/index'
 import { Route as DashboardWorkspacesIndexRouteImport } from './routes/dashboard/workspaces/index'
-import { Route as DashboardLogsIndexRouteImport } from './routes/dashboard/logs/index'
 import { Route as DashboardWorkspacesNewIndexRouteImport } from './routes/dashboard/workspaces/new/index'
 import { Route as DashboardWorkspacesWorkspaceIdIndexRouteImport } from './routes/dashboard/workspaces/$workspaceId/index'
 import { Route as DashboardWorkspaceNameStatusPagesIndexRouteImport } from './routes/dashboard/$workspaceName/status-pages/index'
@@ -65,11 +64,6 @@ const DashboardWorkspacesIndexRoute =
     path: '/workspaces/',
     getParentRoute: () => DashboardRouteRoute,
   } as any)
-const DashboardLogsIndexRoute = DashboardLogsIndexRouteImport.update({
-  id: '/logs/',
-  path: '/logs/',
-  getParentRoute: () => DashboardRouteRoute,
-} as any)
 const DashboardWorkspacesNewIndexRoute =
   DashboardWorkspacesNewIndexRouteImport.update({
     id: '/workspaces/new/',
@@ -178,7 +172,6 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/auth/login': typeof AuthLoginRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
-  '/dashboard/logs': typeof DashboardLogsIndexRoute
   '/dashboard/workspaces': typeof DashboardWorkspacesIndexRoute
   '/status/$slug': typeof StatusSlugIndexRoute
   '/dashboard/$workspaceName/heartbeats': typeof DashboardWorkspaceNameHeartbeatsIndexRoute
@@ -204,7 +197,6 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/auth/login': typeof AuthLoginRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
-  '/dashboard/logs': typeof DashboardLogsIndexRoute
   '/dashboard/workspaces': typeof DashboardWorkspacesIndexRoute
   '/status/$slug': typeof StatusSlugIndexRoute
   '/dashboard/$workspaceName/heartbeats': typeof DashboardWorkspaceNameHeartbeatsIndexRoute
@@ -231,7 +223,6 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/auth/login': typeof AuthLoginRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
-  '/dashboard/logs/': typeof DashboardLogsIndexRoute
   '/dashboard/workspaces/': typeof DashboardWorkspacesIndexRoute
   '/status/$slug/': typeof StatusSlugIndexRoute
   '/dashboard/$workspaceName/heartbeats/': typeof DashboardWorkspaceNameHeartbeatsIndexRoute
@@ -259,7 +250,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/auth/login'
     | '/dashboard/settings'
-    | '/dashboard/logs'
     | '/dashboard/workspaces'
     | '/status/$slug'
     | '/dashboard/$workspaceName/heartbeats'
@@ -285,7 +275,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/auth/login'
     | '/dashboard/settings'
-    | '/dashboard/logs'
     | '/dashboard/workspaces'
     | '/status/$slug'
     | '/dashboard/$workspaceName/heartbeats'
@@ -311,7 +300,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/auth/login'
     | '/dashboard/settings'
-    | '/dashboard/logs/'
     | '/dashboard/workspaces/'
     | '/status/$slug/'
     | '/dashboard/$workspaceName/heartbeats/'
@@ -382,13 +370,6 @@ declare module '@tanstack/react-router' {
       path: '/workspaces'
       fullPath: '/dashboard/workspaces'
       preLoaderRoute: typeof DashboardWorkspacesIndexRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/logs/': {
-      id: '/dashboard/logs/'
-      path: '/logs'
-      fullPath: '/dashboard/logs'
-      preLoaderRoute: typeof DashboardLogsIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/workspaces/new/': {
@@ -515,7 +496,6 @@ declare module '@tanstack/react-router' {
 
 interface DashboardRouteRouteChildren {
   DashboardSettingsRoute: typeof DashboardSettingsRoute
-  DashboardLogsIndexRoute: typeof DashboardLogsIndexRoute
   DashboardWorkspacesIndexRoute: typeof DashboardWorkspacesIndexRoute
   DashboardWorkspaceNameHeartbeatsIndexRoute: typeof DashboardWorkspaceNameHeartbeatsIndexRoute
   DashboardWorkspaceNameLogsIndexRoute: typeof DashboardWorkspaceNameLogsIndexRoute
@@ -538,7 +518,6 @@ interface DashboardRouteRouteChildren {
 
 const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
   DashboardSettingsRoute: DashboardSettingsRoute,
-  DashboardLogsIndexRoute: DashboardLogsIndexRoute,
   DashboardWorkspacesIndexRoute: DashboardWorkspacesIndexRoute,
   DashboardWorkspaceNameHeartbeatsIndexRoute:
     DashboardWorkspaceNameHeartbeatsIndexRoute,

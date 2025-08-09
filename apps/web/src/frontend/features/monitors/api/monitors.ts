@@ -1,6 +1,8 @@
 import supabase from "@/frontend/lib/supabase";
 import { RouterContext } from "@/frontend/routes/__root";
 import { ApiResponse, Monitor, Workspace } from "@/frontend/types/types";
+import { queryClient } from "@/frontend/lib/query-client";
+import fetchWorkspaces from "@/frontend/features/workspaces/api/workspaces";
 import { redirect } from "@tanstack/react-router";
 
 export async function fetchMonitors({
@@ -25,39 +27,12 @@ export async function fetchMonitors({
       throw new Error("Failed to validate authentication claims");
     }
 
-    const workspaceResponse = await fetch("/api/workspaces", {
-      headers: {
-        Authorization: `Bearer ${session.access_token}`,
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!workspaceResponse.ok) {
-      const errorText = await workspaceResponse.text();
-      console.error(
-        `Failed to fetch workspaces: ${workspaceResponse.status} ${workspaceResponse.statusText}`,
-        errorText
-      );
-      throw new Error(
-        `Failed to fetch workspaces (Status: ${workspaceResponse.status})`
-      );
-    }
-
-    const workspaceResult: ApiResponse<Workspace[]> =
-      await workspaceResponse.json();
-
-    if (!workspaceResult.success || !workspaceResult.data) {
-      console.error(
-        "API Error fetching workspaces:",
-        workspaceResult.error,
-        workspaceResult.details
-      );
-      throw new Error(
-        workspaceResult.error || "Failed to fetch workspaces from API"
-      );
-    }
-
-    const allWorkspaces = workspaceResult.data;
+    const allWorkspaces: Workspace[] =
+      queryClient.getQueryData<Workspace[]>(["workspaces"]) ??
+      (await queryClient.ensureQueryData<Workspace[]>({
+        queryKey: ["workspaces"],
+        queryFn: fetchWorkspaces,
+      }));
     const targetWorkspace = allWorkspaces.find(
       (ws) => ws.name === workspaceName
     );

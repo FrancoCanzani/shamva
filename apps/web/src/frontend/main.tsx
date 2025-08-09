@@ -1,4 +1,3 @@
-import { QueryClient } from "@tanstack/react-query";
 import {
   CatchBoundary,
   RouterProvider,
@@ -9,16 +8,11 @@ import ReactDOM from "react-dom/client";
 import Loading from "./components/loading";
 import { useAuth } from "./hooks/use-auth";
 import { AuthProvider } from "./lib/context/auth-context";
-import supabase from "./lib/supabase";
 import { routeTree } from "./routeTree.gen";
-
-const queryClient = new QueryClient();
 
 export const router = createRouter({
   routeTree,
   context: {
-    queryClient,
-    supabase,
     auth: undefined!,
   },
 });
@@ -33,15 +27,13 @@ function AppWithRouter() {
   const { user, session, isLoading, isAuthenticated } = useAuth();
 
   if (isLoading) {
-    return <Loading className="bg-red-50" />;
+    return <Loading />;
   }
 
   return (
     <RouterProvider
       router={router}
       context={{
-        queryClient,
-        supabase,
         auth: {
           user,
           session,

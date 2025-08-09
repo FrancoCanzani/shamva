@@ -8,7 +8,7 @@ import {
   SheetTitle,
 } from "@/frontend/components/ui/sheet";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/logs/index";
-import { Log } from "@/frontend/types/types";
+import type { Log } from "@/frontend/types/types";
 import {
   cn,
   copyToClipboard,
@@ -16,12 +16,11 @@ import {
   getRegionNameFromCode,
   getStatusTextColor,
 } from "@/frontend/utils/utils";
-import type { Table } from "@tanstack/react-table";
 import { format, parseISO } from "date-fns";
 import { Check, ChevronDown, ChevronUp, Copy, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
-export default function LogsSheet({ table }: { table: Table<Log> }) {
+export default function LogsSheet({ logs }: { logs: Log[] }) {
   const navigate = Route.useNavigate();
   const { logId } = Route.useSearch();
   const [copyStatus, setCopyStatus] = useState<{
@@ -32,17 +31,15 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
     body: false,
   });
 
-  const sortedFilteredRows = table.getRowModel().rows;
-
   const selectedLogIndex = useMemo(() => {
     if (!logId) return -1;
-    return sortedFilteredRows.findIndex((row) => row.original.id === logId);
-  }, [logId, sortedFilteredRows]);
+    return logs.findIndex((l) => l.id === logId);
+  }, [logId, logs]);
 
   const selectedLog = useMemo(() => {
     if (selectedLogIndex === -1) return null;
-    return sortedFilteredRows[selectedLogIndex]?.original;
-  }, [selectedLogIndex, sortedFilteredRows]);
+    return logs[selectedLogIndex] || null;
+  }, [selectedLogIndex, logs]);
 
   const headersArray = useMemo(() => {
     if (!selectedLog?.headers) return [];
@@ -70,12 +67,11 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
 
   const canGoPrevious = selectedLogIndex > 0;
   const canGoNext =
-    selectedLogIndex !== -1 && selectedLogIndex < sortedFilteredRows.length - 1;
+    selectedLogIndex !== -1 && selectedLogIndex < logs.length - 1;
 
   const goToPrevious = () => {
     if (canGoPrevious) {
-      const previousLogId =
-        sortedFilteredRows[selectedLogIndex - 1].original.id;
+      const previousLogId = logs[selectedLogIndex - 1].id;
       navigate({
         search: (prev) => ({
           ...prev,
@@ -88,7 +84,7 @@ export default function LogsSheet({ table }: { table: Table<Log> }) {
 
   const goToNext = () => {
     if (canGoNext) {
-      const nextLogId = sortedFilteredRows[selectedLogIndex + 1].original.id;
+      const nextLogId = logs[selectedLogIndex + 1].id;
       navigate({
         search: (prev) => ({
           ...prev,

@@ -1,5 +1,7 @@
 import { RouterContext } from "@/frontend/routes/__root";
 import { ApiResponse, Heartbeat, Workspace } from "@/frontend/types/types";
+import { queryClient } from "@/frontend/lib/query-client";
+import fetchWorkspaces from "@/frontend/features/workspaces/api/workspaces";
 import { redirect } from "@tanstack/react-router";
 
 export async function fetchHeartbeats({
@@ -18,50 +20,12 @@ export async function fetchHeartbeats({
   }
 
   try {
-    const workspaceResponse = await fetch("/api/workspaces", {
-      headers: {
-        Authorization: `Bearer ${context.auth.session?.access_token}`,
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (workspaceResponse.status === 401) {
-      console.log(
-        "API returned 401 fetching workspaces, redirecting to login."
-      );
-      throw redirect({
-        to: "/auth/login",
-        search: { redirect: `/dashboard/${workspaceName}/heartbeats` },
-        throw: true,
-      });
-    }
-
-    if (!workspaceResponse.ok) {
-      const errorText = await workspaceResponse.text();
-      console.error(
-        `Failed to fetch workspaces: ${workspaceResponse.status} ${workspaceResponse.statusText}`,
-        errorText
-      );
-      throw new Error(
-        `Failed to fetch workspaces (Status: ${workspaceResponse.status})`
-      );
-    }
-
-    const workspaceResult: ApiResponse<Workspace[]> =
-      await workspaceResponse.json();
-
-    if (!workspaceResult.success || !workspaceResult.data) {
-      console.error(
-        "API Error fetching workspaces:",
-        workspaceResult.error,
-        workspaceResult.details
-      );
-      throw new Error(
-        workspaceResult.error || "Failed to fetch workspaces from API"
-      );
-    }
-
-    const allWorkspaces = workspaceResult.data;
+    const allWorkspaces: Workspace[] =
+      queryClient.getQueryData<Workspace[]>(["workspaces"]) ??
+      (await queryClient.ensureQueryData<Workspace[]>({
+        queryKey: ["workspaces"],
+        queryFn: fetchWorkspaces,
+      }));
     const targetWorkspace = allWorkspaces.find(
       (ws) => ws.name === workspaceName
     );
@@ -92,11 +56,7 @@ export async function fetchHeartbeats({
       console.log(
         "API returned 401 fetching heartbeats, redirecting to login."
       );
-      throw redirect({
-        to: "/auth/login",
-        search: { redirect: `/dashboard/${workspaceName}/heartbeats` },
-        throw: true,
-      });
+      throw redirect({ to: "/auth/login", throw: true });
     }
 
     if (!heartbeatsResponse.ok) {

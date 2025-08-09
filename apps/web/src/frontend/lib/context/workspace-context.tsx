@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import React, {
   useCallback,
   useEffect,
@@ -7,8 +7,8 @@ import React, {
   useContext,
 } from "react";
 import { useLocation, useNavigate } from "@tanstack/react-router";
-import supabase from "@/frontend/lib/supabase";
-import { ApiResponse, Workspace } from "@/frontend/types/types";
+import { Workspace } from "@/frontend/types/types";
+import fetchWorkspaces from "@/frontend/features/workspaces/api/workspaces";
 
 interface WorkspaceContextType {
   workspaces: Workspace[];
@@ -24,45 +24,12 @@ const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
   undefined
 );
 
-async function fetchWorkspaces() {
-  const {
-    data: { session },
-    error: sessionError,
-  } = await supabase.auth.getSession();
-
-  if (sessionError || !session?.access_token) {
-    throw new Error("Failed to get authentication session");
-  }
-
-  const { data: claimsData, error: claimsError } =
-    await supabase.auth.getClaims();
-  if (claimsError || !claimsData?.claims) {
-    throw new Error("Failed to validate authentication claims");
-  }
-
-  const response = await fetch("/api/workspaces", {
-    headers: {
-      Authorization: `Bearer ${session.access_token}`,
-      "Content-Type": "application/json",
-    },
-  });
-
-  const data: ApiResponse<Workspace[]> = await response.json();
-
-  if (!data.success) {
-    throw new Error(data.error || "Failed to fetch workspaces");
-  }
-
-  return data.data;
-}
-
 const CURRENT_WORKSPACE_KEY = "shamva-current-workspace";
 const LAST_LOCATION_KEY = "shamva-last-location";
 
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const queryClient = useQueryClient();
 
   const [currentWorkspaceId, setCurrentWorkspaceId] = React.useState<
     string | null
@@ -73,13 +40,11 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     return null;
   });
 
-  const query = useQuery({
-    queryKey: ["workspaces"],
-    queryFn: fetchWorkspaces,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
+  const queryClient = useQueryClient();
 
-  const workspaces = useMemo(() => query.data ?? [], [query.data]);
+  const data = queryClient.getQueryData<Workspace[]>(["workspaces"]);
+
+  const workspaces = useMemo(() => data ?? [], [data]);
 
   const currentWorkspace = useMemo(() => {
     if (!currentWorkspaceId) {
@@ -124,22 +89,6 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   );
 
   useEffect(() => {
-    // Only redirect to create workspace if we're authenticated and have no workspaces
-    if (!query.isLoading && workspaces.length === 0 && !query.error) {
-      // Only redirect if we're not already on the workspaces page
-      if (!location.pathname.includes("/workspaces")) {
-        navigate({ to: "/dashboard/workspaces/new" });
-      }
-    }
-  }, [
-    workspaces.length,
-    query.isLoading,
-    query.error,
-    navigate,
-    location.pathname,
-  ]);
-
-  useEffect(() => {
     if (
       currentWorkspaceId &&
       !workspaces.find((w) => w.id === currentWorkspaceId)
@@ -153,21 +102,19 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       workspaces,
       currentWorkspace,
       setCurrentWorkspace,
-      isLoading: query.isLoading,
-      error: query.error,
-      refetch: query.refetch,
+      isLoading: false,
+      error: null,
+      refetch: () =>
+        queryClient
+          .ensureQueryData({
+            queryKey: ["workspaces"],
+            queryFn: fetchWorkspaces,
+          })
+          .then(() => {}),
       invalidateWorkspaces: () =>
         queryClient.invalidateQueries({ queryKey: ["workspaces"] }),
     }),
-    [
-      workspaces,
-      currentWorkspace,
-      setCurrentWorkspace,
-      query.isLoading,
-      query.error,
-      query.refetch,
-      queryClient,
-    ]
+    [workspaces, currentWorkspace, setCurrentWorkspace, queryClient]
   );
 
   return (

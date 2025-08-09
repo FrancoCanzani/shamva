@@ -1,3 +1,5 @@
+import fetchWorkspaces from "@/frontend/features/workspaces/api/workspaces";
+import { queryClient } from "@/frontend/lib/query-client";
 import { RouterContext } from "@/frontend/routes/__root";
 import { ApiResponse, Log, Workspace } from "@/frontend/types/types";
 import { redirect } from "@tanstack/react-router";
@@ -10,69 +12,20 @@ export async function fetchLogs({
   context: RouterContext;
 }): Promise<Log[]> {
   const workspaceNameFromParams = params.workspaceName;
-  if (!workspaceNameFromParams) {
-    console.warn(
-      "Workspace name missing from route parameters, redirecting to workspace creation."
-    );
-    throw redirect({
-      to: "/dashboard/workspaces/new",
-      throw: true,
-    });
-  }
 
   try {
-    const workspaceResponse = await fetch("/api/workspaces", {
-      headers: {
-        Authorization: `Bearer ${context.auth.session?.access_token}`,
-        "Content-Type": "application/json",
-      },
-    });
+    const allWorkspaces =
+      queryClient.getQueryData<Workspace[]>(["workspaces"]) ??
+      (await queryClient.ensureQueryData<Workspace[]>({
+        queryKey: ["workspaces"],
+        queryFn: fetchWorkspaces,
+      }));
 
-    if (workspaceResponse.status === 401) {
-      console.log(
-        "API returned 401 fetching workspaces for logs, redirecting to login."
-      );
-      throw redirect({
-        to: "/auth/login",
-        search: { redirect: `/dashboard/${workspaceNameFromParams}/logs` },
-        throw: true,
-      });
-    }
-
-    if (!workspaceResponse.ok) {
-      const errorText = await workspaceResponse.text();
-      console.error(
-        `Failed to fetch workspaces for logs: ${workspaceResponse.status} ${workspaceResponse.statusText}`,
-        errorText
-      );
-      throw new Error(
-        `Failed to fetch workspaces for logs (Status: ${workspaceResponse.status})`
-      );
-    }
-
-    const workspaceResult: ApiResponse<Workspace[]> =
-      await workspaceResponse.json();
-
-    if (!workspaceResult.success || !workspaceResult.data) {
-      console.error(
-        "API Error fetching workspaces for logs:",
-        workspaceResult.error,
-        workspaceResult.details
-      );
-      throw new Error(
-        workspaceResult.error || "Failed to fetch workspaces from API for logs"
-      );
-    }
-
-    const allWorkspaces = workspaceResult.data;
     const targetWorkspace = allWorkspaces.find(
       (ws) => ws.name === workspaceNameFromParams
     );
 
     if (!targetWorkspace) {
-      console.warn(
-        `Workspace with name "${workspaceNameFromParams}" not found for logs, redirecting.`
-      );
       throw redirect({
         to: "/dashboard/workspaces/new",
         throw: true,
@@ -98,22 +51,12 @@ export async function fetchLogs({
     }
 
     if (!logsResponse.ok) {
-      const errorText = await logsResponse.text();
-      console.error(
-        `Failed to fetch logs: ${logsResponse.status} ${logsResponse.statusText}`,
-        errorText
-      );
       throw new Error(`Failed to fetch logs (Status: ${logsResponse.status})`);
     }
 
     const logsResult: ApiResponse<Log[]> = await logsResponse.json();
 
     if (!logsResult.success || !logsResult.data) {
-      console.error(
-        "API Error fetching logs:",
-        logsResult.error,
-        logsResult.details
-      );
       throw new Error(logsResult.error || "Failed to fetch logs from API");
     }
 
@@ -128,10 +71,73 @@ export async function fetchLogs({
       throw error;
     }
 
-    console.error("Error in fetchLogs loader:", error);
     if (error instanceof Error) {
       throw new Error(`Failed to load logs data: ${error.message}`);
     }
     throw new Error("An unknown error occurred while fetching logs data.");
   }
+}
+
+export type LogsPage = {
+  data: Log[];
+  nextCursor: { createdAt: string; id: string } | null;
+};
+
+export async function fetchLogsPage({
+  workspaceName,
+  cursor,
+  context,
+  limit = 100,
+}: {
+  workspaceName: string;
+  cursor?: { createdAt: string; id: string } | null;
+  context: RouterContext;
+  limit?: number;
+}): Promise<LogsPage> {
+
+  const allWorkspaces =
+    queryClient.getQueryData<Workspace[]>(["workspaces"]) ??
+    (await queryClient.ensureQueryData<Workspace[]>({
+      queryKey: ["workspaces"],
+      queryFn: fetchWorkspaces,
+    }));
+
+  const targetWorkspace = allWorkspaces.find(
+    (ws) => ws.name === workspaceName
+  );
+
+  if (!targetWorkspace) {
+    throw redirect({
+      to: "/dashboard/workspaces/new",
+      throw: true,
+    });
+  }
+
+  const params = new URLSearchParams({ 
+    workspaceId: targetWorkspace.id,
+    limit: String(limit) 
+  });
+  if (cursor?.createdAt) params.set("cursorCreatedAt", cursor.createdAt);
+  if (cursor?.id) params.set("cursorId", cursor.id);
+
+  const res = await fetch(`/api/logs?${params.toString()}`, {
+    headers: {
+      Authorization: `Bearer ${context.auth.session?.access_token}`,
+    },
+  });
+
+  if (res.status === 401) {
+    throw redirect({ to: "/auth/login", throw: true });
+  }
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Failed to fetch logs page: ${res.status} ${text}`);
+  }
+  const json: ApiResponse<Log[]> & {
+    nextCursor?: { createdAt: string; id: string } | null;
+  } = await res.json();
+  return {
+    data: json.data || [],
+    nextCursor: json.nextCursor ?? null,
+  };
 }

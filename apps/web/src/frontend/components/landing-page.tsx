@@ -1,5 +1,6 @@
 import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
 import { Link } from "@tanstack/react-router";
+import { Route } from "@/frontend/routes";
 import { ArrowRight } from "lucide-react";
 import { useAuth } from "../hooks/use-auth";
 import { Button } from "./ui/button";
@@ -7,14 +8,17 @@ import { Card } from "./ui/card";
 
 export default function LandingPage() {
   const { isAuthenticated, isLoading } = useAuth();
-
+  const seededWorkspaces = Route.useLoaderData()
   const { workspaces, isLoading: workspacesLoading } = useWorkspaces();
 
   let dashboardLinkTo = "/auth/login";
 
   if (!isLoading && isAuthenticated && !workspacesLoading) {
-    if (workspaces && workspaces.length > 0) {
-      const firstworkspaceName = workspaces[0].name;
+    const list = (workspaces && workspaces.length > 0)
+      ? workspaces
+      : seededWorkspaces || [];
+    if (list.length > 0) {
+      const firstworkspaceName = list[0].name;
       dashboardLinkTo = `/dashboard/${firstworkspaceName}/monitors`;
     } else {
       dashboardLinkTo = "/dashboard/workspaces/new";

@@ -86,11 +86,11 @@ export function DashboardSidebar() {
                         params={{ workspaceName: currentWorkspace.name }}
                         preload="intent"
                         className={cn(
-                          "rounded hover:rounded-md hover:border hover:bg-stone-50",
+                          "hover:border-border dark:hover:bg-input/30 dark:bg-background rounded-md border border-transparent py-4 hover:bg-stone-50",
                           router.location.pathname.includes(
                             item.to.split("/").pop()!
                           ) &&
-                            "rounded-md border bg-stone-50 font-medium shadow-xs"
+                            "border-border dark:bg-input/30 rounded-md border bg-stone-50 font-medium ring-1 ring-inset"
                         )}
                       >
                         <span>{item.label}</span>

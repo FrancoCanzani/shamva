@@ -1,5 +1,6 @@
 import { Context } from "hono";
 import { BaseError } from "./errors/base-error";
+import type { BodyContent } from "./types";
 
 export function getUserId(c: Context): string {
   const userId = c.get("userId");
@@ -34,18 +35,39 @@ export function calculateDowntime(
   }
 }
 
-export function handleBodyParsing(rawBody: unknown): string | object | null {
-  if (typeof rawBody === "string") {
+
+export const MAX_BODY_CAPTURE_BYTES = 64 * 1024; // 64KB
+
+export function buildBodyContent(
+  bodyText: string | null,
+  contentType?: string | null
+): BodyContent | null {
+  if (bodyText === null || bodyText === undefined) return null;
+
+  const isJsonContentType = !!contentType?.toLowerCase().includes("application/json");
+  const truncated = bodyText.length > MAX_BODY_CAPTURE_BYTES;
+  const raw = truncated ? bodyText.slice(0, MAX_BODY_CAPTURE_BYTES) : bodyText;
+
+  let parsed: Record<string, unknown> | null | undefined = undefined;
+  let parseError: string | null = null;
+
+  if (isJsonContentType && !truncated) {
     try {
-      return JSON.parse(rawBody);
-    } catch {
-      return rawBody;
+      parsed = JSON.parse(raw);
+    } catch (e) {
+      parsed = null;
+      parseError = e instanceof Error ? e.message : String(e);
     }
   }
-  if (rawBody === null || rawBody === undefined) {
-    return null;
-  }
-  return rawBody as object;
+
+  return {
+    raw,
+    truncated,
+    parsed,
+    contentType: contentType ?? null,
+    parseError,
+  };
 }
 
-export default handleBodyParsing;
+export default buildBodyContent;
+

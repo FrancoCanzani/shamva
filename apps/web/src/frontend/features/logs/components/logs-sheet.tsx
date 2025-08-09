@@ -118,17 +118,14 @@ export default function LogsSheet({ logs }: { logs: Log[] }) {
     if (!selectedLog?.body_content) return;
 
     try {
-      let bodyText;
-      if (
-        typeof selectedLog.body_content === "object" &&
-        selectedLog.body_content !== null &&
-        "_rawContent" in selectedLog.body_content
-      ) {
-        bodyText = String(selectedLog.body_content._rawContent ?? "");
-      } else if (typeof selectedLog.body_content === "object") {
-        bodyText = JSON.stringify(selectedLog.body_content, null, 2);
+      const bc = selectedLog.body_content as any;
+      let bodyText: string;
+      if (typeof bc === "object" && bc && typeof bc.raw === "string") {
+        bodyText = bc.raw;
+      } else if (typeof bc === "object") {
+        bodyText = JSON.stringify(bc, null, 2);
       } else {
-        bodyText = String(selectedLog.body_content ?? "");
+        bodyText = String(bc ?? "");
       }
 
       await copyToClipboard(bodyText);
@@ -368,31 +365,14 @@ export default function LogsSheet({ logs }: { logs: Log[] }) {
                   <pre className="mt-2 flex-grow overflow-auto border bg-stone-50 p-2 font-mono text-xs break-words whitespace-pre-wrap dark:bg-stone-800">
                     {(() => {
                       try {
-                        if (
-                          selectedLog.body_content &&
-                          typeof selectedLog.body_content === "object" &&
-                          selectedLog.body_content !== null &&
-                          "_rawContent" in selectedLog.body_content
-                        ) {
-                          return (
-                            String(
-                              selectedLog.body_content._rawContent ?? ""
-                            ) || "No content"
-                          );
+                        const bc = selectedLog.body_content as any;
+                        if (bc && typeof bc === "object" && typeof bc.raw === "string") {
+                          return bc.raw || "No content";
                         }
-                        if (
-                          selectedLog.body_content &&
-                          typeof selectedLog.body_content === "object"
-                        ) {
-                          return JSON.stringify(
-                            selectedLog.body_content,
-                            null,
-                            2
-                          );
+                        if (bc && typeof bc === "object") {
+                          return JSON.stringify(bc, null, 2);
                         }
-                        return (
-                          String(selectedLog.body_content ?? "") || "No content"
-                        );
+                        return String(bc ?? "") || "No content";
                       } catch (error) {
                         console.error("Error rendering body content:", error);
                         return "Error displaying content";

@@ -92,7 +92,7 @@ export interface Log {
   latency: number;
   created_at: string;
   headers: Record<string, string> | null;
-  body_content: string | Record<string, unknown> | null;
+  body_content: BodyContent | string | Record<string, unknown> | null;
   error: string | null;
   method: string;
   check_type: "http" | "tcp";
@@ -102,8 +102,11 @@ export interface Log {
 }
 
 export interface BodyContent {
-  rawContent: string;
-  parseError?: string;
+  raw: string | null;
+  truncated: boolean;
+  parsed?: Record<string, unknown> | null;
+  contentType?: string | null;
+  parseError?: string | null;
 }
 
 export interface MonitorConfig {
@@ -119,7 +122,7 @@ export interface MonitorConfig {
   consecutiveFailures: number;
   lastStatusCode?: number;
   headers?: Record<string, string>;
-  body?: string | FormData | URLSearchParams;
+  body?: string | FormData | URLSearchParams | Record<string, unknown> | null;
 }
 
 export interface CheckResult {
@@ -127,7 +130,7 @@ export interface CheckResult {
   statusCode: number | null;
   latencyMs: number | null;
   headers: Record<string, string> | null;
-  bodyContent: string | object | null;
+  bodyContent: BodyContent | string | Record<string, unknown> | null;
   checkError: string | null;
 }
 

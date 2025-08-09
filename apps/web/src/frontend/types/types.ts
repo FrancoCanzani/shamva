@@ -71,13 +71,21 @@ export interface Log {
   latency: number;
   created_at: string;
   headers: Record<string, string> | null;
-  body_content: string | Record<string, unknown> | null;
+  body_content: BodyContent | string | Record<string, unknown> | null;
   error: string | null;
   method: string;
   check_type: "http" | "tcp";
   tcp_host?: string;
   tcp_port?: number;
   ok: boolean;
+}
+
+export interface BodyContent {
+  raw: string | null;
+  truncated: boolean;
+  parsed?: Record<string, unknown> | null;
+  contentType?: string | null;
+  parseError?: string | null;
 }
 
 export type ApiLogResponse = {

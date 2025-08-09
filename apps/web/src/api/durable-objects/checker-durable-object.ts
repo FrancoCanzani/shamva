@@ -12,7 +12,7 @@ import {
   MonitorConfig,
   MonitorEmailData,
 } from "../lib/types";
-import handleBodyParsing from "../lib/utils";
+import buildBodyContent from "../lib/utils";
 
 const FETCH_TIMEOUT_MS = 30 * 1000;
 const TCP_TIMEOUT_MS = 10 * 1000;
@@ -84,7 +84,7 @@ export class CheckerDurableObject extends DurableObject {
     urlToCheck: string,
     method?: string,
     customHeaders?: Record<string, string>,
-    customBody?: string | URLSearchParams | FormData | null
+    customBody?: string | URLSearchParams | FormData | Record<string, unknown> | null
   ): Promise<CheckResult> {
     const checkStartTime = performance.now();
     const result: CheckResult = {
@@ -113,14 +113,18 @@ export class CheckerDurableObject extends DurableObject {
       };
 
       if (method === "POST" && customBody) {
-        requestOptions.body = customBody;
-        if (
-          !customHeaders?.["Content-Type"] &&
-          !customHeaders?.["content-type"] &&
-          typeof customBody === "string"
-        ) {
-          (requestOptions.headers as Record<string, string>)["Content-Type"] =
-            "application/json";
+        const hasExplicitContentType = Boolean(
+          customHeaders?.["Content-Type"] || customHeaders?.["content-type"]
+        );
+        if (typeof customBody === "string" || customBody instanceof URLSearchParams || customBody instanceof FormData) {
+          requestOptions.body = customBody;
+        } else {
+          requestOptions.body = JSON.stringify(customBody);
+          if (!hasExplicitContentType) {
+            (requestOptions.headers as Record<string, string>)[
+              "Content-Type"
+            ] = "application/json";
+          }
         }
       }
 
@@ -131,7 +135,9 @@ export class CheckerDurableObject extends DurableObject {
       result.ok = response.ok;
       result.statusCode = response.status;
       result.headers = Object.fromEntries(response.headers.entries());
-      result.bodyContent = handleBodyParsing(await response.text());
+      const contentType = response.headers.get("content-type");
+      const text = await response.text();
+      result.bodyContent = buildBodyContent(text, contentType);
     } catch (error: unknown) {
       result.latencyMs = performance.now() - checkStartTime;
       result.checkError =

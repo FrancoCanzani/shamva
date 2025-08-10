@@ -19,6 +19,7 @@ import {
 import { format, parseISO } from "date-fns";
 import { Check, ChevronDown, ChevronUp, Copy, X } from "lucide-react";
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 
 export default function LogsSheet({ logs }: { logs: Log[] }) {
   const navigate = Route.useNavigate();
@@ -109,26 +110,17 @@ export default function LogsSheet({ logs }: { logs: Log[] }) {
         () => setCopyStatus((prev) => ({ ...prev, headers: false })),
         2000
       );
-    } catch (error) {
-      console.error("Failed to copy headers:", error);
+    } catch {
+      toast.error("Failed to copy headers");
     }
   };
 
   const handleCopyBody = async () => {
-    if (!selectedLog?.body_content) return;
+    const raw = selectedLog?.body_content?.raw;
+    if (!raw) return;
 
     try {
-      const bc = selectedLog.body_content as any;
-      let bodyText: string;
-      if (typeof bc === "object" && bc && typeof bc.raw === "string") {
-        bodyText = bc.raw;
-      } else if (typeof bc === "object") {
-        bodyText = JSON.stringify(bc, null, 2);
-      } else {
-        bodyText = String(bc ?? "");
-      }
-
-      await copyToClipboard(bodyText);
+      await copyToClipboard(raw);
       setCopyStatus((prev) => ({ ...prev, body: true }));
       setTimeout(
         () => setCopyStatus((prev) => ({ ...prev, body: false })),
@@ -150,8 +142,8 @@ export default function LogsSheet({ logs }: { logs: Log[] }) {
         {selectedLog ? (
           <>
             <SheetHeader className="flex w-full flex-shrink-0 flex-row items-start justify-between">
-              <div className="">
-                <SheetTitle>Log Details</SheetTitle>
+              <div>
+                <SheetTitle className="font-medium">Log Details</SheetTitle>
                 <SheetDescription className="font-mono text-xs break-all">
                   {selectedLog.url}
                 </SheetDescription>
@@ -161,7 +153,6 @@ export default function LogsSheet({ logs }: { logs: Log[] }) {
                 <Button
                   variant="outline"
                   size={"xs"}
-                  className="text-xs"
                   onClick={goToPrevious}
                   disabled={!canGoPrevious}
                 >
@@ -170,45 +161,39 @@ export default function LogsSheet({ logs }: { logs: Log[] }) {
                 <Button
                   variant="outline"
                   size={"xs"}
-                  className="text-xs"
                   onClick={goToNext}
                   disabled={!canGoNext}
                 >
                   <ChevronDown />
                 </Button>
 
-                <Button
-                  variant="outline"
-                  size={"xs"}
-                  className="text-xs"
-                  asChild
-                >
+                <Button variant="outline" size={"xs"} asChild>
                   <SheetClose>
                     <X />
                   </SheetClose>
                 </Button>
               </div>
             </SheetHeader>
-            <div className="flex flex-grow flex-col space-y-4 overflow-y-auto p-4">
+            <div className="flex flex-grow flex-col space-y-2 overflow-y-auto px-4 pb-4">
               <div className="flex-shrink-0 space-y-1 divide-y divide-dashed text-sm">
-                <div className="flex items-center justify-between py-2">
+                <div className="flex items-center justify-between pb-2">
                   <span className="font-medium">Timestamp</span>
-                  <time>
+                  <time className="font-mono tracking-tighter">
                     {format(
                       parseISO(selectedLog.created_at),
                       "LLL dd, y HH:mm:ss"
                     )}
                   </time>
                 </div>
-                <div className="flex items-center justify-between py-2">
+                <div className="flex items-center justify-between py-1">
                   <span className="font-medium">Method</span>
                   <span className="font-mono">{selectedLog.method}</span>
                 </div>
-                <div className="flex items-center justify-between py-2">
+                <div className="flex items-center justify-between py-1">
                   <span className="font-medium">Status</span>
                   <span
                     className={cn(
-                      "font-mono font-medium",
+                      "font-mono",
                       selectedLog.check_type === "http" &&
                         typeof selectedLog.status_code === "number"
                         ? getStatusTextColor(selectedLog.status_code)
@@ -225,7 +210,7 @@ export default function LogsSheet({ logs }: { logs: Log[] }) {
                         : "ERR"}
                   </span>
                 </div>
-                <div className="flex items-center justify-between py-2">
+                <div className="flex items-center justify-between py-1">
                   <span className="font-medium">Latency</span>
                   <span className="font-mono">
                     {selectedLog.latency >= 0
@@ -233,9 +218,9 @@ export default function LogsSheet({ logs }: { logs: Log[] }) {
                       : "-"}
                   </span>
                 </div>
-                <div className="flex items-center justify-between py-2">
+                <div className="flex items-center justify-between py-1">
                   <span className="font-medium">Region</span>
-                  <span className="font-mono">
+                  <span>
                     {(selectedLog.region &&
                       getRegionNameFromCode(selectedLog.region)) ||
                       "-"}
@@ -247,14 +232,13 @@ export default function LogsSheet({ logs }: { logs: Log[] }) {
                 <div className="flex-shrink-0 text-sm">
                   <p>
                     <span>Error:</span>
-                  </p>{" "}
+                  </p>
                   <pre className="mt-2 max-h-48 overflow-auto bg-red-50 p-2 text-xs text-red-700 dark:bg-red-900/30 dark:text-red-300">
                     {selectedLog.error}
                   </pre>
                 </div>
               )}
 
-              {/* TCP Check Information */}
               {selectedLog.check_type === "tcp" &&
                 selectedLog.tcp_host &&
                 selectedLog.tcp_port && (
@@ -295,11 +279,10 @@ export default function LogsSheet({ logs }: { logs: Log[] }) {
 
               <div className="flex-shrink-0">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium">Headers</span>
+                  <span className="text-sm font-medium">Headers</span>
                   <Button
                     variant="ghost"
-                    size="sm"
-                    className="h-7 px-2 text-xs"
+                    size="xs"
                     onClick={handleCopyHeaders}
                     disabled={headersArray.length === 0}
                   >
@@ -315,13 +298,13 @@ export default function LogsSheet({ logs }: { logs: Log[] }) {
                   </Button>
                 </div>
                 {headersArray.length > 0 ? (
-                  <div className="mt-2 overflow-auto border">
+                  <div className="mt-2 overflow-auto rounded-md border">
                     <table className="w-full text-xs">
                       <tbody className="divide-y">
                         {headersArray.map(({ key, value }, index) => (
                           <tr
                             key={index}
-                            className="odd:bg-stone-50 dark:odd:bg-stone-800"
+                            className="dark:odd:bg-muted odd:bg-gray-50/50"
                           >
                             <td className="px-2 py-1.5 text-left font-mono font-medium">
                               {key}
@@ -342,7 +325,7 @@ export default function LogsSheet({ logs }: { logs: Log[] }) {
               </div>
               <div className="flex min-h-0 flex-grow flex-col">
                 <div className="flex flex-shrink-0 items-center justify-between">
-                  <span className="font-medium">Body Content</span>
+                  <span className="text-sm font-medium">Body Content</span>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -362,22 +345,8 @@ export default function LogsSheet({ logs }: { logs: Log[] }) {
                   </Button>
                 </div>
                 <div className="relative flex min-h-0 flex-grow flex-col">
-                  <pre className="mt-2 flex-grow overflow-auto border bg-stone-50 p-2 font-mono text-xs break-words whitespace-pre-wrap dark:bg-stone-800">
-                    {(() => {
-                      try {
-                        const bc = selectedLog.body_content as any;
-                        if (bc && typeof bc === "object" && typeof bc.raw === "string") {
-                          return bc.raw || "No content";
-                        }
-                        if (bc && typeof bc === "object") {
-                          return JSON.stringify(bc, null, 2);
-                        }
-                        return String(bc ?? "") || "No content";
-                      } catch (error) {
-                        console.error("Error rendering body content:", error);
-                        return "Error displaying content";
-                      }
-                    })()}
+                  <pre className="dark:bg-muted mt-2 flex-grow overflow-auto rounded-md border bg-gray-50/50 p-2 font-mono text-xs break-words whitespace-pre-wrap">
+                    {selectedLog.body_content?.raw ?? "No content"}
                   </pre>
                 </div>
               </div>

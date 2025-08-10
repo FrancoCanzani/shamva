@@ -1,10 +1,12 @@
 import { Button } from "@/frontend/components/ui/button";
 import { Input } from "@/frontend/components/ui/input";
+import { queryClient } from "@/frontend/lib/query-client";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/logs";
 import { BodyContent, Log } from "@/frontend/types/types";
 import { cn, getRegionNameFromCode } from "@/frontend/utils/utils";
 import { GlobeIcon } from "@radix-ui/react-icons";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { useRouter } from "@tanstack/react-router";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { format, parseISO } from "date-fns";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -15,6 +17,8 @@ import LogsSheet from "./logs-sheet";
 export function LogsInfiniteTable() {
   const navigate = Route.useNavigate();
   const context = Route.useRouteContext();
+  const router = useRouter();
+
   const { workspaceName } = Route.useParams();
   const [statusFilter, setStatusFilter] = useState<"all" | "ok" | "err">("all");
   const [search, setSearch] = useState("");
@@ -82,17 +86,8 @@ export function LogsInfiniteTable() {
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const isBodyContent = (v: unknown): v is BodyContent => {
-    return (
-      typeof v === "object" &&
-      v !== null &&
-      "raw" in (v as Record<string, unknown>)
-    );
-  };
-
-  const getBodyPreview = (bc: unknown): string => {
-    if (isBodyContent(bc) && typeof bc.raw === "string") return bc.raw;
-    return String(bc ?? "");
+  const getBodyPreview = (bc: BodyContent | null): string => {
+    return typeof bc?.raw === "string" ? bc.raw : "";
   };
 
   return (
@@ -102,7 +97,7 @@ export function LogsInfiniteTable() {
           <Button
             variant={statusFilter === "all" ? "default" : "outline"}
             size="xs"
-            className="font-mono text-xs"
+            className="font-mono"
             onClick={() => setStatusFilter("all")}
           >
             All ({counts.all})
@@ -110,7 +105,7 @@ export function LogsInfiniteTable() {
           <Button
             variant={statusFilter === "ok" ? "default" : "outline"}
             size="xs"
-            className="font-mono text-xs"
+            className="font-mono"
             onClick={() => setStatusFilter("ok")}
           >
             OK ({counts.ok})
@@ -118,7 +113,7 @@ export function LogsInfiniteTable() {
           <Button
             variant={statusFilter === "err" ? "default" : "outline"}
             size="xs"
-            className="font-mono text-xs"
+            className="font-mono"
             onClick={() => setStatusFilter("err")}
           >
             Failed ({counts.err})
@@ -131,6 +126,17 @@ export function LogsInfiniteTable() {
             onChange={(e) => setSearch(e.target.value)}
             className="h-7 font-mono text-xs"
           />
+          <Button
+            variant={"outline"}
+            size="xs"
+            className="hidden font-mono sm:block"
+            onClick={() => {
+              queryClient.invalidateQueries({ queryKey: ["logs"] });
+              router.invalidate();
+            }}
+          >
+            Refresh
+          </Button>
         </div>
       </div>
 
@@ -188,14 +194,18 @@ export function LogsInfiniteTable() {
                       }
                     >
                       <div className="text-muted-foreground flex-none whitespace-nowrap">
-                        {(() => {
-                          try {
-                            const d = parseISO(log.created_at);
-                            return format(d, "LLL dd, y HH:mm:ss");
-                          } catch {
-                            return "Invalid Date";
-                          }
-                        })()}
+                        <span className="sm:hidden">
+                          {format(
+                            parseISO(log.created_at),
+                            "LLL dd HH:mm"
+                          ).toLowerCase()}
+                        </span>
+                        <span className="hidden sm:inline">
+                          {format(
+                            parseISO(log.created_at),
+                            "LLL dd, y HH:mm:ss"
+                          )}
+                        </span>
                       </div>
                       <div className="flex-none font-medium uppercase">
                         {log.check_type === "tcp" ? "TCP" : log.method}
@@ -210,14 +220,12 @@ export function LogsInfiniteTable() {
                       <div
                         className={cn(
                           "w-14 flex-none",
-                          log.ok
-                            ? "text-green-800 dark:text-green-50"
-                            : "text-red-800 dark:text-red-50"
+                          log.ok ? "text-green-800" : "text-red-800"
                         )}
                       >
                         {log.ok ? "[OK]" : "[ERROR]"}
                       </div>
-                      <div className="underline">
+                      <div className="max-w-[55%] min-w-0 shrink truncate sm:max-w-[45%] lg:max-w-[35%]">
                         {(() => {
                           const target =
                             log.check_type === "tcp"
@@ -227,17 +235,23 @@ export function LogsInfiniteTable() {
                               : log.url;
                           if (target)
                             return (
-                              <a href={target} target="_blank" rel="noreferrer">
+                              <a
+                                href={target}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="block max-w-full truncate underline-offset-2 hover:underline"
+                                title={target}
+                              >
                                 {target}
                               </a>
                             );
                         })()}
                       </div>
                       <div className="hidden items-center justify-start gap-x-1.5 truncate lg:flex">
-                        <GlobeIcon className="h-3 w-3 text-blue-800" />
+                        <GlobeIcon className="h-3 w-3 text-blue-800 dark:text-blue-100" />
                         <span>{getRegionNameFromCode(log.region)}</span>
                       </div>
-                      <div className="text-muted-foreground hidden min-w-0 flex-1 truncate whitespace-nowrap sm:block">
+                      <div className="text-muted-foreground hidden min-w-0 grow truncate whitespace-nowrap sm:block">
                         {getBodyPreview(log.body_content)}
                       </div>
                     </div>
@@ -248,12 +262,9 @@ export function LogsInfiniteTable() {
           </div>
         )}
       </div>
-      <div className="text-muted-foreground flex items-center justify-between border-t px-2 py-1 text-xs">
-        <div>
-          {status === "pending" ? "Loading…" : `${rows.length} rows`}
-          {isFetchingNextPage ? " • Loading more…" : ""}
-        </div>
-        {!hasNextPage && <div>End of results</div>}
+      <div className="text-muted-foreground bg-background sticky bottom-0 flex items-center justify-between border-t px-2 py-1 text-xs">
+        <span>{status === "pending" ? "Loading…" : `${rows.length} rows`}</span>
+        <span>Click a row to see more details</span>
       </div>
 
       <LogsSheet logs={rows} />

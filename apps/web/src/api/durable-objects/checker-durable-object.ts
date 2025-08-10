@@ -84,7 +84,12 @@ export class CheckerDurableObject extends DurableObject {
     urlToCheck: string,
     method?: string,
     customHeaders?: Record<string, string>,
-    customBody?: string | URLSearchParams | FormData | Record<string, unknown> | null
+    customBody?:
+      | string
+      | URLSearchParams
+      | FormData
+      | Record<string, unknown>
+      | null
   ): Promise<CheckResult> {
     const checkStartTime = performance.now();
     const result: CheckResult = {
@@ -116,14 +121,17 @@ export class CheckerDurableObject extends DurableObject {
         const hasExplicitContentType = Boolean(
           customHeaders?.["Content-Type"] || customHeaders?.["content-type"]
         );
-        if (typeof customBody === "string" || customBody instanceof URLSearchParams || customBody instanceof FormData) {
+        if (
+          typeof customBody === "string" ||
+          customBody instanceof URLSearchParams ||
+          customBody instanceof FormData
+        ) {
           requestOptions.body = customBody;
         } else {
           requestOptions.body = JSON.stringify(customBody);
           if (!hasExplicitContentType) {
-            (requestOptions.headers as Record<string, string>)[
-              "Content-Type"
-            ] = "application/json";
+            (requestOptions.headers as Record<string, string>)["Content-Type"] =
+              "application/json";
           }
         }
       }

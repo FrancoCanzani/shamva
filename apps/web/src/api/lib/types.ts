@@ -92,7 +92,7 @@ export interface Log {
   latency: number;
   created_at: string;
   headers: Record<string, string> | null;
-  body_content: BodyContent | string | Record<string, unknown> | null;
+  body_content: BodyContent | null;
   error: string | null;
   method: string;
   check_type: "http" | "tcp";
@@ -130,7 +130,7 @@ export interface CheckResult {
   statusCode: number | null;
   latencyMs: number | null;
   headers: Record<string, string> | null;
-  bodyContent: BodyContent | string | Record<string, unknown> | null;
+  bodyContent: BodyContent | null;
   checkError: string | null;
 }
 

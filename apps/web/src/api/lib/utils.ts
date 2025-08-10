@@ -35,7 +35,6 @@ export function calculateDowntime(
   }
 }
 
-
 export const MAX_BODY_CAPTURE_BYTES = 64 * 1024; // 64KB
 
 export function buildBodyContent(
@@ -44,7 +43,9 @@ export function buildBodyContent(
 ): BodyContent | null {
   if (bodyText === null || bodyText === undefined) return null;
 
-  const isJsonContentType = !!contentType?.toLowerCase().includes("application/json");
+  const isJsonContentType = !!contentType
+    ?.toLowerCase()
+    .includes("application/json");
   const truncated = bodyText.length > MAX_BODY_CAPTURE_BYTES;
   const raw = truncated ? bodyText.slice(0, MAX_BODY_CAPTURE_BYTES) : bodyText;
 
@@ -70,4 +71,3 @@ export function buildBodyContent(
 }
 
 export default buildBodyContent;
-

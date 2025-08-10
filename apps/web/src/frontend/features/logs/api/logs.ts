@@ -94,7 +94,6 @@ export async function fetchLogsPage({
   context: RouterContext;
   limit?: number;
 }): Promise<LogsPage> {
-
   const allWorkspaces =
     queryClient.getQueryData<Workspace[]>(["workspaces"]) ??
     (await queryClient.ensureQueryData<Workspace[]>({
@@ -102,9 +101,7 @@ export async function fetchLogsPage({
       queryFn: fetchWorkspaces,
     }));
 
-  const targetWorkspace = allWorkspaces.find(
-    (ws) => ws.name === workspaceName
-  );
+  const targetWorkspace = allWorkspaces.find((ws) => ws.name === workspaceName);
 
   if (!targetWorkspace) {
     throw redirect({
@@ -113,9 +110,9 @@ export async function fetchLogsPage({
     });
   }
 
-  const params = new URLSearchParams({ 
+  const params = new URLSearchParams({
     workspaceId: targetWorkspace.id,
-    limit: String(limit) 
+    limit: String(limit),
   });
   if (cursor?.createdAt) params.set("cursorCreatedAt", cursor.createdAt);
   if (cursor?.id) params.set("cursorId", cursor.id);

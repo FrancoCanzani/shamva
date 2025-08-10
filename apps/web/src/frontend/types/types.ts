@@ -71,7 +71,7 @@ export interface Log {
   latency: number;
   created_at: string;
   headers: Record<string, string> | null;
-  body_content: BodyContent | string | Record<string, unknown> | null;
+  body_content: BodyContent | null;
   error: string | null;
   method: string;
   check_type: "http" | "tcp";

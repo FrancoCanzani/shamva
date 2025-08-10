@@ -8,15 +8,14 @@ import { Card } from "./ui/card";
 
 export default function LandingPage() {
   const { isAuthenticated, isLoading } = useAuth();
-  const seededWorkspaces = Route.useLoaderData()
+  const seededWorkspaces = Route.useLoaderData();
   const { workspaces, isLoading: workspacesLoading } = useWorkspaces();
 
   let dashboardLinkTo = "/auth/login";
 
   if (!isLoading && isAuthenticated && !workspacesLoading) {
-    const list = (workspaces && workspaces.length > 0)
-      ? workspaces
-      : seededWorkspaces || [];
+    const list =
+      workspaces && workspaces.length > 0 ? workspaces : seededWorkspaces || [];
     if (list.length > 0) {
       const firstworkspaceName = list[0].name;
       dashboardLinkTo = `/dashboard/${firstworkspaceName}/monitors`;

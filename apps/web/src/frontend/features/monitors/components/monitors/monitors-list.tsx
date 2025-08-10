@@ -12,13 +12,12 @@ import { StatusDot } from "@/frontend/components/ui/status-dot";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors";
 import { Monitor } from "@/frontend/types/types";
 import { cn, getMonitorStatusColor } from "@/frontend/utils/utils";
-import { Link } from "@tanstack/react-router";
-import { formatDistanceToNowStrict } from "date-fns";
+import { useNavigate } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { MonitorWithLastIncident } from "../../types";
 
-export default function MonitorsTable({
+export default function MonitorsList({
   monitors,
   onSelectionChange,
 }: {
@@ -30,6 +29,7 @@ export default function MonitorsTable({
   const [globalFilter, setGlobalFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
+  const navigate = useNavigate({ from: "/dashboard/$workspaceName/monitors" });
 
   const filteredMonitors = useMemo(() => {
     return monitors.filter((monitor) => {
@@ -100,11 +100,11 @@ export default function MonitorsTable({
   return (
     <div className="space-y-4">
       {(stats.errorMonitors > 0 || stats.openIncidents > 0) && (
-        <div className="bg-background flex items-center gap-4 rounded border px-3.5 py-2">
+        <div className="bg-background flex items-center gap-4 rounded-md border px-3.5 py-2">
           {stats.errorMonitors > 0 && (
             <div className="flex items-center gap-2">
               <div className="h-2 w-2 rounded-xs bg-red-500"></div>
-              <span className="text-xs font-medium">
+              <span className="text-xs">
                 {stats.errorMonitors} Monitor
                 {stats.errorMonitors === 1 ? "" : "s"} with errors
               </span>
@@ -113,7 +113,7 @@ export default function MonitorsTable({
           {stats.openIncidents > 0 && (
             <div className="flex items-center gap-2">
               <div className="h-2 w-2 rounded-xs bg-orange-500"></div>
-              <span className="text-xs font-medium">
+              <span className="text-xs">
                 {stats.openIncidents} Active incident
                 {stats.openIncidents === 1 ? "" : "s"}
               </span>
@@ -176,63 +176,53 @@ export default function MonitorsTable({
       <div>
         {filteredMonitors.length > 0 ? (
           filteredMonitors.map((monitor) => (
-            <Link
+            <Card
               key={monitor.id}
-              to="/dashboard/$workspaceName/monitors/$id"
-              params={{ workspaceName, id: monitor.id }}
-              search={{ days: 7 }}
-              className="mb-2 block last:mb-0"
+              className={cn(
+                "group mb-2 flex cursor-pointer flex-row items-center justify-between rounded-md border-1 p-2.5 last:mb-0 hover:bg-blue-50/50 dark:hover:bg-stone-900",
+                selectedMonitors.has(monitor.id) &&
+                  "ring-1 ring-blue-400 ring-inset"
+              )}
+              onMouseEnter={() =>
+                navigate({
+                  to: "/dashboard/$workspaceName/monitors",
+                  search: { selectedId: monitor.id },
+                })
+              }
+              onClick={() =>
+                navigate({
+                  to: "/dashboard/$workspaceName/monitors/$id",
+                  search: { days: 7 },
+                  params: { id: monitor.id, workspaceName: workspaceName },
+                })
+              }
             >
-              <Card
-                className={cn(
-                  "group flex flex-row items-center justify-between rounded p-2.5 hover:bg-stone-50 dark:hover:bg-stone-900",
-                  selectedMonitors.has(monitor.id) &&
-                    "bg-stone-50 dark:bg-stone-900"
-                )}
-              >
-                <div className="flex items-center justify-start gap-3">
-                  <div className="flex items-center gap-3">
-                    <Checkbox
-                      checked={selectedMonitors.has(monitor.id)}
-                      onCheckedChange={() => toggleSelection(monitor.id)}
-                      onClick={(e) => handleCheckboxClick(e, monitor.id)}
-                      aria-label="Select monitor"
-                    />
-                    <StatusDot
-                      pulse
-                      color={getMonitorStatusColor(monitor.status)}
-                      size="sm"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-medium">{monitor.name}</h3>
-                    <p className="text-muted-foreground text-xs">
-                      {monitor.check_type === "tcp"
-                        ? monitor.tcp_host_port
-                        : monitor.url}
-                    </p>
-                  </div>
+              <div className="flex items-center justify-start gap-3">
+                <div className="flex items-center gap-3">
+                  <Checkbox
+                    checked={selectedMonitors.has(monitor.id)}
+                    onCheckedChange={() => toggleSelection(monitor.id)}
+                    onClick={(e) => handleCheckboxClick(e, monitor.id)}
+                    aria-label="Select monitor"
+                  />
+                  <StatusDot
+                    pulse
+                    color={getMonitorStatusColor(monitor.status)}
+                    size="sm"
+                  />
                 </div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-medium">{monitor.name}</h3>
+                  <p className="text-muted-foreground text-xs">
+                    {monitor.check_type === "tcp"
+                      ? monitor.tcp_host_port
+                      : monitor.url}
+                  </p>
+                </div>
+              </div>
 
-                <div className="flex items-center justify-end gap-2.5">
-                  {monitor.last_check_at && (
-                    <span className="text-muted-foreground text-xs">
-                      Checked{" "}
-                      {formatDistanceToNowStrict(
-                        new Date(monitor.last_check_at),
-                        { addSuffix: true }
-                      )}
-                    </span>
-                  )}
-                  {monitor.last_incident?.status === "ongoing" && (
-                    <span className="bg-muted animate-pulse rounded border px-1.5 py-0.5 text-xs font-medium text-red-800 dark:text-red-50">
-                      Ongoing incident
-                    </span>
-                  )}
-                  <ChevronRight className="text-muted-foreground h-3 w-3 opacity-0 transition-all duration-150 group-hover:opacity-100" />
-                </div>
-              </Card>
-            </Link>
+              <ChevronRight className="text-muted-foreground hidden h-4 w-4 group-hover:block" />
+            </Card>
           ))
         ) : (
           <div className="text-muted-foreground col-span-full rounded-md border border-dashed py-4 text-center text-sm">

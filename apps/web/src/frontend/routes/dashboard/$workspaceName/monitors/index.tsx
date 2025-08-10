@@ -4,7 +4,9 @@ import MonitorsPage from "@/frontend/features/monitors/components/monitors-page"
 import { createFileRoute } from "@tanstack/react-router";
 import z from "zod";
 
-export const MonitorsSearchSchema = z.object({});
+export const MonitorsSearchSchema = z.object({
+  selectedId: z.string().optional(),
+});
 
 export type MonitorsSearch = z.infer<typeof MonitorsSearchSchema>;
 

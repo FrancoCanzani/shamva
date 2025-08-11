@@ -13,6 +13,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { fetchLogsPage, LogsPage } from "../api/logs";
 import LogsSheet from "./logs-sheet";
+import { Loader } from "lucide-react";
 
 export function LogsInfiniteTable() {
   const navigate = Route.useNavigate();
@@ -141,7 +142,11 @@ export function LogsInfiniteTable() {
       </div>
 
       <div ref={parentRef} className="min-h-0 flex-1 overflow-auto">
-        {rows.length === 0 ? (
+        {status === "pending" ? (
+          <div className="text-muted-foreground flex h-full items-center justify-center p-6 text-xs">
+            <Loader className="h-6 w-6 animate-spin" /> 
+          </div>
+        ) : rows.length === 0 ? (
           <div className="text-muted-foreground flex h-full items-center justify-center p-6 text-xs">
             No logs to display.
           </div>

@@ -1,14 +1,14 @@
 import { Card } from "@/frontend/components/ui/card";
 import { StatusDot } from "@/frontend/components/ui/status-dot";
 import { Monitor } from "@/frontend/types/types";
-import { getMonitorStatusColor } from "@/frontend/utils/utils";
+import { cn, getMonitorStatusColor } from "@/frontend/utils/utils";
 import { formatDistanceToNowStrict } from "date-fns";
 
 export default function MonitorsPanel({ monitor }: { monitor?: Monitor }) {
   console.log(monitor);
 
   return (
-    <Card className="rounded-md p-4 md:sticky md:top-4">
+    <Card className={cn("rounded-md p-2 md:sticky md:top-4", monitor && "p-4")}>
       {monitor ? (
         <div className="space-y-3">
           <div className="space-y-1">
@@ -86,7 +86,7 @@ export default function MonitorsPanel({ monitor }: { monitor?: Monitor }) {
           )}
         </div>
       ) : (
-        <div className="text-muted-foreground text-sm">
+        <div className="text-muted-foreground text-xs">
           Hover a monitor to preview its details
         </div>
       )}

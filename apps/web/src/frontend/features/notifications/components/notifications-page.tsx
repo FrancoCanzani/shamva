@@ -78,7 +78,7 @@ export default function NotificationsPage() {
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
           {integrations.map((integration) => (
             <Link>
-              <Card className="space-y-1 p-2.5 hover:bg-stone-50/10">
+              <Card className="space-y-1 rounded-md p-2.5 hover:bg-stone-50/10">
                 <div className="flex flex-row items-center justify-start gap-1.5">
                   {
                     <img
@@ -97,7 +97,7 @@ export default function NotificationsPage() {
               </Card>
             </Link>
           ))}
-          <Card className="text-muted-foreground flex items-center justify-center space-y-1 border border-dashed bg-stone-50/10 p-2.5 text-sm ring-0">
+          <Card className="text-muted-foreground flex items-center justify-center space-y-1 rounded-md border border-dashed bg-stone-50/10 p-2.5 text-sm ring-0">
             More integrations coming soon
           </Card>
         </div>

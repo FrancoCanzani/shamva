@@ -6,6 +6,7 @@ import {
 } from "@/frontend/components/ui/avatar";
 import { Badge } from "@/frontend/components/ui/badge";
 import { Button } from "@/frontend/components/ui/button";
+import { Card } from "@/frontend/components/ui/card";
 import { Route } from "@/frontend/routes/dashboard/workspaces";
 import { Link, useRouteContext } from "@tanstack/react-router";
 
@@ -27,11 +28,12 @@ export default function WorkspacesPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <DashboardHeader>
+      <DashboardHeader title="Workspaces">
         <Button asChild variant="outline" size="xs">
           <Link to="/dashboard/workspaces/new">New Workspace</Link>
         </Button>
       </DashboardHeader>
+
       <main className="mx-auto w-full max-w-4xl flex-1 space-y-8 p-4">
         <div className="flex items-start justify-between">
           <div>
@@ -54,10 +56,7 @@ export default function WorkspacesPage() {
               const members = workspace.workspace_members || [];
 
               return (
-                <div
-                  key={workspace.id}
-                  className="space-y-4 rounded border p-4"
-                >
+                <Card key={workspace.id} className="space-y-4 rounded-md p-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <h2 className="font-medium">{workspace.name}</h2>
@@ -84,7 +83,7 @@ export default function WorkspacesPage() {
 
                   <div>
                     <div className="mb-2 flex items-center justify-between">
-                      <h3 className="text-xs font-medium">Team Members</h3>
+                      <h3 className="text-sm">Team Members</h3>
                       <span className="text-muted-foreground text-xs">
                         <span>{members.length}</span> total
                       </span>
@@ -95,17 +94,15 @@ export default function WorkspacesPage() {
                         No members yet.
                       </p>
                     ) : (
-                      <div className="rounded border p-2">
-                        {members.map((member, index) => (
+                      <div className="divide-y divide-dashed px-1">
+                        {members.map((member) => (
                           <div
                             key={member.id}
-                            className={`flex items-center justify-between gap-2 py-2 ${
-                              index < members.length - 1 ? "border-b" : ""
-                            }`}
+                            className="flex items-center justify-between gap-2 py-2"
                           >
                             <div className="flex items-center gap-2">
                               {user && member.user_id === user.id ? (
-                                <Avatar className="h-6 w-6">
+                                <Avatar className="h-6 w-6 rounded">
                                   <AvatarImage
                                     src={userAvatarUrl}
                                     alt={userName || userEmail}
@@ -115,24 +112,25 @@ export default function WorkspacesPage() {
                                   </AvatarFallback>
                                 </Avatar>
                               ) : (
-                                <div className="bg-muted h-6 w-6 rounded-full" />
+                                <div className="bg-muted h-6 w-6 rounded" />
                               )}
-                              <div className="flex flex-col">
-                                <span className="text-sm font-medium">
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm">
                                   {member.user_id === user?.id
                                     ? userName || userEmail || "You"
                                     : member.invitation_email ||
                                       "Unknown Email"}
                                 </span>
                                 <span className="text-muted-foreground text-xs capitalize">
-                                  {member.user_id === user?.id ? "you • " : ""}
-                                  {member.role} • {member.invitation_status}
+                                  {member.invitation_status != "accepted"
+                                    ? member.invitation_status
+                                    : member.role}
                                 </span>
                               </div>
                             </div>
                             <Badge
-                              variant="secondary"
-                              className="text-[10px] capitalize"
+                              variant="outline"
+                              className="text-xs font-normal capitalize"
                             >
                               {member.role}
                             </Badge>
@@ -141,7 +139,7 @@ export default function WorkspacesPage() {
                       </div>
                     )}
                   </div>
-                </div>
+                </Card>
               );
             })}
           </div>

@@ -63,7 +63,7 @@ export default function MonitorPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <DashboardHeader>
+      <DashboardHeader title="Monitor">
         <div className="flex items-center space-x-3">
           <StatusDot pulse color="bg-green-700" size="sm" />
           {monitor.last_check_at && (

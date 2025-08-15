@@ -1,16 +1,9 @@
 import DashboardHeader from "@/frontend/components/dashboard-header";
 import { Card } from "@/frontend/components/ui/card";
-import { Link } from "@tanstack/react-router";
-
-interface NotificationIntegration {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  status: "connected" | "available";
-  color: string;
-  bgColor: string;
-}
+import { useLoaderData, useParams } from "@tanstack/react-router";
+import { useState } from "react";
+import { Notification, NotificationIntegration, Notifications } from "../types";
+import { NotificationSheet } from "./notification-sheet";
 
 const integrations: NotificationIntegration[] = [
   {
@@ -18,7 +11,6 @@ const integrations: NotificationIntegration[] = [
     name: "Email",
     description: "Receive notifications via email.",
     icon: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/gmail.svg",
-    status: "connected",
     color: "text-blue-600",
     bgColor: "bg-blue-100",
   },
@@ -27,7 +19,6 @@ const integrations: NotificationIntegration[] = [
     name: "Slack",
     description: "Send alerts to your Slack channel.",
     icon: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/slack.svg",
-    status: "available",
     color: "text-purple-600",
     bgColor: "bg-purple-100",
   },
@@ -36,7 +27,6 @@ const integrations: NotificationIntegration[] = [
     name: "Discord",
     description: "Receive notifications in your Discord server.",
     icon: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/discord.svg",
-    status: "available",
     color: "text-indigo-600",
     bgColor: "bg-indigo-100",
   },
@@ -45,7 +35,6 @@ const integrations: NotificationIntegration[] = [
     name: "PagerDuty",
     description: "Integrate with PagerDuty.",
     icon: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/pagerduty.svg",
-    status: "available",
     color: "text-red-600",
     bgColor: "bg-red-100",
   },
@@ -54,16 +43,52 @@ const integrations: NotificationIntegration[] = [
     name: "GitHub",
     description: "Create GitHub issues automatically.",
     icon: "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/github.svg",
-    status: "available",
     color: "text-gray-600",
     bgColor: "bg-gray-100",
   },
 ];
 
 export default function NotificationsPage() {
+  const config = useLoaderData({
+    from: "/dashboard/$workspaceName/notifications/",
+  }) as Notifications;
+  const { workspaceName } = useParams({
+    from: "/dashboard/$workspaceName/notifications/",
+  });
+  const [selectedNotification, setSelectedNotification] =
+    useState<Notification | null>(null);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+  const getNotificationStatus = (notificationType: Notification) => {
+    if (!config) return "available";
+
+    switch (notificationType) {
+      case "email":
+        return config.email_enabled && "connected";
+      case "slack":
+        return config.slack_enabled && "connected";
+      case "discord":
+        return config.discord_enabled && "connected";
+      case "pagerduty":
+        return config.pagerduty_enabled && "connected";
+      case "github":
+        return config.github_enabled && "connected";
+    }
+  };
+
+  const handleCardClick = (notificationType: Notification) => {
+    setSelectedNotification(notificationType);
+    setIsSheetOpen(true);
+  };
+
+  const handleSheetClose = () => {
+    setIsSheetOpen(false);
+    setSelectedNotification(null);
+  };
+
   return (
     <div className="flex h-full flex-col">
-      <DashboardHeader />
+      <DashboardHeader title="Notifications" />
 
       <main className="mx-auto w-full max-w-5xl flex-1 space-y-8 overflow-auto p-6">
         <div className="flex items-center justify-between">
@@ -76,32 +101,52 @@ export default function NotificationsPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
-          {integrations.map((integration) => (
-            <Link>
-              <Card className="space-y-1 rounded-md p-2.5 hover:bg-stone-50/10">
-                <div className="flex flex-row items-center justify-start gap-1.5">
-                  {
+          {integrations.map((integration) => {
+            const status = getNotificationStatus(integration.id);
+            return (
+              <Card
+                key={integration.id}
+                className="cursor-pointer space-y-1.5 rounded-md p-2.5 hover:bg-stone-50 dark:hover:bg-stone-50/10"
+                onClick={() => handleCardClick(integration.id)}
+              >
+                <div className="flex flex-row items-center justify-between">
+                  <div className="flex items-center gap-1.5">
                     <img
                       src={integration.icon}
                       alt={integration.name}
-                      className="h-4 w-4"
+                      className="h-3.5 w-3.5"
                     />
-                  }
-                  <h4 className="font-medium">{integration.name}</h4>
+                    <h4 className="font-medium">{integration.name}</h4>
+                  </div>
+                  {status && (
+                    <span className="rounded border p-0.5 font-mono text-xs font-medium capitalize">
+                      {status}
+                    </span>
+                  )}
                 </div>
-                <div className="inline-flex w-full justify-between">
+                <div>
                   <p className="text-muted-foreground text-sm">
                     {integration.description}
                   </p>
                 </div>
               </Card>
-            </Link>
-          ))}
+            );
+          })}
           <Card className="text-muted-foreground flex items-center justify-center space-y-1 rounded-md border border-dashed bg-stone-50/10 p-2.5 text-sm ring-0">
             More integrations coming soon
           </Card>
         </div>
       </main>
+
+      {config && (
+        <NotificationSheet
+          isOpen={isSheetOpen}
+          onClose={handleSheetClose}
+          notificationType={selectedNotification}
+          config={config}
+          workspaceName={workspaceName}
+        />
+      )}
     </div>
   );
 }

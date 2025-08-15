@@ -133,7 +133,6 @@ export default async function postMonitors(c: Context) {
           interval: interval ?? 5 * 60000,
           status: "initializing",
           regions: regions,
-          slack_webhook_url: slackWebhookUrl,
         },
       ])
       .select()

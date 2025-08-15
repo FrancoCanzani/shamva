@@ -1,11 +1,10 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { queryClient } from "@/frontend/lib/query-client";
 import supabase from "@/frontend/lib/supabase";
 import { Heartbeat } from "@/frontend/types/types";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export function useCreateHeartbeat() {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async ({
       workspaceName,
@@ -60,8 +59,6 @@ export function useCreateHeartbeat() {
 }
 
 export function useUpdateHeartbeat() {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async ({
       heartbeatId,
@@ -114,8 +111,6 @@ export function useUpdateHeartbeat() {
 }
 
 export function useDeleteHeartbeat() {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (heartbeatId: string): Promise<void> => {
       const {

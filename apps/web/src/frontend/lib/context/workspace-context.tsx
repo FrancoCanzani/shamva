@@ -1,14 +1,14 @@
-import { useQueryClient } from "@tanstack/react-query";
+import fetchWorkspaces from "@/frontend/features/workspaces/api/workspaces";
+import { queryClient } from "@/frontend/lib/query-client";
+import { Workspace } from "@/frontend/types/types";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 import React, {
+  createContext,
   useCallback,
+  useContext,
   useEffect,
   useMemo,
-  createContext,
-  useContext,
 } from "react";
-import { useLocation, useNavigate } from "@tanstack/react-router";
-import { Workspace } from "@/frontend/types/types";
-import fetchWorkspaces from "@/frontend/features/workspaces/api/workspaces";
 
 interface WorkspaceContextType {
   workspaces: Workspace[];
@@ -39,8 +39,6 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     }
     return null;
   });
-
-  const queryClient = useQueryClient();
 
   const data = queryClient.getQueryData<Workspace[]>(["workspaces"]);
 
@@ -114,7 +112,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       invalidateWorkspaces: () =>
         queryClient.invalidateQueries({ queryKey: ["workspaces"] }),
     }),
-    [workspaces, currentWorkspace, setCurrentWorkspace, queryClient]
+    [workspaces, currentWorkspace, setCurrentWorkspace]
   );
 
   return (

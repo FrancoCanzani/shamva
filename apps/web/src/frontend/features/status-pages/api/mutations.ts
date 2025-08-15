@@ -1,11 +1,10 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { queryClient } from "@/frontend/lib/query-client";
 import supabase from "@/frontend/lib/supabase";
 import { StatusPage } from "@/frontend/types/types";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export function useCreateStatusPage() {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async ({
       workspaceName,
@@ -64,8 +63,6 @@ export function useCreateStatusPage() {
 }
 
 export function useUpdateStatusPage() {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async ({
       statusPageId,
@@ -122,8 +119,6 @@ export function useUpdateStatusPage() {
 }
 
 export function useDeleteStatusPage() {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (statusPageId: string): Promise<void> => {
       const {

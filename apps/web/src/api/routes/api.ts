@@ -30,6 +30,8 @@ import putStatusPages from "./status-pages/put";
 import deleteWorkspaces from "./workspaces/delete";
 import getWorkspaces from "./workspaces/get";
 import getAllWorkspaces from "./workspaces/get-all";
+import getWorkspaceNotifications from "./workspaces/notifications/get";
+import putWorkspaceNotifications from "./workspaces/notifications/put";
 import postWorkspaces from "./workspaces/post";
 import putWorkspaces from "./workspaces/put";
 
@@ -52,6 +54,10 @@ apiRoutes.post("/api/workspaces", postWorkspaces);
 apiRoutes.get("/api/workspaces/:id", getWorkspaces);
 apiRoutes.put("/api/workspaces/:id", putWorkspaces);
 apiRoutes.delete("/api/workspaces/:id", deleteWorkspaces);
+
+// Workspace notification routes
+apiRoutes.get("/api/workspaces/:id/notifications", getWorkspaceNotifications);
+apiRoutes.put("/api/workspaces/:id/notifications", putWorkspaceNotifications);
 
 // Monitor routes
 apiRoutes.post("/api/monitors", postMonitors);

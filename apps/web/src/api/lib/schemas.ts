@@ -73,7 +73,6 @@ export const MonitorsParamsSchema = z
       ),
     headers: z.record(z.string(), z.string()).optional(),
     body: z.union([z.record(z.string(), z.unknown()), z.string()]).optional(),
-    slackWebhookUrl: z.string().trim().optional(),
     heartbeatId: z.string().trim().optional(),
     heartbeatTimeoutSeconds: z.number().int().min(30).max(3600).optional(),
     workspaceId: z.uuid("Invalid workspace ID format"),
@@ -136,10 +135,6 @@ export const PartialMonitorSchema = z
       .optional(),
     status: z
       .enum(["broken", "active", "maintenance", "paused", "error", "degraded"])
-      .optional(),
-    slack_webhook_url: z
-      .url("Invalid webhook URL")
-      .nullable()
       .optional(),
     error_message: z.string().nullable().optional(),
     last_check_at: z.iso.datetime().nullable().optional(),
@@ -275,3 +270,105 @@ export const HeartbeatSchema = z.object({
   workspaceId: z.uuid("Invalid workspace ID format"),
   pingId: z.uuid("Invalid ID format"),
 });
+
+export const NotificationUpdateSchema = z
+  .object({
+    email_enabled: z.boolean().optional(),
+
+    slack_enabled: z.boolean().optional(),
+    slack_webhook_url: z.url("Invalid Slack webhook URL").nullable().optional(),
+    slack_channel: z.string().nullable().optional(),
+
+    discord_enabled: z.boolean().optional(),
+    discord_webhook_url: z
+      .url("Invalid Discord webhook URL")
+      .nullable()
+      .optional(),
+    discord_channel: z.string().nullable().optional(),
+
+    pagerduty_enabled: z.boolean().optional(),
+    pagerduty_service_id: z.string().nullable().optional(),
+    pagerduty_api_key: z.string().nullable().optional(),
+    pagerduty_from_email: z
+      .email("Invalid email address")
+      .nullable()
+      .optional(),
+
+    sms_enabled: z.boolean().optional(),
+    sms_phone_numbers: z
+      .array(z.string().regex(/^\+\d{1,15}$/, "Invalid phone number format"))
+      .nullable()
+      .optional(),
+    twilio_account_sid: z.string().nullable().optional(),
+    twilio_auth_token: z.string().nullable().optional(),
+    twilio_from_number: z
+      .string()
+      .regex(/^\+\d{1,15}$/, "Invalid phone number format")
+      .nullable()
+      .optional(),
+
+    github_enabled: z.boolean().optional(),
+    github_owner: z.string().nullable().optional(),
+    github_repo: z.string().nullable().optional(),
+    github_token: z.string().nullable().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.slack_enabled && !data.slack_webhook_url) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message:
+        "Slack webhook URL is required when Slack notifications are enabled",
+      path: ["slack_webhook_url"],
+    }
+  )
+  .refine(
+    (data) => {
+      if (data.discord_enabled && !data.discord_webhook_url) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message:
+        "Discord webhook URL is required when Discord notifications are enabled",
+      path: ["discord_webhook_url"],
+    }
+  )
+  .refine(
+    (data) => {
+      if (
+        data.pagerduty_enabled &&
+        (!data.pagerduty_service_id ||
+          !data.pagerduty_api_key ||
+          !data.pagerduty_from_email)
+      ) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message:
+        "PagerDuty service ID, API key, and from email are required when PagerDuty notifications are enabled",
+      path: ["pagerduty_service_id"],
+    }
+  )
+  .refine(
+    (data) => {
+      if (
+        data.github_enabled &&
+        (!data.github_owner || !data.github_repo || !data.github_token)
+      ) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message:
+        "GitHub owner, repo, and token are required when GitHub notifications are enabled",
+      path: ["github_owner"],
+    }
+  );

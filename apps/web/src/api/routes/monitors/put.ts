@@ -49,9 +49,6 @@ export default async function putMonitors(c: Context) {
     bodyString,
     regions,
     interval,
-    slackWebhookUrl,
-    // heartbeatId,
-    // heartbeatTimeoutSeconds,
   } = result.data;
   const supabase = createSupabaseClient(c.env);
 
@@ -135,7 +132,6 @@ export default async function putMonitors(c: Context) {
       interval: finalInterval,
       regions,
       updated_at: new Date().toISOString(),
-      slack_webhook_url: slackWebhookUrl,
     };
 
     const { data: updatedMonitor, error: updateError } = await supabase

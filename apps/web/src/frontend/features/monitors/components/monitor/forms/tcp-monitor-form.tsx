@@ -10,8 +10,8 @@ import {
   SelectValue,
 } from "@/frontend/components/ui/select";
 import { TcpMonitorSchema } from "@/frontend/lib/schemas";
-import { cn } from "@/frontend/utils/utils";
 import { monitoringRegions } from "@/frontend/utils/constants";
+import { cn } from "@/frontend/utils/utils";
 import { useForm } from "@tanstack/react-form";
 import { Check } from "lucide-react";
 import { z } from "zod";
@@ -44,7 +44,6 @@ interface TcpMonitorFormProps {
     tcpHostPort: string;
     interval: number;
     regions: string[];
-    slack_webhook_url: string;
   }>;
 }
 
@@ -71,7 +70,6 @@ export default function TcpMonitorForm({
     tcpHostPort: defaultValues?.tcpHostPort || "",
     interval: defaultValues?.interval ?? 300000,
     regions: defaultValues?.regions ?? [],
-    slackWebhookUrl: defaultValues?.slack_webhook_url || "",
   };
 
   const form = useForm({
@@ -80,11 +78,11 @@ export default function TcpMonitorForm({
       onChange: ({ value }) => {
         const result = TcpMonitorSchema.safeParse(value);
         if (result.success) return undefined;
-        
+
         const fieldErrors: Record<string, string> = {};
-        
+
         for (const issue of result.error.issues) {
-          const path = issue.path.join('.');
+          const path = issue.path.join(".");
           if (path && !fieldErrors[path]) {
             fieldErrors[path] = issue.message;
           }
@@ -202,15 +200,17 @@ export default function TcpMonitorForm({
                     onBlur={field.handleBlur}
                     placeholder="example.com:8080"
                     className={
-                      field.state.meta.errors?.length ? "border-destructive" : ""
+                      field.state.meta.errors?.length
+                        ? "border-destructive"
+                        : ""
                     }
                   />
                   {field.state.meta.errors?.length > 0 && (
                     <ErrorMessage errors={field.state.meta.errors[0]} />
                   )}
                   <p className="text-muted-foreground text-xs">
-                    Enter the hostname and port to check (e.g., example.com:8080,
-                    database.local:5432)
+                    Enter the hostname and port to check (e.g.,
+                    example.com:8080, database.local:5432)
                   </p>
                 </>
               )}
@@ -231,10 +231,10 @@ export default function TcpMonitorForm({
                     </span>
                   </div>
                   <p className="text-muted-foreground text-xs">
-                    * Regions are a best effort and not a guarantee. Monitors will
-                    not necessarily be instantiated in the hinted region, but
-                    instead instantiated in a data center selected to minimize
-                    latency.
+                    * Regions are a best effort and not a guarantee. Monitors
+                    will not necessarily be instantiated in the hinted region,
+                    but instead instantiated in a data center selected to
+                    minimize latency.
                   </p>
                 </div>
 
@@ -242,14 +242,16 @@ export default function TcpMonitorForm({
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                     {[
                       "North America",
-                      "South America", 
+                      "South America",
                       "Europe",
                       "Africa",
                       "Middle East",
                       "Asia-Pacific",
                       "Oceania",
                     ].map((continent) => {
-                      const regions = monitoringRegions.filter(r => r.continent === continent);
+                      const regions = monitoringRegions.filter(
+                        (r) => r.continent === continent
+                      );
                       if (regions.length === 0) return null;
 
                       return (
@@ -257,7 +259,9 @@ export default function TcpMonitorForm({
                           <h3 className="text-sm font-medium">{continent}</h3>
                           <div className="grid gap-2">
                             {regions.map((region) => {
-                              const isSelected = field.state.value.includes(region.value);
+                              const isSelected = field.state.value.includes(
+                                region.value
+                              );
                               return (
                                 <div
                                   key={region.value}
@@ -271,7 +275,9 @@ export default function TcpMonitorForm({
                                     e.preventDefault();
                                     e.stopPropagation();
                                     const newRegions = isSelected
-                                      ? field.state.value.filter((r: string) => r !== region.value)
+                                      ? field.state.value.filter(
+                                          (r: string) => r !== region.value
+                                        )
                                       : [...field.state.value, region.value];
                                     field.handleChange(newRegions);
                                   }}
@@ -282,7 +288,9 @@ export default function TcpMonitorForm({
                                     if (e.key === " " || e.key === "Enter") {
                                       e.preventDefault();
                                       const newRegions = isSelected
-                                        ? field.state.value.filter((r: string) => r !== region.value)
+                                        ? field.state.value.filter(
+                                            (r: string) => r !== region.value
+                                          )
                                         : [...field.state.value, region.value];
                                       field.handleChange(newRegions);
                                     }
@@ -292,7 +300,9 @@ export default function TcpMonitorForm({
                                     <span className="text-sm leading-none">
                                       {region.flag}
                                     </span>
-                                    <span className="text-xs">{region.label}</span>
+                                    <span className="text-xs">
+                                      {region.label}
+                                    </span>
                                   </div>
                                   {isSelected && (
                                     <Check className="text-primary h-4 w-4" />
@@ -306,9 +316,12 @@ export default function TcpMonitorForm({
                     })}
                   </div>
                 </div>
-                {field.state.meta.errors && field.state.meta.errors.length > 0 && (
-                  <p className="text-destructive text-sm">{field.state.meta.errors[0]}</p>
-                )}
+                {field.state.meta.errors &&
+                  field.state.meta.errors.length > 0 && (
+                    <p className="text-destructive text-sm">
+                      {field.state.meta.errors[0]}
+                    </p>
+                  )}
               </>
             )}
           </form.Field>
@@ -327,7 +340,9 @@ export default function TcpMonitorForm({
                 size="sm"
                 disabled={isSubmitting || formIsSubmitting || !canSubmit}
               >
-                {isSubmitting || formIsSubmitting ? "Submitting..." : submitLabel}
+                {isSubmitting || formIsSubmitting
+                  ? "Submitting..."
+                  : submitLabel}
               </Button>
             )}
           </form.Subscribe>

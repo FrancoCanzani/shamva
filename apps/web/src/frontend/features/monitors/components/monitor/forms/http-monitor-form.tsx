@@ -11,8 +11,8 @@ import {
 } from "@/frontend/components/ui/select";
 import { Textarea } from "@/frontend/components/ui/textarea";
 import { HttpMonitorSchema } from "@/frontend/lib/schemas";
-import { cn } from "@/frontend/utils/utils";
 import { monitoringRegions } from "@/frontend/utils/constants";
+import { cn } from "@/frontend/utils/utils";
 import { useForm } from "@tanstack/react-form";
 import { Check } from "lucide-react";
 import { z } from "zod";
@@ -51,7 +51,6 @@ interface HttpMonitorFormProps {
     regions: string[];
     headers: Record<string, string>;
     body: Record<string, unknown> | string;
-    slack_webhook_url: string;
   }>;
 }
 
@@ -85,7 +84,6 @@ export default function HttpMonitorForm({
     bodyString: defaultValues?.body
       ? JSON.stringify(defaultValues.body, null, 2)
       : "",
-    slackWebhookUrl: defaultValues?.slack_webhook_url || "",
   };
 
   const form = useForm({
@@ -94,11 +92,11 @@ export default function HttpMonitorForm({
       onChange: ({ value }) => {
         const result = HttpMonitorSchema.safeParse(value);
         if (result.success) return undefined;
-        
+
         const fieldErrors: Record<string, string> = {};
-        
+
         for (const issue of result.error.issues) {
-          const path = issue.path.join('.');
+          const path = issue.path.join(".");
           if (path && !fieldErrors[path]) {
             fieldErrors[path] = issue.message;
           }
@@ -109,7 +107,9 @@ export default function HttpMonitorForm({
     onSubmit: async ({ value }) => {
       let headers, body;
       try {
-        headers = value.headersString ? JSON.parse(value.headersString) : undefined;
+        headers = value.headersString
+          ? JSON.parse(value.headersString)
+          : undefined;
       } catch {
         // TODO: Set field error for invalid JSON
         return;
@@ -302,10 +302,10 @@ export default function HttpMonitorForm({
                     </span>
                   </div>
                   <p className="text-muted-foreground text-xs">
-                    * Regions are a best effort and not a guarantee. Monitors will
-                    not necessarily be instantiated in the hinted region, but
-                    instead instantiated in a data center selected to minimize
-                    latency.
+                    * Regions are a best effort and not a guarantee. Monitors
+                    will not necessarily be instantiated in the hinted region,
+                    but instead instantiated in a data center selected to
+                    minimize latency.
                   </p>
                 </div>
 
@@ -313,14 +313,16 @@ export default function HttpMonitorForm({
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                     {[
                       "North America",
-                      "South America", 
+                      "South America",
                       "Europe",
                       "Africa",
                       "Middle East",
                       "Asia-Pacific",
                       "Oceania",
                     ].map((continent) => {
-                      const regions = monitoringRegions.filter(r => r.continent === continent);
+                      const regions = monitoringRegions.filter(
+                        (r) => r.continent === continent
+                      );
                       if (regions.length === 0) return null;
 
                       return (
@@ -328,7 +330,9 @@ export default function HttpMonitorForm({
                           <h3 className="text-sm font-medium">{continent}</h3>
                           <div className="grid gap-2">
                             {regions.map((region) => {
-                              const isSelected = field.state.value.includes(region.value);
+                              const isSelected = field.state.value.includes(
+                                region.value
+                              );
                               return (
                                 <div
                                   key={region.value}
@@ -342,7 +346,9 @@ export default function HttpMonitorForm({
                                     e.preventDefault();
                                     e.stopPropagation();
                                     const newRegions = isSelected
-                                      ? field.state.value.filter((r: string) => r !== region.value)
+                                      ? field.state.value.filter(
+                                          (r: string) => r !== region.value
+                                        )
                                       : [...field.state.value, region.value];
                                     field.handleChange(newRegions);
                                   }}
@@ -353,7 +359,9 @@ export default function HttpMonitorForm({
                                     if (e.key === " " || e.key === "Enter") {
                                       e.preventDefault();
                                       const newRegions = isSelected
-                                        ? field.state.value.filter((r: string) => r !== region.value)
+                                        ? field.state.value.filter(
+                                            (r: string) => r !== region.value
+                                          )
                                         : [...field.state.value, region.value];
                                       field.handleChange(newRegions);
                                     }
@@ -363,7 +371,9 @@ export default function HttpMonitorForm({
                                     <span className="text-sm leading-none">
                                       {region.flag}
                                     </span>
-                                    <span className="text-xs">{region.label}</span>
+                                    <span className="text-xs">
+                                      {region.label}
+                                    </span>
                                   </div>
                                   {isSelected && (
                                     <Check className="text-primary h-4 w-4" />
@@ -377,9 +387,12 @@ export default function HttpMonitorForm({
                     })}
                   </div>
                 </div>
-                {field.state.meta.errors && field.state.meta.errors.length > 0 && (
-                  <p className="text-destructive text-sm">{field.state.meta.errors[0]}</p>
-                )}
+                {field.state.meta.errors &&
+                  field.state.meta.errors.length > 0 && (
+                    <p className="text-destructive text-sm">
+                      {field.state.meta.errors[0]}
+                    </p>
+                  )}
               </>
             )}
           </form.Field>
@@ -424,7 +437,9 @@ export default function HttpMonitorForm({
                     <form.Field name="bodyString">
                       {(field) => (
                         <>
-                          <Label htmlFor="bodyString">Request Body (JSON String)</Label>
+                          <Label htmlFor="bodyString">
+                            Request Body (JSON String)
+                          </Label>
                           <Textarea
                             id="bodyString"
                             name="bodyString"
@@ -435,7 +450,8 @@ export default function HttpMonitorForm({
                             rows={8}
                             className={cn(
                               "text-sm",
-                              field.state.meta.errors?.length && "border-destructive"
+                              field.state.meta.errors?.length &&
+                                "border-destructive"
                             )}
                           />
                           {field.state.meta.errors?.length > 0 && (
@@ -467,7 +483,9 @@ export default function HttpMonitorForm({
                 size="sm"
                 disabled={isSubmitting || formIsSubmitting || !canSubmit}
               >
-                {isSubmitting || formIsSubmitting ? "Submitting..." : submitLabel}
+                {isSubmitting || formIsSubmitting
+                  ? "Submitting..."
+                  : submitLabel}
               </Button>
             )}
           </form.Subscribe>

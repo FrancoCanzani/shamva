@@ -1,11 +1,10 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { queryClient } from "@/frontend/lib/query-client";
 import supabase from "@/frontend/lib/supabase";
 import { Monitor, MonitorFormData } from "@/frontend/types/types";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export function useCreateMonitor() {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async ({
       workspaceName,
@@ -56,8 +55,6 @@ export function useCreateMonitor() {
 }
 
 export function useUpdateMonitor() {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async ({
       monitorId,
@@ -106,8 +103,6 @@ export function useUpdateMonitor() {
 }
 
 export function useDeleteMonitor() {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (monitorId: string): Promise<void> => {
       const {
@@ -147,8 +142,6 @@ export function useDeleteMonitor() {
 }
 
 export function usePauseResumeMonitor() {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async ({
       monitorId,

@@ -1,10 +1,8 @@
 import { SupabaseClient } from "@supabase/supabase-js";
-import { DurableObject } from "cloudflare:workers";
 import { connect } from "cloudflare:sockets";
+import { DurableObject } from "cloudflare:workers";
 import type { EnvBindings } from "../../../bindings";
-import { EmailService } from "../notifications/email/service";
 import { ScreenshotService } from "../lib/screenshot/service";
-import { SlackService } from "../notifications/slack/service";
 import { createSupabaseClient } from "../lib/supabase/client";
 import {
   CheckResult,
@@ -13,6 +11,8 @@ import {
   MonitorEmailData,
 } from "../lib/types";
 import buildBodyContent from "../lib/utils";
+import { EmailService } from "../notifications/email/service";
+import { SlackService } from "../notifications/slack/service";
 
 const FETCH_TIMEOUT_MS = 30 * 1000;
 const TCP_TIMEOUT_MS = 10 * 1000;
@@ -423,12 +423,7 @@ export class CheckerDurableObject extends DurableObject {
                 };
 
                 this.ctx.waitUntil(
-                  this.sendNotifications(
-                    emailData,
-                    true,
-                    userEmails,
-                    monitor.slack_webhook_url
-                  )
+                  this.sendNotifications(emailData, true, userEmails)
                 );
               }
             }
@@ -512,12 +507,7 @@ export class CheckerDurableObject extends DurableObject {
                 };
 
                 this.ctx.waitUntil(
-                  this.sendNotifications(
-                    emailData,
-                    false,
-                    userEmails,
-                    monitor.slack_webhook_url
-                  )
+                  this.sendNotifications(emailData, false, userEmails)
                 );
 
                 this.ctx.waitUntil(

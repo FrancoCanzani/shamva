@@ -1,5 +1,5 @@
-import { createSupabaseClient } from "../lib/supabase/client";
 import type { EnvBindings } from "../../../bindings";
+import { createSupabaseClient } from "../lib/supabase/client";
 import type { Monitor, Region } from "../lib/types";
 
 async function getWorkspaceUsers(
@@ -102,7 +102,6 @@ export async function handleMonitorCheckerCron(
               status: monitor.status,
               errorMessage: monitor.error_message,
               name: monitor.name,
-              slackWebhookUrl: monitor.slack_webhook_url,
             }),
           });
 

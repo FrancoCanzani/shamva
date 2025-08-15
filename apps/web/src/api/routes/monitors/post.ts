@@ -17,13 +17,13 @@ export default async function postMonitors(c: Context) {
   const result = MonitorsParamsSchema.safeParse(rawBody);
 
   if (!result.success) {
-    console.error("Validation Error Details:", result.error.flatten());
+    console.error("Validation Error Details:", result.error.issues);
     return c.json(
       {
         data: null,
         success: false,
         error: "Request parameter validation failed.",
-        details: result.error.flatten(),
+        details: result.error.issues,
       },
       400
     );

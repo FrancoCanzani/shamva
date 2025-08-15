@@ -3,16 +3,15 @@ import { z } from "zod";
 import { createSupabaseClient } from "../../lib/supabase/client";
 
 const MemberUpdateSchema = z.object({
-  id: z.string().uuid().optional(),
+  id: z.uuid().optional(),
   email: z
-    .string()
     .email("Please enter a valid email address")
     .min(1, "Email is required"),
   role: z.enum(["admin", "member", "viewer"], {
-    errorMap: () => ({ message: "Please select a valid role" }),
+    error: "Please select a valid role",
   }),
   invitation_status: z.enum(["pending", "accepted", "declined"]).optional(),
-  user_id: z.string().uuid().nullable().optional(),
+  user_id: z.uuid().nullable().optional(),
 });
 
 const WorkspaceUpdateSchema = z.object({
@@ -58,12 +57,12 @@ export default async function putWorkspaces(c: Context) {
   const result = WorkspaceUpdateSchema.safeParse(rawBody);
 
   if (!result.success) {
-    console.error("Validation Error Details:", result.error.flatten());
+    console.error("Validation Error Details:", result.error.issues);
     return c.json(
       {
         success: false,
         error: "Request parameter validation failed.",
-        details: result.error.flatten(),
+        details: result.error.issues,
       },
       400
     );

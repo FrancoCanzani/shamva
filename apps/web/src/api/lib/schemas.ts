@@ -34,8 +34,8 @@ export const MonitorsParamsSchema = z
       .string()
       .optional()
       .transform((val) => (val === "" ? undefined : val))
-      .refine((val) => !val || z.string().url().safeParse(val).success, {
-        message: "Invalid URL format",
+      .refine((val) => !val || z.url().safeParse(val).success, {
+        error: "Invalid URL format",
       }),
     tcpHostPort: z
       .string()
@@ -71,12 +71,12 @@ export const MonitorsParamsSchema = z
         isValidJSON,
         'Body must be a valid JSON string, e.g. {"key": "value"} or "text"'
       ),
-    headers: z.record(z.string()).optional(),
-    body: z.union([z.record(z.unknown()), z.string()]).optional(),
+    headers: z.record(z.string(), z.string()).optional(),
+    body: z.union([z.record(z.string(), z.unknown()), z.string()]).optional(),
     slackWebhookUrl: z.string().trim().optional(),
     heartbeatId: z.string().trim().optional(),
     heartbeatTimeoutSeconds: z.number().int().min(30).max(3600).optional(),
-    workspaceId: z.string().uuid("Invalid workspace ID format"),
+    workspaceId: z.uuid("Invalid workspace ID format"),
   })
   .refine(
     (data) => {
@@ -92,7 +92,7 @@ export const MonitorsParamsSchema = z
       return true;
     },
     {
-      message:
+      error:
         "URL is required for HTTP checks, Host:Port is required for TCP checks",
       path: ["url"],
     }
@@ -105,7 +105,7 @@ export const MonitorsParamsSchema = z
       return true;
     },
     {
-      message: "Method is required for HTTP checks",
+      error: "Method is required for HTTP checks",
       path: ["method"],
     }
   );
@@ -118,7 +118,7 @@ export const PartialMonitorSchema = z
       .max(255, "Name too long")
       .optional(),
     check_type: z.enum(["http", "tcp"]).optional(),
-    url: z.string().url("Invalid URL format").nullable().optional(),
+    url: z.url("Invalid URL format").nullable().optional(),
     tcp_host_port: z.string().nullable().optional(),
     method: z.enum(["GET", "POST", "HEAD"]).nullable().optional(),
     interval: z
@@ -138,14 +138,13 @@ export const PartialMonitorSchema = z
       .enum(["broken", "active", "maintenance", "paused", "error", "degraded"])
       .optional(),
     slack_webhook_url: z
-      .string()
       .url("Invalid webhook URL")
       .nullable()
       .optional(),
     error_message: z.string().nullable().optional(),
-    last_check_at: z.string().datetime().nullable().optional(),
-    last_success_at: z.string().datetime().nullable().optional(),
-    last_failure_at: z.string().datetime().nullable().optional(),
+    last_check_at: z.iso.datetime().nullable().optional(),
+    last_success_at: z.iso.datetime().nullable().optional(),
+    last_failure_at: z.iso.datetime().nullable().optional(),
   })
   .refine(
     (data) => {
@@ -156,7 +155,7 @@ export const PartialMonitorSchema = z
       return true;
     },
     {
-      message: "URL is required for HTTP monitors",
+      error: "URL is required for HTTP monitors",
       path: ["url"],
     }
   )
@@ -169,7 +168,7 @@ export const PartialMonitorSchema = z
       return true;
     },
     {
-      message: "Host and port are required for TCP monitors",
+      error: "Host and port are required for TCP monitors",
       path: ["tcp_host_port"],
     }
   )
@@ -182,7 +181,7 @@ export const PartialMonitorSchema = z
       return true;
     },
     {
-      message: "Method is not applicable for TCP monitors",
+      error: "Method is not applicable for TCP monitors",
       path: ["method"],
     }
   )
@@ -198,18 +197,17 @@ export const PartialMonitorSchema = z
       return true;
     },
     {
-      message: "Headers and body are not applicable for TCP monitors",
+      error: "Headers and body are not applicable for TCP monitors",
       path: ["headers", "body"],
     }
   );
 
 export const MemberInviteSchema = z.object({
   email: z
-    .string()
     .email("Please enter a valid email address")
     .min(1, "Email is required"),
   role: z.enum(["admin", "member", "viewer"], {
-    errorMap: () => ({ message: "Please select a valid role" }),
+    error: "Please select a valid role",
   }),
 });
 
@@ -253,15 +251,13 @@ export const StatusPageSchema = z.object({
     .max(100, "Password cannot exceed 100 characters")
     .optional(),
   isPublic: z.boolean().default(true),
-  monitors: z.array(z.string()).min(1, {
-    message: "Please select at least one monitor",
-  }),
-  workspaceId: z.string().uuid("Invalid workspace ID format"),
+  monitors: z.array(z.string()).min(1, "Please select at least one monitor"),
+  workspaceId: z.uuid("Invalid workspace ID format"),
 });
 
 export const IncidentUpdateSchema = z.object({
-  acknowledged_at: z.string().datetime().optional(),
-  resolved_at: z.string().datetime().optional(),
+  acknowledged_at: z.iso.datetime().optional(),
+  resolved_at: z.iso.datetime().optional(),
   post_mortem: z
     .string()
     .max(100000, "Post-mortem cannot exceed 100000 characters")
@@ -276,6 +272,6 @@ export const HeartbeatSchema = z.object({
     .max(100, "Heartbeat name is too long"),
   expectedLapseMs: z.number().positive(),
   gracePeriodMs: z.number().positive(),
-  workspaceId: z.string().uuid("Invalid workspace ID format"),
-  pingId: z.string().uuid("Invalid ID format"),
+  workspaceId: z.uuid("Invalid workspace ID format"),
+  pingId: z.uuid("Invalid ID format"),
 });

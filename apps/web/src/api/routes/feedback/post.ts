@@ -24,7 +24,7 @@ export default async function postFeedback(c: Context) {
         data: null,
         success: false,
         error: "Request parameter validation failed.",
-        details: result.error.flatten(),
+        details: result.error.issues,
       },
       400
     );

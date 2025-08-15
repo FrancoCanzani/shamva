@@ -23,10 +23,8 @@ export default function MonitorsPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <DashboardHeader title="Monitors" className="border-b">
-        <div className="flex items-center space-x-2">
-          <MonitorTypeSelector />
-        </div>
+      <DashboardHeader title="Monitors">
+        <MonitorTypeSelector />
       </DashboardHeader>
 
       <main className="relative flex-1 overflow-auto">

@@ -27,12 +27,12 @@ export default async function putStatusPages(c: Context) {
   const result = StatusPageSchema.safeParse(rawBody);
 
   if (!result.success) {
-    console.error("Validation Error Details:", result.error.flatten());
+    console.error("Validation Error Details:", result.error.issues);
     return c.json(
       {
         success: false,
         error: "Request parameter validation failed.",
-        details: result.error.flatten(),
+        details: result.error.issues,
       },
       400
     );

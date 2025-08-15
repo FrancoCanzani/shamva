@@ -12,10 +12,10 @@ import {
 import { Textarea } from "@/frontend/components/ui/textarea";
 import { HttpMonitorSchema } from "@/frontend/lib/schemas";
 import { cn } from "@/frontend/utils/utils";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, FormProvider, useForm } from "react-hook-form";
+import { monitoringRegions } from "@/frontend/utils/constants";
+import { useForm } from "@tanstack/react-form";
+import { Check } from "lucide-react";
 import { z } from "zod";
-import { MonitorFormRegionsSection } from "./monitor-form-regions-section";
 
 const checkIntervals = [
   { value: "60000", label: "1 minute" },
@@ -73,105 +73,129 @@ export default function HttpMonitorForm({
   submitLabel = "Save",
   defaultValues,
 }: HttpMonitorFormProps) {
-  const methods = useForm<HttpMonitorFormValues>({
-    resolver: zodResolver(HttpMonitorSchema),
-    defaultValues: {
-      name: defaultValues?.name,
-      url: defaultValues?.url,
-      method: defaultValues?.method ?? "GET",
-      interval: defaultValues?.interval ?? 300000,
-      regions: defaultValues?.regions ?? [],
-      headersString: defaultValues?.headers
-        ? JSON.stringify(defaultValues.headers, null, 2)
-        : "",
-      bodyString: defaultValues?.body
-        ? JSON.stringify(defaultValues.body, null, 2)
-        : "",
-      slackWebhookUrl: defaultValues?.slack_webhook_url,
+  const defaultFormValues: HttpMonitorFormValues = {
+    name: defaultValues?.name || "",
+    url: defaultValues?.url || "",
+    method: defaultValues?.method ?? "GET",
+    interval: defaultValues?.interval ?? 300000,
+    regions: defaultValues?.regions ?? [],
+    headersString: defaultValues?.headers
+      ? JSON.stringify(defaultValues.headers, null, 2)
+      : "",
+    bodyString: defaultValues?.body
+      ? JSON.stringify(defaultValues.body, null, 2)
+      : "",
+    slackWebhookUrl: defaultValues?.slack_webhook_url || "",
+  };
+
+  const form = useForm({
+    defaultValues: defaultFormValues,
+    validators: {
+      onChange: ({ value }) => {
+        const result = HttpMonitorSchema.safeParse(value);
+        if (result.success) return undefined;
+        
+        const fieldErrors: Record<string, string> = {};
+        
+        for (const issue of result.error.issues) {
+          const path = issue.path.join('.');
+          if (path && !fieldErrors[path]) {
+            fieldErrors[path] = issue.message;
+          }
+        }
+        return { fields: fieldErrors };
+      },
+    },
+    onSubmit: async ({ value }) => {
+      let headers, body;
+      try {
+        headers = value.headersString ? JSON.parse(value.headersString) : undefined;
+      } catch {
+        // TODO: Set field error for invalid JSON
+        return;
+      }
+      try {
+        body = value.bodyString ? JSON.parse(value.bodyString) : undefined;
+      } catch {
+        // TODO: Set field error for invalid JSON
+        return;
+      }
+
+      const payload = {
+        name: value.name,
+        checkType: "http" as const,
+        url: value.url,
+        method: value.method,
+        interval: value.interval,
+        regions: value.regions,
+        headers,
+        body,
+        slackWebhookUrl: value.slackWebhookUrl,
+        heartbeatId: value.enableHeartbeat ? value.heartbeatId : undefined,
+        heartbeatTimeoutSeconds: value.enableHeartbeat
+          ? value.heartbeatTimeoutSeconds
+          : undefined,
+      };
+
+      await onSubmit(payload);
     },
   });
 
-  const {
-    register,
-    handleSubmit,
-    control,
-    watch,
-    formState: { errors },
-  } = methods;
-
-  const method = watch("method");
-
-  // On submit, parse JSON fields
-  const onFormSubmit = async (data: HttpMonitorFormValues) => {
-    let headers, body;
-    try {
-      headers = data.headersString ? JSON.parse(data.headersString) : undefined;
-    } catch {
-      // set error here
-      return;
-    }
-    try {
-      body = data.bodyString ? JSON.parse(data.bodyString) : undefined;
-    } catch {
-      // set error here
-      return;
-    }
-
-    const payload = {
-      name: data.name,
-      checkType: "http" as const,
-      url: data.url,
-      method: data.method,
-      interval: data.interval,
-      regions: data.regions,
-      headers,
-      body,
-      slackWebhookUrl: data.slackWebhookUrl,
-      heartbeatId: data.enableHeartbeat ? data.heartbeatId : undefined,
-      heartbeatTimeoutSeconds: data.enableHeartbeat
-        ? data.heartbeatTimeoutSeconds
-        : undefined,
-    };
-
-    await onSubmit(payload);
-  };
-
   return (
-    <FormProvider {...methods}>
-      <div className="flex gap-8">
-        <form
-          onSubmit={handleSubmit(onFormSubmit)}
-          className="flex-1 space-y-8"
-        >
-          <div id="basic-config" className="space-y-4">
-            <h2 className="font-medium">Basic Configuration</h2>
-            <div className="flex w-full gap-4">
-              <FormField className="w-full flex-1">
-                <Label htmlFor="name">Monitor name</Label>
-                <Input
-                  id="name"
-                  {...register("name")}
-                  placeholder="Example API"
-                  className={cn("w-full", errors.name && "border-destructive")}
-                />
-                <ErrorMessage errors={errors.name?.message} />
-              </FormField>
+    <div className="flex gap-8">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          form.handleSubmit();
+        }}
+        className="flex-1 space-y-8"
+      >
+        <div id="basic-config" className="space-y-4">
+          <h2 className="font-medium">Basic Configuration</h2>
+          <div className="flex w-full gap-4">
+            <FormField className="w-full flex-1">
+              <form.Field name="name">
+                {(field) => (
+                  <>
+                    <Label htmlFor="name">Monitor name</Label>
+                    <Input
+                      id="name"
+                      name="name"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
+                      placeholder="Example API"
+                      className={cn(
+                        "w-full",
+                        field.state.meta.errors?.length && "border-destructive"
+                      )}
+                    />
+                    {field.state.meta.errors?.length > 0 && (
+                      <ErrorMessage errors={field.state.meta.errors[0]} />
+                    )}
+                  </>
+                )}
+              </form.Field>
+            </FormField>
 
-              <FormField>
-                <Label htmlFor="interval">Check interval</Label>
-                <Controller
-                  control={control}
-                  name="interval"
-                  render={({ field }) => (
+            <FormField>
+              <form.Field name="interval">
+                {(field) => (
+                  <>
+                    <Label htmlFor="interval">Check interval</Label>
                     <Select
                       onValueChange={(value) =>
-                        field.onChange(Number.parseInt(value, 10))
+                        field.handleChange(Number.parseInt(value, 10))
                       }
-                      value={field.value.toString()}
+                      value={field.state.value.toString()}
                     >
                       <SelectTrigger
                         id="interval"
-                        className={errors.interval ? "border-destructive" : ""}
+                        className={
+                          field.state.meta.errors?.length
+                            ? "border-destructive"
+                            : ""
+                        }
                       >
                         <SelectValue placeholder="Select interval" />
                       </SelectTrigger>
@@ -188,31 +212,37 @@ export default function HttpMonitorForm({
                         </SelectGroup>
                       </SelectContent>
                     </Select>
-                  )}
-                />
-                <ErrorMessage errors={errors.interval?.message} />
-              </FormField>
-            </div>
+                    {field.state.meta.errors?.length > 0 && (
+                      <ErrorMessage errors={field.state.meta.errors[0]} />
+                    )}
+                  </>
+                )}
+              </form.Field>
+            </FormField>
           </div>
+        </div>
 
-          <div id="check-config" className="space-y-4">
-            <h2 className="font-medium">HTTP Configuration</h2>
-            <div className="flex flex-1 gap-4">
-              <FormField>
-                <Label htmlFor="method">Method</Label>
-                <Controller
-                  control={control}
-                  name="method"
-                  render={({ field }) => (
+        <div id="check-config" className="space-y-4">
+          <h2 className="font-medium">HTTP Configuration</h2>
+          <div className="flex flex-1 gap-4">
+            <FormField>
+              <form.Field name="method">
+                {(field) => (
+                  <>
+                    <Label htmlFor="method">Method</Label>
                     <Select
                       onValueChange={(value) =>
-                        field.onChange(value as "GET" | "POST" | "HEAD")
+                        field.handleChange(value as "GET" | "POST" | "HEAD")
                       }
-                      value={field.value}
+                      value={field.state.value}
                     >
                       <SelectTrigger
                         id="method"
-                        className={errors.method ? "border-destructive" : ""}
+                        className={
+                          field.state.meta.errors?.length
+                            ? "border-destructive"
+                            : ""
+                        }
                       >
                         <SelectValue placeholder="Select method" />
                       </SelectTrigger>
@@ -224,79 +254,225 @@ export default function HttpMonitorForm({
                         </SelectGroup>
                       </SelectContent>
                     </Select>
-                  )}
-                />
-                <ErrorMessage errors={errors.method?.message} />
-              </FormField>
-
-              <FormField className="w-full flex-1">
-                <Label htmlFor="url">URL to Monitor</Label>
-                <Input
-                  id="url"
-                  {...register("url")}
-                  placeholder="https://example.com/api"
-                  className={cn("flex-1", errors.url && "border-destructive")}
-                />
-                <ErrorMessage errors={errors.url?.message} />
-              </FormField>
-            </div>
-          </div>
-
-          <MonitorFormRegionsSection />
-
-          <div id="advanced-options" className="space-y-4">
-            <h2 className="font-medium">Advanced Options</h2>
-            <div className="space-y-4 border border-dashed p-4">
-              <FormField>
-                <Label htmlFor="headersString">Headers (JSON String)</Label>
-                <Textarea
-                  id="headersString"
-                  {...register("headersString")}
-                  placeholder='{"Authorization": "Bearer token", "Content-Type": "application/json"}'
-                  rows={8}
-                  className={cn(
-                    "text-sm",
-                    errors.headersString && "border-destructive"
-                  )}
-                />
-                <ErrorMessage errors={errors.headersString?.message} />
-                <p className="text-muted-foreground text-xs">
-                  Enter headers as a valid JSON object
-                </p>
-              </FormField>
-
-              {method === "POST" && (
-                <FormField>
-                  <Label htmlFor="bodyString">Request Body (JSON String)</Label>
-                  <Textarea
-                    id="bodyString"
-                    {...register("bodyString")}
-                    placeholder='{"key": "value"}'
-                    rows={8}
-                    className={cn(
-                      "text-sm",
-                      errors.bodyString && "border-destructive"
+                    {field.state.meta.errors?.length > 0 && (
+                      <ErrorMessage errors={field.state.meta.errors[0]} />
                     )}
-                  />
-                  <ErrorMessage errors={errors.bodyString?.message} />
-                  <p className="text-muted-foreground text-xs">
-                    Only applicable for POST requests
-                  </p>
-                </FormField>
-              )}
-            </div>
-          </div>
+                  </>
+                )}
+              </form.Field>
+            </FormField>
 
-          <div className="flex justify-end space-x-4">
-            <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
-              Cancel
-            </Button>
-            <Button type="submit" size="sm" disabled={isSubmitting}>
-              {isSubmitting ? "Submitting..." : submitLabel}
-            </Button>
+            <FormField className="w-full flex-1">
+              <form.Field name="url">
+                {(field) => (
+                  <>
+                    <Label htmlFor="url">URL to Monitor</Label>
+                    <Input
+                      id="url"
+                      name="url"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
+                      placeholder="https://example.com/api"
+                      className={cn(
+                        "flex-1",
+                        field.state.meta.errors?.length && "border-destructive"
+                      )}
+                    />
+                    {field.state.meta.errors?.length > 0 && (
+                      <ErrorMessage errors={field.state.meta.errors[0]} />
+                    )}
+                  </>
+                )}
+              </form.Field>
+            </FormField>
           </div>
-        </form>
-      </div>
-    </FormProvider>
+        </div>
+
+        <div id="monitoring-regions" className="space-y-4">
+          <form.Field name="regions">
+            {(field) => (
+              <>
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center justify-between">
+                    <h2 className="font-medium">Monitoring Regions *</h2>
+                    <span className="text-muted-foreground text-xs">
+                      {field.state.value.length} region
+                      {field.state.value.length !== 1 ? "s" : ""} selected
+                    </span>
+                  </div>
+                  <p className="text-muted-foreground text-xs">
+                    * Regions are a best effort and not a guarantee. Monitors will
+                    not necessarily be instantiated in the hinted region, but
+                    instead instantiated in a data center selected to minimize
+                    latency.
+                  </p>
+                </div>
+
+                <div className="border border-dashed p-2">
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    {[
+                      "North America",
+                      "South America", 
+                      "Europe",
+                      "Africa",
+                      "Middle East",
+                      "Asia-Pacific",
+                      "Oceania",
+                    ].map((continent) => {
+                      const regions = monitoringRegions.filter(r => r.continent === continent);
+                      if (regions.length === 0) return null;
+
+                      return (
+                        <div key={continent} className="space-y-2">
+                          <h3 className="text-sm font-medium">{continent}</h3>
+                          <div className="grid gap-2">
+                            {regions.map((region) => {
+                              const isSelected = field.state.value.includes(region.value);
+                              return (
+                                <div
+                                  key={region.value}
+                                  className={cn(
+                                    "flex cursor-pointer items-center justify-between border p-2 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800",
+                                    isSelected
+                                      ? "border-primary bg-stone-50 dark:bg-stone-800"
+                                      : ""
+                                  )}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    const newRegions = isSelected
+                                      ? field.state.value.filter((r: string) => r !== region.value)
+                                      : [...field.state.value, region.value];
+                                    field.handleChange(newRegions);
+                                  }}
+                                  role="checkbox"
+                                  aria-checked={isSelected}
+                                  tabIndex={0}
+                                  onKeyDown={(e) => {
+                                    if (e.key === " " || e.key === "Enter") {
+                                      e.preventDefault();
+                                      const newRegions = isSelected
+                                        ? field.state.value.filter((r: string) => r !== region.value)
+                                        : [...field.state.value, region.value];
+                                      field.handleChange(newRegions);
+                                    }
+                                  }}
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-sm leading-none">
+                                      {region.flag}
+                                    </span>
+                                    <span className="text-xs">{region.label}</span>
+                                  </div>
+                                  {isSelected && (
+                                    <Check className="text-primary h-4 w-4" />
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+                {field.state.meta.errors && field.state.meta.errors.length > 0 && (
+                  <p className="text-destructive text-sm">{field.state.meta.errors[0]}</p>
+                )}
+              </>
+            )}
+          </form.Field>
+        </div>
+
+        <div id="advanced-options" className="space-y-4">
+          <h2 className="font-medium">Advanced Options</h2>
+          <div className="space-y-4 border border-dashed p-4">
+            <FormField>
+              <form.Field name="headersString">
+                {(field) => (
+                  <>
+                    <Label htmlFor="headersString">Headers (JSON String)</Label>
+                    <Textarea
+                      id="headersString"
+                      name="headersString"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
+                      placeholder='{"Authorization": "Bearer token", "Content-Type": "application/json"}'
+                      rows={8}
+                      className={cn(
+                        "text-sm",
+                        field.state.meta.errors?.length && "border-destructive"
+                      )}
+                    />
+                    {field.state.meta.errors?.length > 0 && (
+                      <ErrorMessage errors={field.state.meta.errors[0]} />
+                    )}
+                    <p className="text-muted-foreground text-xs">
+                      Enter headers as a valid JSON object
+                    </p>
+                  </>
+                )}
+              </form.Field>
+            </FormField>
+
+            <form.Field name="method">
+              {(methodField) =>
+                methodField.state.value === "POST" && (
+                  <FormField>
+                    <form.Field name="bodyString">
+                      {(field) => (
+                        <>
+                          <Label htmlFor="bodyString">Request Body (JSON String)</Label>
+                          <Textarea
+                            id="bodyString"
+                            name="bodyString"
+                            value={field.state.value}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                            onBlur={field.handleBlur}
+                            placeholder='{"key": "value"}'
+                            rows={8}
+                            className={cn(
+                              "text-sm",
+                              field.state.meta.errors?.length && "border-destructive"
+                            )}
+                          />
+                          {field.state.meta.errors?.length > 0 && (
+                            <ErrorMessage errors={field.state.meta.errors[0]} />
+                          )}
+                          <p className="text-muted-foreground text-xs">
+                            Only applicable for POST requests
+                          </p>
+                        </>
+                      )}
+                    </form.Field>
+                  </FormField>
+                )
+              }
+            </form.Field>
+          </div>
+        </div>
+
+        <div className="flex justify-end space-x-4">
+          <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
+            Cancel
+          </Button>
+          <form.Subscribe
+            selector={(state) => [state.canSubmit, state.isSubmitting]}
+          >
+            {([canSubmit, formIsSubmitting]) => (
+              <Button
+                type="submit"
+                size="sm"
+                disabled={isSubmitting || formIsSubmitting || !canSubmit}
+              >
+                {isSubmitting || formIsSubmitting ? "Submitting..." : submitLabel}
+              </Button>
+            )}
+          </form.Subscribe>
+        </div>
+      </form>
+    </div>
   );
 }

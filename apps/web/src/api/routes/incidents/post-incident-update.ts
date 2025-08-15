@@ -5,7 +5,7 @@ import { createSupabaseClient } from "../../lib/supabase/client";
 const IncidentUpdatePostSchema = z.object({
   content: z.string().min(1).max(2000),
   authorName: z.string().min(1).max(200),
-  authorEmail: z.string().email().max(200),
+  authorEmail: z.email().max(200),
 });
 
 export default async function postIncidentUpdate(c: Context) {
@@ -36,7 +36,7 @@ export default async function postIncidentUpdate(c: Context) {
       {
         success: false,
         error: "Validation failed",
-        details: result.error.flatten(),
+        details: result.error.issues,
       },
       400
     );

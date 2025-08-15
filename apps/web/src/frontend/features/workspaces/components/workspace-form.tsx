@@ -8,14 +8,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/frontend/components/ui/select";
-import { Separator } from "@/frontend/components/ui/separator";
 import { Textarea } from "@/frontend/components/ui/textarea";
 import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
 import { MemberInviteSchema, WorkspaceSchema } from "@/frontend/lib/schemas";
 import { MemberInvite, WorkspaceFormValues } from "@/frontend/types/types";
 import { useForm } from "@tanstack/react-form";
 import { X } from "lucide-react";
-import * as React from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -42,10 +41,10 @@ export default function WorkspaceForm({
   isSubmitting,
   submitLabel,
 }: MonitorWorkspaceFormProps) {
-  const [isDeleting, setIsDeleting] = React.useState(false);
-  const [newMemberEmail, setNewMemberEmail] = React.useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [newMemberEmail, setNewMemberEmail] = useState("");
   const [newMemberRole, setNewMemberRole] =
-    React.useState<MemberInvite["role"]>("member");
+    useState<MemberInvite["role"]>("member");
   const { workspaces } = useWorkspaces();
 
   const defaultValues = {
@@ -142,12 +141,12 @@ export default function WorkspaceForm({
                   field.state.meta.errors?.length ? "border-destructive" : ""
                 }
               />
-              <p className="text-muted-foreground mt-1 text-sm">
+              <p className="text-muted-foreground mt-1 text-xs">
                 This will be part of the URL for your workspace. Use only
                 lowercase letters, numbers, and hyphens.
               </p>
               {field.state.meta.errors?.length > 0 && (
-                <p className="text-destructive text-sm">
+                <p className="text-destructive text-xs">
                   {field.state.meta.errors[0]}
                 </p>
               )}
@@ -174,7 +173,7 @@ export default function WorkspaceForm({
                 rows={3}
               />
               {field.state.meta.errors?.length > 0 && (
-                <p className="text-destructive text-sm">
+                <p className="text-destructive text-xs">
                   {field.state.meta.errors[0]}
                 </p>
               )}
@@ -183,20 +182,21 @@ export default function WorkspaceForm({
         </form.Field>
       </div>
 
-      <Separator />
+      <div className="space-y-8">
+        <div className="space-y-4">
+          <h2 className="font-medium">Team Members</h2>
+          <p className="text-muted-foreground text-xs">
+            Each invited member will receive an email they must accept to join.
+            <br />
+            <br />- <strong>Admin:</strong> Full access to manage monitors,
+            members, and workspace settings.
+            <br />- <strong>Member:</strong> Can create and manage monitors, but
+            cannot manage workspace members or settings.
+            <br />- <strong>Viewer:</strong> Can only view monitors and logs, no
+            management capabilities.
+          </p>
+        </div>
 
-      <div className="">
-        <h2 className="text-lg font-medium">Invite Team Members</h2>
-        <p className="text-muted-foreground mb-4 text-xs">
-          Each invited member will receive an email they must accept to join.
-          <br />
-          <br />- <strong>Admin:</strong> Full access to manage monitors,
-          members, and workspace settings.
-          <br />- <strong>Member:</strong> Can create and manage monitors, but
-          cannot manage workspace members or settings.
-          <br />- <strong>Viewer:</strong> Can only view monitors and logs, no
-          management capabilities.
-        </p>
         <form.Field name="members" mode="array">
           {(membersApi) => (
             <>
@@ -273,11 +273,9 @@ export default function WorkspaceForm({
               </div>
 
               {(membersApi.state.value?.length ?? 0) > 0 && (
-                <div className="mt-4 border p-2">
-                  <h3 className="text-muted-foreground text-sm font-medium">
-                    Pending Invitations
-                  </h3>
-                  <div className="divide-y divide-dashed">
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium">Members</h3>
+                  <div className="divide-y divide-dashed p-2">
                     {membersApi.state.value?.map(
                       (member: MemberInvite, index: number) => (
                         <div
@@ -310,7 +308,7 @@ export default function WorkspaceForm({
               )}
               {membersApi.state.meta.errors &&
                 typeof membersApi.state.meta.errors[0] === "string" && (
-                  <p className="text-destructive text-sm">
+                  <p className="text-destructive text-xs">
                     {membersApi.state.meta.errors[0]}
                   </p>
                 )}
@@ -325,7 +323,7 @@ export default function WorkspaceForm({
             <Button
               type="button"
               variant="destructive"
-              size="sm"
+              size="xs"
               onClick={handleDelete}
               disabled={isSubmitting || isDeleting}
             >
@@ -337,7 +335,7 @@ export default function WorkspaceForm({
           <Button
             type="button"
             variant="ghost"
-            size="sm"
+            size="xs"
             onClick={onCancel}
             disabled={isSubmitting || isDeleting}
           >
@@ -350,7 +348,7 @@ export default function WorkspaceForm({
             {([canSubmit, isDirty]) => (
               <Button
                 type="submit"
-                size="sm"
+                size="xs"
                 disabled={isSubmitting || !canSubmit || !isDirty || isDeleting}
               >
                 {isSubmitting ? "Creating..." : submitLabel}

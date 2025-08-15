@@ -32,11 +32,11 @@ export const HttpMonitorSchema = z.object({
     .string()
     .trim()
     .min(1, "URL is required")
-    .refine((val) => z.string().url().safeParse(val).success, {
-      message: "Invalid URL format",
+    .refine((val) => z.url().safeParse(val).success, {
+      error: "Invalid URL format",
     }),
   method: z.enum(["GET", "POST", "HEAD"], {
-    errorMap: () => ({ message: "Please select a valid HTTP method" }),
+    error: "Please select a valid HTTP method",
   }),
   interval: z
     .number()
@@ -98,11 +98,10 @@ export const TcpMonitorSchema = z.object({
 
 export const MemberInviteSchema = z.object({
   email: z
-    .string()
     .email("Please enter a valid email address")
     .min(1, "Email is required"),
   role: z.enum(["admin", "member", "viewer"], {
-    errorMap: () => ({ message: "Please select a valid role" }),
+    error: "Please select a valid role",
   }),
 });
 
@@ -156,13 +155,13 @@ export const HeartbeatSchema = z.object({
     .max(100, "Heartbeat name is too long"),
   expectedLapseMs: z.number().positive(),
   gracePeriodMs: z.number().positive(),
-  workspaceId: z.string().uuid("Invalid workspace ID format"),
-  pingId: z.string().uuid("Invalid ID format"),
+  workspaceId: z.uuid("Invalid workspace ID format"),
+  pingId: z.uuid("Invalid ID format"),
 });
 
 export const IncidentUpdateSchema = z.object({
-  acknowledgedAt: z.string().datetime().optional(),
-  resolvedAt: z.string().datetime().optional(),
+  acknowledgedAt: z.iso.datetime().optional(),
+  resolvedAt: z.iso.datetime().optional(),
   postMortem: z
     .string()
     .max(2000, "Post-mortem cannot exceed 2000 characters")

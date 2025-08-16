@@ -1,7 +1,6 @@
-import { Log } from "@/frontend/lib/types";
+import { Log, Incident } from "@/frontend/lib/types";
 import { format, startOfDay, subDays } from "date-fns";
 
-// Intervals in minutes - same as your example
 const periodToInterval = {
   1: 60, // 1 day: 60-minute intervals (24 bars)
   7: 240, // 7 days: 240-minute intervals (4-hour buckets, 42 bars)
@@ -73,15 +72,39 @@ export function mapUptime(logs: Partial<Log>[], days: number = 7) {
       else if (status === "degraded") degradedCount++;
     });
 
+    const intervalFormat = days === 1 ? "HH:mm" : "MMM d, HH:mm";
+    
     buckets.push({
-      interval: format(bucketStart, "MMM d, HH:mm"),
+      interval: format(bucketStart, intervalFormat),
       ok: okCount,
-      success: okCount, // alias for compatibility
+      success: okCount,
       error: errorCount,
       degraded: degradedCount,
       total: okCount + errorCount + degradedCount,
     });
   }
 
-  return buckets; // Keep chronological order for chart display
+  return buckets;
+}
+
+export function calculateDowntime(incident: Partial<Incident>): string | null {
+  if (!incident.started_at) return null;
+
+  const startTime = new Date(incident.started_at).getTime();
+  const endTime = incident.resolved_at 
+    ? new Date(incident.resolved_at).getTime() 
+    : Date.now();
+  
+  const durationMs = endTime - startTime;
+  const minutes = Math.floor(durationMs / 60000);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+
+  if (days > 0) {
+    return `${days}d ${hours % 24}h`;
+  } else if (hours > 0) {
+    return `${hours}h ${minutes % 60}m`;
+  } else {
+    return `${minutes}m`;
+  }
 }

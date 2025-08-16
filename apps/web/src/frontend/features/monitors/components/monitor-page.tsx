@@ -18,6 +18,7 @@ import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { formatDistanceToNowStrict } from "date-fns";
 import MonitorHeader from "./monitor/monitor-header";
+import MonitorIncidentsList from "./monitor/monitor-incidents-list";
 import MonitorRegionLatencyCharts from "./monitor/monitor-region-latency-charts";
 import MonitorStats from "./monitor/monitor-stats";
 import { MonitorTimeline } from "./monitor/monitor-timeline";
@@ -68,7 +69,7 @@ export default function MonitorPage() {
         <div className="flex items-center space-x-3">
           <StatusDot pulse color="bg-green-700" size="sm" />
           {monitor.last_check_at && (
-            <span className="text-muted-foreground hidden text-sm sm:block">
+            <span className="text-muted-foreground hidden font-mono text-sm tracking-tighter sm:block">
               Checked{" "}
               {formatDistanceToNowStrict(monitor.last_check_at, {
                 addSuffix: true,
@@ -150,7 +151,8 @@ export default function MonitorPage() {
         <MonitorStats logs={monitor.recent_logs || []} />
         <MonitorUptimeChart logs={monitor.recent_logs || []} />
         <MonitorRegionLatencyCharts logs={monitor.recent_logs || []} />
-        <MonitorTimeline incidents={monitor.incidents || []} />
+        <MonitorIncidentsList data={monitor.incidents || []} />
+        <MonitorTimeline monitor={monitor} />
       </main>
     </div>
   );

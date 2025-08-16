@@ -107,7 +107,7 @@ export default function NewMonitorPage() {
 
   if (type === "http") {
     return (
-      <div className="container mx-auto max-w-5xl p-4">
+      <div className="container mx-auto max-w-4xl p-4">
         <div className="space-y-8">
           <div>
             <h1 className="text-xl font-medium">Create HTTP Monitor</h1>
@@ -126,7 +126,7 @@ export default function NewMonitorPage() {
     );
   } else if (type === "tcp") {
     return (
-      <div className="container mx-auto max-w-5xl p-4">
+      <div className="container mx-auto max-w-4xl p-4">
         <div className="space-y-8">
           <div>
             <h1 className="text-xl font-medium">Create TCP Monitor</h1>

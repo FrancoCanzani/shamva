@@ -181,19 +181,11 @@ export interface Incident {
   resolved_at: string | null;
   screenshot_url: string | null;
   post_mortem: string | null;
-  downtime_duration_ms: number | null;
   regions_affected: string[];
   error_message: string | null;
   created_at: string;
   updated_at: string;
   monitors?: Partial<Monitor>;
-  ai_analysis?: {
-    rootCause: string;
-    solutions: string[];
-    prevention: string[];
-    confidence: number;
-    summary: string;
-  };
 }
 
 export interface Heartbeat {

@@ -1,3 +1,4 @@
+import NotFoundMessage from "@/frontend/components/not-found-message";
 import { Button } from "@/frontend/components/ui/button";
 import { Separator } from "@/frontend/components/ui/separator";
 import { cn } from "@/frontend/lib/utils";
@@ -65,7 +66,7 @@ export default function IncidentPostMortem({
     editorProps: {
       attributes: {
         class:
-          "prose prose-sm max-w-none dark:prose-invert focus:outline-none min-h-[240px] max-h-[480px] overflow-y-auto p-2 border rounded",
+          "prose prose-sm max-w-none dark:prose-invert focus:outline-none min-h-[240px] max-h-[480px] overflow-y-auto p-2 border rounded-md",
       },
     },
   });
@@ -227,7 +228,7 @@ export default function IncidentPostMortem({
             size="xs"
             onClick={() => setIsEditing(true)}
           >
-            Edit
+            {contentHtml ? "Edit Post-Mortem" : "New Post-Mortem"}
           </Button>
         )}
       </div>
@@ -235,7 +236,7 @@ export default function IncidentPostMortem({
       {!isEditing ? (
         postMortem.length > 0 ? (
           shouldClampPostMortem ? (
-            <div className="relative rounded border bg-stone-50 p-2 dark:bg-stone-950">
+            <div className="relative rounded-md border bg-stone-50 p-2 dark:bg-stone-950">
               <div
                 className={!expanded ? "max-h-64 overflow-hidden" : undefined}
               >
@@ -275,13 +276,11 @@ export default function IncidentPostMortem({
             />
           )
         ) : (
-          <div className="text-muted-foreground rounded border border-dashed p-4 text-center text-xs">
-            No post-mortem written
-          </div>
+          <NotFoundMessage message="No post-mortem written" />
         )
       ) : (
         <form onSubmit={handleSubmit} className="space-y-2">
-          <div className="flex items-center gap-1 overflow-auto rounded border bg-stone-50 shadow-xs dark:bg-stone-950">
+          <div className="flex items-center gap-1 overflow-auto rounded-md border shadow-xs">
             {toolbarItems.map((item) => {
               if (item.kind === "separator") {
                 return (

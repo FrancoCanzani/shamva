@@ -10,9 +10,9 @@ import {
   SelectValue,
 } from "@/frontend/components/ui/select";
 import { Textarea } from "@/frontend/components/ui/textarea";
+import { monitoringRegions } from "@/frontend/lib/constants";
 import { HttpMonitorSchema } from "@/frontend/lib/schemas";
 import { cn } from "@/frontend/lib/utils";
-import { monitoringRegions } from "@/frontend/utils/constants";
 import { useForm } from "@tanstack/react-form";
 import { Check } from "lucide-react";
 import { z } from "zod";
@@ -89,7 +89,7 @@ export default function HttpMonitorForm({
   const form = useForm({
     defaultValues: defaultFormValues,
     validators: {
-      onChange: ({ value }) => {
+      onBlur: ({ value }) => {
         const result = HttpMonitorSchema.safeParse(value);
         if (result.success) return undefined;
 
@@ -309,7 +309,7 @@ export default function HttpMonitorForm({
                   </p>
                 </div>
 
-                <div className="border border-dashed p-2">
+                <div className="p-2">
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                     {[
                       "North America",
@@ -337,10 +337,8 @@ export default function HttpMonitorForm({
                                 <div
                                   key={region.value}
                                   className={cn(
-                                    "flex cursor-pointer items-center justify-between border p-2 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800",
-                                    isSelected
-                                      ? "border-primary bg-stone-50 dark:bg-stone-800"
-                                      : ""
+                                    "dark:hover:bg-input/20 hover:bg-input/20 flex cursor-pointer items-center justify-between rounded-md border p-2 transition-colors",
+                                    isSelected ? "border-primary" : ""
                                   )}
                                   onClick={(e) => {
                                     e.preventDefault();
@@ -400,7 +398,7 @@ export default function HttpMonitorForm({
 
         <div id="advanced-options" className="space-y-4">
           <h2 className="font-medium">Advanced Options</h2>
-          <div className="space-y-4 border border-dashed p-4">
+          <div className="space-y-4">
             <FormField>
               <form.Field name="headersString">
                 {(field) => (

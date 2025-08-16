@@ -1,175 +1,132 @@
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/frontend/components/ui/accordion";
-import { Incident } from "@/frontend/lib/types";
-import { getRegionNameFromCode } from "@/frontend/lib/utils";
-import { Link, useParams } from "@tanstack/react-router";
 import { format, parseISO } from "date-fns";
-import { ArrowUpRight } from "lucide-react";
+import { useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import { MonitorWithIncidents } from "../../types";
 
 interface MonitorTimelineProps {
-  incidents: Partial<Incident>[];
+  monitor: MonitorWithIncidents;
 }
 
-function formatDuration(ms: number | null): string {
-  if (!ms) return "";
-  const minutes = Math.floor(ms / 60000);
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
 
-  if (days > 0) {
-    return `${days}d ${hours % 24}h`;
-  } else if (hours > 0) {
-    return `${hours}h ${minutes % 60}m`;
-  } else {
-    return `${minutes}m`;
-  }
-}
 
-function IncidentTimeline({ incident }: { incident: Partial<Incident> }) {
-  const { workspaceName } = useParams({ strict: false });
+export function MonitorTimeline({ monitor }: MonitorTimelineProps) {
+  const [showAll, setShowAll] = useState(false);
+  const allEvents: { title: string; timestamp: string; type: string }[] = [];
 
-  const events: { title: string; timestamp: string; details: string | null }[] =
-    [];
-
-  if (incident.started_at) {
-    events.push({
-      title: "Incident started",
-      timestamp: incident.started_at,
-      details: incident.regions_affected?.length
-        ? `Regions: ${incident.regions_affected
-            .map((code) => getRegionNameFromCode(code))
-            .join(", ")}`
-        : null,
+  // Add monitor creation event
+  if (monitor?.created_at) {
+    allEvents.push({
+      title: "Monitor created",
+      timestamp: monitor.created_at,
+      type: "monitor_created",
     });
   }
 
-  if (incident.notified_at) {
-    events.push({
-      title: "Notifications sent",
-      timestamp: incident.notified_at,
-      details: null,
-    });
-  }
+  const incidents = monitor?.incidents || [];
+  
+  incidents.forEach((incident) => {
+    // For each incident, collect its events and sort them logically
+    const incidentEvents: { title: string; timestamp: string; type: string }[] = [];
+    
+    if (incident.started_at) {
+      incidentEvents.push({
+        title: "Incident started",
+        timestamp: incident.started_at,
+        type: "incident_start",
+      });
+    }
 
-  if (incident.acknowledged_at) {
-    events.push({
-      title: "Incident acknowledged",
-      timestamp: incident.acknowledged_at,
-      details: null,
-    });
-  }
+    if (incident.notified_at) {
+      incidentEvents.push({
+        title: "Notifications sent",
+        timestamp: incident.notified_at,
+        type: "notification",
+      });
+    }
 
-  if (incident.resolved_at) {
-    events.push({
-      title: "Incident resolved",
-      timestamp: incident.resolved_at,
-      details: incident.downtime_duration_ms
-        ? `Duration: ${formatDuration(incident.downtime_duration_ms)}`
-        : null,
-    });
-  }
+    if (incident.acknowledged_at) {
+      incidentEvents.push({
+        title: "Incident acknowledged",
+        timestamp: incident.acknowledged_at,
+        type: "acknowledged",
+      });
+    }
 
-  events.sort(
-    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+    if (incident.resolved_at) {
+      incidentEvents.push({
+        title: "Incident resolved",
+        timestamp: incident.resolved_at,
+        type: "resolved",
+      });
+    }
+
+    // Sort incident events chronologically (oldest first for logical flow)
+    incidentEvents.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+    
+    // Add to main events array
+    allEvents.push(...incidentEvents);
+  });
+
+  const sortedEvents = allEvents.sort(
+    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
   );
 
-  return (
-    <div className="space-y-4 pt-2">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-medium">Timeline</span>
-        <Link
-          to="/dashboard/$workspaceName/incidents/$id"
-          params={{
-            workspaceName: workspaceName!,
-            id: incident.id!,
-          }}
-          className="text-primary inline-flex h-auto items-center gap-1 p-0 text-xs hover:underline"
-        >
-          View Details <ArrowUpRight className="size-3" />
-        </Link>
-      </div>
-
-      <div className="space-y-3 divide-y divide-dashed">
-        {events.map((event, index) => (
-          <div key={index} className="flex gap-3 text-xs">
-            <div className="flex-1 pb-2">
-              <div className="flex items-center justify-between">
-                <span>{event.title}</span>
-                <span className="text-muted-foreground text-xs">
-                  {format(parseISO(event.timestamp), "MMM d, HH:mm")}
-                </span>
-              </div>
-              {event.details && (
-                <p className="text-muted-foreground mt-1 text-xs">
-                  {event.details}
-                </p>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-export function MonitorTimeline({ incidents }: MonitorTimelineProps) {
-  if (incidents.length === 0) {
+  if (sortedEvents.length === 0) {
     return (
-      <div className="space-y-4">
-        <h3 className="text-sm font-medium">Incidents</h3>
+      <div className="space-y-3">
+        <h3 className="text-sm font-medium">Timeline</h3>
         <div className="rounded border border-dashed p-4 text-center">
           <div className="text-muted-foreground text-xs">
-            No incidents found
+            No timeline events found
           </div>
         </div>
       </div>
     );
   }
 
-  const sortedIncidents = [...incidents].sort((a, b) => {
-    const aTime = a.started_at ? new Date(a.started_at).getTime() : 0;
-    const bTime = b.started_at ? new Date(b.started_at).getTime() : 0;
-    return bTime - aTime;
-  });
+  const INITIAL_DISPLAY_COUNT = 5;
+  const displayedEvents = showAll ? sortedEvents : sortedEvents.slice(0, INITIAL_DISPLAY_COUNT);
+  const hasMoreEvents = sortedEvents.length > INITIAL_DISPLAY_COUNT;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium">Incidents</h3>
+        <h3 className="text-sm font-medium">Timeline</h3>
         <span className="text-muted-foreground text-xs">
-          {incidents.length} total
+          {sortedEvents.length} events
         </span>
       </div>
 
-      <Accordion type="single" collapsible>
-        {sortedIncidents.map((incident) => (
-          <AccordionItem key={incident.id} value={incident.id!}>
-            <AccordionTrigger className="text-left">
-              <div className="flex w-full min-w-0 items-center space-x-1.5 text-xs">
-                {incident.created_at && (
-                  <div className="shrink-0 font-medium">
-                    {format(
-                      new Date(incident.created_at),
-                      "LLL dd, y HH:mm:ss"
-                    )}
-                  </div>
-                )}
-                <span className="flex-1 truncate font-normal text-red-800 dark:text-red-50">
-                  {incident.error_message}
-                </span>
-              </div>
-            </AccordionTrigger>
-
-            <AccordionContent>
-              <IncidentTimeline incident={incident} />
-            </AccordionContent>
-          </AccordionItem>
+      <div className="divide-y divide-dashed">
+        {displayedEvents.map((event, index) => (
+          <div key={index} className="px-1 py-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs">{event.title}</span>
+              <span className="text-muted-foreground font-mono text-xs tracking-tighter">
+                {format(parseISO(event.timestamp), "MMM d, HH:mm")}
+              </span>
+            </div>
+          </div>
         ))}
-      </Accordion>
+      </div>
+
+      {hasMoreEvents && (
+        <button
+          onClick={() => setShowAll(!showAll)}
+          className="flex w-full items-center justify-center gap-1 py-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+        >
+          {showAll ? (
+            <>
+              Show less <ChevronUp className="size-3" />
+            </>
+          ) : (
+            <>
+              Show {sortedEvents.length - INITIAL_DISPLAY_COUNT} more{" "}
+              <ChevronDown className="size-3" />
+            </>
+          )}
+        </button>
+      )}
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import NotFoundMessage from "@/frontend/components/not-found-message";
 import {
   type ChartConfig,
   ChartContainer,
@@ -24,26 +25,24 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export default function MonitorUptimeChart({ logs }: { logs: Partial<Log>[] }) {
-  console.log(logs);
+interface UptimeChartProps {
+  logs: Partial<Log>[];
+}
+
+export default function NewMonitorUptimeChart({ logs }: UptimeChartProps) {
   const { days } = Route.useSearch();
 
   if (!logs || logs.length === 0) {
-    return (
-      <div className="text-muted-foreground flex h-[80px] w-full items-center justify-center text-sm">
-        No data available
-      </div>
-    );
+    return <NotFoundMessage message="No uptime data" />;
   }
 
-  const uptimeData = mapUptime(logs, days);
+  const allUptimeData = mapUptime(logs, days);
+
+  // Filter empty buckets to prevent showing empty columns
+  const uptimeData = allUptimeData.filter((bucket) => bucket.total > 0);
 
   if (uptimeData.length === 0) {
-    return (
-      <div className="text-muted-foreground flex h-[80px] w-full items-center justify-center text-sm">
-        No uptime data
-      </div>
-    );
+    return <NotFoundMessage message="No uptime data" />;
   }
 
   return (
@@ -66,7 +65,7 @@ export default function MonitorUptimeChart({ logs }: { logs: Partial<Log>[] }) {
         </div>
       </div>
 
-      <ChartContainer config={chartConfig} className="h-24 w-full">
+      <ChartContainer config={chartConfig} className="h-28 w-full">
         <BarChart
           data={uptimeData}
           barCategoryGap={2}
@@ -84,10 +83,12 @@ export default function MonitorUptimeChart({ logs }: { logs: Partial<Log>[] }) {
             dataKey="interval"
             tickLine={false}
             tickMargin={8}
-            minTickGap={10}
+            minTickGap={5}
             axisLine={false}
-            interval={days === 1 ? 3 : days === 7 ? 5 : 7}
+            interval={days === 1 ? 2 : 1}
             tick={{ fontSize: 10 }}
+            type="category"
+            domain={["dataMin", "dataMax"]}
           />
           <ChartTooltip
             cursor={false}

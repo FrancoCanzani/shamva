@@ -53,7 +53,7 @@ export default function IncidentPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="mx-auto w-full max-w-5xl flex-1 space-y-16 p-6">
+      <div className="mx-auto w-full max-w-4xl flex-1 space-y-8 p-6">
         <Link
           to="/dashboard/$workspaceName/monitors/$id"
           params={{ workspaceName, id: incident.monitor_id }}

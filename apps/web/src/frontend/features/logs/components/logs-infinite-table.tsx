@@ -1,19 +1,19 @@
 import { Button } from "@/frontend/components/ui/button";
 import { Input } from "@/frontend/components/ui/input";
 import { queryClient } from "@/frontend/lib/query-client";
+import { BodyContent, Log } from "@/frontend/lib/types";
+import { cn, getRegionNameFromCode } from "@/frontend/lib/utils";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/logs";
-import { BodyContent, Log } from "@/frontend/types/types";
-import { cn, getRegionNameFromCode } from "@/frontend/utils/utils";
 import { GlobeIcon } from "@radix-ui/react-icons";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { format, parseISO } from "date-fns";
+import { Loader } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { fetchLogsPage, LogsPage } from "../api/logs";
 import LogsSheet from "./logs-sheet";
-import { Loader } from "lucide-react";
 
 export function LogsInfiniteTable() {
   const navigate = Route.useNavigate();
@@ -93,7 +93,7 @@ export function LogsInfiniteTable() {
 
   return (
     <div className="flex min-h-0 w-full flex-1 flex-col font-mono text-xs">
-      <div className="flex items-center justify-between gap-2 border-b p-3">
+      <div className="dark:bg-background sticky top-0 z-30 flex h-12 items-center justify-between gap-2 border-b border-dashed bg-white/80 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-white/60">
         <div className="flex items-center gap-1">
           <Button
             variant={statusFilter === "all" ? "default" : "outline"}
@@ -144,7 +144,7 @@ export function LogsInfiniteTable() {
       <div ref={parentRef} className="min-h-0 flex-1 overflow-auto">
         {status === "pending" ? (
           <div className="text-muted-foreground flex h-full items-center justify-center p-6 text-xs">
-            <Loader className="h-6 w-6 animate-spin" /> 
+            <Loader className="h-6 w-6 animate-spin" />
           </div>
         ) : rows.length === 0 ? (
           <div className="text-muted-foreground flex h-full items-center justify-center p-6 text-xs">

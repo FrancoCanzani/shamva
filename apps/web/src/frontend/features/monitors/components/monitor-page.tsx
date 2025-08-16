@@ -12,8 +12,8 @@ import {
   useDeleteMonitor,
   usePauseResumeMonitor,
 } from "@/frontend/features/monitors/api/mutations";
+import { cn } from "@/frontend/lib/utils";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id";
-import { cn } from "@/frontend/utils/utils";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { formatDistanceToNowStrict } from "date-fns";
@@ -21,6 +21,7 @@ import MonitorHeader from "./monitor/monitor-header";
 import MonitorRegionLatencyCharts from "./monitor/monitor-region-latency-charts";
 import MonitorStats from "./monitor/monitor-stats";
 import { MonitorTimeline } from "./monitor/monitor-timeline";
+import MonitorUptimeChart from "./monitor/monitor-uptime-chart";
 
 const PERIOD_OPTIONS = [
   { value: 1, label: "Last day" },
@@ -63,7 +64,7 @@ export default function MonitorPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <DashboardHeader title="Monitor">
+      <DashboardHeader title={`Dashboard / ${workspaceName} / Monitor`}>
         <div className="flex items-center space-x-3">
           <StatusDot pulse color="bg-green-700" size="sm" />
           {monitor.last_check_at && (
@@ -144,9 +145,10 @@ export default function MonitorPage() {
           </DropdownMenu>
         </div>
       </DashboardHeader>
-      <main className="mx-auto w-full max-w-5xl flex-1 space-y-8 overflow-auto p-6">
+      <main className="mx-auto w-full max-w-4xl flex-1 space-y-8 overflow-auto p-6">
         <MonitorHeader />
         <MonitorStats logs={monitor.recent_logs || []} />
+        <MonitorUptimeChart logs={monitor.recent_logs || []} />
         <MonitorRegionLatencyCharts logs={monitor.recent_logs || []} />
         <MonitorTimeline incidents={monitor.incidents || []} />
       </main>

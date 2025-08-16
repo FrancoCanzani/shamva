@@ -1,8 +1,11 @@
 import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
-import { useRouteContext } from "@tanstack/react-router";
+import { ApiResponse, Monitor, MonitorFormData } from "@/frontend/lib/types";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id/edit";
-import { ApiResponse, Monitor, MonitorFormData } from "@/frontend/types/types";
-import { useNavigate, useRouter } from "@tanstack/react-router";
+import {
+  useNavigate,
+  useRouteContext,
+  useRouter,
+} from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import HttpMonitorForm from "./monitor/forms/http-monitor-form";

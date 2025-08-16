@@ -114,12 +114,12 @@ export default function NotificationsPage() {
                     <img
                       src={integration.icon}
                       alt={integration.name}
-                      className="h-3.5 w-3.5"
+                      className="h-3.5 w-3.5 dark:grayscale"
                     />
                     <h4 className="font-medium">{integration.name}</h4>
                   </div>
                   {status && (
-                    <span className="rounded border p-0.5 font-mono text-xs font-medium capitalize">
+                    <span className="rounded border px-1 py-0.5 font-mono text-xs capitalize">
                       {status}
                     </span>
                   )}

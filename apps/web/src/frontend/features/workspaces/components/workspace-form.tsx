@@ -11,7 +11,7 @@ import {
 import { Textarea } from "@/frontend/components/ui/textarea";
 import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
 import { MemberInviteSchema, WorkspaceSchema } from "@/frontend/lib/schemas";
-import { MemberInvite, WorkspaceFormValues } from "@/frontend/types/types";
+import { MemberInvite, WorkspaceFormValues } from "@/frontend/lib/types";
 import { useForm } from "@tanstack/react-form";
 import { X } from "lucide-react";
 import { useState } from "react";

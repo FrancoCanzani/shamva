@@ -7,10 +7,16 @@ import { EnvBindings } from "../../bindings";
 import { handleHeartbeatCheckerCron } from "./crons/heartbeat-checker";
 import { handleMonitorCheckerCron } from "./crons/monitor-checker";
 import { CheckerDurableObject } from "./durable-objects/checker-durable-object";
+import { HttpCheckerDurableObject } from "./durable-objects/http-checker";
+import { TcpCheckerDurableObject } from "./durable-objects/tcp-checker";
 import apiRoutes from "./routes/api";
 import getPublicStatusPage from "./routes/status/get";
 
-export { CheckerDurableObject };
+export {
+  CheckerDurableObject,
+  HttpCheckerDurableObject,
+  TcpCheckerDurableObject,
+};
 
 const app = new Hono<{ Bindings: EnvBindings }>();
 

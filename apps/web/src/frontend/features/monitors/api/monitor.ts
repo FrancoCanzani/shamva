@@ -1,5 +1,5 @@
 import { RouterContext } from "@/frontend/routes/__root";
-import { ApiResponse } from "@/frontend/types/types";
+import { ApiResponse } from "@/frontend/lib/types";
 import { redirect } from "@tanstack/react-router";
 import { MonitorWithIncidents } from "../types";
 
@@ -16,7 +16,8 @@ export default async function fetchMonitor({
 
   try {
     // For 1-day stats, we fetch 2 days of logs to enable 24h progression comparison in the UI
-    const fetchDays = days === 1 ? 2 : days;
+    // For 14-day stats, we fetch 28 days of logs to enable 14-day progression comparison in the UI
+    const fetchDays = days === 1 ? 2 : days === 14 ? 28 : days;
     const response = await fetch(`/api/monitors/${id}?days=${fetchDays}`, {
       headers: {
         Authorization: `Bearer ${context.auth.session?.access_token}`,

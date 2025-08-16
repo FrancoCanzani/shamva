@@ -1,5 +1,5 @@
+import { PublicMonitor } from "@/frontend/lib/types";
 import { Route } from "@/frontend/routes/status/$slug";
-import { PublicMonitor } from "@/frontend/types/types";
 import StatusPagePasswordForm from "./status-page/status-page-password-form";
 import StatusPageUptimeChart from "./status-page/status-page-uptime-chart";
 

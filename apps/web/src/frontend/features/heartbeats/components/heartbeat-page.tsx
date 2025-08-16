@@ -7,8 +7,8 @@ import {
   CardTitle,
 } from "@/frontend/components/ui/card";
 import { useWorkspaces } from "@/frontend/lib/context/workspace-context";
+import { Heartbeat } from "@/frontend/lib/types";
 import { Route as HeartbeatRoute } from "@/frontend/routes/dashboard/$workspaceName/heartbeats/$id/index";
-import { Heartbeat } from "@/frontend/types/types";
 import { useNavigate } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
 import { Activity, ArrowLeft, Edit } from "lucide-react";
@@ -63,7 +63,6 @@ export default function HeartbeatPage() {
   const handleCopyEndpoint = () => {
     const endpointUrl = `/api/heartbeat?id=${heartbeat.id}`;
     navigator.clipboard.writeText(endpointUrl);
-    // You could add a toast notification here
   };
 
   if (!workspace) {

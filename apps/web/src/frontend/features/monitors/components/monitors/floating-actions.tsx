@@ -1,6 +1,6 @@
 import { Button } from "@/frontend/components/ui/button";
 import { showToastTimer } from "@/frontend/components/ui/toast-timer";
-import { Monitor } from "@/frontend/types/types";
+import { Monitor } from "@/frontend/lib/types";
 import { useState } from "react";
 import { useDeleteMonitor, usePauseResumeMonitor } from "../../api/mutations";
 

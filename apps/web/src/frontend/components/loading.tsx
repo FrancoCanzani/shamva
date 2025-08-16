@@ -1,5 +1,5 @@
 import { Loader } from "lucide-react";
-import { cn } from "../utils/utils";
+import { cn } from "../lib/utils";
 
 export default function Loading({ className }: { className?: string }) {
   return (

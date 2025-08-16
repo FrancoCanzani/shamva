@@ -1,14 +1,13 @@
 import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
-import { useRouteContext } from "@tanstack/react-router";
-import { Route } from "@/frontend/routes/dashboard/$workspaceName/status-pages/new";
 import {
   ApiResponse,
   Monitor,
   StatusPage,
   StatusPageFormValues,
-} from "@/frontend/types/types";
+} from "@/frontend/lib/types";
+import { Route } from "@/frontend/routes/dashboard/$workspaceName/status-pages/new";
 import { useQuery } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouteContext } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import StatusPageForm from "./status-page/status-page-form";

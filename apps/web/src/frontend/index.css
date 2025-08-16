@@ -1,4 +1,5 @@
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap");
 
 @import "tailwindcss";
 @import "tw-animate-css";
@@ -9,7 +10,7 @@
 
 :root {
   --font-sans:
-    "IBM Plex Sans", system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+    "Instrument Sans", system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
     Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
   --font-mono:
     "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
@@ -47,6 +48,9 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --color-ok: oklch(44.8% 0.119 151.328);
+  --color-error: oklch(44.4% 0.177 26.899);
+  --color-degraded: oklch(79.5% 0.184 86.047);
 }
 
 .dark {
@@ -82,6 +86,9 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(0.269 0 0);
   --sidebar-ring: oklch(0.439 0 0);
+  --color-ok: oklch(44.8% 0.119 151.328);
+  --color-error: oklch(44.4% 0.177 26.899);
+  --color-degraded: oklch(79.5% 0.184 86.047);
 }
 
 @theme inline {
@@ -131,6 +138,9 @@
   --color-carbon-700: #333333;
   --color-carbon-800: #1a1a1a;
   --color-carbon-900: #0d0d0d;
+  --color-ok: var(--color-ok);
+  --color-error: var(--color-error);
+  --color-degraded: var(--color-degraded);
 }
 
 @layer base {

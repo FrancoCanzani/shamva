@@ -1,7 +1,7 @@
 import NotFoundMessage from "@/frontend/components/not-found-message";
 import { Button } from "@/frontend/components/ui/button";
+import { StatusPage } from "@/frontend/lib/types";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/status-pages";
-import { StatusPage } from "@/frontend/types/types";
 import { Link } from "@tanstack/react-router";
 
 export default function StatusPagesPage() {

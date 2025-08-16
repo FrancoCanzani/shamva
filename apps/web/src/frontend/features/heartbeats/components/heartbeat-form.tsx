@@ -9,8 +9,8 @@ import {
   SelectValue,
 } from "@/frontend/components/ui/select";
 import { HeartbeatSchema } from "@/frontend/lib/schemas";
-import { Heartbeat } from "@/frontend/types/types";
-import { cn } from "@/frontend/utils/utils";
+import { Heartbeat } from "@/frontend/lib/types";
+import { cn } from "@/frontend/lib/utils";
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
 
@@ -73,11 +73,11 @@ export default function HeartbeatForm({
       onChange: ({ value }) => {
         const result = HeartbeatSchema.safeParse(value);
         if (result.success) return undefined;
-        
+
         const fieldErrors: Record<string, string> = {};
-        
+
         for (const issue of result.error.issues) {
-          const path = issue.path.join('.');
+          const path = issue.path.join(".");
           if (path && !fieldErrors[path]) {
             fieldErrors[path] = issue.message;
           }
@@ -145,7 +145,9 @@ export default function HeartbeatForm({
               <form.Field name="expectedLapseMs">
                 {(field) => (
                   <>
-                    <Label className="text-sm">Expected heartbeat interval</Label>
+                    <Label className="text-sm">
+                      Expected heartbeat interval
+                    </Label>
                     <div className="flex items-center gap-3">
                       <span className="text-sm whitespace-nowrap">Every</span>
                       <Input
@@ -153,7 +155,9 @@ export default function HeartbeatForm({
                         value={getTimeValueAndUnit(field.state.value).value}
                         onChange={(e) => {
                           const value = Number(e.target.value);
-                          const unit = getTimeValueAndUnit(field.state.value).unit;
+                          const unit = getTimeValueAndUnit(
+                            field.state.value
+                          ).unit;
                           const ms = value * unit;
                           field.handleChange(ms);
                         }}
@@ -161,10 +165,14 @@ export default function HeartbeatForm({
                         className="w-24"
                       />
                       <Select
-                        value={getTimeValueAndUnit(field.state.value).unit.toString()}
+                        value={getTimeValueAndUnit(
+                          field.state.value
+                        ).unit.toString()}
                         onValueChange={(value) => {
                           const unit = Number(value);
-                          const currentValue = getTimeValueAndUnit(field.state.value).value;
+                          const currentValue = getTimeValueAndUnit(
+                            field.state.value
+                          ).value;
                           const ms = currentValue * unit;
                           field.handleChange(ms);
                         }}
@@ -205,7 +213,9 @@ export default function HeartbeatForm({
                         value={getTimeValueAndUnit(field.state.value).value}
                         onChange={(e) => {
                           const value = Number(e.target.value);
-                          const unit = getTimeValueAndUnit(field.state.value).unit;
+                          const unit = getTimeValueAndUnit(
+                            field.state.value
+                          ).unit;
                           const ms = value * unit;
                           field.handleChange(ms);
                         }}
@@ -213,10 +223,14 @@ export default function HeartbeatForm({
                         className="w-24"
                       />
                       <Select
-                        value={getTimeValueAndUnit(field.state.value).unit.toString()}
+                        value={getTimeValueAndUnit(
+                          field.state.value
+                        ).unit.toString()}
                         onValueChange={(value) => {
                           const unit = Number(value);
-                          const currentValue = getTimeValueAndUnit(field.state.value).value;
+                          const currentValue = getTimeValueAndUnit(
+                            field.state.value
+                          ).value;
                           const ms = currentValue * unit;
                           field.handleChange(ms);
                         }}

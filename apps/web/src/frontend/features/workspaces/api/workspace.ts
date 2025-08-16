@@ -1,5 +1,5 @@
+import { ApiResponse, Workspace } from "@/frontend/lib/types";
 import { RouterContext } from "@/frontend/routes/__root";
-import { ApiResponse, Workspace } from "@/frontend/types/types";
 
 export default async function fetchWorkspace({
   params,

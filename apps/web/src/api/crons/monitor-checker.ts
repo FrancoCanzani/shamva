@@ -73,8 +73,12 @@ export async function handleMonitorCheckerCron(
             return;
           }
 
-          const id = env.CHECKER_DURABLE_OBJECT.idFromName(monitor.id);
-          const obj = env.CHECKER_DURABLE_OBJECT.get(id, {
+          const namespace =
+            monitor.check_type === "tcp"
+              ? env.TCP_CHECKER_DURABLE_OBJECT
+              : env.HTTP_CHECKER_DURABLE_OBJECT;
+          const id = namespace.idFromName(monitor.id);
+          const obj = namespace.get(id, {
             locationHint: region,
           });
 

@@ -5,7 +5,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import z from "zod";
 
 const MonitorSearchSchema = z.object({
-  days: z.number().int().min(1).max(14).default(7),
+  days: z.number().int().min(1).max(28).default(7),
   region: z.string().optional(),
   splitRegions: z.boolean().optional(),
 });

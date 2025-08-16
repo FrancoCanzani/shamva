@@ -1,5 +1,10 @@
 import { Button } from "@/frontend/components/ui/button";
-import { ChartContainer, ChartTooltip } from "@/frontend/components/ui/chart";
+import {
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+} from "@/frontend/components/ui/chart";
 import {
   Select,
   SelectContent,
@@ -8,9 +13,9 @@ import {
   SelectValue,
 } from "@/frontend/components/ui/select";
 import { useTheme } from "@/frontend/lib/context/theme-context";
+import { Log } from "@/frontend/lib/types";
+import { getRegionNameFromCode } from "@/frontend/lib/utils";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id";
-import { Log } from "@/frontend/types/types";
-import { getRegionNameFromCode } from "@/frontend/utils/utils";
 import { format } from "date-fns";
 import { useMemo, useState } from "react";
 import {
@@ -21,10 +26,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import {
-  ChartLegend,
-  ChartLegendContent,
-} from "@/frontend/components/ui/chart";
 
 type ChartDataPoint = {
   date: string;

@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { Log } from "../types/types";
 import { monitoringRegions, regionCodeToNameMap } from "./constants";
+import { Log } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -40,16 +40,14 @@ export const getOkStatusColor = (ok: boolean | unknown): string => {
   if (typeof ok !== "boolean") {
     return "bg-slate-200 dark:bg-slate-700";
   }
-  return ok ? "bg-green-700 dark:bg-green-700" : "bg-red-700 dark:bg-red-700";
+  return ok ? "bg-[var(--color-ok)]" : "bg-[var(--color-error)]";
 };
 
 export const getOkStatusTextColor = (ok: boolean | unknown): string => {
   if (typeof ok !== "boolean") {
     return "text-slate-700 dark:text-slate-300";
   }
-  return ok
-    ? "text-green-700 dark:text-green-700"
-    : "text-red-700 dark:text-red-700";
+  return ok ? "text-[var(--color-ok)]" : "text-[var(--color-error)]";
 };
 
 export const getStatusTextColor = (status: number | unknown): string => {
@@ -57,13 +55,13 @@ export const getStatusTextColor = (status: number | unknown): string => {
     return "text-slate-700 dark:text-slate-300";
   }
   if (status >= 200 && status < 300) {
-    return "text-green-700 dark:text-green-700";
+    return "text-[var(--color-ok)]";
   } else if (status >= 300 && status < 400) {
-    return "text-blue-700 dark:text-blue-700";
+    return "text-[var(--color-degraded)]";
   } else if (status >= 400 && status < 500) {
-    return "text-orange-400 dark:text-orange-700";
+    return "text-[var(--color-error)]";
   } else if (status >= 500 || status < 0) {
-    return "text-red-700 dark:text-red-700";
+    return "text-[var(--color-error)]";
   }
   return "text-slate-700 dark:text-slate-300";
 };
@@ -159,12 +157,12 @@ export const getLatencyColor = (latency: number | null): string => {
 export const getMonitorStatusColor = (status: string): string => {
   switch (status) {
     case "active":
-      return "bg-green-600";
+      return "bg-[var(--color-ok)]";
     case "error":
     case "broken":
-      return "bg-red-600";
+      return "bg-[var(--color-error)]";
     case "degraded":
-      return "bg-yellow-500";
+      return "bg-[var(--color-degraded)]";
     case "maintenance":
       return "bg-blue-600";
     case "paused":

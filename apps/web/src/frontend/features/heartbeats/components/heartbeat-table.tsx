@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/frontend/components/ui/table";
-import { Heartbeat } from "@/frontend/types/types";
+import { Heartbeat } from "@/frontend/lib/types";
 import { formatDistanceToNow } from "date-fns";
 import { Activity, Edit, Trash2 } from "lucide-react";
 import { useState } from "react";

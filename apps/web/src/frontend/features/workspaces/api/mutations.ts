@@ -1,6 +1,6 @@
 import { queryClient } from "@/frontend/lib/query-client";
 import supabase from "@/frontend/lib/supabase";
-import { Workspace, WorkspaceFormValues } from "@/frontend/types/types";
+import { Workspace, WorkspaceFormValues } from "@/frontend/lib/types";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 

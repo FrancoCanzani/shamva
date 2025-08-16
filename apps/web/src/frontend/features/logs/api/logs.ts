@@ -1,7 +1,7 @@
 import fetchWorkspaces from "@/frontend/features/workspaces/api/workspaces";
 import { queryClient } from "@/frontend/lib/query-client";
+import { ApiResponse, Log, Workspace } from "@/frontend/lib/types";
 import { RouterContext } from "@/frontend/routes/__root";
-import { ApiResponse, Log, Workspace } from "@/frontend/types/types";
 import { redirect } from "@tanstack/react-router";
 
 export async function fetchLogs({

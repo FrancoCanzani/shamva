@@ -1,4 +1,4 @@
-import { Incident } from "@/frontend/types/types";
+import { Incident } from "@/frontend/lib/types";
 
 export interface IncidentUpdateData {
   content: string;

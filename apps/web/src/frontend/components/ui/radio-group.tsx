@@ -4,7 +4,7 @@ import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
 import { CircleIcon } from "lucide-react";
 import * as React from "react";
 
-import { cn } from "@/frontend/utils/utils";
+import { cn } from "@/frontend/lib/utils";
 
 function RadioGroup({
   className,

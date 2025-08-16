@@ -6,7 +6,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/frontend/components/ui/table";
-import { Incident } from "@/frontend/types/types";
+import { Incident } from "@/frontend/lib/types";
 import { ChevronRightIcon } from "@radix-ui/react-icons";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import {

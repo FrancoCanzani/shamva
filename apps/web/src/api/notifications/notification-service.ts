@@ -1,37 +1,25 @@
+import { SupabaseClient } from "@supabase/supabase-js";
+import type { EnvBindings } from "../../../bindings";
 import { MonitorEmailData } from "../lib/types";
 import { calculateDowntime } from "../lib/utils";
+import { createSupabaseClient } from "../lib/supabase/client";
 import { EmailService } from "./email/service";
 import { SlackService } from "./slack/service";
 import { PagerDutyService } from "./pagerduty/service";
 import { DiscordService } from "./discord/service";
 import { SMSService } from "./sms/service";
-import { WhatsAppService } from "./whatsapp/service";
 import { GitHubService } from "./github/service";
 
 export interface NotificationConfig {
-  // Email
   userEmails: string[];
-
-  // Slack
   slackWebhookUrl?: string;
-
-  // PagerDuty
   pagerDutyServiceId?: string;
   pagerDutyApiKey?: string;
-
-  // Discord
   discordWebhookUrl?: string;
-
-  // SMS
   smsPhoneNumbers?: string[];
   twilioAccountSid?: string;
   twilioAuthToken?: string;
   twilioFromNumber?: string;
-
-  // WhatsApp
-  whatsappPhoneNumbers?: string[];
-
-  // GitHub
   githubIssueTracking?: boolean;
   githubToken?: string;
   githubOwner?: string;
@@ -44,14 +32,19 @@ export class NotificationService {
   private pagerDutyService?: PagerDutyService;
   private discordService: DiscordService;
   private smsService?: SMSService;
-  private whatsappService?: WhatsAppService;
   private githubService?: GitHubService;
+  private supabase: SupabaseClient;
+  private env: EnvBindings;
 
-  constructor(config: NotificationConfig, env: { RESEND_API_KEY: string }) {
+  constructor(env: EnvBindings) {
+    this.env = env;
+    this.supabase = createSupabaseClient(env);
     this.emailService = new EmailService(env);
     this.slackService = new SlackService();
     this.discordService = new DiscordService();
+  }
 
+  private initializeServices(config: NotificationConfig): void {
     if (config.pagerDutyApiKey) {
       this.pagerDutyService = new PagerDutyService(config.pagerDutyApiKey);
     }
@@ -62,11 +55,6 @@ export class NotificationService {
       config.twilioFromNumber
     ) {
       this.smsService = new SMSService(
-        config.twilioAccountSid,
-        config.twilioAuthToken,
-        config.twilioFromNumber
-      );
-      this.whatsappService = new WhatsAppService(
         config.twilioAccountSid,
         config.twilioAuthToken,
         config.twilioFromNumber
@@ -86,9 +74,9 @@ export class NotificationService {
     data: MonitorEmailData,
     config: NotificationConfig
   ): Promise<{ [key: string]: boolean | string | null }> {
+    this.initializeServices(config);
     const results: { [key: string]: boolean | string | null } = {};
 
-    // Email notifications
     if (config.userEmails && config.userEmails.length > 0) {
       results.email = await this.emailService.sendMonitorDownAlert(
         data,
@@ -96,7 +84,6 @@ export class NotificationService {
       );
     }
 
-    // Slack notifications
     if (config.slackWebhookUrl) {
       results.slack = await this.slackService.sendMonitorDownAlert(
         data,
@@ -104,7 +91,6 @@ export class NotificationService {
       );
     }
 
-    // PagerDuty notifications
     if (this.pagerDutyService && config.pagerDutyServiceId) {
       const title = `🚨 Monitor Alert: ${data.monitorName} is Down`;
       const description =
@@ -124,7 +110,6 @@ export class NotificationService {
       );
     }
 
-    // Discord notifications
     if (config.discordWebhookUrl) {
       const embed = {
         title: "🚨 Monitor Alert: Service is Down",
@@ -172,7 +157,6 @@ export class NotificationService {
       );
     }
 
-    // SMS notifications
     if (
       this.smsService &&
       config.smsPhoneNumbers &&
@@ -195,30 +179,6 @@ export class NotificationService {
       results.sms = smsResults.some((success) => success);
     }
 
-    // WhatsApp notifications
-    if (
-      this.whatsappService &&
-      config.whatsappPhoneNumbers &&
-      config.whatsappPhoneNumbers.length > 0
-    ) {
-      const message =
-        `🚨 *SHAMVA ALERT: ${data.monitorName} is DOWN*\n\n` +
-        `*URL:* ${data.url}\n` +
-        `*Status:* ${data.statusCode ? `HTTP ${data.statusCode}` : "Connection Failed"}\n` +
-        `*Error:* ${data.errorMessage}\n` +
-        `*Region:* ${data.region}\n` +
-        `*Time:* ${new Date(data.lastChecked).toLocaleString()}\n\n` +
-        `We'll notify you when it's back online.`;
-
-      const whatsappResults = await Promise.all(
-        config.whatsappPhoneNumbers.map((phoneNumber) =>
-          this.whatsappService!.sendWhatsAppMessage(phoneNumber, message)
-        )
-      );
-      results.whatsapp = whatsappResults.some((success) => success);
-    }
-
-    // GitHub notifications
     if (this.githubService && config.githubIssueTracking) {
       const title = `🚨 Monitor Alert: ${data.monitorName} is Down`;
       const body =
@@ -253,10 +213,10 @@ export class NotificationService {
     config: NotificationConfig,
     previousResults?: { [key: string]: boolean | string | null }
   ): Promise<{ [key: string]: boolean | string | null }> {
+    this.initializeServices(config);
     const results: { [key: string]: boolean | string | null } = {};
     const downtime = calculateDowntime(lastSuccessAt, new Date());
 
-    // Email notifications
     if (config.userEmails && config.userEmails.length > 0) {
       results.email = await this.emailService.sendMonitorRecoveredAlert(
         data,
@@ -265,7 +225,6 @@ export class NotificationService {
       );
     }
 
-    // Slack notifications
     if (config.slackWebhookUrl) {
       results.slack = await this.slackService.sendMonitorRecoveredAlert(
         data,
@@ -274,7 +233,6 @@ export class NotificationService {
       );
     }
 
-    // PagerDuty notifications
     if (this.pagerDutyService && config.pagerDutyServiceId) {
       if (
         previousResults?.pagerduty &&
@@ -305,7 +263,6 @@ export class NotificationService {
       }
     }
 
-    // Discord notifications
     if (config.discordWebhookUrl) {
       const embed = {
         title: "✅ Monitor Recovered: Service is Back Online",
@@ -351,7 +308,6 @@ export class NotificationService {
       );
     }
 
-    // SMS notifications
     if (
       this.smsService &&
       config.smsPhoneNumbers &&
@@ -373,29 +329,6 @@ export class NotificationService {
       results.sms = smsResults.some((success) => success);
     }
 
-    // WhatsApp notifications
-    if (
-      this.whatsappService &&
-      config.whatsappPhoneNumbers &&
-      config.whatsappPhoneNumbers.length > 0
-    ) {
-      const message =
-        `✅ *SHAMVA RECOVERY: ${data.monitorName} is BACK ONLINE*\n\n` +
-        `*URL:* ${data.url}\n` +
-        `*Status:* Online\n` +
-        `*Downtime:* ${downtime}\n` +
-        `*Recovered:* ${new Date(data.lastChecked).toLocaleString()}\n` +
-        `*Region:* ${data.region}`;
-
-      const whatsappResults = await Promise.all(
-        config.whatsappPhoneNumbers.map((phoneNumber) =>
-          this.whatsappService!.sendWhatsAppMessage(phoneNumber, message)
-        )
-      );
-      results.whatsapp = whatsappResults.some((success) => success);
-    }
-
-    // GitHub notifications
     if (this.githubService && config.githubIssueTracking) {
       if (
         previousResults?.github &&
@@ -433,5 +366,163 @@ export class NotificationService {
     }
 
     return results;
+  }
+
+  private async getWorkspaceNotificationConfig(
+    workspaceId: string
+  ): Promise<NotificationConfig | null> {
+    try {
+      const { data: notifications } = await this.supabase
+        .from("notifications")
+        .select("*")
+        .eq("workspace_id", workspaceId)
+        .single();
+
+      if (!notifications) return null;
+
+      const { data: workspaceMembers } = await this.supabase
+        .from("workspace_members")
+        .select("invitation_email")
+        .eq("workspace_id", workspaceId)
+        .eq("invitation_status", "accepted");
+
+      const config: NotificationConfig = {
+        userEmails: workspaceMembers?.map((u) => u.invitation_email) || [],
+        slackWebhookUrl: notifications.slack_enabled
+          ? notifications.slack_webhook_url
+          : undefined,
+        pagerDutyServiceId: notifications.pagerduty_enabled
+          ? notifications.pagerduty_service_id
+          : undefined,
+        pagerDutyApiKey: notifications.pagerduty_enabled
+          ? notifications.pagerduty_api_key
+          : undefined,
+        discordWebhookUrl: notifications.discord_enabled
+          ? notifications.discord_webhook_url
+          : undefined,
+        smsPhoneNumbers: notifications.sms_enabled
+          ? notifications.sms_phone_numbers
+          : undefined,
+        twilioAccountSid: notifications.sms_enabled
+          ? notifications.twilio_account_sid
+          : undefined,
+        twilioAuthToken: notifications.sms_enabled
+          ? notifications.twilio_auth_token
+          : undefined,
+        twilioFromNumber: notifications.sms_enabled
+          ? notifications.twilio_from_number
+          : undefined,
+        githubIssueTracking: notifications.github_enabled,
+        githubToken: notifications.github_enabled
+          ? notifications.github_token
+          : undefined,
+        githubOwner: notifications.github_enabled
+          ? notifications.github_owner
+          : undefined,
+        githubRepo: notifications.github_enabled
+          ? notifications.github_repo
+          : undefined,
+      };
+
+      return config;
+    } catch (error) {
+      console.error("Failed to get notification config:", error);
+      return null;
+    }
+  }
+
+  async notifyError(
+    workspaceId: string,
+    data: {
+      monitorId: string;
+      monitorName: string;
+      url: string;
+      statusCode?: number;
+      errorMessage?: string;
+      lastChecked: string;
+      region: string;
+    }
+  ): Promise<boolean> {
+    if (this.env.NAME === "development") {
+      return true;
+    }
+
+    try {
+      const config = await this.getWorkspaceNotificationConfig(workspaceId);
+      if (!config || config.userEmails.length === 0) {
+        console.warn(
+          `No notification config or users found for workspace ${workspaceId}`
+        );
+        return false;
+      }
+
+      const emailData: MonitorEmailData = {
+        monitorId: data.monitorId,
+        monitorName: data.monitorName,
+        url: data.url,
+        statusCode: data.statusCode,
+        errorMessage: data.errorMessage || "Service is down",
+        lastChecked: data.lastChecked,
+        region: data.region,
+      };
+
+      const results = await this.sendMonitorDownAlert(emailData, config);
+      return Object.values(results).some(
+        (result) => result === true || typeof result === "string"
+      );
+    } catch (error) {
+      console.error("Failed to send error notification:", error);
+      return false;
+    }
+  }
+
+  async notifyRecovery(
+    workspaceId: string,
+    data: {
+      monitorId: string;
+      monitorName: string;
+      url: string;
+      statusCode?: number;
+      errorMessage?: string;
+      lastChecked: string;
+      region: string;
+    },
+    lastSuccessAt: string
+  ): Promise<boolean> {
+    if (this.env.NAME === "development") {
+      return true;
+    }
+
+    try {
+      const config = await this.getWorkspaceNotificationConfig(workspaceId);
+      if (!config || config.userEmails.length === 0) {
+        console.warn(
+          `No notification config or users found for workspace ${workspaceId}`
+        );
+        return false;
+      }
+
+      const emailData: MonitorEmailData = {
+        monitorId: data.monitorId,
+        monitorName: data.monitorName,
+        url: data.url,
+        statusCode: data.statusCode,
+        errorMessage: data.errorMessage,
+        lastChecked: data.lastChecked,
+        region: data.region,
+      };
+
+      const results = await this.sendMonitorRecoveredAlert(
+        emailData,
+        lastSuccessAt,
+        config
+      );
+      return Object.values(results).some(
+        (result) => result === true || typeof result === "string"
+      );
+    } catch (error) {
+      console.error("Failed to send recovery notification:", error);
+      return false;
+    }
   }
 }

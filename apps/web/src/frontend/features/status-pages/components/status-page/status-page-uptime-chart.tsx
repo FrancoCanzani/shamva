@@ -3,7 +3,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/frontend/components/ui/tooltip";
-import { PublicMonitor } from "@/frontend/types/types";
+import { PublicMonitor } from "@/frontend/lib/types";
 
 export default function StatusPageUptimeChart({
   monitor,
@@ -26,9 +26,9 @@ export default function StatusPageUptimeChart({
             if (uptimePercentage >= 99) {
               barColor = "#10b981"; // green-500
             } else if (uptimePercentage >= 95) {
-              barColor = "#f59e0b"; // amber-500
+              barColor = "var(--color-degraded)";
             } else {
-              barColor = "#ef4444"; // red-500
+              barColor = "var(--color-error)";
             }
           }
 

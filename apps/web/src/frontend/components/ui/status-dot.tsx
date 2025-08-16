@@ -1,4 +1,4 @@
-import { cn } from "@/frontend/utils/utils";
+import { cn } from "@/frontend/lib/utils";
 interface StatusDotProps {
   color: string;
   size?: "sm" | "md" | "lg";

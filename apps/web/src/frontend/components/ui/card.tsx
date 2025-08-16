@@ -1,4 +1,4 @@
-import { cn } from "@/frontend/utils/utils";
+import { cn } from "@/frontend/lib/utils";
 import * as React from "react";
 
 const Card = React.forwardRef<
@@ -7,7 +7,10 @@ const Card = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("bg-background rounded border", className)}
+    className={cn(
+      "bg-background dark:bg-input/30 rounded-md border",
+      className
+    )}
     {...props}
   />
 ));

@@ -1,13 +1,12 @@
-import { useRouteContext } from "@tanstack/react-router";
-import { Route } from "@/frontend/routes/dashboard/$workspaceName/status-pages/$id/edit";
 import {
   ApiResponse,
   Monitor,
   StatusPage,
   StatusPageFormValues,
-} from "@/frontend/types/types";
+} from "@/frontend/lib/types";
+import { Route } from "@/frontend/routes/dashboard/$workspaceName/status-pages/$id/edit";
 import { useQuery } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouteContext } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import StatusPageForm from "./status-page/status-page-form";

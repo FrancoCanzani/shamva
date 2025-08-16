@@ -50,7 +50,6 @@ export async function handleHeartbeatCheckerCron(
           `Heartbeat ${heartbeat.id} (${heartbeat.name}) has timed out`
         );
 
-        // Send notifications
         await sendHeartbeatAlert(env, heartbeat);
       } catch (error) {
         console.error(
@@ -76,7 +75,6 @@ async function sendHeartbeatAlert(
   try {
     const supabase = createSupabaseClient(env);
 
-    // Get workspace users for notifications
     const { data: workspaceMembers } = await supabase
       .from("workspace_members")
       .select("user_id")
@@ -92,16 +90,12 @@ async function sendHeartbeatAlert(
 
     const userEmails = workspaceMembers.map((member) => member.user_id);
 
-    // Log the alert
     console.log(`Heartbeat alert for ${heartbeat.name}:`, {
       heartbeatId: heartbeat.id,
       name: heartbeat.name,
       timeoutMs: heartbeat.expected_lapse_ms + heartbeat.grace_period_ms,
       userEmails,
     });
-
-    // TODO: Integrate with existing notification services
-    // await notificationService.sendHeartbeatAlert(heartbeat, userEmails);
   } catch (error) {
     console.error("Failed to send heartbeat alert:", error);
   }

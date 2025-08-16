@@ -1,6 +1,6 @@
 import fetchWorkspaces from "@/frontend/features/workspaces/api/workspaces";
 import { queryClient } from "@/frontend/lib/query-client";
-import { Workspace } from "@/frontend/types/types";
+import { Workspace } from "@/frontend/lib/types";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import React, {
   createContext,

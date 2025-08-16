@@ -1,6 +1,6 @@
 import { Button } from "@/frontend/components/ui/button";
 import { Separator } from "@/frontend/components/ui/separator";
-import { cn } from "@/frontend/utils/utils";
+import { cn } from "@/frontend/lib/utils";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import {

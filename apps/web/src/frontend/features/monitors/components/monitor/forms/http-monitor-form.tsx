@@ -11,8 +11,8 @@ import {
 } from "@/frontend/components/ui/select";
 import { Textarea } from "@/frontend/components/ui/textarea";
 import { HttpMonitorSchema } from "@/frontend/lib/schemas";
+import { cn } from "@/frontend/lib/utils";
 import { monitoringRegions } from "@/frontend/utils/constants";
-import { cn } from "@/frontend/utils/utils";
 import { useForm } from "@tanstack/react-form";
 import { Check } from "lucide-react";
 import { z } from "zod";

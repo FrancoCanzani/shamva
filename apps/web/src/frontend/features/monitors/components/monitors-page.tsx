@@ -1,6 +1,6 @@
 import DashboardHeader from "@/frontend/components/dashboard-header";
+import { Monitor } from "@/frontend/lib/types";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors";
-import { Monitor } from "@/frontend/types/types";
 import { useMemo, useState } from "react";
 import MonitorTypeSelector from "./monitor/monitor-type-selector";
 import FloatingActions from "./monitors/floating-actions";
@@ -17,13 +17,13 @@ export default function MonitorsPage() {
   };
 
   const hoveredMonitor = useMemo(
-    () => monitorsData?.find((m) => m.id === selectedId),
+    () => monitorsData?.find((m: Monitor) => m.id === selectedId),
     [monitorsData, selectedId]
   );
 
   return (
     <div className="flex h-full flex-col">
-      <DashboardHeader title="Monitors">
+      <DashboardHeader title={`Dashboard / Monitors`}>
         <MonitorTypeSelector />
       </DashboardHeader>
 

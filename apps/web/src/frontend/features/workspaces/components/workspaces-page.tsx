@@ -7,6 +7,7 @@ import {
 import { Badge } from "@/frontend/components/ui/badge";
 import { Button } from "@/frontend/components/ui/button";
 import { Card } from "@/frontend/components/ui/card";
+import { Workspace } from "@/frontend/lib/types";
 import { Route } from "@/frontend/routes/dashboard/workspaces";
 import { Link, useRouteContext } from "@tanstack/react-router";
 
@@ -52,7 +53,7 @@ export default function WorkspacesPage() {
           </div>
         ) : (
           <div className="space-y-8">
-            {workspaces.map((workspace) => {
+            {workspaces.map((workspace: Workspace) => {
               const members = workspace.workspace_members || [];
 
               return (

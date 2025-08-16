@@ -1,13 +1,13 @@
 import NotFoundMessage from "@/frontend/components/not-found-message";
 import { Button } from "@/frontend/components/ui/button";
+import { Heartbeat } from "@/frontend/lib/types";
 import {
   Route as HeartbeatsRoute,
   Route,
 } from "@/frontend/routes/dashboard/$workspaceName/heartbeats/index";
-import { Heartbeat } from "@/frontend/types/types";
 import { Link, useNavigate } from "@tanstack/react-router";
-import HeartbeatTable from "./heartbeat-table";
 import { useDeleteHeartbeat } from "../api/mutations";
+import HeartbeatTable from "./heartbeat-table";
 
 export default function HeartbeatsPage() {
   const navigate = useNavigate();

@@ -4,8 +4,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/frontend/components/ui/accordion";
-import { Incident } from "@/frontend/types/types";
-import { getRegionNameFromCode } from "@/frontend/utils/utils";
+import { Incident } from "@/frontend/lib/types";
+import { getRegionNameFromCode } from "@/frontend/lib/utils";
 import { Link, useParams } from "@tanstack/react-router";
 import { format, parseISO } from "date-fns";
 import { ArrowUpRight } from "lucide-react";

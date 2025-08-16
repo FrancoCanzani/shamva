@@ -1,11 +1,14 @@
 import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
-import { useRouteContext } from "@tanstack/react-router";
 import {
   ApiResponse,
   Workspace,
   WorkspaceFormValues,
-} from "@/frontend/types/types";
-import { useNavigate, useRouter } from "@tanstack/react-router";
+} from "@/frontend/lib/types";
+import {
+  useNavigate,
+  useRouteContext,
+  useRouter,
+} from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import WorkspaceForm from "./workspace-form";

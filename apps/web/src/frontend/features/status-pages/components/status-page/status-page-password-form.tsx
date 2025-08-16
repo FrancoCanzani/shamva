@@ -1,7 +1,7 @@
 import { Button } from "@/frontend/components/ui/button";
 import { Input } from "@/frontend/components/ui/input";
 import { Label } from "@/frontend/components/ui/label";
-import { ApiResponse, PublicStatusPageData } from "@/frontend/types/types";
+import { ApiResponse, PublicStatusPageData } from "@/frontend/lib/types";
 import type React from "react";
 import { useState } from "react";
 

@@ -1,4 +1,4 @@
-import { Incident, Monitor } from "@/frontend/types/types";
+import { Incident, Monitor } from "@/frontend/lib/types";
 
 export interface MonitorWithIncidents extends Monitor {
   incidents?: Incident[];

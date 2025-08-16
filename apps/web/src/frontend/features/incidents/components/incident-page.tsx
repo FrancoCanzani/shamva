@@ -5,8 +5,8 @@ import {
   DialogTrigger,
 } from "@/frontend/components/ui/dialog";
 import { Separator } from "@/frontend/components/ui/separator";
+import { getRegionNameFromCode } from "@/frontend/lib/utils";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/incidents/$id";
-import { getRegionNameFromCode } from "@/frontend/utils/utils";
 import { Link, useRouter } from "@tanstack/react-router";
 import { format, formatDistanceToNowStrict, parseISO } from "date-fns";
 import { ArrowLeft } from "lucide-react";

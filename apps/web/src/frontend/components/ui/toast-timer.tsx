@@ -1,7 +1,7 @@
+import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "./button";
-import { X } from "lucide-react";
 
 interface ToastTimerProps {
   title: string;
@@ -58,7 +58,7 @@ function ToastTimerComponent({
   const timeLeftSeconds = Math.ceil(timeLeft / 1000);
 
   return (
-    <div className="bg-background space-y-2 rounded p-2 shadow">
+    <div className="bg-background space-y-2 rounded-md p-2 shadow">
       <div className="flex items-start justify-between">
         <div>
           <h4 className="text-sm font-medium">{title}</h4>

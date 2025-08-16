@@ -4,7 +4,7 @@ import {
   MemberInviteSchema,
   StatusPageSchema,
   WorkspaceSchema,
-} from "../lib/schemas";
+} from "./schemas";
 
 export type WorkspaceFormValues = z.infer<typeof WorkspaceSchema>;
 export type MemberInvite = z.infer<typeof MemberInviteSchema>;

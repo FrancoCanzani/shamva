@@ -2,10 +2,10 @@ import { Route } from "@/frontend/routes/dashboard/workspaces/$workspaceId";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 
 import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
+import { Workspace, WorkspaceFormValues } from "@/frontend/lib/types";
 import { useRouteContext } from "@tanstack/react-router";
-import { Workspace, WorkspaceFormValues } from "@/frontend/types/types";
+import { useDeleteWorkspace, useUpdateWorkspace } from "../api/mutations";
 import WorkspaceForm from "./workspace-form";
-import { useUpdateWorkspace, useDeleteWorkspace } from "../api/mutations";
 
 export default function EditWorkspacePage() {
   const navigate = useNavigate();

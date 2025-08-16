@@ -1,5 +1,5 @@
 import supabase from "@/frontend/lib/supabase";
-import { AuthContextType } from "@/frontend/types/types";
+import { AuthContextType } from "@/frontend/lib/types";
 import type { Session, User } from "@supabase/supabase-js";
 import { redirect } from "@tanstack/react-router";
 import React, { createContext, useEffect, useState } from "react";

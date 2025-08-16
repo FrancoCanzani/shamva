@@ -9,9 +9,9 @@ import {
   SelectValue,
 } from "@/frontend/components/ui/select";
 import { StatusDot } from "@/frontend/components/ui/status-dot";
+import { Monitor } from "@/frontend/lib/types";
+import { cn, getMonitorStatusColor } from "@/frontend/lib/utils";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors";
-import { Monitor } from "@/frontend/types/types";
-import { cn, getMonitorStatusColor } from "@/frontend/utils/utils";
 import { useNavigate } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -100,7 +100,7 @@ export default function MonitorsList({
   return (
     <div className="space-y-4">
       {(stats.errorMonitors > 0 || stats.openIncidents > 0) && (
-        <div className="bg-background flex items-center gap-4 rounded-md border px-3.5 py-2">
+        <div className="bg-background dark:bg-input/20 flex items-center gap-4 rounded-md border px-3.5 py-2">
           {stats.errorMonitors > 0 && (
             <div className="flex items-center gap-2">
               <div className="h-2 w-2 rounded-xs bg-red-500"></div>

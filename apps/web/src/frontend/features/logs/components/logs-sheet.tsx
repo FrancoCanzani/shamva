@@ -7,15 +7,15 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/frontend/components/ui/sheet";
-import { Route } from "@/frontend/routes/dashboard/$workspaceName/logs/index";
-import type { Log } from "@/frontend/types/types";
+import type { Log } from "@/frontend/lib/types";
 import {
   cn,
   copyToClipboard,
   getOkStatusTextColor,
   getRegionNameFromCode,
   getStatusTextColor,
-} from "@/frontend/utils/utils";
+} from "@/frontend/lib/utils";
+import { Route } from "@/frontend/routes/dashboard/$workspaceName/logs/index";
 import { format, parseISO } from "date-fns";
 import { Check, ChevronDown, ChevronUp, Copy, X } from "lucide-react";
 import { useMemo, useState } from "react";

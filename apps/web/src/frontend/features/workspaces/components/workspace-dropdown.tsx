@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/frontend/components/ui/dropdown-menu";
 import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
-import { Workspace } from "@/frontend/types/types";
+import { Workspace } from "@/frontend/lib/types";
 import { Link, useLocation } from "@tanstack/react-router";
 import { CheckIcon, ChevronsUpDown } from "lucide-react";
 import * as React from "react";

@@ -57,7 +57,8 @@ export default async function putWorkspaceNotifications(c: Context) {
       return c.json(
         {
           success: false,
-          error: "You do not have permission to edit notification settings for this workspace.",
+          error:
+            "You do not have permission to edit notification settings for this workspace.",
         },
         403
       );

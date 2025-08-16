@@ -42,7 +42,6 @@ export default async function postMonitors(c: Context) {
     regions,
     interval,
     workspaceId,
-    slackWebhookUrl,
   }: MonitorsParams = result.data;
   const userId = c.get("userId");
 

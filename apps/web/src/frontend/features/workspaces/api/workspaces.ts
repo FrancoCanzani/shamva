@@ -1,6 +1,5 @@
-import { Workspace } from "@/frontend/types/types";
 import supabase from "@/frontend/lib/supabase";
-import { ApiResponse } from "@/frontend/types/types";
+import { ApiResponse, Workspace } from "@/frontend/lib/types";
 
 export default async function fetchWorkspaces(): Promise<Workspace[]> {
   const { data: claimsData, error: claimsError } =

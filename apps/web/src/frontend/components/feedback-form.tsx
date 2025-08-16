@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from "@/frontend/components/ui/dialog";
 import { Textarea } from "@/frontend/components/ui/textarea";
-import { cn } from "@/frontend/utils/utils";
+import { cn } from "@/frontend/lib/utils";
 import { useRouteContext } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -86,7 +86,7 @@ export function FeedbackForm() {
           Feedback
         </Button>
       </DialogTrigger>
-      <DialogContent className="p-2 sm:max-w-lg [&>button:last-child]:hidden">
+      <DialogContent className="p-2 sm:max-w-xl [&>button:last-child]:hidden">
         <DialogHeader className="gap-1 p-2">
           <DialogTitle className="font-medium">Feedback</DialogTitle>
           <DialogDescription className="text-xs">
@@ -159,8 +159,9 @@ export function FeedbackForm() {
             </span>
             <div className="flex items-center gap-x-1.5">
               <Button
-                variant={"outline"}
+                variant={"ghost"}
                 size="xs"
+                type="button"
                 disabled={isSubmitting}
                 onClick={() => {
                   setMessage("");
@@ -171,13 +172,12 @@ export function FeedbackForm() {
               </Button>
               <Button
                 type="submit"
-                variant={"outline"}
                 size="xs"
                 disabled={
                   isSubmitting || message.length === 0 || message.length > 1000
                 }
               >
-                {isSubmitting ? "Sending..." : <>Send</>}
+                {isSubmitting ? "Submitting..." : "Submit"}
               </Button>
             </div>
           </DialogFooter>

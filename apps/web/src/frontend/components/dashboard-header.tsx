@@ -1,4 +1,4 @@
-import { cn } from "../utils/utils";
+import { cn } from "../lib/utils";
 import { SidebarTrigger } from "./ui/sidebar";
 
 export default function DashboardHeader({
@@ -13,7 +13,7 @@ export default function DashboardHeader({
   return (
     <header
       className={cn(
-        "dark:bg-background sticky top-0 z-30 flex items-center gap-2 bg-white/80 px-4 py-2 backdrop-blur supports-[backdrop-filter]:bg-white/60",
+        "dark:bg-background sticky top-0 z-30 flex h-12 items-center gap-2 border-b border-dashed bg-white/80 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-white/60",
         className
       )}
     >

@@ -10,7 +10,7 @@ const querySchema = z.object({
     .transform((val) => {
       if (!val) return 14;
       const parsed = parseInt(val, 10);
-      if (isNaN(parsed) || parsed < 1 || parsed > 14) {
+      if (isNaN(parsed) || parsed < 1 || parsed > 28) {
         return 14;
       }
       return parsed;
@@ -90,6 +90,9 @@ export default async function getMonitors(c: Context) {
     const date = new Date();
     if (days === 1) {
       date.setDate(date.getDate() - (days + 1));
+    } else if (days === 14) {
+      // Fetch 28 days for 14-day comparison
+      date.setDate(date.getDate() - 28);
     } else {
       date.setDate(date.getDate() - days);
     }

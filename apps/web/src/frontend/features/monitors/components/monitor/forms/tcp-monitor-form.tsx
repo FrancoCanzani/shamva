@@ -75,7 +75,7 @@ export default function TcpMonitorForm({
   const form = useForm({
     defaultValues: defaultFormValues,
     validators: {
-      onBlur: ({ value }) => {
+      onChange: ({ value }) => {
         const result = TcpMonitorSchema.safeParse(value);
         if (result.success) return undefined;
 

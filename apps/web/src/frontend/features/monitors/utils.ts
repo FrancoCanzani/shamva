@@ -73,7 +73,7 @@ export function mapUptime(logs: Partial<Log>[], days: number = 7) {
     });
 
     const intervalFormat = days === 1 ? "HH:mm" : "MMM d, HH:mm";
-    
+
     buckets.push({
       interval: format(bucketStart, intervalFormat),
       ok: okCount,
@@ -91,10 +91,10 @@ export function calculateDowntime(incident: Partial<Incident>): string | null {
   if (!incident.started_at) return null;
 
   const startTime = new Date(incident.started_at).getTime();
-  const endTime = incident.resolved_at 
-    ? new Date(incident.resolved_at).getTime() 
+  const endTime = incident.resolved_at
+    ? new Date(incident.resolved_at).getTime()
     : Date.now();
-  
+
   const durationMs = endTime - startTime;
   const minutes = Math.floor(durationMs / 60000);
   const hours = Math.floor(minutes / 60);

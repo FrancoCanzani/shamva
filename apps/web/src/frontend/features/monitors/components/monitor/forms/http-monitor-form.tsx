@@ -89,7 +89,7 @@ export default function HttpMonitorForm({
   const form = useForm({
     defaultValues: defaultFormValues,
     validators: {
-      onBlur: ({ value }) => {
+      onChange: ({ value }) => {
         const result = HttpMonitorSchema.safeParse(value);
         if (result.success) return undefined;
 

@@ -7,8 +7,6 @@ interface MonitorTimelineProps {
   monitor: MonitorWithIncidents;
 }
 
-
-
 export function MonitorTimeline({ monitor }: MonitorTimelineProps) {
   const [showAll, setShowAll] = useState(false);
   const allEvents: { title: string; timestamp: string; type: string }[] = [];
@@ -23,11 +21,12 @@ export function MonitorTimeline({ monitor }: MonitorTimelineProps) {
   }
 
   const incidents = monitor?.incidents || [];
-  
+
   incidents.forEach((incident) => {
     // For each incident, collect its events and sort them logically
-    const incidentEvents: { title: string; timestamp: string; type: string }[] = [];
-    
+    const incidentEvents: { title: string; timestamp: string; type: string }[] =
+      [];
+
     if (incident.started_at) {
       incidentEvents.push({
         title: "Incident started",
@@ -61,8 +60,11 @@ export function MonitorTimeline({ monitor }: MonitorTimelineProps) {
     }
 
     // Sort incident events chronologically (oldest first for logical flow)
-    incidentEvents.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
-    
+    incidentEvents.sort(
+      (a, b) =>
+        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+    );
+
     // Add to main events array
     allEvents.push(...incidentEvents);
   });
@@ -85,7 +87,9 @@ export function MonitorTimeline({ monitor }: MonitorTimelineProps) {
   }
 
   const INITIAL_DISPLAY_COUNT = 5;
-  const displayedEvents = showAll ? sortedEvents : sortedEvents.slice(0, INITIAL_DISPLAY_COUNT);
+  const displayedEvents = showAll
+    ? sortedEvents
+    : sortedEvents.slice(0, INITIAL_DISPLAY_COUNT);
   const hasMoreEvents = sortedEvents.length > INITIAL_DISPLAY_COUNT;
 
   return (
@@ -113,7 +117,7 @@ export function MonitorTimeline({ monitor }: MonitorTimelineProps) {
       {hasMoreEvents && (
         <button
           onClick={() => setShowAll(!showAll)}
-          className="flex w-full items-center justify-center gap-1 py-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          className="text-muted-foreground hover:text-foreground flex w-full items-center justify-center gap-1 py-2 text-xs transition-colors"
         >
           {showAll ? (
             <>

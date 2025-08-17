@@ -84,7 +84,9 @@ export interface Heartbeat {
 
 export interface Log {
   id: string;
-  monitor_id: string;
+  workspace_id: string;
+  monitor_id: string | null;
+  heartbeat_id?: string | null;
   url: string;
   status_code: number;
   region: string;
@@ -94,7 +96,7 @@ export interface Log {
   body_content: BodyContent | null;
   error: string | null;
   method: string;
-  check_type: "http" | "tcp";
+  check_type: "http" | "tcp" | "heartbeat";
   tcp_host?: string;
   tcp_port?: number;
   ok: boolean;

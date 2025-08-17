@@ -112,6 +112,7 @@ export class TcpCheckerDurableObject extends DurableObject {
   }
 
   private async logCheckResult(
+    workspaceId: string,
     monitorId: string,
     tcpHostPort: string,
     result: CheckResult,
@@ -122,6 +123,7 @@ export class TcpCheckerDurableObject extends DurableObject {
     const tcpPort = parseInt(portStr, 10);
 
     const logData = {
+      workspace_id: workspaceId,
       monitor_id: monitorId,
       url: tcpHostPort,
       status_code: null,
@@ -183,6 +185,7 @@ export class TcpCheckerDurableObject extends DurableObject {
 
         this.ctx.waitUntil(
           this.logCheckResult(
+            config.workspaceId,
             config.monitorId,
             config.tcpHostPort,
             result,

@@ -12,7 +12,6 @@ const LogsQuerySchema = z.object({
       return 100;
     })
     .optional(),
-  // Accept any non-empty string; DB can handle timestamp formats it returned
   cursorCreatedAt: z.string().min(1).optional(),
   cursorId: z.string().optional(),
 });
@@ -20,7 +19,9 @@ const LogsQuerySchema = z.object({
 export default async function getLogs(c: Context): Promise<Response> {
   const userId = c.get("userId");
   const queryParams = c.req.query();
+
   const parsed = LogsQuerySchema.safeParse(queryParams);
+
   if (!parsed.success) {
     const messages = parsed.error.issues
       .map((issue) => issue.message)
@@ -34,9 +35,10 @@ export default async function getLogs(c: Context): Promise<Response> {
       400
     );
   }
+
   const { workspaceId, cursorCreatedAt, cursorId } = parsed.data;
   let limit = parsed.data.limit ?? 100;
-  // Clamp to a reasonable range
+
   if (limit < 20) limit = 20;
   if (limit > 500) limit = 500;
 
@@ -68,10 +70,6 @@ export default async function getLogs(c: Context): Promise<Response> {
           404
         );
       }
-      console.error(
-        "Error checking workspace membership for logs:",
-        membershipError
-      );
       return c.json(
         {
           data: null,
@@ -82,32 +80,6 @@ export default async function getLogs(c: Context): Promise<Response> {
       );
     }
 
-    const { data: monitors, error: monitorsError } = await supabase
-      .from("monitors")
-      .select("id")
-      .eq("workspace_id", workspaceId);
-
-    if (monitorsError) {
-      console.error(
-        "Error fetching monitor IDs for workspace logs:",
-        monitorsError
-      );
-      return c.json(
-        {
-          data: null,
-          success: false,
-          error: "Database error fetching monitors for logs",
-        },
-        500
-      );
-    }
-
-    const monitorIds = monitors ? monitors.map((m) => m.id) : [];
-
-    if (monitorIds.length === 0) {
-      return c.json({ data: [], success: true, error: null }, 200);
-    }
-
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
     const sevenDaysAgoISO = sevenDaysAgo.toISOString();
@@ -115,10 +87,9 @@ export default async function getLogs(c: Context): Promise<Response> {
     let query = supabase
       .from("logs")
       .select("*")
-      .in("monitor_id", monitorIds)
+      .eq("workspace_id", workspaceId)
       .gte("created_at", sevenDaysAgoISO)
       .order("created_at", { ascending: false })
-      .order("id", { ascending: false })
       .limit(limit);
 
     // Keyset pagination: (created_at, id) < (cursorCreatedAt, cursorId)

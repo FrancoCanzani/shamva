@@ -123,7 +123,7 @@ export function DashboardSidebar() {
 
   return (
     <Sidebar>
-      <SidebarHeader className="mb-4 flex h-12 flex-row items-center justify-start border-b border-dashed font-mono">
+      <SidebarHeader className="mb-2 flex h-12 flex-row items-center justify-start border-b border-dashed font-mono">
         <h1 className="pl-1 text-xl font-medium tracking-wide">Shamva</h1>
       </SidebarHeader>
 

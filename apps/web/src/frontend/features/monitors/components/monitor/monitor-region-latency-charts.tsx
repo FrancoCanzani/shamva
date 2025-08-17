@@ -1,3 +1,4 @@
+import NotFoundMessage from "@/frontend/components/not-found-message";
 import { Button } from "@/frontend/components/ui/button";
 import {
   ChartContainer,
@@ -208,13 +209,7 @@ export default function MonitorRegionLatencyCharts({
   const averageTextColor = theme === "dark" ? "#ffffff" : "#000000";
 
   if (availableRegions.length === 0) {
-    return (
-      <div className="p-4">
-        <div className="text-muted-foreground rounded border border-dashed p-8 text-center text-sm">
-          No latency data available
-        </div>
-      </div>
-    );
+    return <NotFoundMessage message="No latency data available" />;
   }
 
   return (
@@ -272,15 +267,15 @@ export default function MonitorRegionLatencyCharts({
             tickLine={false}
             axisLine={false}
             tickMargin={8}
-            tickFormatter={(value) => format(new Date(value), "MMM d")}
-            minTickGap={80}
+            minTickGap={30}
             interval="equidistantPreserveStart"
+            tick={{ fontSize: 11 }}
+            tickFormatter={(value) => format(new Date(value), "MMM d, HH:mm")}
           />
           <YAxis
             tickLine={false}
             axisLine={false}
             tickFormatter={(value) => {
-              // Round the intervals
               if (value >= 1000) {
                 return `${Math.round(value / 100) * 100}ms`;
               } else if (value >= 100) {
@@ -312,9 +307,41 @@ export default function MonitorRegionLatencyCharts({
                   <div className="mb-1 font-medium text-gray-900">
                     {timestamp}
                   </div>
-                  <div className="text-muted-foreground">
-                    {payload[0].value ? `${payload[0].value}ms` : "No data"}
-                  </div>
+                  {isSplitRegions ? (
+                    <div className="text-muted-foreground">
+                      {payload[0].value ? `${payload[0].value}ms` : "No data"}
+                    </div>
+                  ) : (
+                    <div className="space-y-0.5">
+                      {payload.map((entry, index) => {
+                        const region = entry.dataKey
+                          ?.toString()
+                          .replace("latency_", "");
+                        const regionName = region
+                          ? getRegionNameFromCode(region)
+                          : "";
+                        return (
+                          <div
+                            key={index}
+                            className="flex items-center justify-between gap-2 rounded-md"
+                          >
+                            <div className="flex items-center gap-1.5">
+                              <div
+                                className="h-2 w-2 rounded-xs"
+                                style={{ backgroundColor: entry.color }}
+                              />
+                              <span className="text-muted-foreground">
+                                {regionName}
+                              </span>
+                            </div>
+                            <span className="font-medium">
+                              {entry.value ? `${entry.value}ms` : "No data"}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               );
             }}

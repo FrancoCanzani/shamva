@@ -261,6 +261,7 @@ export class CheckerDurableObject extends DurableObject {
   }
 
   private async logCheckResult(
+    workspaceId: string,
     monitorId: string,
     url: string,
     result: CheckResult,
@@ -279,6 +280,7 @@ export class CheckerDurableObject extends DurableObject {
     }
 
     const logData = {
+      workspace_id: workspaceId,
       monitor_id: monitorId,
       url,
       status_code: result.statusCode,
@@ -352,6 +354,7 @@ export class CheckerDurableObject extends DurableObject {
 
         this.ctx.waitUntil(
           this.logCheckResult(
+            config.workspaceId,
             config.monitorId,
             targetUrl,
             result,

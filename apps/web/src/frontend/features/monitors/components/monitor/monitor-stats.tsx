@@ -199,8 +199,6 @@ export default function MonitorStats({ logs }: { logs: Partial<Log>[] }) {
             )}
           </CardContent>
         </Card>
-      </div>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
         <Card>
           <CardHeader>
             <CardTitle className="text-sm font-medium">Latency p50</CardTitle>

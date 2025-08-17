@@ -83,11 +83,10 @@ export default function NewMonitorUptimeChart({ logs }: UptimeChartProps) {
             dataKey="interval"
             tickLine={false}
             tickMargin={8}
-            minTickGap={5}
+            minTickGap={20}
             axisLine={false}
-            interval={days === 1 ? 2 : 1}
-            tick={{ fontSize: 10 }}
             type="category"
+            tick={{ fontSize: 11 }}
             domain={["dataMin", "dataMax"]}
           />
           <ChartTooltip

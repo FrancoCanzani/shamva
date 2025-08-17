@@ -15,7 +15,7 @@ import {
   getRegionNameFromCode,
   getStatusTextColor,
 } from "@/frontend/lib/utils";
-import { Route } from "@/frontend/routes/dashboard/$workspaceName/logs/index";
+import { Route } from "@/frontend/routes/dashboard/$workspaceName/logs/index.lazy";
 import { format, parseISO } from "date-fns";
 import { Check, ChevronDown, ChevronUp, Copy, X } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -323,8 +323,8 @@ export default function LogsSheet({ logs }: { logs: Log[] }) {
                   </div>
                 )}
               </div>
-              <div className="flex min-h-0 flex-grow flex-col">
-                <div className="flex flex-shrink-0 items-center justify-between">
+              <div className="flex-shrink-0">
+                <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Body Content</span>
                   <Button
                     variant="ghost"
@@ -344,11 +344,9 @@ export default function LogsSheet({ logs }: { logs: Log[] }) {
                     )}
                   </Button>
                 </div>
-                <div className="relative flex min-h-0 flex-grow flex-col">
-                  <pre className="dark:bg-muted mt-2 flex-grow overflow-auto rounded-md border bg-gray-50/50 p-2 font-mono text-xs break-words whitespace-pre-wrap">
-                    {selectedLog.body_content?.raw ?? "No content"}
-                  </pre>
-                </div>
+                <pre className="dark:bg-muted mt-2 max-h-96 overflow-auto rounded-md border bg-gray-50/50 p-2 font-mono text-xs break-words whitespace-pre-wrap">
+                  {selectedLog.body_content?.raw ?? "No content"}
+                </pre>
               </div>
             </div>
           </>

@@ -1,3 +1,4 @@
+import NotFoundMessage from "@/frontend/components/not-found-message";
 import { Button } from "@/frontend/components/ui/button";
 import { Textarea } from "@/frontend/components/ui/textarea";
 import { useRouter } from "@tanstack/react-router";
@@ -78,9 +79,7 @@ export default function IncidentUpdates({
 
       <div className="space-y-4">
         {updates.length === 0 ? (
-          <div className="text-muted-foreground rounded border border-dashed p-4 text-center text-xs">
-            No updates
-          </div>
+          <NotFoundMessage message="No updates" />
         ) : (
           updates.map((update) => (
             <div

@@ -1,6 +1,6 @@
 import { Context } from "hono";
 import { createSupabaseClient } from "../../lib/supabase/client";
-import { Incident } from "../../lib/types";
+import { Incident, Log } from "../../lib/types";
 
 export default async function getAllMonitors(c: Context) {
   const userId = c.get("userId");
@@ -64,63 +64,93 @@ export default async function getAllMonitors(c: Context) {
       });
     }
 
-    const monitorIds = monitors.map((m) => m.id);
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    const thirtyDaysAgoISO = thirtyDaysAgo.toISOString();
-
-    const { data: recentIncidents, error: incidentError } = await supabase
-      .from("incidents")
-      .select("*")
-      .in("monitor_id", monitorIds)
-      .gte("created_at", thirtyDaysAgoISO)
-      .order("created_at", { ascending: false });
-
-    if (incidentError) {
-      console.error(`Error fetching recent incidents:`, incidentError);
-    }
-
     const incidentsByMonitorId = new Map<string, Partial<Incident>[]>();
-    if (recentIncidents) {
-      for (const incident of recentIncidents) {
-        if (!incidentsByMonitorId.has(incident.monitor_id)) {
-          incidentsByMonitorId.set(incident.monitor_id, []);
+    const logsByMonitorId = new Map<string, Partial<Log>[]>();
+
+    if (monitors.length > 0) {
+      const monitorIds = monitors.map((m) => m.id);
+      const fourteenDaysAgo = new Date();
+      fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+      const fourteenDaysAgoISO = fourteenDaysAgo.toISOString();
+
+      const [incidentsResult, logsResult] = await Promise.all([
+        supabase
+          .from("incidents")
+          .select("id, monitor_id, created_at")
+          .in("monitor_id", monitorIds)
+          .gte("created_at", fourteenDaysAgoISO)
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("logs")
+          .select("id, monitor_id, ok, latency, created_at")
+          .in("monitor_id", monitorIds)
+          .gte("created_at", fourteenDaysAgoISO)
+          .order("created_at", { ascending: false }),
+      ]);
+
+      if (incidentsResult.error) {
+        console.error(
+          `Error fetching recent incidents:`,
+          incidentsResult.error
+        );
+      } else if (incidentsResult.data) {
+        for (const incident of incidentsResult.data) {
+          if (!incidentsByMonitorId.has(incident.monitor_id)) {
+            incidentsByMonitorId.set(incident.monitor_id, []);
+          }
+          incidentsByMonitorId.get(incident.monitor_id)!.push(incident);
         }
-        incidentsByMonitorId.get(incident.monitor_id)!.push(incident);
+      }
+
+      if (logsResult.error) {
+        console.error(`Error fetching recent logs:`, logsResult.error);
+      } else if (logsResult.data) {
+        for (const log of logsResult.data) {
+          if (!logsByMonitorId.has(log.monitor_id)) {
+            logsByMonitorId.set(log.monitor_id, []);
+          }
+          logsByMonitorId.get(log.monitor_id)!.push(log);
+        }
       }
     }
 
-    const monitorsWithLastIncident = monitors.map((monitor) => {
+    const monitorsWithMetrics = monitors.map((monitor) => {
       const monitorIncidents = incidentsByMonitorId.get(monitor.id) || [];
+      const monitorLogs = logsByMonitorId.get(monitor.id) || [];
+
       const lastIncident =
-        monitorIncidents.length > 0
-          ? monitorIncidents.sort(
-              (a, b) =>
-                new Date(b.created_at || 0).getTime() -
-                new Date(a.created_at || 0).getTime()
-            )[0]
-          : null;
+        monitorIncidents.length > 0 ? monitorIncidents[0] : null;
+
+      const totalChecks = monitorLogs.length;
+      const successfulChecks = monitorLogs.filter(
+        (log) => log.ok === true
+      ).length;
+      const uptimePercentage =
+        totalChecks > 0 ? (successfulChecks / totalChecks) * 100 : 0;
+
+      const latencies = monitorLogs
+        .filter((log) => log.latency != null && log.latency > 0)
+        .map((log) => log.latency!);
+      const avgLatency =
+        latencies.length > 0
+          ? latencies.reduce((a, b) => a + b, 0) / latencies.length
+          : 0;
 
       return {
         ...monitor,
+        uptime_percentage: Math.round(uptimePercentage * 100) / 100,
+        avg_latency: Math.round(avgLatency),
         last_incident: lastIncident
           ? {
               id: lastIncident.id,
-              status: lastIncident.resolved_at
-                ? "mitigated"
-                : lastIncident.acknowledged_at
-                  ? "acknowledged"
-                  : "ongoing",
               created_at: lastIncident.created_at,
-              resolved_at: lastIncident.resolved_at,
-              acknowledged_at: lastIncident.acknowledged_at,
             }
           : null,
       };
     });
 
     return c.json({
-      data: monitorsWithLastIncident,
+      data: monitorsWithMetrics,
       success: true,
     });
   } catch (err) {

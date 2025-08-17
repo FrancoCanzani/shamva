@@ -60,13 +60,6 @@ export interface Monitor {
   error_message: string | null;
   name: string;
   recent_logs: Partial<Log>[];
-  last_incident?: {
-    id: string;
-    status: "ongoing" | "acknowledged" | "mitigated";
-    created_at: string;
-    resolved_at: string | null;
-    acknowledged_at: string | null;
-  } | null;
 }
 
 export interface Heartbeat {

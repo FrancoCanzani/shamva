@@ -1,25 +1,20 @@
 import DashboardHeader from "@/frontend/components/dashboard-header";
-import { Monitor } from "@/frontend/lib/types";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors";
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import { MonitorWithMetrics } from "../types";
 import MonitorTypeSelector from "./monitor/monitor-type-selector";
 import FloatingActions from "./monitors/floating-actions";
-import MonitorsList from "./monitors/monitors-list";
-import MonitorsPanel from "./monitors/monitors-panel";
+import MonitorsTable from "./monitors/monitors-table";
 
 export default function MonitorsPage() {
   const monitorsData = Route.useLoaderData();
-  const { selectedId } = Route.useSearch();
-  const [selectedMonitors, setSelectedMonitors] = useState<Monitor[]>([]);
+  const [selectedMonitors, setSelectedMonitors] = useState<
+    MonitorWithMetrics[]
+  >([]);
 
   const handleSelectionChange = () => {
     setSelectedMonitors([]);
   };
-
-  const hoveredMonitor = useMemo(
-    () => monitorsData?.find((m: Monitor) => m.id === selectedId),
-    [monitorsData, selectedId]
-  );
 
   return (
     <div className="flex h-full flex-col">
@@ -28,7 +23,7 @@ export default function MonitorsPage() {
       </DashboardHeader>
 
       <main className="relative flex-1 overflow-auto">
-        <div className="mx-auto h-max max-w-5xl flex-1 space-y-8 overflow-auto p-6">
+        <div className="mx-auto h-max max-w-4xl flex-1 space-y-8 overflow-auto p-6">
           <div className="mb-6">
             <h2 className="text-xl font-medium">Monitors</h2>
             <p className="text-muted-foreground mt-1 text-sm">
@@ -36,20 +31,12 @@ export default function MonitorsPage() {
             </p>
           </div>
 
-          <div className="flex h-full flex-col gap-4 lg:flex-row">
-            <div className="flex-1">
-              <MonitorsList
-                monitors={monitorsData}
-                onSelectionChange={(selectedMonitors) =>
-                  setSelectedMonitors(selectedMonitors)
-                }
-              />
-            </div>
-
-            <aside className="hidden w-full shrink-0 md:block lg:w-[360px]">
-              <MonitorsPanel monitor={hoveredMonitor} />
-            </aside>
-          </div>
+          <MonitorsTable
+            monitors={monitorsData}
+            onSelectionChange={(selectedMonitors) =>
+              setSelectedMonitors(selectedMonitors)
+            }
+          />
         </div>
 
         <FloatingActions

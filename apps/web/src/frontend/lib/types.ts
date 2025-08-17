@@ -42,6 +42,7 @@ export interface InitializeCheckerDOPayload {
 
 export interface Monitor {
   id: string;
+  workspace_id: string;
   created_at: string;
   updated_at: string;
   check_type: "http" | "tcp";

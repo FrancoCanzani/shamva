@@ -1,17 +1,16 @@
 import { Incident, Monitor } from "@/frontend/lib/types";
 
-export interface MonitorWithIncidents extends Monitor {
-  incidents?: Incident[];
+export interface MonitorWithMetrics extends Monitor {
+  uptime_percentage: number;
+  avg_latency: number;
+  last_incident: {
+    id: string;
+    created_at: string;
+  } | null;
 }
 
-export interface MonitorWithLastIncident extends Monitor {
-  last_incident?: {
-    id: string;
-    status: "ongoing" | "acknowledged" | "mitigated";
-    created_at: string;
-    resolved_at: string | null;
-    acknowledged_at: string | null;
-  } | null;
+export interface MonitorWithIncidents extends Monitor {
+  incidents?: Incident[];
 }
 
 export interface TimelineEvent {

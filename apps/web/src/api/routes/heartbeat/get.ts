@@ -36,27 +36,27 @@ export default async function getHeartbeat(c: Context) {
       return c.json({ error: "Failed to log heartbeat" }, 500);
     }
 
-          try {
-        const { error: logError } = await supabase
-          .from("logs")
-          .insert({
-            workspace_id: heartbeat.workspace_id,
-            monitor_id: null,
-            heartbeat_id: heartbeat.id,
-            url: c.req.url,
-            status_code: 200,
-            ok: true,
-            latency: 0,
-            headers: null,
-            body_content: null,
-            error: null,
-            method: "GET",
-            region: c.req.header("cf-ipcountry") || null,
-            check_type: "heartbeat",
-            tcp_host: null,
-            tcp_port: null,
-          })
-          .select();
+    try {
+      const { error: logError } = await supabase
+        .from("logs")
+        .insert({
+          workspace_id: heartbeat.workspace_id,
+          monitor_id: null,
+          heartbeat_id: heartbeat.id,
+          url: c.req.url,
+          status_code: 200,
+          ok: true,
+          latency: 0,
+          headers: null,
+          body_content: null,
+          error: null,
+          method: "GET",
+          region: c.req.header("cf-ipcountry") || null,
+          check_type: "heartbeat",
+          tcp_host: null,
+          tcp_port: null,
+        })
+        .select();
 
       if (logError) {
         console.error("Failed to log heartbeat event:", logError);

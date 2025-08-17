@@ -1,11 +1,11 @@
 import { Button } from "@/frontend/components/ui/button";
 import { showToastTimer } from "@/frontend/components/ui/toast-timer";
-import { Monitor } from "@/frontend/lib/types";
 import { useState } from "react";
 import { useDeleteMonitor, usePauseResumeMonitor } from "../../api/mutations";
+import { MonitorWithMetrics } from "../../types";
 
 interface FloatingActionsProps {
-  selectedMonitors: Monitor[];
+  selectedMonitors: MonitorWithMetrics[];
   onSelectionChange: () => void;
 }
 
@@ -59,8 +59,8 @@ export default function FloatingActions({
   }
 
   return (
-    <div className="absolute bottom-4 left-1/2 z-50 flex -translate-x-1/2 items-center gap-1.5 rounded-md bg-white/10 p-2 shadow-lg ring-1 ring-black/5 backdrop-blur-xl">
-      <span className="text-xs font-medium">Quick actions</span>
+    <div className="absolute bottom-4 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-md bg-white/10 p-2 shadow-lg ring-1 ring-black/5 backdrop-blur-xl">
+      <span className="text-xs">Quick actions</span>
       <Button
         variant="outline"
         size="xs"

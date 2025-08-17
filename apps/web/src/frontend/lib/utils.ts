@@ -154,20 +154,20 @@ export const getLatencyColor = (latency: number | null): string => {
   return "text-red-700";
 };
 
-export const getMonitorStatusColor = (status: string): string => {
+export const getMonitorStatusTextColor = (status: string): string => {
   switch (status) {
     case "active":
-      return "bg-[var(--color-ok)]";
+      return "text-[var(--color-ok)]";
     case "error":
     case "broken":
-      return "bg-[var(--color-error)]";
+      return "text-[var(--color-error)]";
     case "degraded":
-      return "bg-[var(--color-degraded)]";
+      return "text-[var(--color-degraded)]";
     case "maintenance":
-      return "bg-blue-600";
+      return "text-blue-600";
     case "paused":
-      return "bg-gray-500";
+      return "text-gray-500";
     default:
-      return "bg-gray-300";
+      return "text-gray-300";
   }
 };

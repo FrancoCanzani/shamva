@@ -1,9 +1,9 @@
-import supabase from "@/frontend/lib/supabase";
-import { RouterContext } from "@/frontend/routes/__root";
-import { ApiResponse, Monitor, Workspace } from "@/frontend/types/types";
-import { queryClient } from "@/frontend/lib/query-client";
 import fetchWorkspaces from "@/frontend/features/workspaces/api/workspaces";
+import { queryClient } from "@/frontend/lib/query-client";
+import { ApiResponse, Workspace } from "@/frontend/lib/types";
+import { RouterContext } from "@/frontend/routes/__root";
 import { redirect } from "@tanstack/react-router";
+import { MonitorWithMetrics } from "../types";
 
 export async function fetchMonitors({
   params,
@@ -11,28 +11,17 @@ export async function fetchMonitors({
 }: {
   params: Params;
   context: RouterContext;
-}): Promise<Monitor[]> {
+}): Promise<MonitorWithMetrics[]> {
   const workspaceName = params.workspaceName;
 
   try {
-    const session = context.auth.session;
-
-    if (!session?.access_token) {
-      throw new Error("No valid session found");
-    }
-
-    const { data: claimsData, error: claimsError } =
-      await supabase.auth.getClaims();
-    if (claimsError || !claimsData?.claims) {
-      throw new Error("Failed to validate authentication claims");
-    }
-
     const allWorkspaces: Workspace[] =
       queryClient.getQueryData<Workspace[]>(["workspaces"]) ??
       (await queryClient.ensureQueryData<Workspace[]>({
         queryKey: ["workspaces"],
         queryFn: fetchWorkspaces,
       }));
+
     const targetWorkspace = allWorkspaces.find(
       (ws) => ws.name === workspaceName
     );
@@ -53,7 +42,7 @@ export async function fetchMonitors({
       `/api/monitors?workspaceId=${workspaceId}`,
       {
         headers: {
-          Authorization: `Bearer ${session.access_token}`,
+          Authorization: `Bearer ${context.auth.session.access_token}`,
           "Content-Type": "application/json",
         },
       }
@@ -70,7 +59,7 @@ export async function fetchMonitors({
       );
     }
 
-    const monitorsResult: ApiResponse<Monitor[]> =
+    const monitorsResult: ApiResponse<MonitorWithMetrics[]> =
       await monitorsResponse.json();
 
     if (!monitorsResult.success || !monitorsResult.data) {

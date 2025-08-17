@@ -50,27 +50,27 @@ export async function handleHeartbeatCheckerCron(
           `Heartbeat ${heartbeat.id} (${heartbeat.name}) has timed out`
         );
 
-                  try {
-            const { error: logError } = await supabase
-              .from("logs")
-              .insert({
-                workspace_id: heartbeat.workspace_id,
-                monitor_id: null,
-                heartbeat_id: heartbeat.id,
-                url: null,
-                status_code: 408,
-                ok: false,
-                latency: 0,
-                headers: null,
-                body_content: null,
-                error: `Heartbeat ${heartbeat.name} timed out after ${heartbeat.expected_lapse_ms + heartbeat.grace_period_ms}ms`,
-                method: null,
-                region: null,
-                check_type: "heartbeat",
-                tcp_host: null,
-                tcp_port: null,
-              })
-              .select();
+        try {
+          const { error: logError } = await supabase
+            .from("logs")
+            .insert({
+              workspace_id: heartbeat.workspace_id,
+              monitor_id: null,
+              heartbeat_id: heartbeat.id,
+              url: null,
+              status_code: 408,
+              ok: false,
+              latency: 0,
+              headers: null,
+              body_content: null,
+              error: `Heartbeat ${heartbeat.name} timed out after ${heartbeat.expected_lapse_ms + heartbeat.grace_period_ms}ms`,
+              method: null,
+              region: null,
+              check_type: "heartbeat",
+              tcp_host: null,
+              tcp_port: null,
+            })
+            .select();
 
           if (logError) {
             console.error("Failed to log heartbeat timeout:", logError);

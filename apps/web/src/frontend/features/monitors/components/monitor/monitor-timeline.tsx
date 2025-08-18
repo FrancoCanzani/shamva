@@ -1,17 +1,33 @@
+import NotFoundMessage from "@/frontend/components/not-found-message";
 import { format, parseISO } from "date-fns";
+import {
+  Bell,
+  CheckCircle,
+  ChevronDown,
+  ChevronUp,
+  Eye,
+  Plus,
+  ServerCrash,
+} from "lucide-react";
 import { useState } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
 import { MonitorWithIncidents } from "../../types";
 
 interface MonitorTimelineProps {
   monitor: MonitorWithIncidents;
 }
 
+const iconMap = new Map([
+  ["incident_start", ServerCrash],
+  ["acknowledged", Eye],
+  ["resolved", CheckCircle],
+  ["notification", Bell],
+  ["monitor_created", Plus],
+]);
+
 export function MonitorTimeline({ monitor }: MonitorTimelineProps) {
   const [showAll, setShowAll] = useState(false);
   const allEvents: { title: string; timestamp: string; type: string }[] = [];
 
-  // Add monitor creation event
   if (monitor?.created_at) {
     allEvents.push({
       title: "Monitor created",
@@ -23,7 +39,6 @@ export function MonitorTimeline({ monitor }: MonitorTimelineProps) {
   const incidents = monitor?.incidents || [];
 
   incidents.forEach((incident) => {
-    // For each incident, collect its events and sort them logically
     const incidentEvents: { title: string; timestamp: string; type: string }[] =
       [];
 
@@ -59,29 +74,22 @@ export function MonitorTimeline({ monitor }: MonitorTimelineProps) {
       });
     }
 
-    // Sort incident events chronologically (oldest first for logical flow)
     incidentEvents.sort(
       (a, b) =>
         new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
     );
-
-    // Add to main events array
     allEvents.push(...incidentEvents);
   });
 
   const sortedEvents = allEvents.sort(
-    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
   );
 
   if (sortedEvents.length === 0) {
     return (
-      <div className="space-y-3">
-        <h3 className="text-sm font-medium">Timeline</h3>
-        <div className="rounded border border-dashed p-4 text-center">
-          <div className="text-muted-foreground text-xs">
-            No timeline events found
-          </div>
-        </div>
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Timeline</h3>
+        <NotFoundMessage message="No timeline events found" />
       </div>
     );
   }
@@ -93,7 +101,7 @@ export function MonitorTimeline({ monitor }: MonitorTimelineProps) {
   const hasMoreEvents = sortedEvents.length > INITIAL_DISPLAY_COUNT;
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-medium">Timeline</h3>
         <span className="text-muted-foreground text-xs">
@@ -102,34 +110,44 @@ export function MonitorTimeline({ monitor }: MonitorTimelineProps) {
       </div>
 
       <div className="divide-y divide-dashed">
-        {displayedEvents.map((event, index) => (
-          <div key={index} className="px-1 py-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs">{event.title}</span>
-              <span className="text-muted-foreground font-mono text-xs tracking-tighter">
+        {displayedEvents.map((event, index) => {
+          const Icon = iconMap.get(event.type) || CheckCircle;
+
+          return (
+            <div
+              key={index}
+              className="hover:bg-input/20 flex w-full items-center justify-between px-1 py-2"
+            >
+              <div className="flex items-center justify-start gap-2">
+                <Icon className="h-3 w-3 grayscale" />
+                <h4 className="text-sm">{event.title}</h4>
+              </div>
+              <time className="text-muted-foreground font-mono text-xs tracking-tighter whitespace-nowrap">
                 {format(parseISO(event.timestamp), "MMM d, HH:mm")}
-              </span>
+              </time>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {hasMoreEvents && (
-        <button
-          onClick={() => setShowAll(!showAll)}
-          className="text-muted-foreground hover:text-foreground flex w-full items-center justify-center gap-1 py-2 text-xs transition-colors"
-        >
-          {showAll ? (
-            <>
-              Show less <ChevronUp className="size-3" />
-            </>
-          ) : (
-            <>
-              Show {sortedEvents.length - INITIAL_DISPLAY_COUNT} more{" "}
-              <ChevronDown className="size-3" />
-            </>
-          )}
-        </button>
+        <div>
+          <button
+            onClick={() => setShowAll(!showAll)}
+            className="text-muted-foreground hover:text-primary mx-auto flex items-center justify-center gap-2 text-xs"
+          >
+            {showAll ? (
+              <>
+                Show less <ChevronUp className="size-3" />
+              </>
+            ) : (
+              <>
+                Show {sortedEvents.length - INITIAL_DISPLAY_COUNT} more events{" "}
+                <ChevronDown className="size-3" />
+              </>
+            )}
+          </button>
+        </div>
       )}
     </div>
   );

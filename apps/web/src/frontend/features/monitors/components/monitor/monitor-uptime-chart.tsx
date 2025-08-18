@@ -42,7 +42,12 @@ export default function NewMonitorUptimeChart({ logs }: UptimeChartProps) {
   const uptimeData = allUptimeData.filter((bucket) => bucket.total > 0);
 
   if (uptimeData.length === 0) {
-    return <NotFoundMessage message="No uptime data" />;
+    return (
+      <div className="space-y-3">
+        <h3 className="text-sm font-medium">Uptime</h3>
+        <NotFoundMessage message="No uptime data" />
+      </div>
+    );
   }
 
   return (

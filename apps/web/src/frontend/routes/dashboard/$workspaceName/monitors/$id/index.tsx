@@ -15,8 +15,8 @@ export const Route = createFileRoute("/dashboard/$workspaceName/monitors/$id/")(
     component: MonitorPage,
     pendingComponent: Loading,
     validateSearch: (search) => MonitorSearchSchema.parse(search),
-    loaderDeps: ({ search: { days } }) => ({ days }),
-    loader: ({ params, context, deps: { days } }) =>
-      fetchMonitor({ params, context, days }),
+    loaderDeps: ({ search: { days, region } }) => ({ days, region }),
+    loader: ({ params, context, deps: { days, region } }) =>
+      fetchMonitor({ params, context, days, region }),
   }
 );

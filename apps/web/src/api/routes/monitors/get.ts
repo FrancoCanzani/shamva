@@ -8,19 +8,21 @@ const querySchema = z.object({
     .string()
     .optional()
     .transform((val) => {
-      if (!val) return 14;
+      if (!val) return 7;
       const parsed = parseInt(val, 10);
       if (isNaN(parsed) || parsed < 1 || parsed > 28) {
         return 14;
       }
       return parsed;
     }),
+  region: z.enum(["wnam", "enam", "sam", "weur", "eeur", "apac", "oc", "afr", "me"]).optional(),
 });
 
 export default async function getMonitors(c: Context) {
   const userId = c.get("userId");
   const monitorId = c.req.param("id");
   const daysParam = c.req.query("days");
+  const regionParam = c.req.query("region");
 
   if (!userId) {
     return c.json(
@@ -36,7 +38,7 @@ export default async function getMonitors(c: Context) {
     );
   }
 
-  const { days } = querySchema.parse({ days: daysParam });
+  const { days, region } = querySchema.parse({ days: daysParam, region: regionParam });
 
   try {
     const supabase = createSupabaseClient(c.env);
@@ -72,26 +74,13 @@ export default async function getMonitors(c: Context) {
       );
     }
 
-    const { data: membership, error: membershipError } = await supabase
-      .from("workspace_members")
-      .select("role")
-      .eq("workspace_id", monitor.workspace_id)
-      .eq("user_id", userId)
-      .eq("invitation_status", "accepted")
-      .single();
-
-    if (membershipError || !membership) {
-      return c.json(
-        { data: null, success: false, error: "Monitor not found" },
-        404
-      );
-    }
-
     const date = new Date();
+    // fetch double the days to enable comparison with previous period
     if (days === 1) {
-      date.setDate(date.getDate() - (days + 1));
+      date.setDate(date.getDate() - 2);
+    } else if (days === 7) {
+      date.setDate(date.getDate() - 14);
     } else if (days === 14) {
-      // Fetch 28 days for 14-day comparison
       date.setDate(date.getDate() - 28);
     } else {
       date.setDate(date.getDate() - days);
@@ -99,12 +88,44 @@ export default async function getMonitors(c: Context) {
 
     const daysAgo = date.toISOString();
 
-    const { data: recentLogs, error: logError } = await supabase
+    let logsQuery = supabase
       .from("logs")
-      .select("*")
+      .select("id, created_at, ok, latency, region, status_code")
       .eq("monitor_id", monitorId)
       .gte("created_at", daysAgo)
       .order("created_at", { ascending: false });
+    
+    if (region) {
+      logsQuery = logsQuery.eq("region", region);
+    }
+
+    const [membershipResult, logsResult, incidentsResult] = await Promise.all([
+      supabase
+        .from("workspace_members")
+        .select("role")
+        .eq("workspace_id", monitor.workspace_id)
+        .eq("user_id", userId)
+        .eq("invitation_status", "accepted")
+        .single(),
+      logsQuery,
+      supabase
+        .from("incidents")
+        .select("*")
+        .eq("monitor_id", monitorId)
+        .or(`created_at.gte.${daysAgo},resolved_at.is.null`) 
+        .order("created_at", { ascending: false })
+    ]);
+
+    const { data: membership, error: membershipError } = membershipResult;
+    const { data: recentLogs, error: logError } = logsResult;
+    const { data: incidents, error: incidentError } = incidentsResult;
+
+    if (membershipError || !membership) {
+      return c.json(
+        { data: null, success: false, error: "Monitor not found" },
+        404
+      );
+    }
 
     if (logError) {
       console.error(
@@ -115,13 +136,6 @@ export default async function getMonitors(c: Context) {
     } else {
       monitor.recent_logs = (recentLogs || []) as Log[];
     }
-
-    const { data: incidents, error: incidentError } = await supabase
-      .from("incidents")
-      .select("*")
-      .eq("monitor_id", monitorId)
-      .or(`created_at.gte.${daysAgo},resolved_at.is.null`)
-      .order("created_at", { ascending: false });
 
     if (incidentError) {
       console.error(

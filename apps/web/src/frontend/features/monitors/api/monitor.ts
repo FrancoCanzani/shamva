@@ -7,18 +7,24 @@ export default async function fetchMonitor({
   params,
   context,
   days,
+  region,
 }: {
   params: Params;
   context: RouterContext;
   days: number;
+  region?: string;
 }) {
   const { id } = params;
 
   try {
-    // For 1-day stats, we fetch 2 days of logs to enable 24h progression comparison in the UI
-    // For 14-day stats, we fetch 28 days of logs to enable 14-day progression comparison in the UI
-    const fetchDays = days === 1 ? 2 : days === 14 ? 28 : days;
-    const response = await fetch(`/api/monitors/${id}?days=${fetchDays}`, {
+    // Fetch double the days to enable comparison with previous period
+    const fetchDays = days === 1 ? 2 : days === 7 ? 14 : days === 14 ? 28 : days;
+    const url = new URL(`/api/monitors/${id}`, window.location.origin);
+    url.searchParams.set('days', fetchDays.toString());
+    if (region) {
+      url.searchParams.set('region', region);
+    }
+    const response = await fetch(url.toString(), {
       headers: {
         Authorization: `Bearer ${context.auth.session?.access_token}`,
         "Content-Type": "application/json",

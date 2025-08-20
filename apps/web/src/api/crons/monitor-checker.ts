@@ -105,6 +105,8 @@ export async function handleMonitorCheckerCron(
               status: monitor.status,
               errorMessage: monitor.error_message,
               name: monitor.name,
+              degradedThresholdMs: monitor.degraded_threshold_ms,
+              timeoutThresholdMs: monitor.timeout_threshold_ms,
             }),
           });
 

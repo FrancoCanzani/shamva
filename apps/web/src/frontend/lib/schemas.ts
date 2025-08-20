@@ -66,7 +66,32 @@ export const HttpMonitorSchema = z.object({
   enableHeartbeat: z.boolean().optional(),
   heartbeatId: z.string().trim().optional(),
   heartbeatTimeoutSeconds: z.number().int().min(30).max(3600).optional(),
-});
+  degradedThresholdMs: z
+    .number()
+    .int()
+    .min(1000, "Degraded threshold must be at least 1 second")
+    .max(300000, "Degraded threshold cannot exceed 5 minutes")
+    .optional(),
+  timeoutThresholdMs: z
+    .number()
+    .int()
+    .min(1000, "Timeout threshold must be at least 1 second")
+    .max(600000, "Timeout threshold cannot exceed 10 minutes")
+    .optional(),
+})
+.refine(
+  (data) => {
+    // Only validate if both thresholds are provided
+    if (data.timeoutThresholdMs && data.degradedThresholdMs) {
+      return data.timeoutThresholdMs > data.degradedThresholdMs;
+    }
+    return true;
+  },
+  {
+    error: "Timeout threshold must be greater than degraded threshold",
+    path: ["timeoutThresholdMs"],
+  }
+);
 
 export const TcpMonitorSchema = z.object({
   name: z
@@ -94,7 +119,31 @@ export const TcpMonitorSchema = z.object({
   enableHeartbeat: z.boolean().optional(),
   heartbeatId: z.string().trim().optional(),
   heartbeatTimeoutSeconds: z.number().int().min(30).max(3600).optional(),
-});
+  degradedThresholdMs: z
+    .number()
+    .int()
+    .min(1000, "Degraded threshold must be at least 1 second")
+    .max(300000, "Degraded threshold cannot exceed 5 minutes")
+    .optional(),
+  timeoutThresholdMs: z
+    .number()
+    .int()
+    .min(1000, "Timeout threshold must be at least 1 second")
+    .max(600000, "Timeout threshold cannot exceed 10 minutes")
+    .optional(),
+})
+.refine(
+  (data) => {
+    if (data.timeoutThresholdMs && data.degradedThresholdMs) {
+      return data.timeoutThresholdMs > data.degradedThresholdMs;
+    }
+    return true;
+  },
+  {
+    error: "Timeout threshold must be greater than degraded threshold",
+    path: ["timeoutThresholdMs"],
+  }
+);
 
 export const MemberInviteSchema = z.object({
   email: z

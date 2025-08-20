@@ -1,6 +1,6 @@
 import { Context } from "hono";
 import { z } from "zod";
-import { createSupabaseClient } from "../../lib/supabase/client";
+import { supabase } from "../../lib/supabase/client";
 
 const MemberUpdateSchema = z.object({
   id: z.uuid().optional(),
@@ -69,7 +69,6 @@ export default async function putWorkspaces(c: Context) {
   }
 
   const { name, description, members: updatedMembers } = result.data;
-  const supabase = createSupabaseClient(c.env);
 
   const { data: userMembership, error: userMembershipError } = await supabase
     .from("workspace_members")

@@ -1,5 +1,5 @@
 import { Context } from "hono";
-import { createSupabaseClient } from "../../lib/supabase/client";
+import { supabase } from "../../lib/supabase/client";
 
 export default async function deleteStatusPages(c: Context) {
   const userId = c.get("userId");
@@ -18,8 +18,6 @@ export default async function deleteStatusPages(c: Context) {
       400
     );
   }
-
-  const supabase = createSupabaseClient(c.env);
 
   try {
     const { data: statusPage, error: fetchError } = await supabase

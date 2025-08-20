@@ -1,12 +1,10 @@
 import { Context } from "hono";
-import { createSupabaseClient } from "../../lib/supabase/client";
+import { supabase } from "../../lib/supabase/client";
 
 export default async function getAllWorkspaces(c: Context) {
   const userId = c.get("userId");
 
   try {
-    const supabase = createSupabaseClient(c.env);
-
     const { data: memberWorkspaces, error: memberWorkspacesError } =
       await supabase
         .from("workspace_members")

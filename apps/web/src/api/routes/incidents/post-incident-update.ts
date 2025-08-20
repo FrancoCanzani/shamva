@@ -1,6 +1,6 @@
 import { Context } from "hono";
 import { z } from "zod";
-import { createSupabaseClient } from "../../lib/supabase/client";
+import { supabase } from "../../lib/supabase/client";
 
 const IncidentUpdatePostSchema = z.object({
   content: z.string().min(1).max(2000),
@@ -43,7 +43,6 @@ export default async function postIncidentUpdate(c: Context) {
   }
 
   const { content, authorName, authorEmail } = result.data;
-  const supabase = createSupabaseClient(c.env);
 
   const { data: incident, error: incidentError } = await supabase
     .from("incidents")

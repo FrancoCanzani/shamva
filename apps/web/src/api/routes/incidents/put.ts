@@ -1,6 +1,6 @@
 import { Context } from "hono";
 import { IncidentUpdateSchema } from "../../lib/schemas";
-import { createSupabaseClient } from "../../lib/supabase/client";
+import { supabase } from "../../lib/supabase/client";
 
 export default async function putIncident(c: Context) {
   const userId = c.get("userId");
@@ -38,7 +38,6 @@ export default async function putIncident(c: Context) {
   }
 
   const { acknowledged_at, post_mortem, resolved_at } = result.data;
-  const supabase = createSupabaseClient(c.env);
 
   const { data: existingIncident, error: fetchError } = await supabase
     .from("incidents")

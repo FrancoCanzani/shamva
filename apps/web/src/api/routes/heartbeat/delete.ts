@@ -1,5 +1,5 @@
 import { Context } from "hono";
-import { createSupabaseClient } from "../../lib/supabase/client";
+import { supabase } from "../../lib/supabase/client";
 
 export default async function deleteHeartbeat(c: Context) {
   const heartbeatId = c.req.param("id");
@@ -13,8 +13,6 @@ export default async function deleteHeartbeat(c: Context) {
   if (!userId) {
     return c.json({ success: false, error: "User not authenticated." }, 401);
   }
-
-  const supabase = createSupabaseClient(c.env);
 
   const { data: heartbeat, error: fetchError } = await supabase
     .from("heartbeats")

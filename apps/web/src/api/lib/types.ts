@@ -59,6 +59,8 @@ export interface Monitor {
   status: "broken" | "active" | "maintenance" | "paused" | "error" | "degraded";
   error_message: string | null;
   name: string;
+  degraded_threshold_ms: number;
+  timeout_threshold_ms: number;
   recent_logs: Partial<Log>[];
 }
 
@@ -117,6 +119,8 @@ export interface MonitorConfig {
   lastStatusCode?: number;
   headers?: Record<string, string>;
   body?: string | FormData | URLSearchParams | Record<string, unknown> | null;
+  degradedThresholdMs?: number;
+  timeoutThresholdMs?: number;
 }
 
 export interface CheckResult {

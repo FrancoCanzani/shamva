@@ -1,6 +1,6 @@
 import { Context } from "hono";
 import { z } from "zod";
-import { createSupabaseClient } from "../../lib/supabase/client";
+import { supabase } from "../../lib/supabase/client";
 
 const feedbackSchema = z.object({
   message: z.string().min(1).max(1000),
@@ -39,8 +39,6 @@ export default async function postFeedback(c: Context) {
       401
     );
   }
-
-  const supabase = createSupabaseClient(c.env);
 
   try {
     const { data, error: insertError } = await supabase

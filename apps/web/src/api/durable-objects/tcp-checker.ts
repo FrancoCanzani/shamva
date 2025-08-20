@@ -5,7 +5,7 @@ import { supabase } from "../lib/supabase/client";
 import { CheckResult, Incident, MonitorConfig } from "../lib/types";
 import { NotificationService } from "../notifications/notification-service";
 
-const TCP_TIMEOUT_MS = 10 * 1000;
+
 
 export class TcpCheckerDurableObject extends DurableObject {
   ctx: DurableObjectState;
@@ -21,7 +21,7 @@ export class TcpCheckerDurableObject extends DurableObject {
     this.notificationService = new NotificationService(env);
   }
 
-  private async performTcpCheck(hostPort: string): Promise<CheckResult> {
+  private async performTcpCheck(hostPort: string, timeoutThresholdMs?: number): Promise<CheckResult> {
     const checkStartTime = performance.now();
     const result: CheckResult = {
       ok: false,
@@ -41,7 +41,7 @@ export class TcpCheckerDurableObject extends DurableObject {
       }
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), TCP_TIMEOUT_MS);
+      const timeoutId = setTimeout(() => controller.abort(), timeoutThresholdMs || 45000);
 
       const socket = connect({ hostname, port });
 
@@ -178,7 +178,7 @@ export class TcpCheckerDurableObject extends DurableObject {
           throw new Error("TCP host:port is required for TCP checks");
         }
 
-        const result = await this.performTcpCheck(config.tcpHostPort);
+        const result = await this.performTcpCheck(config.tcpHostPort, config.timeoutThresholdMs);
 
         this.ctx.waitUntil(
           this.logCheckResult(
@@ -191,60 +191,114 @@ export class TcpCheckerDurableObject extends DurableObject {
         );
 
         const isSuccess = result.ok === true;
+        
+        // Determine if degraded based on latency and threshold
+        const isDegraded = result.latencyMs !== null && 
+          config.degradedThresholdMs && 
+          result.latencyMs > config.degradedThresholdMs;
+        
         const now = Date.now();
 
         if (isSuccess) {
-          const { data: activeIncident } = await supabase
-            .from("incidents")
+          const { data: monitor } = await supabase
+            .from("monitors")
             .select("*")
-            .eq("monitor_id", config.monitorId)
-            .is("resolved_at", null)
+            .eq("id", config.monitorId)
             .single();
 
-          if (activeIncident) {
-            const { data: monitor } = await supabase
-              .from("monitors")
-              .select("regions")
-              .eq("id", config.monitorId)
-              .single();
-
-            const allRegionsHealthy = monitor?.regions.every(
-              (region: string) =>
-                !activeIncident.regions_affected.includes(region)
-            );
-
-            if (allRegionsHealthy) {
-              this.ctx.waitUntil(
-                this.updateIncident(activeIncident.id, {
-                  resolved_at: new Date(now).toISOString(),
-                  downtime_duration_ms:
-                    now - new Date(activeIncident.started_at).getTime(),
-                })
-              );
-
-              const { data: monitor } = await supabase
-                .from("monitors")
+          if (monitor) {
+            const { data: activeIncidents, error: incidentError } =
+              await supabase
+                .from("incidents")
                 .select("*")
-                .eq("id", config.monitorId)
-                .single();
+                .eq("monitor_id", config.monitorId)
+                .is("resolved_at", null)
+                .order("created_at", { ascending: false })
+                .limit(1);
 
-              if (monitor) {
-                this.ctx.waitUntil(
-                  this.notificationService.notifyRecovery(
-                    config.workspaceId,
-                    {
+            const activeIncident = activeIncidents?.[0];
+
+            if (incidentError) {
+              console.error(
+                `DO ${this.doId}: Error fetching active incident:`,
+                incidentError
+              );
+            } else if (isDegraded) {
+              // Handle degraded status
+              if (!activeIncident) {
+                // Create new incident for degradation
+                const errorMessage = `Response time ${result.latencyMs}ms exceeds degraded threshold ${config.degradedThresholdMs}ms`;
+                const incident = await this.createIncident(
+                  config.monitorId,
+                  config.region,
+                  config.tcpHostPort,
+                  errorMessage
+                );
+
+                if (incident) {
+                  this.ctx.waitUntil(
+                    this.notificationService.notifyError(config.workspaceId, {
                       monitorId: config.monitorId,
                       monitorName: monitor.name,
                       url: monitor.tcp_host_port || config.tcpHostPort,
                       statusCode: undefined,
-                      errorMessage:
-                        result.checkError ?? "TCP connection failed",
+                      errorMessage,
                       lastChecked: new Date(now).toISOString(),
                       region: config.region || "Unknown",
-                    },
-                    new Date(activeIncident.started_at).toISOString()
-                  )
+                    })
+                  );
+
+                  this.ctx.waitUntil(
+                    this.updateIncident(incident.id, {
+                      notified_at: new Date().toISOString(),
+                    })
+                  );
+                }
+              } else {
+                // Update existing incident with new region
+                const updatedRegions = [
+                  ...new Set([...activeIncident.regions_affected, config.region]),
+                ];
+                this.ctx.waitUntil(
+                  this.updateIncident(activeIncident.id, {
+                    regions_affected: updatedRegions,
+                  })
                 );
+              }
+            } else {
+              // Monitor is healthy, resolve any active incidents
+              if (activeIncident) {
+                const allRegionsHealthy = monitor.regions.every(
+                  (region: string) =>
+                    !activeIncident.regions_affected.includes(region)
+                );
+
+                if (allRegionsHealthy) {
+                  this.ctx.waitUntil(
+                    this.updateIncident(activeIncident.id, {
+                      resolved_at: new Date(now).toISOString(),
+                      downtime_duration_ms:
+                        now - new Date(activeIncident.started_at).getTime(),
+                    })
+                  );
+
+                  this.ctx.waitUntil(
+                    this.notificationService.notifyRecovery(
+                      config.workspaceId,
+                      {
+                        monitorId: config.monitorId,
+                        monitorName: monitor.name,
+                        url: monitor.tcp_host_port || config.tcpHostPort,
+                        statusCode: undefined,
+                        errorMessage:
+                          result.checkError ?? "TCP connection failed",
+                        lastChecked: new Date(now).toISOString(),
+                        region: config.region || "Unknown",
+                      },
+                      new Date(activeIncident.started_at).toISOString()
+                    )
+                  );
+                }
               }
             }
           }
@@ -252,8 +306,8 @@ export class TcpCheckerDurableObject extends DurableObject {
           await supabase
             .from("monitors")
             .update({
-              status: "active",
-              error_message: null,
+              status: isDegraded ? "degraded" : "active",
+              error_message: isDegraded && config.degradedThresholdMs ? `Response time ${result.latencyMs}ms exceeds degraded threshold ${config.degradedThresholdMs}ms` : null,
               last_check_at: new Date(now).toISOString(),
               last_success_at: new Date(now).toISOString(),
               updated_at: new Date(now).toISOString(),

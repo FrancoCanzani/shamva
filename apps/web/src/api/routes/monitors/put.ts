@@ -1,6 +1,6 @@
 import { Context } from "hono";
 import { MonitorsParamsSchema } from "../../lib/schemas";
-import { createSupabaseClient } from "../../lib/supabase/client";
+import { supabase } from "../../lib/supabase/client";
 
 export default async function putMonitors(c: Context) {
   const userId = c.get("userId");
@@ -50,7 +50,6 @@ export default async function putMonitors(c: Context) {
     regions,
     interval,
   } = result.data;
-  const supabase = createSupabaseClient(c.env);
 
   const { data: existingMonitor, error: fetchError } = await supabase
     .from("monitors")

@@ -1,6 +1,6 @@
 import { Context } from "hono";
 import { MonitorsParamsSchema } from "../../lib/schemas";
-import { createSupabaseClient } from "../../lib/supabase/client";
+import { supabase } from "../../lib/supabase/client";
 import { MonitorsParams } from "../../lib/types";
 
 export default async function postMonitors(c: Context) {
@@ -41,6 +41,8 @@ export default async function postMonitors(c: Context) {
     bodyString,
     regions,
     interval,
+    degradedThresholdMs,
+    timeoutThresholdMs,
     workspaceId,
   }: MonitorsParams = result.data;
   const userId = c.get("userId");
@@ -58,8 +60,6 @@ export default async function postMonitors(c: Context) {
       400
     );
   }
-
-  const supabase = createSupabaseClient(c.env);
 
   const { data: membership, error: membershipError } = await supabase
     .from("workspace_members")
@@ -132,6 +132,8 @@ export default async function postMonitors(c: Context) {
           interval: interval ?? 5 * 60000,
           status: "initializing",
           regions: regions,
+          degraded_threshold_ms: degradedThresholdMs || null,
+          timeout_threshold_ms: timeoutThresholdMs || null,
         },
       ])
       .select()

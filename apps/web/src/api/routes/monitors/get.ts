@@ -1,6 +1,6 @@
 import { Context } from "hono";
 import { z } from "zod";
-import { createSupabaseClient } from "../../lib/supabase/client";
+import { supabase } from "../../lib/supabase/client";
 import { Incident, Log } from "../../lib/types";
 
 const querySchema = z.object({
@@ -15,7 +15,9 @@ const querySchema = z.object({
       }
       return parsed;
     }),
-  region: z.enum(["wnam", "enam", "sam", "weur", "eeur", "apac", "oc", "afr", "me"]).optional(),
+  region: z
+    .enum(["wnam", "enam", "sam", "weur", "eeur", "apac", "oc", "afr", "me"])
+    .optional(),
 });
 
 export default async function getMonitors(c: Context) {
@@ -38,11 +40,12 @@ export default async function getMonitors(c: Context) {
     );
   }
 
-  const { days, region } = querySchema.parse({ days: daysParam, region: regionParam });
+  const { days, region } = querySchema.parse({
+    days: daysParam,
+    region: regionParam,
+  });
 
   try {
-    const supabase = createSupabaseClient(c.env);
-
     const { data: monitor, error: monitorError } = await supabase
       .from("monitors")
       .select("*")
@@ -94,7 +97,7 @@ export default async function getMonitors(c: Context) {
       .eq("monitor_id", monitorId)
       .gte("created_at", daysAgo)
       .order("created_at", { ascending: false });
-    
+
     if (region) {
       logsQuery = logsQuery.eq("region", region);
     }
@@ -112,8 +115,8 @@ export default async function getMonitors(c: Context) {
         .from("incidents")
         .select("*")
         .eq("monitor_id", monitorId)
-        .or(`created_at.gte.${daysAgo},resolved_at.is.null`) 
-        .order("created_at", { ascending: false })
+        .or(`created_at.gte.${daysAgo},resolved_at.is.null`)
+        .order("created_at", { ascending: false }),
     ]);
 
     const { data: membership, error: membershipError } = membershipResult;

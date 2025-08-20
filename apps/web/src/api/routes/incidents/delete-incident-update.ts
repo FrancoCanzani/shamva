@@ -1,5 +1,5 @@
 import { Context } from "hono";
-import { createSupabaseClient } from "../../lib/supabase/client";
+import { supabase } from "../../lib/supabase/client";
 
 export default async function deleteIncidentUpdate(c: Context) {
   const userId = c.get("userId");
@@ -15,8 +15,6 @@ export default async function deleteIncidentUpdate(c: Context) {
       400
     );
   }
-
-  const supabase = createSupabaseClient(c.env);
 
   const { data: update, error: updateError } = await supabase
     .from("incident_updates")

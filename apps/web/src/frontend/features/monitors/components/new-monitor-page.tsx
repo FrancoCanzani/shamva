@@ -21,6 +21,8 @@ type HttpMonitorFormData = {
   headers?: Record<string, string>;
   body?: Record<string, unknown> | string;
   slackWebhookUrl?: string;
+  degradedThresholdMs?: number;
+  timeoutThresholdMs?: number;
 };
 
 type TcpMonitorFormData = {
@@ -30,6 +32,8 @@ type TcpMonitorFormData = {
   interval: number;
   regions: string[];
   slackWebhookUrl?: string;
+  degradedThresholdMs?: number;
+  timeoutThresholdMs?: number;
 };
 
 type MonitorFormData = HttpMonitorFormData | TcpMonitorFormData;

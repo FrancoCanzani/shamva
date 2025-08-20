@@ -1,6 +1,6 @@
 import { Context } from "hono";
-import { createSupabaseClient } from "../../../lib/supabase/client";
 import { NotificationUpdateSchema } from "../../../lib/schemas";
+import { supabase } from "../../../lib/supabase/client";
 
 export default async function putWorkspaceNotifications(c: Context) {
   const userId = c.get("userId");
@@ -37,8 +37,6 @@ export default async function putWorkspaceNotifications(c: Context) {
       400
     );
   }
-
-  const supabase = createSupabaseClient(c.env);
 
   try {
     const { data: userMembership, error: userMembershipError } = await supabase

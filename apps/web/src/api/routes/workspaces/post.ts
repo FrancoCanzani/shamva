@@ -1,6 +1,6 @@
 import { Context } from "hono";
 import { WorkspaceSchema } from "../../lib/schemas";
-import { createSupabaseClient } from "../../lib/supabase/client";
+import { supabase } from "../../lib/supabase/client";
 
 export default async function postWorkspaces(c: Context) {
   let rawBody: unknown;
@@ -32,7 +32,6 @@ export default async function postWorkspaces(c: Context) {
 
   const userId = c.get("userId");
 
-  const supabase = createSupabaseClient(c.env);
   try {
     const { data: workspace, error: workspaceError } = await supabase
       .from("workspaces")

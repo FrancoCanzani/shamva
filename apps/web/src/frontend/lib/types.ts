@@ -60,6 +60,8 @@ export interface Monitor {
   error_message: string | null;
   name: string;
   regions: string[];
+  degraded_threshold_ms: number;
+  timeout_threshold_ms: number;
   recent_logs: Partial<Log>[];
 }
 
@@ -116,6 +118,8 @@ export interface MonitorFormData {
   heartbeatId?: string;
   heartbeatTimeoutSeconds?: number;
   enableHeartbeat?: boolean;
+  degradedThresholdMs?: number;
+  timeoutThresholdMs?: number;
 }
 
 export interface ApiResponse<T> {

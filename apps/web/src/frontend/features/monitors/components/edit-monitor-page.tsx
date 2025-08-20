@@ -88,6 +88,8 @@ export default function EditMonitorPage() {
       regions: monitor.regions,
       headers: monitor.headers,
       body: monitor.body || undefined,
+      degradedThresholdMs: monitor.degraded_threshold_ms,
+      timeoutThresholdMs: monitor.timeout_threshold_ms,
     };
 
     return (
@@ -116,6 +118,8 @@ export default function EditMonitorPage() {
       tcpHostPort: monitor.tcp_host_port || "",
       interval: monitor.interval,
       regions: monitor.regions,
+      degradedThresholdMs: monitor.degraded_threshold_ms,
+      timeoutThresholdMs: monitor.timeout_threshold_ms,
     };
 
     return (

@@ -13,7 +13,6 @@ import { TcpCheckerDurableObject } from "./durable-objects/tcp-checker";
 import apiRoutes from "./routes/api";
 import getPublicStatusPage from "./routes/status/get";
 
-
 export {
   CheckerDurableObject,
   HttpCheckerDurableObject,
@@ -76,7 +75,7 @@ export default {
   async scheduled(
     controller: ScheduledController,
     env: EnvBindings,
-    _ctx: ExecutionContext
+    _ctx: ExecutionContext //eslint-disable-line
   ) {
     console.log("Running scheduled task in environment:", env.NAME);
 

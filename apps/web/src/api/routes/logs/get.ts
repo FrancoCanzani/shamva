@@ -1,6 +1,6 @@
 import { Context } from "hono";
 import z from "zod";
-import { createSupabaseClient } from "../../lib/supabase/client";
+import { supabase } from "../../lib/supabase/client";
 
 const LogsQuerySchema = z.object({
   workspaceId: z.uuid("Invalid workspace ID format"),
@@ -48,8 +48,6 @@ export default async function getLogs(c: Context): Promise<Response> {
       401
     );
   }
-
-  const supabase = createSupabaseClient(c.env);
 
   try {
     const { data: membership, error: membershipError } = await supabase

@@ -1,5 +1,5 @@
 import { Context } from "hono";
-import { createSupabaseClient } from "../../lib/supabase/client";
+import { supabase } from "../../lib/supabase/client";
 import { Log } from "../../lib/types";
 
 export default async function getPublicStatusPage(c: Context) {
@@ -14,8 +14,6 @@ export default async function getPublicStatusPage(c: Context) {
   }
 
   try {
-    const supabase = createSupabaseClient(c.env);
-
     const { data: statusPage, error: statusPageError } = await supabase
       .from("status_pages")
       .select("*")

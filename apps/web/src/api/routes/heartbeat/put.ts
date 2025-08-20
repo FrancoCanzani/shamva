@@ -1,6 +1,6 @@
 import { Context } from "hono";
 import { HeartbeatSchema } from "../../lib/schemas";
-import { createSupabaseClient } from "../../lib/supabase/client";
+import { supabase } from "../../lib/supabase/client";
 
 export default async function putHeartbeat(c: Context) {
   const heartbeatId = c.req.param("id");
@@ -41,8 +41,6 @@ export default async function putHeartbeat(c: Context) {
   if (!userId) {
     return c.json({ success: false, error: "User not authenticated." }, 401);
   }
-
-  const supabase = createSupabaseClient(c.env);
 
   const { data: membership, error: membershipError } = await supabase
     .from("workspace_members")

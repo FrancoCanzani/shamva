@@ -1,6 +1,6 @@
 import { PostgrestError, PostgrestSingleResponse } from "@supabase/supabase-js";
 import { Context } from "hono";
-import { createSupabaseClient } from "../../../lib/supabase/client";
+import { supabase } from "../../../lib/supabase/client";
 import { Notifications } from "../../../lib/types";
 
 export default async function getWorkspaceNotifications(c: Context) {
@@ -15,8 +15,6 @@ export default async function getWorkspaceNotifications(c: Context) {
   }
 
   try {
-    const supabase = createSupabaseClient(c.env);
-
     const { data: membershipData, error: membershipError } = await supabase
       .from("workspace_members")
       .select("role")

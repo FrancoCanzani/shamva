@@ -1,6 +1,6 @@
 import { Context } from "hono";
 import { StatusPageSchema } from "../../lib/schemas";
-import { createSupabaseClient } from "../../lib/supabase/client";
+import { supabase } from "../../lib/supabase/client";
 
 export default async function putStatusPages(c: Context) {
   const userId = c.get("userId");
@@ -40,8 +40,6 @@ export default async function putStatusPages(c: Context) {
 
   const { slug, title, description, showValues, password, isPublic, monitors } =
     result.data;
-
-  const supabase = createSupabaseClient(c.env);
 
   const { data: existingStatusPage, error: fetchError } = await supabase
     .from("status_pages")

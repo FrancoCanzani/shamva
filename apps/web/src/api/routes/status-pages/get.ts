@@ -1,5 +1,5 @@
 import { Context } from "hono";
-import { createSupabaseClient } from "../../lib/supabase/client";
+import { supabase } from "../../lib/supabase/client";
 
 export default async function getStatusPages(c: Context) {
   const userId = c.get("userId");
@@ -20,8 +20,6 @@ export default async function getStatusPages(c: Context) {
   }
 
   try {
-    const supabase = createSupabaseClient(c.env);
-
     const { data: statusPage, error: statusPageError } = await supabase
       .from("status_pages")
       .select(

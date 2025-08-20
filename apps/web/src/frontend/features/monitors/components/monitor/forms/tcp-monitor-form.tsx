@@ -35,6 +35,8 @@ interface TcpMonitorFormProps {
     interval: number;
     regions: string[];
     slackWebhookUrl?: string;
+    degradedThresholdMs?: number;
+    timeoutThresholdMs?: number;
   }) => Promise<void>;
   onCancel?: () => void;
   isSubmitting?: boolean;
@@ -44,6 +46,8 @@ interface TcpMonitorFormProps {
     tcpHostPort: string;
     interval: number;
     regions: string[];
+    degradedThresholdMs?: number;
+    timeoutThresholdMs?: number;
   }>;
 }
 
@@ -70,6 +74,8 @@ export default function TcpMonitorForm({
     tcpHostPort: defaultValues?.tcpHostPort || "",
     interval: defaultValues?.interval ?? 300000,
     regions: defaultValues?.regions ?? [],
+    degradedThresholdMs: defaultValues?.degradedThresholdMs,
+    timeoutThresholdMs: defaultValues?.timeoutThresholdMs,
   };
 
   const form = useForm({
@@ -98,6 +104,8 @@ export default function TcpMonitorForm({
         interval: value.interval,
         regions: value.regions,
         slackWebhookUrl: value.slackWebhookUrl,
+        degradedThresholdMs: value.degradedThresholdMs,
+        timeoutThresholdMs: value.timeoutThresholdMs,
       };
 
       await onSubmit(payload);
@@ -323,6 +331,85 @@ export default function TcpMonitorForm({
               </>
             )}
           </form.Field>
+        </div>
+
+        <div id="response-time-thresholds" className="space-y-4">
+          <h2 className="font-medium">Response Time Thresholds</h2>
+          <div className="flex flex-1 gap-4">
+            <FormField>
+              <form.Field name="degradedThresholdMs">
+                {(field) => (
+                  <>
+                    <Label htmlFor="degradedThresholdMs">
+                      Degraded Threshold (ms)
+                    </Label>
+                    <Input
+                      id="degradedThresholdMs"
+                      name="degradedThresholdMs"
+                      type="number"
+                      value={field.state.value || ""}
+                      onChange={(e) =>
+                        field.handleChange(
+                          e.target.value ? Number(e.target.value) : undefined
+                        )
+                      }
+                      onBlur={field.handleBlur}
+                      placeholder="30000"
+                      min="1000"
+                      max="300000"
+                      className={cn(
+                        "flex-1",
+                        field.state.meta.errors?.length && "border-destructive"
+                      )}
+                    />
+                    {field.state.meta.errors?.length > 0 && (
+                      <ErrorMessage errors={field.state.meta.errors[0]} />
+                    )}
+                    <p className="text-muted-foreground text-xs">
+                      Time after which the endpoint is considered degraded.
+                    </p>
+                  </>
+                )}
+              </form.Field>
+            </FormField>
+
+            <FormField>
+              <form.Field name="timeoutThresholdMs">
+                {(field) => (
+                  <>
+                    <Label htmlFor="timeoutThresholdMs">
+                      Timeout Threshold (ms)
+                    </Label>
+                    <Input
+                      id="timeoutThresholdMs"
+                      name="timeoutThresholdMs"
+                      type="number"
+                      value={field.state.value || ""}
+                      onChange={(e) =>
+                        field.handleChange(
+                          e.target.value ? Number(e.target.value) : undefined
+                        )
+                      }
+                      onBlur={field.handleBlur}
+                      placeholder="45000"
+                      min="1000"
+                      max="600000"
+                      className={cn(
+                        "flex-1",
+                        field.state.meta.errors?.length && "border-destructive"
+                      )}
+                    />
+                    {field.state.meta.errors?.length > 0 && (
+                      <ErrorMessage errors={field.state.meta.errors[0]} />
+                    )}
+                    <p className="text-muted-foreground text-xs">
+                      Max. time allowed for request to complete.
+                    </p>
+                  </>
+                )}
+              </form.Field>
+            </FormField>
+          </div>
         </div>
 
         <div className="flex justify-end space-x-4">

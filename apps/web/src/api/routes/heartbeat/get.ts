@@ -1,5 +1,5 @@
 import { Context } from "hono";
-import { createSupabaseClient } from "../../lib/supabase/client";
+import { supabase } from "../../lib/supabase/client";
 
 export default async function getHeartbeat(c: Context) {
   const pingId = c.req.query("id");
@@ -9,7 +9,6 @@ export default async function getHeartbeat(c: Context) {
   }
 
   try {
-    const supabase = createSupabaseClient(c.env);
     const now = new Date().toISOString();
 
     const { data: heartbeat, error: fetchError } = await supabase

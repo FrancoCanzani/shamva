@@ -1,5 +1,5 @@
 import { Context } from "hono";
-import { createSupabaseClient } from "../../lib/supabase/client";
+import { supabase } from "../../lib/supabase/client";
 
 export default async function getAllIncidents(c: Context) {
   const userId = c.get("userId");
@@ -12,8 +12,6 @@ export default async function getAllIncidents(c: Context) {
   if (!workspaceId) {
     return c.json({ success: false, error: "Workspace ID is required" }, 400);
   }
-
-  const supabase = createSupabaseClient(c.env);
 
   const { data: membership, error: membershipError } = await supabase
     .from("workspace_members")

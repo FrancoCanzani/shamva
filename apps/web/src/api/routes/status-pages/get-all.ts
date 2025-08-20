@@ -1,5 +1,5 @@
 import { Context } from "hono";
-import { createSupabaseClient } from "../../lib/supabase/client";
+import { supabase } from "../../lib/supabase/client";
 
 export default async function getAllStatusPages(c: Context) {
   const userId = c.get("userId");
@@ -13,8 +13,6 @@ export default async function getAllStatusPages(c: Context) {
   }
 
   try {
-    const supabase = createSupabaseClient(c.env);
-
     let query = supabase.from("status_pages").select(`
         *,
         workspace:workspaces(id, name)

@@ -1,5 +1,5 @@
 import { EnvBindings } from "../../../bindings";
-import { createSupabaseClient } from "../lib/supabase/client";
+import { supabase } from "../lib/supabase/client";
 import { Heartbeat } from "../lib/types";
 
 export async function handleHeartbeatCheckerCron(
@@ -11,8 +11,6 @@ export async function handleHeartbeatCheckerCron(
   );
 
   try {
-    const supabase = createSupabaseClient(env);
-
     const { data: heartbeats, error } = await supabase.rpc(
       "get_timed_out_heartbeats"
     );
@@ -102,8 +100,6 @@ async function sendHeartbeatAlert(
   heartbeat: Heartbeat
 ): Promise<void> {
   try {
-    const supabase = createSupabaseClient(env);
-
     const { data: workspaceMembers } = await supabase
       .from("workspace_members")
       .select("user_id")

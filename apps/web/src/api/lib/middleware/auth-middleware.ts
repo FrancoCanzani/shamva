@@ -1,5 +1,5 @@
 import type { Context, Next } from "hono";
-import { createSupabaseClient } from "../supabase/client";
+import { supabase } from "../supabase/client";
 
 export const authMiddleware = async (c: Context, next: Next) => {
   const authHeader = c.req.header("Authorization");
@@ -13,7 +13,6 @@ export const authMiddleware = async (c: Context, next: Next) => {
     return c.json({ error: "Missing token" }, 401);
   }
 
-  const supabase = createSupabaseClient(c.env);
   const {
     data: { user },
     error,

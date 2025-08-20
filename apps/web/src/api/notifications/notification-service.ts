@@ -1,8 +1,7 @@
-import { SupabaseClient } from "@supabase/supabase-js";
 import type { EnvBindings } from "../../../bindings";
 import { MonitorEmailData } from "../lib/types";
 import { calculateDowntime } from "../lib/utils";
-import { createSupabaseClient } from "../lib/supabase/client";
+import { supabase } from "../lib/supabase/client";
 import { EmailService } from "./email/service";
 import { SlackService } from "./slack/service";
 import { PagerDutyService } from "./pagerduty/service";
@@ -33,12 +32,10 @@ export class NotificationService {
   private discordService: DiscordService;
   private smsService?: SMSService;
   private githubService?: GitHubService;
-  private supabase: SupabaseClient;
   private env: EnvBindings;
 
   constructor(env: EnvBindings) {
     this.env = env;
-    this.supabase = createSupabaseClient(env);
     this.emailService = new EmailService(env);
     this.slackService = new SlackService();
     this.discordService = new DiscordService();
@@ -372,7 +369,7 @@ export class NotificationService {
     workspaceId: string
   ): Promise<NotificationConfig | null> {
     try {
-      const { data: notifications } = await this.supabase
+      const { data: notifications } = await supabase
         .from("notifications")
         .select("*")
         .eq("workspace_id", workspaceId)
@@ -380,7 +377,7 @@ export class NotificationService {
 
       if (!notifications) return null;
 
-      const { data: workspaceMembers } = await this.supabase
+      const { data: workspaceMembers } = await supabase
         .from("workspace_members")
         .select("invitation_email")
         .eq("workspace_id", workspaceId)

@@ -1,8 +1,7 @@
-import { SupabaseClient } from "@supabase/supabase-js";
 import { DurableObject } from "cloudflare:workers";
 import type { EnvBindings } from "../../../bindings";
 import { ScreenshotService } from "../lib/screenshot/service";
-import { createSupabaseClient } from "../lib/supabase/client";
+import { supabase } from "../lib/supabase/client";
 import { CheckResult, Incident, MonitorConfig } from "../lib/types";
 import buildBodyContent from "../lib/utils";
 import { NotificationService } from "../notifications/notification-service";
@@ -15,7 +14,6 @@ export class HttpCheckerDurableObject extends DurableObject {
   env: EnvBindings;
   private readonly doId: string;
   private screenshotService: ScreenshotService;
-  private supabase: SupabaseClient;
   private notificationService: NotificationService;
 
   constructor(ctx: DurableObjectState, env: EnvBindings) {
@@ -23,7 +21,6 @@ export class HttpCheckerDurableObject extends DurableObject {
     this.ctx = ctx;
     this.env = env;
     this.doId = ctx.id.toString();
-    this.supabase = createSupabaseClient(env);
     this.screenshotService = new ScreenshotService(env);
     this.notificationService = new NotificationService(env);
   }
@@ -112,7 +109,7 @@ export class HttpCheckerDurableObject extends DurableObject {
     errorMessage?: string | null
   ): Promise<Incident | null> {
     try {
-      const { data: incident, error } = await this.supabase
+      const { data: incident, error } = await supabase
         .from("incidents")
         .insert({
           monitor_id: monitorId,
@@ -147,7 +144,7 @@ export class HttpCheckerDurableObject extends DurableObject {
     updates: Partial<Incident>
   ): Promise<void> {
     try {
-      const { error } = await this.supabase
+      const { error } = await supabase
         .from("incidents")
         .update({
           ...updates,
@@ -187,7 +184,7 @@ export class HttpCheckerDurableObject extends DurableObject {
     };
 
     try {
-      const { error } = await this.supabase
+      const { error } = await supabase
         .from("logs")
         .insert(logData)
         .select();
@@ -250,7 +247,7 @@ export class HttpCheckerDurableObject extends DurableObject {
         const now = Date.now();
 
         if (isSuccess) {
-          const { data: activeIncident } = await this.supabase
+          const { data: activeIncident } = await supabase
             .from("incidents")
             .select("*")
             .eq("monitor_id", config.monitorId)
@@ -258,7 +255,7 @@ export class HttpCheckerDurableObject extends DurableObject {
             .single();
 
           if (activeIncident) {
-            const { data: monitor } = await this.supabase
+            const { data: monitor } = await supabase
               .from("monitors")
               .select("regions")
               .eq("id", config.monitorId)
@@ -278,7 +275,7 @@ export class HttpCheckerDurableObject extends DurableObject {
                 })
               );
 
-              const { data: monitor } = await this.supabase
+              const { data: monitor } = await supabase
                 .from("monitors")
                 .select("*")
                 .eq("id", config.monitorId)
@@ -305,7 +302,7 @@ export class HttpCheckerDurableObject extends DurableObject {
             }
           }
 
-          await this.supabase
+          await supabase
             .from("monitors")
             .update({
               status: "active",
@@ -316,7 +313,7 @@ export class HttpCheckerDurableObject extends DurableObject {
             })
             .eq("id", config.monitorId);
         } else {
-          const { data: monitor } = await this.supabase
+          const { data: monitor } = await supabase
             .from("monitors")
             .select("*")
             .eq("id", config.monitorId)
@@ -324,7 +321,7 @@ export class HttpCheckerDurableObject extends DurableObject {
 
           if (monitor) {
             const { data: activeIncidents, error: incidentError } =
-              await this.supabase
+              await supabase
                 .from("incidents")
                 .select("*")
                 .eq("monitor_id", config.monitorId)
@@ -400,7 +397,7 @@ export class HttpCheckerDurableObject extends DurableObject {
             const newStatus =
               affectedRegions === totalRegions ? "error" : "degraded";
 
-            await this.supabase
+            await supabase
               .from("monitors")
               .update({
                 status: newStatus,

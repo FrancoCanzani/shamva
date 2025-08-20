@@ -1,8 +1,7 @@
-import { SupabaseClient } from "@supabase/supabase-js";
 import { connect } from "cloudflare:sockets";
 import { DurableObject } from "cloudflare:workers";
 import type { EnvBindings } from "../../../bindings";
-import { createSupabaseClient } from "../lib/supabase/client";
+import { supabase } from "../lib/supabase/client";
 import { CheckResult, Incident, MonitorConfig } from "../lib/types";
 import { NotificationService } from "../notifications/notification-service";
 
@@ -12,7 +11,6 @@ export class TcpCheckerDurableObject extends DurableObject {
   ctx: DurableObjectState;
   env: EnvBindings;
   private readonly doId: string;
-  private supabase: SupabaseClient;
   private notificationService: NotificationService;
 
   constructor(ctx: DurableObjectState, env: EnvBindings) {
@@ -20,7 +18,6 @@ export class TcpCheckerDurableObject extends DurableObject {
     this.ctx = ctx;
     this.env = env;
     this.doId = ctx.id.toString();
-    this.supabase = createSupabaseClient(env);
     this.notificationService = new NotificationService(env);
   }
 
@@ -73,7 +70,7 @@ export class TcpCheckerDurableObject extends DurableObject {
     errorMessage?: string | null
   ): Promise<Incident | null> {
     try {
-      const { data: incident, error } = await this.supabase
+      const { data: incident, error } = await supabase
         .from("incidents")
         .insert({
           monitor_id: monitorId,
@@ -97,7 +94,7 @@ export class TcpCheckerDurableObject extends DurableObject {
     updates: Partial<Incident>
   ): Promise<void> {
     try {
-      const { error } = await this.supabase
+      const { error } = await supabase
         .from("incidents")
         .update({
           ...updates,
@@ -140,7 +137,7 @@ export class TcpCheckerDurableObject extends DurableObject {
     };
 
     try {
-      const { error } = await this.supabase
+      const { error } = await supabase
         .from("logs")
         .insert(logData)
         .select();
@@ -197,7 +194,7 @@ export class TcpCheckerDurableObject extends DurableObject {
         const now = Date.now();
 
         if (isSuccess) {
-          const { data: activeIncident } = await this.supabase
+          const { data: activeIncident } = await supabase
             .from("incidents")
             .select("*")
             .eq("monitor_id", config.monitorId)
@@ -205,7 +202,7 @@ export class TcpCheckerDurableObject extends DurableObject {
             .single();
 
           if (activeIncident) {
-            const { data: monitor } = await this.supabase
+            const { data: monitor } = await supabase
               .from("monitors")
               .select("regions")
               .eq("id", config.monitorId)
@@ -225,7 +222,7 @@ export class TcpCheckerDurableObject extends DurableObject {
                 })
               );
 
-              const { data: monitor } = await this.supabase
+              const { data: monitor } = await supabase
                 .from("monitors")
                 .select("*")
                 .eq("id", config.monitorId)
@@ -252,7 +249,7 @@ export class TcpCheckerDurableObject extends DurableObject {
             }
           }
 
-          await this.supabase
+          await supabase
             .from("monitors")
             .update({
               status: "active",
@@ -263,7 +260,7 @@ export class TcpCheckerDurableObject extends DurableObject {
             })
             .eq("id", config.monitorId);
         } else {
-          const { data: monitor } = await this.supabase
+          const { data: monitor } = await supabase
             .from("monitors")
             .select("*")
             .eq("id", config.monitorId)
@@ -271,7 +268,7 @@ export class TcpCheckerDurableObject extends DurableObject {
 
           if (monitor) {
             const { data: activeIncidents, error: incidentError } =
-              await this.supabase
+              await supabase
                 .from("incidents")
                 .select("*")
                 .eq("monitor_id", config.monitorId)
@@ -345,7 +342,7 @@ export class TcpCheckerDurableObject extends DurableObject {
             const newStatus =
               affectedRegions === totalRegions ? "error" : "degraded";
 
-            await this.supabase
+            await supabase
               .from("monitors")
               .update({
                 status: newStatus,

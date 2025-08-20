@@ -50,7 +50,6 @@
     "binding": "BROWSER"
   },
 
-  // Durable Object migration settings
   "migrations": [
     {
       "tag": "v1",
@@ -64,6 +63,9 @@
 
   // Cron triggers for scheduled tasks
   "triggers": {
-    "crons": ["* * * * *"]
+    "crons": [
+      "* * * * *",        
+      "0 0 * * 0"         
+    ]
   }
 }

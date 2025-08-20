@@ -1,13 +1,12 @@
 import type { EnvBindings } from "../../../bindings";
-import { createSupabaseClient } from "../lib/supabase/client";
+import { supabase } from "../lib/supabase/client";
 import type { Monitor, Region } from "../lib/types";
 
 async function getWorkspaceUsers(
-  env: EnvBindings,
   workspaceId: string
 ): Promise<string[]> {
   try {
-    const { data: workspaceUsers, error } = await createSupabaseClient(env)
+    const { data: workspaceUsers, error } = await supabase
       .from("workspace_members")
       .select("invitation_email")
       .eq("workspace_id", workspaceId)
@@ -28,7 +27,7 @@ export async function handleMonitorCheckerCron(
   console.log("Starting checker cron job at", new Date().toISOString());
 
   try {
-    const { data: monitors, error } = await createSupabaseClient(env).rpc(
+    const { data: monitors, error } = await supabase.rpc(
       "get_monitors_due_for_check"
     );
 
@@ -61,7 +60,7 @@ export async function handleMonitorCheckerCron(
 
       return regions.map(async (region: Region) => {
         try {
-          const userEmails = await getWorkspaceUsers(env, monitor.workspace_id);
+          const userEmails = await getWorkspaceUsers(monitor.workspace_id);
           console.log(
             `Found ${userEmails.length} users for workspace ${monitor.workspace_id}`
           );

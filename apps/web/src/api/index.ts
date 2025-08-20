@@ -5,12 +5,14 @@ import { prettyJSON } from "hono/pretty-json";
 import { secureHeaders } from "hono/secure-headers";
 import { EnvBindings } from "../../bindings";
 import { handleHeartbeatCheckerCron } from "./crons/heartbeat-checker";
+import { handleLogCleanupCron } from "./crons/log-cleanup";
 import { handleMonitorCheckerCron } from "./crons/monitor-checker";
 import { CheckerDurableObject } from "./durable-objects/checker-durable-object";
 import { HttpCheckerDurableObject } from "./durable-objects/http-checker";
 import { TcpCheckerDurableObject } from "./durable-objects/tcp-checker";
 import apiRoutes from "./routes/api";
 import getPublicStatusPage from "./routes/status/get";
+
 
 export {
   CheckerDurableObject,
@@ -59,19 +61,35 @@ app.onError((err, c) => {
 app.route("/", apiRoutes);
 app.get("/status/:slug", getPublicStatusPage);
 
+// Example of accessing env.NAME
+app.get("/debug", (c) => {
+  const env = c.env;
+  console.log("Environment name:", env.NAME);
+  return c.json({ name: env.NAME });
+});
+
 app.mount("/", (req, env) => env.ASSETS.fetch(req));
 
 export default {
   fetch: app.fetch,
 
   async scheduled(
-    // @ts-expect-error - Required by Cloudflare Workers API
     controller: ScheduledController,
     env: EnvBindings,
-
-    _ctx: ExecutionContext // eslint-disable-line @typescript-eslint/no-unused-vars
+    _ctx: ExecutionContext
   ) {
-    await handleMonitorCheckerCron(env);
-    await handleHeartbeatCheckerCron(env);
+    console.log("Running scheduled task in environment:", env.NAME);
+
+    switch (controller.cron) {
+      case "* * * * *":
+        // Every minute - run monitor and heartbeat checks
+        await handleMonitorCheckerCron(env);
+        await handleHeartbeatCheckerCron(env);
+        break;
+      case "0 0 * * 0":
+        // Every Sunday at midnight - run log cleanup
+        await handleLogCleanupCron(env);
+        break;
+    }
   },
 };

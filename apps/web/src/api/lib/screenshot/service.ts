@@ -1,6 +1,6 @@
 import puppeteer from "@cloudflare/puppeteer";
 import { EnvBindings } from "../../../../bindings";
-import { createSupabaseClient } from "../supabase/client";
+import { supabase } from "../supabase/client";
 
 export class ScreenshotService {
   private env: EnvBindings;
@@ -55,7 +55,6 @@ export class ScreenshotService {
         // Remove quality for PNG (only applies to JPEG)
       });
 
-      const supabase = createSupabaseClient(this.env);
       const fileName = `incident-${incidentId}-${Date.now()}.png`;
 
       const { error } = await supabase.storage

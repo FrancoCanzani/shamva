@@ -1,5 +1,5 @@
 import { Context } from "hono";
-import { createSupabaseClient } from "../../lib/supabase/client";
+import { supabase } from "../../lib/supabase/client";
 import { Incident, Log } from "../../lib/types";
 
 export default async function getAllMonitors(c: Context) {
@@ -21,8 +21,6 @@ export default async function getAllMonitors(c: Context) {
   }
 
   try {
-    const supabase = createSupabaseClient(c.env);
-
     const { data: membership, error: membershipError } = await supabase
       .from("workspace_members")
       .select("role")

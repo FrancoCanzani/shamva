@@ -55,7 +55,7 @@ export default function MonitorTypeSelector() {
                 onClick={() => setIsOpen(false)}
                 className="block"
               >
-                <Card className="p-1">
+                <Card className="hover:bg-input/20 p-1">
                   <CardHeader className="p-1">
                     <CardTitle className="text-xs font-medium">
                       {monitorType.title}

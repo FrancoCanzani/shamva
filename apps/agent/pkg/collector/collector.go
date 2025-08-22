@@ -1,34 +1,28 @@
 package collector
 
 import (
-	"runtime"
 	"strings"
 	"time"
 
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/disk"
 	"github.com/shirou/gopsutil/v4/host"
+	"github.com/shirou/gopsutil/v4/load"
 	"github.com/shirou/gopsutil/v4/mem"
 	"github.com/shirou/gopsutil/v4/net"
+	"github.com/shirou/gopsutil/v4/process"
 )
 
 func Collect() (Metrics, error) {
 	timestamp := time.Now().UTC().Format(time.RFC3339)
 
-	// OS Info
+	// Basic system info
 	hinfo, err := host.Info()
 	if err != nil {
 		return Metrics{}, err
 	}
-	osInfo := OSInfo{
-		Hostname:      hinfo.Hostname,
-		Platform:      hinfo.Platform,
-		PlatformVer:   hinfo.PlatformVersion,
-		Arch:          runtime.GOARCH,
-		UptimeSeconds: hinfo.Uptime,
-	}
 
-	// CPU
+	// CPU usage
 	cpuPercents, err := cpu.Percent(time.Second, false)
 	if err != nil {
 		return Metrics{}, err
@@ -38,87 +32,93 @@ func Collect() (Metrics, error) {
 		cpuPercent = cpuPercents[0]
 	}
 
-	cpuInfos, err := cpu.Info()
-	if err != nil {
-		return Metrics{}, err
+	// Load average
+	loadAvg, err := load.Avg()
+	loadAvg1 := 0.0
+	if err == nil {
+		loadAvg1 = loadAvg.Load1
 	}
 
-	var cpuModel string
-	var cpuCores int
-	var cpuMHz float64
-	if len(cpuInfos) > 0 {
-		cpuModel = cpuInfos[0].ModelName
-		cpuCores = int(cpuInfos[0].Cores)
-		cpuMHz = cpuInfos[0].Mhz
-	}
-	cpuInfo := CPUInfo{
-		Percent: cpuPercent,
-		Cores:   cpuCores,
-		Model:   cpuModel,
-		MHz:     cpuMHz,
-	}
-
-	// Memory
+	// Memory usage
 	vmem, err := mem.VirtualMemory()
 	if err != nil {
 		return Metrics{}, err
 	}
-	memInfo := MemInfo{
-		TotalBytes:  vmem.Total,
-		UsedBytes:   vmem.Used,
-		UsedPercent: vmem.UsedPercent,
-	}
 
-	// Disk (main mount only)
+	// Disk usage (main partition only)
+	diskPercent := 0.0
 	partitions, err := disk.Partitions(false)
-	if err != nil {
-		return Metrics{}, err
-	}
-	disks := []DiskInfo{}
-	for _, p := range partitions {
-		if strings.HasPrefix(p.Mountpoint, "/System") || strings.HasPrefix(p.Mountpoint, "/dev") {
-			continue
-		}
-		usage, err := disk.Usage(p.Mountpoint)
-		if err == nil {
-			disks = append(disks, DiskInfo{
-				Mountpoint:  usage.Path,
-				TotalBytes:  usage.Total,
-				UsedBytes:   usage.Used,
-				UsedPercent: usage.UsedPercent,
-			})
-			break // only main mount
+	if err == nil {
+		for _, p := range partitions {
+			if strings.HasPrefix(p.Mountpoint, "/System") || strings.HasPrefix(p.Mountpoint, "/dev") {
+				continue
+			}
+			usage, err := disk.Usage(p.Mountpoint)
+			if err == nil {
+				diskPercent = usage.UsedPercent
+				break
+			}
 		}
 	}
 
-	// Network
+	// Network usage
+	networkSentMB := 0.0
+	networkRecvMB := 0.0
 	ioStats, err := net.IOCounters(true)
-	if err != nil {
-		return Metrics{}, err
-	}
-	var totalSent, totalRecv uint64
-	for _, io := range ioStats {
-		if strings.HasPrefix(io.Name, "lo") || strings.HasPrefix(io.Name, "utun") || strings.HasPrefix(io.Name, "awdl") || strings.HasPrefix(io.Name, "bridge") {
-			continue
+	if err == nil {
+		var totalSent, totalRecv uint64
+		for _, io := range ioStats {
+			if strings.HasPrefix(io.Name, "lo") || strings.HasPrefix(io.Name, "utun") || strings.HasPrefix(io.Name, "awdl") || strings.HasPrefix(io.Name, "bridge") {
+				continue
+			}
+			if io.BytesSent == 0 && io.BytesRecv == 0 {
+				continue
+			}
+			totalSent += io.BytesSent
+			totalRecv += io.BytesRecv
 		}
-		if io.BytesSent == 0 && io.BytesRecv == 0 {
-			continue
-		}
-		totalSent += io.BytesSent
-		totalRecv += io.BytesRecv
+		networkSentMB = float64(totalSent) / 1024 / 1024
+		networkRecvMB = float64(totalRecv) / 1024 / 1024
 	}
-	netInfo := NetInfo{
-		TotalBytesSent: totalSent,
-		TotalBytesRecv: totalRecv,
+
+	// Top process by CPU
+	topProcessName := ""
+	topProcessCPU := 0.0
+	totalProcesses := 0
+	processes, err := process.Processes()
+	if err == nil {
+		totalProcesses = len(processes)
+		maxCPUPercent := 0.0
+		for _, p := range processes {
+			name, err := p.Name()
+			if err != nil {
+				continue
+			}
+			cpuPercent, err := p.CPUPercent()
+			if err != nil {
+				continue
+			}
+			if cpuPercent > maxCPUPercent {
+				maxCPUPercent = cpuPercent
+				topProcessName = name
+				topProcessCPU = cpuPercent
+			}
+		}
 	}
 
 	metrics := Metrics{
-		Timestamp: timestamp,
-		OS:        osInfo,
-		CPU:       cpuInfo,
-		Memory:    memInfo,
-		Disk:      disks,
-		Network:   netInfo,
+		Timestamp:      timestamp,
+		Hostname:       hinfo.Hostname,
+		Platform:       hinfo.Platform,
+		CPUPercent:     cpuPercent,
+		LoadAvg1:       loadAvg1,
+		MemoryPercent:  vmem.UsedPercent,
+		DiskPercent:    diskPercent,
+		NetworkSentMB:  networkSentMB,
+		NetworkRecvMB:  networkRecvMB,
+		TopProcessName: topProcessName,
+		TopProcessCPU:  topProcessCPU,
+		TotalProcesses: totalProcesses,
 	}
 
 	return metrics, nil

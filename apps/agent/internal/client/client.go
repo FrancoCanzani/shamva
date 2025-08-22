@@ -1,11 +1,24 @@
 package client
 
 import (
-	"agent/pkg/collector"
+	"agent/internal/collector"
 	"bytes"
 	"encoding/json"
 	"net/http"
+	"time"
 )
+
+var httpClient = &http.Client{
+	Timeout: 30 * time.Second,
+	Transport: &http.Transport{
+		MaxIdleConns:          100,
+		MaxIdleConnsPerHost:   10,
+		IdleConnTimeout:       90 * time.Second,
+		DisableCompression:    false,
+		DisableKeepAlives:     false,
+		ResponseHeaderTimeout: 10 * time.Second,
+	},
+}
 
 func PostMetrics(metrics collector.Metrics) (*http.Response, error) {
 
@@ -22,9 +35,7 @@ func PostMetrics(metrics collector.Metrics) (*http.Response, error) {
 
 	req.Header.Set("Content-Type", "application/json")
 
-	client := &http.Client{}
-
-	resp, err := client.Do(req)
+	resp, err := httpClient.Do(req)
 
 	if err != nil {
 		return nil, err

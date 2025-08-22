@@ -69,6 +69,15 @@ const FormField = ({
 const ErrorMessage = ({ errors }: { errors?: string }) =>
   errors ? <p className="text-destructive text-sm">{errors}</p> : null;
 
+const prettifyJSON = (jsonString: string): string => {
+  try {
+    const parsed = JSON.parse(jsonString);
+    return JSON.stringify(parsed, null, 4);
+  } catch {
+    return jsonString;
+  }
+};
+
 export default function HttpMonitorForm({
   onSubmit,
   onCancel,
@@ -228,6 +237,28 @@ export default function HttpMonitorForm({
               </form.Field>
             </FormField>
           </div>
+          
+          <form.Subscribe
+            selector={(state) => ({
+              interval: state.values.interval,
+              regions: state.values.regions,
+            })}
+          >
+            {({ interval, regions }) => {
+              const checksPerDay = interval > 0
+                ? Math.round((24 * 60 * 60 * 1000 / interval) * (regions.length || 1))
+                : 0;
+              
+              return (
+                <div className="text-muted-foreground text-sm">
+                  <span className="font-medium">Checks per day:</span> {checksPerDay.toLocaleString()} 
+                  <span className="text-xs ml-1">
+                    ({(regions.length || 1)} region{(regions.length || 1) !== 1 ? "s" : ""} × {Math.round(24 * 60 * 60 * 1000 / interval)} checks/day)
+                  </span>
+                </div>
+              );
+            }}
+          </form.Subscribe>
         </div>
 
         <div id="check-config" className="space-y-4">
@@ -490,7 +521,21 @@ export default function HttpMonitorForm({
               <form.Field name="headersString">
                 {(field) => (
                   <>
-                    <Label htmlFor="headersString">Headers (JSON String)</Label>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="headersString">Headers (JSON String)</Label>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="xs"
+                        disabled={!field.state.value}
+                        onClick={() => {
+                          const prettified = prettifyJSON(field.state.value || "");
+                          field.handleChange(prettified);
+                        }}
+                      >
+                        Prettify
+                      </Button>
+                    </div>
                     <Textarea
                       id="headersString"
                       name="headersString"
@@ -522,9 +567,23 @@ export default function HttpMonitorForm({
                     <form.Field name="bodyString">
                       {(field) => (
                         <>
-                          <Label htmlFor="bodyString">
-                            Request Body (JSON String)
-                          </Label>
+                          <div className="flex items-center justify-between">
+                            <Label htmlFor="bodyString">
+                              Request Body (JSON String)
+                            </Label>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="xs"
+                              disabled={!field.state.value}
+                              onClick={() => {
+                                const prettified = prettifyJSON(field.state.value || "");
+                                field.handleChange(prettified);
+                              }}
+                            >
+                              Prettify
+                            </Button>
+                          </div>
                           <Textarea
                             id="bodyString"
                             name="bodyString"

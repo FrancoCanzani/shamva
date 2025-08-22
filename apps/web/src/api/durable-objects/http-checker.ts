@@ -123,12 +123,16 @@ export class HttpCheckerDurableObject extends DurableObject {
       if (error) throw error;
 
       if (incident) {
-        const screenshotUrl =
-          await this.screenshotService.takeAndStoreScreenshot(url, incident.id);
-        if (screenshotUrl) {
-          await this.updateIncident(incident.id, {
-            screenshot_url: screenshotUrl,
-          });
+        try {
+          const screenshotUrl =
+            await this.screenshotService.takeAndStoreScreenshot(url, incident.id);
+          if (screenshotUrl) {
+            await this.updateIncident(incident.id, {
+              screenshot_url: screenshotUrl,
+            });
+          }
+        } catch (screenshotError) {
+          console.error(`DO ${this.doId}: Failed to take screenshot:`, screenshotError);
         }
       }
 

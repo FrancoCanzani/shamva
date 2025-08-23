@@ -94,17 +94,6 @@ sudo chown shamva:shamva /var/log/shamva-collector.log
 sudo chown root:shamva "${CONFIG_DIR}/collector.yml"
 sudo chmod 640 "${CONFIG_DIR}/collector.yml"
 
-# --- Install launchd service ---
-SERVICE_FILE="/Library/LaunchDaemons/com.shamva.collector.plist"
-
-sudo cp shamva-collector.plist "$SERVICE_FILE"
-sudo chown root:wheel "$SERVICE_FILE"
-sudo chmod 644 "$SERVICE_FILE"
-
-# --- Load service (but don't start yet) ---
-sudo launchctl unload "$SERVICE_FILE" 2>/dev/null || true
-sudo launchctl load "$SERVICE_FILE"
-
 echo "✅ Installation complete!"
 echo "Config: ${CONFIG_DIR}/collector.yml"
 echo ""
@@ -115,11 +104,11 @@ echo "3. Click the lock icon and enter your password"
 echo "4. Click '+' and add: /usr/local/bin/shamva-collector"
 echo "5. Restart your Mac or log out/in"
 echo ""
-echo "After granting permissions, start the service:"
-echo "  sudo launchctl start com.shamva.collector"
+echo "After granting permissions, run the collector:"
+echo "  /usr/local/bin/shamva-collector"
 echo ""
-echo "To manage the service:"
-echo "  Start:   sudo launchctl start com.shamva.collector"
-echo "  Stop:    sudo launchctl stop com.shamva.collector"
-echo "  Restart: sudo launchctl unload $SERVICE_FILE && sudo launchctl load $SERVICE_FILE"
-echo "  Logs:    tail -f /var/log/shamva-collector.log"
+echo "To run in background:"
+echo "  nohup /usr/local/bin/shamva-collector > /var/log/shamva-collector.log 2>&1 &"
+echo ""
+echo "To check logs:"
+echo "  tail -f /var/log/shamva-collector.log"

@@ -65,8 +65,14 @@ func (c *Config) GetTimeoutDuration() (time.Duration, error) {
 
 func (c *Config) Validate() error {
 
-	if _, err := c.GetIntervalDuration(); err != nil {
+	interval, err := c.GetIntervalDuration()
+	if err != nil {
 		return fmt.Errorf("invalid collector interval '%s': %w", c.Collector.Interval, err)
+	}
+
+	// Enforce minimum interval of 30 seconds
+	if interval < 30*time.Second {
+		return fmt.Errorf("collector interval must be at least 30s, got %s", c.Collector.Interval)
 	}
 
 	if _, err := c.GetInitialDelayDuration(); err != nil {

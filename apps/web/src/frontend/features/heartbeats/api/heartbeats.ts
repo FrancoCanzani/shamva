@@ -1,5 +1,5 @@
 import { RouterContext } from "@/frontend/routes/__root";
-import { ApiResponse, Heartbeat, Workspace } from "@/frontend/types/types";
+import { ApiResponse, Heartbeat, Workspace } from "@/frontend/lib/types";
 import { queryClient } from "@/frontend/lib/query-client";
 import fetchWorkspaces from "@/frontend/features/workspaces/api/workspaces";
 import { redirect } from "@tanstack/react-router";

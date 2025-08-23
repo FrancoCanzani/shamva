@@ -2,7 +2,7 @@ package main
 
 import (
 	"io"
-	"log"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
@@ -13,16 +13,30 @@ import (
 	"collector/internal/config"
 )
 
-var cfg *config.Config
+var (
+	cfg    *config.Config
+	logger *slog.Logger
+)
 
 func main() {
-	cfg, err := config.LoadConfig()
+	defer func() {
+		if r := recover(); r != nil {
+			slog.Error("Collector crashed", "panic", r)
+			os.Exit(1)
+		}
+	}()
 
+	var err error
+	cfg, err = config.LoadConfig()
 	if err != nil {
-		log.Fatalf("Failed to load configuration: %v", err)
+		slog.Error("Config load failed", "error", err)
+		os.Exit(1)
 	}
 
+	logger = setupLogger()
 	interval, _ := cfg.GetIntervalDuration()
+
+	logger.Info("Shamva collector started", "interval", interval)
 
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
@@ -34,17 +48,40 @@ func main() {
 		select {
 		case <-ticker.C:
 			collectAndSend()
-		case sig := <-sigChan:
-			log.Printf("Received signal %v, shutting down gracefully...", sig)
+		case <-sigChan:
+			logger.Info("Shutting down")
 			return
 		}
 	}
 }
 
+func setupLogger() *slog.Logger {
+	var handler slog.Handler
+	opts := &slog.HandlerOptions{Level: slog.LevelInfo}
+
+	if cfg.Logging.Level == "debug" {
+		opts.Level = slog.LevelDebug
+	}
+
+	if cfg.Logging.Format == "json" {
+		handler = slog.NewJSONHandler(os.Stdout, opts)
+	} else {
+		handler = slog.NewTextHandler(os.Stdout, opts)
+	}
+
+	return slog.New(handler)
+}
+
 func collectAndSend() {
+	defer func() {
+		if r := recover(); r != nil {
+			logger.Error("Collection panic", "error", r)
+		}
+	}()
+
 	metrics, err := collector.Collect()
 	if err != nil {
-		log.Printf("Failed to collect metrics: %v", err)
+		logger.Error("Collection failed", "error", err)
 		return
 	}
 
@@ -55,26 +92,29 @@ func collectAndSend() {
 		resp, err := client.PostMetrics(cfg, metrics)
 
 		if err != nil {
-			log.Printf("Error posting metrics: %v (retry %d/%d)", err, i+1, cfg.Collector.MaxRetries)
+			logger.Warn("Send failed", "error", err, "attempt", i+1)
 		} else {
 			body, _ := io.ReadAll(resp.Body)
 			resp.Body.Close()
 
-			switch {
-			case resp.StatusCode >= 200 && resp.StatusCode < 300:
-				log.Println("✓ Metrics posted successfully")
+			if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+				logger.Info("Metrics sent successfully")
 				return
+			}
 
-			case resp.StatusCode >= 500:
-				log.Printf("Server error %d: %s (retrying...)", resp.StatusCode, string(body))
-
-			default:
-				log.Printf("✗ Fatal error %d: %s", resp.StatusCode, string(body))
+			if resp.StatusCode >= 500 {
+				logger.Warn("Server error", "status", resp.StatusCode)
+			} else {
+				logger.Error("Client error", "status", resp.StatusCode, "body", string(body))
 				return
 			}
 		}
 
-		time.Sleep(delay)
-		delay *= 2
+		if i < cfg.Collector.MaxRetries-1 {
+			time.Sleep(delay)
+			delay *= 2
+		}
 	}
+
+	logger.Error("All retries failed")
 }

@@ -1,4 +1,6 @@
 import { Button } from "@/frontend/components/ui/button";
+import { ErrorMessage } from "@/frontend/components/ui/form-error-message";
+import { FormField } from "@/frontend/components/ui/form-field";
 import { Input } from "@/frontend/components/ui/input";
 import { Label } from "@/frontend/components/ui/label";
 import {
@@ -28,17 +30,6 @@ const timeUnits = [
   { value: 3600000, label: "hours" },
   { value: 86400000, label: "days" },
 ];
-
-const FormField = ({
-  children,
-  className = "",
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) => <div className={cn("space-y-2", className)}>{children}</div>;
-
-const ErrorMessage = ({ errors }: { errors?: string }) =>
-  errors ? <p className="text-destructive text-sm">{errors}</p> : null;
 
 export default function HeartbeatForm({
   workspaceId,
@@ -139,7 +130,7 @@ export default function HeartbeatForm({
           </p>
         </div>
 
-        <div className="w-full space-y-4 rounded border p-4 shadow-xs">
+        <div className="w-full space-y-4 rounded-md border p-4 shadow-xs">
           <div className="space-y-4">
             <FormField className="space-y-2">
               <form.Field name="expectedLapseMs">

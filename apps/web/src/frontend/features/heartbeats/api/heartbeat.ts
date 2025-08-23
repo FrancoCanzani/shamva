@@ -1,5 +1,5 @@
 import { RouterContext } from "@/frontend/routes/__root";
-import { ApiResponse, Heartbeat } from "@/frontend/types/types";
+import { ApiResponse, Heartbeat } from "@/frontend/lib/types";
 import { redirect } from "@tanstack/react-router";
 
 export default async function fetchHeartbeat({

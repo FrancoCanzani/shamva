@@ -32,7 +32,9 @@ export default function NewHeartbeatPage() {
     pingId: string;
   }) => {
     try {
-      await createHeartbeat.mutateAsync(data);
+      await createHeartbeat.mutateAsync({
+        heartbeatData: data,
+      });
       await router.invalidate();
       navigate({ to: `/dashboard/${params.workspaceName}/heartbeats` });
     } catch (error) {
@@ -84,7 +86,7 @@ export default function NewHeartbeatPage() {
           <div className="space-y-4">
             <div className="space-y-3">
               <h3 className="text-sm font-medium">API Endpoint</h3>
-              <Alert className="rounded border-dashed">
+              <Alert className="rounded-md border-dashed">
                 <AlertCircleIcon className="h-4 w-4" />
                 <AlertDescription className="text-sm">
                   This endpoint will only be valid after saving. Monitoring
@@ -96,7 +98,7 @@ export default function NewHeartbeatPage() {
             <div className="space-y-3">
               <h3 className="text-sm font-medium">Ping URL</h3>
               <div className="flex gap-2">
-                <div className="flex-1 rounded border px-3 py-2 shadow-xs">
+                <div className="flex-1 rounded-md border px-3 py-2 shadow-xs">
                   <code className="text-xs break-all">{apiEndpoint}</code>
                 </div>
                 <Button

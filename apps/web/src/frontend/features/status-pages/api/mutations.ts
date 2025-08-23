@@ -1,6 +1,6 @@
 import { queryClient } from "@/frontend/lib/query-client";
 import supabase from "@/frontend/lib/supabase";
-import { StatusPage } from "@/frontend/types/types";
+import { StatusPage } from "@/frontend/lib/types";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 

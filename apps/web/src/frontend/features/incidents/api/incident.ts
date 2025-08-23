@@ -1,5 +1,5 @@
+import { Incident } from "@/frontend/lib/types";
 import { RouterContext } from "@/frontend/routes/__root";
-import { Incident } from "@/frontend/types/types";
 
 interface LoadIncidentParams {
   params: { id: string };

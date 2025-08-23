@@ -22,6 +22,22 @@ const isValidJSONObject = (val?: string) => {
   }
 };
 
+export const CollectorsCreateSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, "Collector name cannot be empty")
+    .max(100, "Collector name is too long"),
+  workspaceId: z.uuid("Invalid workspace ID format"),
+  token: z
+    .string()
+    .trim()
+    .min(1, "Agent token is required")
+    .max(255, "Agent token is too long"),
+});
+
+export const CollectorsParamsSchema = CollectorsCreateSchema.omit({ token: true, workspaceId: true });
+
 export const MonitorsParamsSchema = z
   .object({
     name: z

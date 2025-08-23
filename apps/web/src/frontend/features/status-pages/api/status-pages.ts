@@ -1,7 +1,7 @@
-import { RouterContext } from "@/frontend/routes/__root";
-import { ApiResponse, StatusPage, Workspace } from "@/frontend/types/types";
-import { queryClient } from "@/frontend/lib/query-client";
 import fetchWorkspaces from "@/frontend/features/workspaces/api/workspaces";
+import { queryClient } from "@/frontend/lib/query-client";
+import { ApiResponse, StatusPage, Workspace } from "@/frontend/lib/types";
+import { RouterContext } from "@/frontend/routes/__root";
 import { redirect } from "@tanstack/react-router";
 
 export async function fetchStatusPages({

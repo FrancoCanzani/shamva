@@ -27,6 +27,11 @@ import getStatusPages from "./status-pages/get";
 import getAllStatusPages from "./status-pages/get-all";
 import postStatusPages from "./status-pages/post";
 import putStatusPages from "./status-pages/put";
+import deleteCollectors from "./collectors/delete";
+import getAllCollectors from "./collectors/get-all";
+import getCollector from "./collectors/get";
+import postCollectors from "./collectors/post";
+import putCollectors from "./collectors/put";
 import deleteWorkspaces from "./workspaces/delete";
 import getWorkspaces from "./workspaces/get";
 import getAllWorkspaces from "./workspaces/get-all";
@@ -66,6 +71,13 @@ apiRoutes.get("/api/monitors/:id", getMonitors);
 apiRoutes.put("/api/monitors/:id", putMonitors);
 apiRoutes.patch("/api/monitors/:id", patchMonitors);
 apiRoutes.delete("/api/monitors/:id", deleteMonitors);
+
+// Collector routes
+apiRoutes.post("/api/collectors", postCollectors);
+apiRoutes.get("/api/collectors", getAllCollectors);
+apiRoutes.get("/api/collectors/:id", getCollector);
+apiRoutes.put("/api/collectors/:id", putCollectors);
+apiRoutes.delete("/api/collectors/:id", deleteCollectors);
 
 // Status page routes
 apiRoutes.post("/api/status-pages", postStatusPages);

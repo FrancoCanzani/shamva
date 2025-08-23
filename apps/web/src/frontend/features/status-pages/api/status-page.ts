@@ -1,5 +1,5 @@
+import { ApiResponse, StatusPage } from "@/frontend/lib/types";
 import { RouterContext } from "@/frontend/routes/__root";
-import { ApiResponse, StatusPage } from "@/frontend/types/types";
 import { redirect } from "@tanstack/react-router";
 
 export default async function fetchStatusPage({

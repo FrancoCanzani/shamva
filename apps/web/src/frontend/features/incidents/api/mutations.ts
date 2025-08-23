@@ -1,4 +1,4 @@
-import { ApiResponse, Incident } from "@/frontend/types/types";
+import { ApiResponse, Incident } from "@/frontend/lib/types";
 import { useMutation } from "@tanstack/react-query";
 import { useRouteContext, useRouter } from "@tanstack/react-router";
 import { toast } from "sonner";

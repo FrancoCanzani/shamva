@@ -1,4 +1,6 @@
 import { Button } from "@/frontend/components/ui/button";
+import { ErrorMessage } from "@/frontend/components/ui/form-error-message";
+import { FormField } from "@/frontend/components/ui/form-field";
 import { Input } from "@/frontend/components/ui/input";
 import { Label } from "@/frontend/components/ui/label";
 import {
@@ -57,17 +59,6 @@ interface HttpMonitorFormProps {
     timeoutThresholdMs?: number;
   }>;
 }
-
-const FormField = ({
-  children,
-  className = "",
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) => <div className={cn("space-y-2", className)}>{children}</div>;
-
-const ErrorMessage = ({ errors }: { errors?: string }) =>
-  errors ? <p className="text-destructive text-sm">{errors}</p> : null;
 
 const prettifyJSON = (jsonString: string): string => {
   try {

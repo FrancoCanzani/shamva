@@ -1,6 +1,7 @@
 import type { Session, User } from "@supabase/supabase-js";
 import z from "zod";
 import {
+  CollectorSchema,
   MemberInviteSchema,
   StatusPageSchema,
   WorkspaceSchema,
@@ -10,6 +11,7 @@ export type WorkspaceFormValues = z.infer<typeof WorkspaceSchema>;
 export type MemberInvite = z.infer<typeof MemberInviteSchema>;
 
 export type StatusPageFormValues = z.infer<typeof StatusPageSchema>;
+export type CollectorFormValues = z.infer<typeof CollectorSchema>;
 
 export interface WorkspaceMember {
   id: string;
@@ -206,6 +208,15 @@ export interface Heartbeat {
   last_beat_at?: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface Collector {
+  id: string;
+  workspace_id: string;
+  created_at: string;
+  updated_at: string;
+  name: string;
+  token: string;
 }
 
 export type AuthContextType = {

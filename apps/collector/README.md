@@ -15,8 +15,106 @@ A lightweight system metrics collector that gathers CPU, memory, disk, network, 
 ### Prerequisites
 
 - Go 1.25+ for building from source
-- Valid Shamva API key
+- Valid Shamva agent token (obtained from the Shamva dashboard)
 - Network access to Shamva API endpoint
+
+### Setup Instructions
+
+1. **Create a Collector in Shamva Dashboard:**
+   - Go to your workspace in the Shamva dashboard
+   - Navigate to the "Collectors" section
+   - Click "New Collector" and provide:
+     - A name for your collector (e.g., "Production Server")
+     - An agent token (this will be used for authentication)
+   - Save the collector to get your agent token
+
+2. **Download the Collector Binary:**
+   ```bash
+   # Linux (amd64)
+   wget https://github.com/your-repo/releases/latest/download/shamva-collector-linux-amd64
+   chmod +x shamva-collector-linux-amd64
+   sudo mv shamva-collector-linux-amd64 /usr/local/bin/shamva-collector
+   
+   # macOS (amd64)
+   curl -LO https://github.com/your-repo/releases/latest/download/shamva-collector-darwin-amd64
+   chmod +x shamva-collector-darwin-amd64
+   sudo mv shamva-collector-darwin-amd64 /usr/local/bin/shamva-collector
+   
+   # Windows
+   # Download from the releases page and extract to a directory in your PATH
+   ```
+
+3. **Create Configuration File:**
+   Create a `collector.yaml` file with your settings:
+   ```yaml
+   collector:
+     interval: "60s"
+     max_retries: 3
+     initial_delay: "30s"
+   
+   shamva:
+     endpoint: "https://your-shamva-instance.com/public/metrics"
+     agent_token: "YOUR_AGENT_TOKEN_HERE"
+     timeout: "30s"
+   
+   logging:
+     level: "info"
+     format: "text"
+   ```
+   
+   **Important:** Replace `YOUR_AGENT_TOKEN_HERE` with the agent token from step 1.
+
+4. **Test the Configuration:**
+   ```bash
+   shamva-collector -config collector.yaml
+   ```
+   
+   You should see output like:
+   ```
+   ✓ Metrics posted successfully
+   ```
+
+5. **Run as a Service (Recommended for Production):**
+   ```bash
+   # Create service user
+   sudo useradd -r -s /bin/false shamva
+   sudo mkdir -p /var/lib/shamva
+   sudo chown shamva:shamva /var/lib/shamva
+   
+   # Copy configuration
+   sudo cp collector.yaml /etc/shamva/collector.yaml
+   sudo chown root:shamva /etc/shamva/collector.yaml
+   sudo chmod 640 /etc/shamva/collector.yaml
+   
+   # Create systemd service
+   sudo tee /etc/systemd/system/shamva-collector.service > /dev/null <<EOF
+   [Unit]
+   Description=Shamva Metrics Collector
+   After=network.target
+   
+   [Service]
+   Type=simple
+   User=shamva
+   Group=shamva
+   ExecStart=/usr/local/bin/shamva-collector -config /etc/shamva/collector.yaml
+   Restart=always
+   RestartSec=10
+   StandardOutput=journal
+   StandardError=journal
+   
+   [Install]
+   WantedBy=multi-user.target
+   EOF
+   
+   # Enable and start service
+   sudo systemctl daemon-reload
+   sudo systemctl enable shamva-collector
+   sudo systemctl start shamva-collector
+   
+   # Check status
+   sudo systemctl status shamva-collector
+   sudo journalctl -u shamva-collector -f
+   ```
 
 ### Installation
 
@@ -110,11 +208,14 @@ sudo journalctl -u shamva-agent -f
 
 ### Security Considerations
 
-- **Token Protection**: Store agent tokens in configuration files with restricted permissions
+- **Token Protection**: Store agent tokens in configuration files with restricted permissions (600)
 - **User Isolation**: Runs as dedicated `shamva` user with minimal privileges
 - **System Protection**: Uses systemd security features (PrivateTmp, ProtectSystem, etc.)
 - **Resource Limits**: Memory and CPU limits prevent resource exhaustion
 - **Network Security**: Uses HTTPS with proper TLS verification
+- **Token Rotation**: Regularly rotate your agent tokens for enhanced security
+- **Configuration Security**: Keep your `collector.yaml` file secure and never commit it to version control
+- **Network Access**: Ensure the collector can reach your Shamva instance but restrict unnecessary network access
 
 ### Monitoring and Maintenance
 

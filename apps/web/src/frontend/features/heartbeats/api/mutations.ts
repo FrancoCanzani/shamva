@@ -1,20 +1,20 @@
 import { queryClient } from "@/frontend/lib/query-client";
 import supabase from "@/frontend/lib/supabase";
-import { Heartbeat } from "@/frontend/types/types";
+import { Heartbeat } from "@/frontend/lib/types";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 export function useCreateHeartbeat() {
   return useMutation({
     mutationFn: async ({
-      workspaceName,
       heartbeatData,
     }: {
-      workspaceName: string;
       heartbeatData: {
         name: string;
-        expected_lapse_ms: number;
-        grace_period_ms: number;
+        expectedLapseMs: number;
+        gracePeriodMs: number;
+        workspaceId: string;
+        pingId: string;
       };
     }): Promise<Heartbeat> => {
       const {
@@ -38,10 +38,7 @@ export function useCreateHeartbeat() {
           Authorization: `Bearer ${session.access_token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          ...heartbeatData,
-          workspaceName,
-        }),
+        body: JSON.stringify(heartbeatData),
       });
       if (!response.ok) {
         throw new Error("Failed to create heartbeat");

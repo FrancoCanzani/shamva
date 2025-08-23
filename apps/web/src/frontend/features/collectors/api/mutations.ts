@@ -1,18 +1,19 @@
 import { queryClient } from "@/frontend/lib/query-client";
 import supabase from "@/frontend/lib/supabase";
-import { Monitor, MonitorFormData } from "@/frontend/lib/types";
-import { useMutation } from "@tanstack/react-query";
+import { Collector, CollectorFormValues } from "@/frontend/lib/types";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-export function useCreateMonitor() {
+
+export function useCreateCollector() {
   return useMutation({
     mutationFn: async ({
-      workspaceName,
-      monitorData,
+      workspaceId,
+      collectorData,
     }: {
-      workspaceName: string;
-      monitorData: MonitorFormData;
-    }): Promise<Monitor> => {
+      workspaceId: string;
+      collectorData: CollectorFormValues & { token?: string };
+    }): Promise<Collector> => {
       const {
         data: { session },
         error: sessionError,
@@ -28,41 +29,37 @@ export function useCreateMonitor() {
         throw new Error("Failed to validate authentication claims");
       }
 
-      const response = await fetch(`/api/monitors`, {
+      const response = await fetch(`/api/collectors`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${session.access_token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          ...monitorData,
-          workspaceName,
+          name: collectorData.name,
+          workspaceId,
+          ...(collectorData.token && { token: collectorData.token }),
         }),
       });
       if (!response.ok) {
-        throw new Error("Failed to create monitor");
+        throw new Error("Failed to create collector");
       }
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["monitors"] });
-      toast.success("Monitor created successfully");
+      queryClient.invalidateQueries({ queryKey: ["collectors"] });
+      toast.success("Collector created successfully");
     },
     onError: () => {
-      toast.error("Failed to create monitor");
+      toast.error("Failed to create collector");
     },
   });
 }
 
-export function useUpdateMonitor() {
-  return useMutation({
-    mutationFn: async ({
-      monitorId,
-      data,
-    }: {
-      monitorId: string;
-      data: MonitorFormData;
-    }): Promise<Monitor> => {
+export function useFetchCollectors(workspaceId: string) {
+  return useQuery({
+    queryKey: ["collectors", workspaceId],
+    queryFn: async (): Promise<Collector[]> => {
       const {
         data: { session },
         error: sessionError,
@@ -78,33 +75,81 @@ export function useUpdateMonitor() {
         throw new Error("Failed to validate authentication claims");
       }
 
-      const response = await fetch(`/api/monitors/${monitorId}`, {
+      if (!workspaceId) {
+        throw new Error("No workspace ID provided");
+      }
+
+      const response = await fetch(`/api/collectors?workspaceId=${workspaceId}`, {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error("Failed to fetch collectors");
+      }
+      
+      const result = await response.json() as { data: Collector[]; success: boolean };
+      return result.data || [];
+    },
+    enabled: !!workspaceId,
+  });
+}
+
+export function useUpdateCollector() {
+  return useMutation({
+    mutationFn: async ({
+      collectorId,
+      data,
+    }: {
+      collectorId: string;
+      data: CollectorFormValues;
+    }): Promise<Collector> => {
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
+
+      if (sessionError || !session?.access_token) {
+        throw new Error("Failed to get authentication session");
+      }
+
+      const { data: claimsData, error: claimsError } =
+        await supabase.auth.getClaims();
+      if (claimsError || !claimsData?.claims) {
+        throw new Error("Failed to validate authentication claims");
+      }
+
+      const response = await fetch(`/api/collectors/${collectorId}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${session.access_token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          name: data.name,
+        }),
       });
       if (!response.ok) {
-        throw new Error("Failed to update monitor");
+        throw new Error("Failed to update collector");
       }
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["monitors"] });
-      queryClient.invalidateQueries({ queryKey: ["monitor"] });
-      toast.success("Monitor updated successfully");
+      queryClient.invalidateQueries({ queryKey: ["collectors"] });
+      queryClient.invalidateQueries({ queryKey: ["collector"] });
+      toast.success("Collector updated successfully");
     },
     onError: () => {
-      toast.error("Failed to update monitor");
+      toast.error("Failed to update collector");
     },
   });
 }
 
-export function useDeleteMonitor() {
+export function useDeleteCollector() {
   return useMutation({
-    mutationFn: async (monitorId: string): Promise<void> => {
+    mutationFn: async (collectorId: string): Promise<void> => {
       const {
         data: { session },
         error: sessionError,
@@ -120,7 +165,7 @@ export function useDeleteMonitor() {
         throw new Error("Failed to validate authentication claims");
       }
 
-      const response = await fetch(`/api/monitors/${monitorId}`, {
+      const response = await fetch(`/api/collectors/${collectorId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -128,63 +173,15 @@ export function useDeleteMonitor() {
         },
       });
       if (!response.ok) {
-        throw new Error("Failed to delete monitor");
+        throw new Error("Failed to delete collector");
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["monitors"] });
-      toast.success("Monitor deleted successfully");
+      queryClient.invalidateQueries({ queryKey: ["collectors"] });
+      toast.success("Collector deleted successfully");
     },
     onError: () => {
-      toast.error("Failed to delete monitor");
-    },
-  });
-}
-
-export function usePauseResumeMonitor() {
-  return useMutation({
-    mutationFn: async ({
-      monitorId,
-      status,
-    }: {
-      monitorId: string;
-      status: "active" | "paused";
-    }): Promise<Monitor> => {
-      const {
-        data: { session },
-        error: sessionError,
-      } = await supabase.auth.getSession();
-
-      if (sessionError || !session?.access_token) {
-        throw new Error("Failed to get authentication session");
-      }
-
-      const { data: claimsData, error: claimsError } =
-        await supabase.auth.getClaims();
-      if (claimsError || !claimsData?.claims) {
-        throw new Error("Failed to validate authentication claims");
-      }
-
-      const response = await fetch(`/api/monitors/${monitorId}`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status }),
-      });
-      if (!response.ok) {
-        throw new Error("Failed to update monitor status");
-      }
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["monitors"] });
-      queryClient.invalidateQueries({ queryKey: ["monitor"] });
-      toast.success("Monitor status updated successfully");
-    },
-    onError: () => {
-      toast.error("Failed to update monitor status");
+      toast.error("Failed to delete collector");
     },
   });
 }

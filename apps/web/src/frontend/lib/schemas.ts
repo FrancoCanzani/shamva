@@ -218,3 +218,11 @@ export const IncidentUpdateSchema = z.object({
     .max(2000, "Post-mortem cannot exceed 2000 characters")
     .optional(),
 });
+
+export const CollectorSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, "Collector name cannot be empty")
+    .max(100, "Collector name is too long"),
+});

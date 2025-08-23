@@ -10,10 +10,21 @@ import (
 
 	"collector/internal/client"
 	"collector/internal/collector"
+	"collector/internal/config"
 )
 
+var cfg *config.Config
+
 func main() {
-	ticker := time.NewTicker(60 * time.Second)
+	cfg, err := config.LoadConfig()
+
+	if err != nil {
+		log.Fatalf("Failed to load configuration: %v", err)
+	}
+
+	interval, _ := cfg.GetIntervalDuration()
+
+	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 
 	sigChan := make(chan os.Signal, 1)
@@ -31,22 +42,20 @@ func main() {
 }
 
 func collectAndSend() {
-
 	metrics, err := collector.Collect()
-
 	if err != nil {
 		log.Printf("Failed to collect metrics: %v", err)
 		return
 	}
 
-	maxRetries := 3
-	delay := 30 * time.Second
+	initialDelay, _ := cfg.GetInitialDelayDuration()
+	delay := initialDelay
 
-	for i := range maxRetries {
-		resp, err := client.PostMetrics(metrics)
+	for i := range cfg.Collector.MaxRetries {
+		resp, err := client.PostMetrics(cfg, metrics)
 
 		if err != nil {
-			log.Printf("Error posting metrics: %v (retry %d/%d)", err, i+1, maxRetries)
+			log.Printf("Error posting metrics: %v (retry %d/%d)", err, i+1, cfg.Collector.MaxRetries)
 		} else {
 			body, _ := io.ReadAll(resp.Body)
 			resp.Body.Close()

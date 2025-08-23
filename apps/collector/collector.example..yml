@@ -1,0 +1,13 @@
+collector:
+  interval: "60s"
+  max_retries: 3
+  initial_delay: "30s"
+
+shamva:
+  endpoint: "https://shamva.francocanzani.workers.dev/public/metrics"
+  agent_token: "your-agent-token-here"
+  timeout: "30s"
+
+logging:
+  level: "info"
+  format: "text"

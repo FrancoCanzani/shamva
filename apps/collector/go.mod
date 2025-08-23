@@ -5,6 +5,7 @@ go 1.25.0
 require (
 	github.com/distatus/battery v0.11.0
 	github.com/shirou/gopsutil/v4 v4.25.7
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (

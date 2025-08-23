@@ -84,12 +84,13 @@ Create a JSON file (e.g., `/etc/shamva/config.json`):
 sudo cp configs/shamva-agent.service /etc/systemd/system/
 ```
 
-2. **Create environment file:**
+2. **Create configuration file:**
 
 ```bash
-sudo mkdir -p /etc/default
-echo "SHAMVA_API_KEY=your-actual-api-key" | sudo tee /etc/default/shamva-agent
-sudo chmod 600 /etc/default/shamva-agent
+sudo mkdir -p /etc/shamva
+sudo cp collector.yml /etc/shamva/collector.yml
+sudo chown root:shamva /etc/shamva/collector.yml
+sudo chmod 640 /etc/shamva/collector.yml
 ```
 
 3. **Enable and start the service:**
@@ -109,7 +110,7 @@ sudo journalctl -u shamva-agent -f
 
 ### Security Considerations
 
-- **API Key Protection**: Store API keys in environment files with restricted permissions
+- **Token Protection**: Store agent tokens in configuration files with restricted permissions
 - **User Isolation**: Runs as dedicated `shamva` user with minimal privileges
 - **System Protection**: Uses systemd security features (PrivateTmp, ProtectSystem, etc.)
 - **Resource Limits**: Memory and CPU limits prevent resource exhaustion

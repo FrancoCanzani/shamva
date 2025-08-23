@@ -79,15 +79,13 @@ export default {
     env: EnvBindings,
     _ctx: ExecutionContext //eslint-disable-line
   ) {
-    console.log("Running scheduled task in environment:", env.NAME);
-
     switch (controller.cron) {
       case "* * * * *":
         // Every minute - run monitor and heartbeat checks
         await handleMonitorCheckerCron(env);
         await handleHeartbeatCheckerCron(env);
         break;
-      case "0 0 * * 0":
+      case "0 0 * * 1":
         // Every Sunday at midnight - run log cleanup
         await handleLogCleanupCron();
         break;

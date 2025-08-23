@@ -48,7 +48,7 @@ export default function MonitorPage() {
 
   const availableRegions = useMemo(() => {
     const configuredRegions = monitor.regions || [];
-    return monitoringRegions.filter(r => configuredRegions.includes(r.value));
+    return monitoringRegions.filter((r) => configuredRegions.includes(r.value));
   }, [monitor.regions]);
 
   const deleteMonitorMutation = useDeleteMonitor();
@@ -103,13 +103,23 @@ export default function MonitorPage() {
               })}
             </span>
           )}
-          <Select value={days.toString()} onValueChange={(value) => handleDaysChange(parseInt(value))}>
-          <SelectTrigger size="sm" className="text-xs data-[size=sm]:h-7 px-2">
-          <SelectValue />
+          <Select
+            value={days.toString()}
+            onValueChange={(value) => handleDaysChange(parseInt(value))}
+          >
+            <SelectTrigger
+              size="sm"
+              className="px-2 text-xs data-[size=sm]:h-7"
+            >
+              <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {PERIOD_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value.toString()} className="text-xs">
+                <SelectItem
+                  key={option.value}
+                  value={option.value.toString()}
+                  className="text-xs"
+                >
                   {option.label}
                 </SelectItem>
               ))}
@@ -118,7 +128,10 @@ export default function MonitorPage() {
 
           {availableRegions.length > 1 && (
             <Select value={region || "all"} onValueChange={handleRegionChange}>
-              <SelectTrigger size="sm" className="text-xs data-[size=sm]:h-7 px-2">
+              <SelectTrigger
+                size="sm"
+                className="px-2 text-xs data-[size=sm]:h-7"
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -127,7 +140,7 @@ export default function MonitorPage() {
                 </SelectItem>
                 {availableRegions.map((r) => (
                   <SelectItem key={r.value} value={r.value} className="text-xs">
-                   {r.label}
+                    {r.label}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -135,15 +148,21 @@ export default function MonitorPage() {
           )}
 
           {(days !== 7 || region) && (
-            <Button 
-              variant="outline" 
-              size="icon" 
+            <Button
+              variant="outline"
+              size="icon"
               className="h-7 w-7"
               onClick={handleClearFilters}
               title="Clear filters"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="currentColor">
-                <path d="m592-481-57-57 143-182H353l-80-80h487q25 0 36 22t-4 42L592-481ZM791-56 560-287v87q0 17-11.5 28.5T520-160h-80q-17 0-28.5-11.5T400-200v-247L56-791l56-57 736 736-57 56ZM535-538Z"/>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                height="16px"
+                viewBox="0 -960 960 960"
+                width="16px"
+                fill="currentColor"
+              >
+                <path d="m592-481-57-57 143-182H353l-80-80h487q25 0 36 22t-4 42L592-481ZM791-56 560-287v87q0 17-11.5 28.5T520-160h-80q-17 0-28.5-11.5T400-200v-247L56-791l56-57 736 736-57 56ZM535-538Z" />
               </svg>
             </Button>
           )}

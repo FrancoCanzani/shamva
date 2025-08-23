@@ -89,7 +89,7 @@ export default {
         break;
       case "0 0 * * 0":
         // Every Sunday at midnight - run log cleanup
-        await handleLogCleanupCron(env);
+        await handleLogCleanupCron();
         break;
     }
   },

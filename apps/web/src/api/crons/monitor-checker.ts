@@ -2,9 +2,7 @@ import type { EnvBindings } from "../../../bindings";
 import { supabase } from "../lib/supabase/client";
 import type { Monitor, Region } from "../lib/types";
 
-async function getWorkspaceUsers(
-  workspaceId: string
-): Promise<string[]> {
+async function getWorkspaceUsers(workspaceId: string): Promise<string[]> {
   try {
     const { data: workspaceUsers, error } = await supabase
       .from("workspace_members")

@@ -142,7 +142,6 @@ export default async function postMetrics(c: Context) {
       200
     );
   } catch (error) {
-    console.error("Metrics endpoint error:", error);
     const errorDetails = error instanceof Error ? error.message : String(error);
     return c.json(
       {

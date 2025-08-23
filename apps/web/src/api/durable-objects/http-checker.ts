@@ -48,7 +48,10 @@ export class HttpCheckerDurableObject extends DurableObject {
 
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), timeoutThresholdMs || 45000);
+      const timeoutId = setTimeout(
+        () => controller.abort(),
+        timeoutThresholdMs || 45000
+      );
 
       const requestHeaders: HeadersInit = {
         "User-Agent": USER_AGENT,
@@ -125,14 +128,20 @@ export class HttpCheckerDurableObject extends DurableObject {
       if (incident) {
         try {
           const screenshotUrl =
-            await this.screenshotService.takeAndStoreScreenshot(url, incident.id);
+            await this.screenshotService.takeAndStoreScreenshot(
+              url,
+              incident.id
+            );
           if (screenshotUrl) {
             await this.updateIncident(incident.id, {
               screenshot_url: screenshotUrl,
             });
           }
         } catch (screenshotError) {
-          console.error(`DO ${this.doId}: Failed to take screenshot:`, screenshotError);
+          console.error(
+            `DO ${this.doId}: Failed to take screenshot:`,
+            screenshotError
+          );
         }
       }
 
@@ -188,10 +197,7 @@ export class HttpCheckerDurableObject extends DurableObject {
     };
 
     try {
-      const { error } = await supabase
-        .from("logs")
-        .insert(logData)
-        .select();
+      const { error } = await supabase.from("logs").insert(logData).select();
 
       if (error) {
         console.error(`DO ${this.doId}: Database error inserting log:`, {
@@ -249,12 +255,13 @@ export class HttpCheckerDurableObject extends DurableObject {
           result.ok === true &&
           result.statusCode !== null &&
           result.statusCode < 400;
-        
+
         // Determine if degraded based on latency and threshold
-        const isDegraded = result.latencyMs !== null && 
-          config.degradedThresholdMs && 
+        const isDegraded =
+          result.latencyMs !== null &&
+          config.degradedThresholdMs &&
           result.latencyMs > config.degradedThresholdMs;
-        
+
         const now = Date.now();
 
         if (isSuccess) {
@@ -315,7 +322,10 @@ export class HttpCheckerDurableObject extends DurableObject {
               } else {
                 // Update existing incident with new region
                 const updatedRegions = [
-                  ...new Set([...activeIncident.regions_affected, config.region]),
+                  ...new Set([
+                    ...activeIncident.regions_affected,
+                    config.region,
+                  ]),
                 ];
                 this.ctx.waitUntil(
                   this.updateIncident(activeIncident.id, {
@@ -349,7 +359,8 @@ export class HttpCheckerDurableObject extends DurableObject {
                         url: monitor.url || config.urlToCheck,
                         statusCode: result.statusCode ?? undefined,
                         errorMessage:
-                          result.checkError ?? `HTTP status ${result.statusCode}`,
+                          result.checkError ??
+                          `HTTP status ${result.statusCode}`,
                         lastChecked: new Date(now).toISOString(),
                         region: config.region || "Unknown",
                       },
@@ -365,7 +376,10 @@ export class HttpCheckerDurableObject extends DurableObject {
             .from("monitors")
             .update({
               status: isDegraded ? "degraded" : "active",
-              error_message: isDegraded && config.degradedThresholdMs ? `Response time ${result.latencyMs}ms exceeds degraded threshold ${config.degradedThresholdMs}ms` : null,
+              error_message:
+                isDegraded && config.degradedThresholdMs
+                  ? `Response time ${result.latencyMs}ms exceeds degraded threshold ${config.degradedThresholdMs}ms`
+                  : null,
               last_check_at: new Date(now).toISOString(),
               last_success_at: new Date(now).toISOString(),
               updated_at: new Date(now).toISOString(),

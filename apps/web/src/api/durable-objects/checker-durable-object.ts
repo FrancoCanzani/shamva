@@ -294,10 +294,7 @@ export class CheckerDurableObject extends DurableObject {
     };
 
     try {
-      const { error } = await supabase
-        .from("logs")
-        .insert(logData)
-        .select();
+      const { error } = await supabase.from("logs").insert(logData).select();
 
       if (error) {
         console.error(`DO ${this.doId}: Database error inserting log:`, {

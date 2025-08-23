@@ -191,7 +191,7 @@ export default function TcpMonitorForm({
               </form.Field>
             </FormField>
           </div>
-          
+
           <form.Subscribe
             selector={(state) => ({
               interval: state.values.interval,
@@ -199,15 +199,21 @@ export default function TcpMonitorForm({
             })}
           >
             {({ interval, regions }) => {
-              const checksPerDay = interval > 0
-                ? Math.round((24 * 60 * 60 * 1000 / interval) * (regions.length || 1))
-                : 0;
-              
+              const checksPerDay =
+                interval > 0
+                  ? Math.round(
+                      ((24 * 60 * 60 * 1000) / interval) * (regions.length || 1)
+                    )
+                  : 0;
+
               return (
                 <div className="text-muted-foreground text-sm">
-                  <span className="font-medium">Checks per day:</span> {checksPerDay.toLocaleString()} 
-                  <span className="text-xs ml-1">
-                    ({(regions.length || 1)} region{(regions.length || 1) !== 1 ? "s" : ""} × {Math.round(24 * 60 * 60 * 1000 / interval)} checks/day)
+                  <span className="font-medium">Checks per day:</span>{" "}
+                  {checksPerDay.toLocaleString()}
+                  <span className="ml-1 text-xs">
+                    ({regions.length || 1} region
+                    {(regions.length || 1) !== 1 ? "s" : ""} ×{" "}
+                    {Math.round((24 * 60 * 60 * 1000) / interval)} checks/day)
                   </span>
                 </div>
               );

@@ -5,8 +5,6 @@ import { supabase } from "../lib/supabase/client";
 import { CheckResult, Incident, MonitorConfig } from "../lib/types";
 import { NotificationService } from "../notifications/notification-service";
 
-
-
 export class TcpCheckerDurableObject extends DurableObject {
   ctx: DurableObjectState;
   env: EnvBindings;
@@ -21,7 +19,10 @@ export class TcpCheckerDurableObject extends DurableObject {
     this.notificationService = new NotificationService(env);
   }
 
-  private async performTcpCheck(hostPort: string, timeoutThresholdMs?: number): Promise<CheckResult> {
+  private async performTcpCheck(
+    hostPort: string,
+    timeoutThresholdMs?: number
+  ): Promise<CheckResult> {
     const checkStartTime = performance.now();
     const result: CheckResult = {
       ok: false,
@@ -41,7 +42,10 @@ export class TcpCheckerDurableObject extends DurableObject {
       }
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), timeoutThresholdMs || 45000);
+      const timeoutId = setTimeout(
+        () => controller.abort(),
+        timeoutThresholdMs || 45000
+      );
 
       const socket = connect({ hostname, port });
 
@@ -137,10 +141,7 @@ export class TcpCheckerDurableObject extends DurableObject {
     };
 
     try {
-      const { error } = await supabase
-        .from("logs")
-        .insert(logData)
-        .select();
+      const { error } = await supabase.from("logs").insert(logData).select();
 
       if (error) {
         console.error(`DO ${this.doId}: Database error inserting log:`, {
@@ -178,7 +179,10 @@ export class TcpCheckerDurableObject extends DurableObject {
           throw new Error("TCP host:port is required for TCP checks");
         }
 
-        const result = await this.performTcpCheck(config.tcpHostPort, config.timeoutThresholdMs);
+        const result = await this.performTcpCheck(
+          config.tcpHostPort,
+          config.timeoutThresholdMs
+        );
 
         this.ctx.waitUntil(
           this.logCheckResult(
@@ -191,12 +195,13 @@ export class TcpCheckerDurableObject extends DurableObject {
         );
 
         const isSuccess = result.ok === true;
-        
+
         // Determine if degraded based on latency and threshold
-        const isDegraded = result.latencyMs !== null && 
-          config.degradedThresholdMs && 
+        const isDegraded =
+          result.latencyMs !== null &&
+          config.degradedThresholdMs &&
           result.latencyMs > config.degradedThresholdMs;
-        
+
         const now = Date.now();
 
         if (isSuccess) {
@@ -257,7 +262,10 @@ export class TcpCheckerDurableObject extends DurableObject {
               } else {
                 // Update existing incident with new region
                 const updatedRegions = [
-                  ...new Set([...activeIncident.regions_affected, config.region]),
+                  ...new Set([
+                    ...activeIncident.regions_affected,
+                    config.region,
+                  ]),
                 ];
                 this.ctx.waitUntil(
                   this.updateIncident(activeIncident.id, {
@@ -307,7 +315,10 @@ export class TcpCheckerDurableObject extends DurableObject {
             .from("monitors")
             .update({
               status: isDegraded ? "degraded" : "active",
-              error_message: isDegraded && config.degradedThresholdMs ? `Response time ${result.latencyMs}ms exceeds degraded threshold ${config.degradedThresholdMs}ms` : null,
+              error_message:
+                isDegraded && config.degradedThresholdMs
+                  ? `Response time ${result.latencyMs}ms exceeds degraded threshold ${config.degradedThresholdMs}ms`
+                  : null,
               last_check_at: new Date(now).toISOString(),
               last_success_at: new Date(now).toISOString(),
               updated_at: new Date(now).toISOString(),

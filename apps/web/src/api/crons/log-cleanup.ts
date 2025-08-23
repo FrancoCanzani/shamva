@@ -1,7 +1,6 @@
-import { EnvBindings } from "../../../bindings";
 import { supabase } from "../lib/supabase/client";
 
-export async function handleLogCleanupCron(env: EnvBindings): Promise<void> {
+export async function handleLogCleanupCron(): Promise<void> {
   console.log("Starting log cleanup cron job at", new Date().toISOString());
 
   try {

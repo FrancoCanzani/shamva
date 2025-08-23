@@ -1,4 +1,4 @@
-# Shamva Agent
+# Shamva Collector
 
 A lightweight system metrics collector that gathers CPU, memory, disk, network, and process information and sends it to the Shamva monitoring platform.
 
@@ -21,17 +21,20 @@ A lightweight system metrics collector that gathers CPU, memory, disk, network, 
 ### Installation
 
 1. **Build the agent:**
+
 ```bash
 go build -o shamva-agent cmd/main.go
 ```
 
 2. **Install binary:**
+
 ```bash
 sudo cp shamva-agent /usr/local/bin/
 sudo chmod +x /usr/local/bin/shamva-agent
 ```
 
 3. **Create service user:**
+
 ```bash
 sudo useradd -r -s /bin/false shamva
 sudo mkdir -p /var/lib/shamva
@@ -44,16 +47,16 @@ The agent can be configured via environment variables or a JSON configuration fi
 
 ### Environment Variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `SHAMVA_API_KEY` | **required** | Your Shamva API authentication key |
-| `SHAMVA_SERVER_URL` | `https://api.shamva.io/metrics` | Metrics submission endpoint |
-| `SHAMVA_COLLECT_INTERVAL` | `60s` | How often to collect and send metrics |
-| `SHAMVA_MAX_RETRIES` | `3` | Maximum retry attempts for failed requests |
-| `SHAMVA_INITIAL_DELAY` | `30s` | Initial delay between retries |
-| `SHAMVA_REQUEST_TIMEOUT` | `30s` | HTTP request timeout |
-| `SHAMVA_LOG_LEVEL` | `info` | Logging level (debug, info, warn, error) |
-| `SHAMVA_CONFIG_FILE` | - | Path to JSON configuration file |
+| Variable                  | Default                         | Description                                |
+| ------------------------- | ------------------------------- | ------------------------------------------ |
+| `SHAMVA_API_KEY`          | **required**                    | Your Shamva API authentication key         |
+| `SHAMVA_SERVER_URL`       | `https://api.shamva.io/metrics` | Metrics submission endpoint                |
+| `SHAMVA_COLLECT_INTERVAL` | `60s`                           | How often to collect and send metrics      |
+| `SHAMVA_MAX_RETRIES`      | `3`                             | Maximum retry attempts for failed requests |
+| `SHAMVA_INITIAL_DELAY`    | `30s`                           | Initial delay between retries              |
+| `SHAMVA_REQUEST_TIMEOUT`  | `30s`                           | HTTP request timeout                       |
+| `SHAMVA_LOG_LEVEL`        | `info`                          | Logging level (debug, info, warn, error)   |
+| `SHAMVA_CONFIG_FILE`      | -                               | Path to JSON configuration file            |
 
 ### Configuration File
 
@@ -76,11 +79,13 @@ Create a JSON file (e.g., `/etc/shamva/config.json`):
 ### Systemd Service
 
 1. **Copy the service file:**
+
 ```bash
 sudo cp configs/shamva-agent.service /etc/systemd/system/
 ```
 
 2. **Create environment file:**
+
 ```bash
 sudo mkdir -p /etc/default
 echo "SHAMVA_API_KEY=your-actual-api-key" | sudo tee /etc/default/shamva-agent
@@ -88,6 +93,7 @@ sudo chmod 600 /etc/default/shamva-agent
 ```
 
 3. **Enable and start the service:**
+
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl enable shamva-agent
@@ -95,6 +101,7 @@ sudo systemctl start shamva-agent
 ```
 
 4. **Check service status:**
+
 ```bash
 sudo systemctl status shamva-agent
 sudo journalctl -u shamva-agent -f
@@ -111,22 +118,26 @@ sudo journalctl -u shamva-agent -f
 ### Monitoring and Maintenance
 
 **View logs:**
+
 ```bash
 sudo journalctl -u shamva-agent -n 100
 ```
 
 **Restart service:**
+
 ```bash
 sudo systemctl restart shamva-agent
 ```
 
 **Update configuration:**
+
 ```bash
 sudo systemctl edit shamva-agent  # Override environment variables
 sudo systemctl restart shamva-agent
 ```
 
 **Check resource usage:**
+
 ```bash
 sudo systemctl show shamva-agent --property=MemoryCurrent,CPUUsageNSec
 ```
@@ -149,36 +160,43 @@ The agent collects the following system metrics:
 ### Common Issues
 
 **Agent won't start:**
+
 - Verify API key is set correctly
 - Check network connectivity to Shamva API
 - Review logs: `sudo journalctl -u shamva-agent`
 
 **High resource usage:**
+
 - Increase collection interval: `SHAMVA_COLLECT_INTERVAL=300s`
 - Check for system issues affecting metric collection
 
 **Authentication errors:**
+
 - Verify API key is valid and not expired
 - Check API key permissions in Shamva dashboard
 
 **Network timeouts:**
+
 - Increase timeout: `SHAMVA_REQUEST_TIMEOUT=60s`
 - Check firewall rules and proxy settings
 
 ### Log Analysis
 
 **Successful operation:**
+
 ```
 ✓ Metrics posted successfully
 ```
 
 **Retry behavior:**
+
 ```
 Server error 502: Bad Gateway (attempt 1/3)
 ✓ Metrics posted successfully
 ```
 
 **Fatal errors:**
+
 ```
 ✗ Authentication error 401: Invalid API key
 ```

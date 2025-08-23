@@ -29,8 +29,8 @@ export default async function postMetrics(c: Context) {
     }
 
     const { data: agent, error: agentError } = await supabase
-      .from("collector_agents")
-      .select("id, name, workspace_id, is_active, last_seen_at")
+      .from("collectors")
+      .select("id, name, workspace_id, is_active")
       .eq("token", token)
       .eq("is_active", true)
       .single();
@@ -77,41 +77,39 @@ export default async function postMetrics(c: Context) {
     const metrics = validation.data;
 
     await supabase
-      .from("collector_agents")
+      .from("collectors")
       .update({ last_seen_at: new Date().toISOString() })
       .eq("id", agent.id);
 
-    const { error: metricsError } = await supabase
-      .from("system_metrics")
-      .insert({
-        agent_id: agent.id,
-        workspace_id: agent.workspace_id,
-        timestamp: metrics.timestamp,
-        hostname: metrics.hostname,
-        platform: metrics.platform,
-        cpu_percent: metrics.cpu_percent,
-        load_avg_1: metrics.load_avg_1,
-        memory_percent: metrics.memory_percent,
-        memory_used_gb: metrics.memory_used_gb,
-        memory_total_gb: metrics.memory_total_gb,
-        disk_percent: metrics.disk_percent,
-        disk_free_gb: metrics.disk_free_gb,
-        disk_total_gb: metrics.disk_total_gb,
-        network_sent_mb: metrics.network_sent_mb,
-        network_recv_mb: metrics.network_recv_mb,
-        network_sent_mbps: metrics.network_sent_mbps,
-        network_recv_mbps: metrics.network_recv_mbps,
-        top_process_name: metrics.top_process_name,
-        top_process_cpu: metrics.top_process_cpu,
-        total_processes: metrics.total_processes,
-        temperature_celsius: metrics.temperature_celsius,
-        power_status: metrics.power_status,
-        battery_percent: metrics.battery_percent,
-        network_connected: metrics.network_connected,
-        network_interface: metrics.network_interface,
-        uptime_seconds: metrics.uptime_seconds,
-        created_at: new Date().toISOString(),
-      });
+    const { error: metricsError } = await supabase.from("metrics").insert({
+      agent_id: agent.id,
+      workspace_id: agent.workspace_id,
+      timestamp: metrics.timestamp,
+      hostname: metrics.hostname,
+      platform: metrics.platform,
+      cpu_percent: metrics.cpu_percent,
+      load_avg_1: metrics.load_avg_1,
+      memory_percent: metrics.memory_percent,
+      memory_used_gb: metrics.memory_used_gb,
+      memory_total_gb: metrics.memory_total_gb,
+      disk_percent: metrics.disk_percent,
+      disk_free_gb: metrics.disk_free_gb,
+      disk_total_gb: metrics.disk_total_gb,
+      network_sent_mb: metrics.network_sent_mb,
+      network_recv_mb: metrics.network_recv_mb,
+      network_sent_mbps: metrics.network_sent_mbps,
+      network_recv_mbps: metrics.network_recv_mbps,
+      top_process_name: metrics.top_process_name,
+      top_process_cpu: metrics.top_process_cpu,
+      total_processes: metrics.total_processes,
+      temperature_celsius: metrics.temperature_celsius,
+      power_status: metrics.power_status,
+      battery_percent: metrics.battery_percent,
+      network_connected: metrics.network_connected,
+      network_interface: metrics.network_interface,
+      uptime_seconds: metrics.uptime_seconds,
+      created_at: new Date().toISOString(),
+    });
 
     if (metricsError) {
       console.error("Failed to store metrics:", metricsError);

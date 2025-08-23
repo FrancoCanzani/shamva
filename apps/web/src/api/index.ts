@@ -11,6 +11,7 @@ import { CheckerDurableObject } from "./durable-objects/checker-durable-object";
 import { HttpCheckerDurableObject } from "./durable-objects/http-checker";
 import { TcpCheckerDurableObject } from "./durable-objects/tcp-checker";
 import apiRoutes from "./routes/api";
+import postMetrics from "./routes/public/metrics/post";
 import getPublicStatusPage from "./routes/status/get";
 
 export {
@@ -21,7 +22,6 @@ export {
 
 const app = new Hono<{ Bindings: EnvBindings }>();
 
-// Middleware
 app.use(logger());
 app.use(prettyJSON());
 app.use(secureHeaders());
@@ -44,7 +44,16 @@ app.use(
   })
 );
 
-// Global error handler
+app.use(
+  "/public/metrics",
+  cors({
+    origin: "*",
+    allowMethods: ["POST", "OPTIONS"],
+    allowHeaders: ["Content-Type", "Authorization"],
+    credentials: false,
+  })
+);
+
 app.onError((err, c) => {
   console.error("Global error:", err);
   return c.json(
@@ -56,16 +65,9 @@ app.onError((err, c) => {
   );
 });
 
-// Routes
 app.route("/", apiRoutes);
+app.post("/public/metrics", postMetrics);
 app.get("/status/:slug", getPublicStatusPage);
-
-// Example of accessing env.NAME
-app.get("/debug", (c) => {
-  const env = c.env;
-  console.log("Environment name:", env.NAME);
-  return c.json({ name: env.NAME });
-});
 
 app.mount("/", (req, env) => env.ASSETS.fetch(req));
 

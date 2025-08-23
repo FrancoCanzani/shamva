@@ -222,8 +222,11 @@ export const PartialMonitorSchema = z
   )
   .refine(
     (data) => {
-      if (data.timeout_threshold_ms && data.degraded_threshold_ms && 
-          data.timeout_threshold_ms <= data.degraded_threshold_ms) {
+      if (
+        data.timeout_threshold_ms &&
+        data.degraded_threshold_ms &&
+        data.timeout_threshold_ms <= data.degraded_threshold_ms
+      ) {
         return false;
       }
       return true;
@@ -409,3 +412,56 @@ export const NotificationUpdateSchema = z
       path: ["github_owner"],
     }
   );
+
+export const MetricsSchema = z.object({
+  timestamp: z.date("Invalid timestamp format"),
+  hostname: z
+    .string()
+    .min(1, "Hostname is required")
+    .max(255, "Hostname too long"),
+  platform: z
+    .string()
+    .min(1, "Platform is required")
+    .max(50, "Platform name too long"),
+  cpu_percent: z
+    .number()
+    .min(0, "CPU percentage cannot be negative")
+    .max(100, "CPU percentage cannot exceed 100"),
+  load_avg_1: z.number().min(0, "Load average cannot be negative"),
+  memory_percent: z
+    .number()
+    .min(0, "Memory percentage cannot be negative")
+    .max(100, "Memory percentage cannot exceed 100"),
+  memory_used_gb: z.number().min(0, "Memory used cannot be negative"),
+  memory_total_gb: z.number().min(0, "Total memory cannot be negative"),
+  disk_percent: z
+    .number()
+    .min(0, "Disk percentage cannot be negative")
+    .max(100, "Disk percentage cannot exceed 100"),
+  disk_free_gb: z.number().min(0, "Free disk space cannot be negative"),
+  disk_total_gb: z.number().min(0, "Total disk space cannot be negative"),
+  network_sent_mb: z.number().min(0, "Network sent cannot be negative"),
+  network_recv_mb: z.number().min(0, "Network received cannot be negative"),
+  network_sent_mbps: z.number().min(0, "Network send rate cannot be negative"),
+  network_recv_mbps: z
+    .number()
+    .min(0, "Network receive rate cannot be negative"),
+  top_process_name: z.string().max(255, "Process name too long"),
+  top_process_cpu: z
+    .number()
+    .min(0, "Process CPU cannot be negative")
+    .max(100, "Process CPU cannot exceed 100"),
+  total_processes: z.number().int().min(0, "Process count cannot be negative"),
+  temperature_celsius: z
+    .number()
+    .min(-273.15, "Temperature cannot be below absolute zero")
+    .max(200, "Temperature seems unrealistic"),
+  power_status: z.string().max(50, "Power status too long"),
+  battery_percent: z
+    .number()
+    .min(0, "Battery percentage cannot be negative")
+    .max(100, "Battery percentage cannot exceed 100"),
+  network_connected: z.boolean(),
+  network_interface: z.string().max(50, "Network interface name too long"),
+  uptime_seconds: z.number().int().min(0, "Uptime cannot be negative"),
+});

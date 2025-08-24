@@ -2,6 +2,15 @@ import type { Context, Next } from "hono";
 import { supabase } from "../supabase/client";
 
 export const authMiddleware = async (c: Context, next: Next) => {
+  const path = c.req.path;
+  if (
+    path.startsWith("/docs") ||
+    path.startsWith("/api/docs") ||
+    path.startsWith("/v1/api/docs")
+  ) {
+    return next();
+  }
+
   const authHeader = c.req.header("Authorization");
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -9,6 +18,7 @@ export const authMiddleware = async (c: Context, next: Next) => {
   }
 
   const jwt = authHeader.split(" ")[1];
+
   if (!jwt) {
     return c.json({ error: "Missing token" }, 401);
   }

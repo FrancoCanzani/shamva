@@ -36,7 +36,10 @@ export const CollectorsCreateSchema = z.object({
     .max(255, "Agent token is too long"),
 });
 
-export const CollectorsParamsSchema = CollectorsCreateSchema.omit({ token: true, workspaceId: true });
+export const CollectorsParamsSchema = CollectorsCreateSchema.omit({
+  token: true,
+  workspaceId: true,
+});
 
 export const MonitorsParamsSchema = z
   .object({
@@ -430,7 +433,7 @@ export const NotificationUpdateSchema = z
   );
 
 export const MetricsSchema = z.object({
-  timestamp: z.date("Invalid timestamp format"),
+  timestamp: z.string().transform((val) => new Date(val)),
   hostname: z
     .string()
     .min(1, "Hostname is required")
@@ -466,7 +469,7 @@ export const MetricsSchema = z.object({
   top_process_cpu: z
     .number()
     .min(0, "Process CPU cannot be negative")
-    .max(100, "Process CPU cannot exceed 100"),
+    .max(1000, "Process CPU seems unrealistic"),
   total_processes: z.number().int().min(0, "Process count cannot be negative"),
   temperature_celsius: z
     .number()

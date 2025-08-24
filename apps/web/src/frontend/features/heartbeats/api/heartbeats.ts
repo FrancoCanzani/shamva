@@ -43,7 +43,7 @@ export async function fetchHeartbeats({
     const workspaceId = targetWorkspace.id;
 
     const heartbeatsResponse = await fetch(
-      `/api/heartbeats?workspaceId=${workspaceId}`,
+      `/v1/api/heartbeats?workspaceId=${workspaceId}`,
       {
         headers: {
           Authorization: `Bearer ${context.auth.session?.access_token}`,

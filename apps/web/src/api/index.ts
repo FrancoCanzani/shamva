@@ -1,3 +1,4 @@
+import { apiReference } from "@scalar/hono-api-reference";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
@@ -11,8 +12,8 @@ import { CheckerDurableObject } from "./durable-objects/checker-durable-object";
 import { HttpCheckerDurableObject } from "./durable-objects/http-checker";
 import { TcpCheckerDurableObject } from "./durable-objects/tcp-checker";
 import apiRoutes from "./routes/api";
+import getPublicStatusPage from "./routes/api/status/get";
 import postMetrics from "./routes/public/metrics/post";
-import getPublicStatusPage from "./routes/status/get";
 
 export {
   CheckerDurableObject,
@@ -43,19 +44,7 @@ app.use(
     credentials: true,
   })
 );
-
-app.use(
-  "/public/metrics",
-  cors({
-    origin: "*",
-    allowMethods: ["POST", "OPTIONS"],
-    allowHeaders: ["Content-Type", "Authorization"],
-    credentials: false,
-  })
-);
-
 app.onError((err, c) => {
-  console.error("Global error:", err);
   return c.json(
     {
       error: "Internal server error",
@@ -65,9 +54,29 @@ app.onError((err, c) => {
   );
 });
 
-app.route("/", apiRoutes);
-app.post("/public/metrics", postMetrics);
-app.get("/status/:slug", getPublicStatusPage);
+app.get("/health", (c) => c.json({ status: "ok" }));
+
+const v1 = new Hono().basePath("/v1/api");
+
+v1.use(
+  "/public/metrics",
+  cors({
+    origin: "*",
+    allowMethods: ["POST", "OPTIONS"],
+    allowHeaders: ["Content-Type", "Authorization"],
+    credentials: false,
+  })
+);
+
+v1.route("/", apiRoutes);
+v1.post("/public/metrics", postMetrics);
+v1.get("/status/:slug", getPublicStatusPage);
+v1.get(
+  "/docs/ui",
+  apiReference({ spec: { url: "/v1/api/docs" }, pageTitle: "Shamva API" })
+);
+
+app.route("/", v1);
 
 app.mount("/", (req, env) => env.ASSETS.fetch(req));
 

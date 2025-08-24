@@ -5,6 +5,15 @@ const MAX_REQUESTS = 60; // 60 requests per minute
 
 export const rateLimit = () => {
   return async (c: Context, next: Next) => {
+    const path = c.req.path;
+    if (
+      path.startsWith("/docs") ||
+      path.startsWith("/api/docs") ||
+      path.startsWith("/v1/api/docs")
+    ) {
+      return next();
+    }
+
     const userId = c.get("userId");
     if (!userId) {
       return c.json({ error: "Unauthorized" }, 401);

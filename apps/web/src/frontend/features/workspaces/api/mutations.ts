@@ -24,7 +24,7 @@ export function useCreateWorkspace() {
         throw new Error("Failed to validate authentication claims");
       }
 
-      const response = await fetch(`/api/workspaces`, {
+      const response = await fetch(`/v1/api/workspaces`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -71,7 +71,7 @@ export function useUpdateWorkspace() {
         throw new Error("Failed to validate authentication claims");
       }
 
-      const response = await fetch(`/api/workspaces/${workspaceId}`, {
+      const response = await fetch(`/v1/api/workspaces/${workspaceId}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -113,7 +113,7 @@ export function useDeleteWorkspace() {
         throw new Error("Failed to validate authentication claims");
       }
 
-      const response = await fetch(`/api/workspaces/${workspaceId}`, {
+      const response = await fetch(`/v1/api/workspaces/${workspaceId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${session.access_token}`,

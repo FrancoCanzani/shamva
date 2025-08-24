@@ -1,6 +1,11 @@
 import type { User } from "@supabase/supabase-js";
 import z from "zod";
-import { CollectorsParamsSchema, CollectorsCreateSchema, MonitorsParamsSchema, WorkspaceSchema } from "./schemas";
+import {
+  CollectorsParamsSchema,
+  CollectorsCreateSchema,
+  MonitorsParamsSchema,
+  WorkspaceSchema,
+} from "./schemas";
 
 export type CollectorsParams = z.infer<typeof CollectorsParamsSchema>;
 export type CollectorsCreateParams = z.infer<typeof CollectorsCreateSchema>;
@@ -102,6 +107,7 @@ export interface Collector {
   workspace_id: string;
   name: string;
   token: string;
+  is_active: boolean;
   created_at: string;
   updated_at: string;
   last_metric?: Metric;

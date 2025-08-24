@@ -48,7 +48,7 @@ export async function fetchNotifications({
     const workspaceId = targetWorkspace.id;
 
     const notificationsResponse = await fetch(
-      `/api/workspaces/${workspaceId}/notifications`,
+      `/v1/api/workspaces/${workspaceId}/notifications`,
       {
         headers: {
           Authorization: `Bearer ${context.auth.session?.access_token}`,

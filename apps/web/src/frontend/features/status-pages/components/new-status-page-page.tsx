@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import StatusPageForm from "./status-page/status-page-form";
 
 async function fetchMonitors(workspaceId: string, accessToken: string) {
-  const response = await fetch(`/api/monitors?workspaceId=${workspaceId}`, {
+  const response = await fetch(`/v1/api/monitors?workspaceId=${workspaceId}`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
       "Content-Type": "application/json",
@@ -68,7 +68,7 @@ export default function NewStatusPage() {
         workspaceId: currentWorkspace.id,
       };
 
-      const response = await fetch("/api/status-pages", {
+      const response = await fetch("/v1/api/status-pages", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

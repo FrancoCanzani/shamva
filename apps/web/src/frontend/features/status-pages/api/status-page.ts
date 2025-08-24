@@ -12,7 +12,7 @@ export default async function fetchStatusPage({
   const { id } = params;
 
   try {
-    const response = await fetch(`/api/status-pages/${id}`, {
+    const response = await fetch(`/v1/api/status-pages/${id}`, {
       headers: {
         Authorization: `Bearer ${context.auth.session?.access_token}`,
         "Content-Type": "application/json",

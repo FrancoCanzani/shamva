@@ -68,7 +68,7 @@ export default function NewMonitorPage() {
         workspaceId: currentWorkspace.id,
       };
 
-      const response = await fetch("/api/monitors", {
+      const response = await fetch("/v1/api/monitors", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

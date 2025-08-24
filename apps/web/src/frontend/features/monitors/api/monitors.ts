@@ -39,10 +39,10 @@ export async function fetchMonitors({
     const workspaceId = targetWorkspace.id;
 
     const monitorsResponse = await fetch(
-      `/api/monitors?workspaceId=${workspaceId}`,
+      `/v1/api/monitors?workspaceId=${workspaceId}`,
       {
         headers: {
-          Authorization: `Bearer ${context.auth.session.access_token}`,
+          Authorization: `Bearer ${context.auth.session?.access_token}`,
           "Content-Type": "application/json",
         },
       }

@@ -4,7 +4,6 @@ import { Collector, CollectorFormValues } from "@/frontend/lib/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-
 export function useCreateCollector() {
   return useMutation({
     mutationFn: async ({
@@ -29,7 +28,7 @@ export function useCreateCollector() {
         throw new Error("Failed to validate authentication claims");
       }
 
-      const response = await fetch(`/api/collectors`, {
+      const response = await fetch(`/v1/api/collectors`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -79,18 +78,24 @@ export function useFetchCollectors(workspaceId: string) {
         throw new Error("No workspace ID provided");
       }
 
-      const response = await fetch(`/api/collectors?workspaceId=${workspaceId}`, {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-          "Content-Type": "application/json",
-        },
-      });
-      
+      const response = await fetch(
+        `/v1/api/collectors?workspaceId=${workspaceId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
       if (!response.ok) {
         throw new Error("Failed to fetch collectors");
       }
-      
-      const result = await response.json() as { data: Collector[]; success: boolean };
+
+      const result = (await response.json()) as {
+        data: Collector[];
+        success: boolean;
+      };
       return result.data || [];
     },
     enabled: !!workspaceId,
@@ -121,7 +126,7 @@ export function useUpdateCollector() {
         throw new Error("Failed to validate authentication claims");
       }
 
-      const response = await fetch(`/api/collectors/${collectorId}`, {
+      const response = await fetch(`/v1/api/collectors/${collectorId}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -165,7 +170,7 @@ export function useDeleteCollector() {
         throw new Error("Failed to validate authentication claims");
       }
 
-      const response = await fetch(`/api/collectors/${collectorId}`, {
+      const response = await fetch(`/v1/api/collectors/${collectorId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${session.access_token}`,

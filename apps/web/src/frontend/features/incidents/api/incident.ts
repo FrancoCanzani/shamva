@@ -10,7 +10,7 @@ export default async function fetchIncident({
   params,
   context,
 }: LoadIncidentParams): Promise<Incident> {
-  const response = await fetch(`/api/incidents/${params.id}`, {
+  const response = await fetch(`/v1/api/incidents/${params.id}`, {
     headers: {
       Authorization: `Bearer ${context.auth.session?.access_token}`,
     },

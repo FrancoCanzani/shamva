@@ -32,7 +32,7 @@ export function useCreateHeartbeat() {
         throw new Error("Failed to validate authentication claims");
       }
 
-      const response = await fetch(`/api/heartbeats`, {
+      const response = await fetch(`/v1/api/heartbeats`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -83,7 +83,7 @@ export function useUpdateHeartbeat() {
         throw new Error("Failed to validate authentication claims");
       }
 
-      const response = await fetch(`/api/heartbeats/${heartbeatId}`, {
+      const response = await fetch(`/v1/api/heartbeats/${heartbeatId}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -125,7 +125,7 @@ export function useDeleteHeartbeat() {
         throw new Error("Failed to validate authentication claims");
       }
 
-      const response = await fetch(`/api/heartbeats/${heartbeatId}`, {
+      const response = await fetch(`/v1/api/heartbeats/${heartbeatId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${session.access_token}`,

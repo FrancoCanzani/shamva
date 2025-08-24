@@ -1,110 +1,111 @@
-import { Hono } from "hono";
+import { OpenAPIHono } from "@hono/zod-openapi";
 import type { EnvBindings } from "../../../bindings";
 import { authMiddleware } from "../lib/middleware/auth-middleware";
 import { rateLimit } from "../lib/middleware/rate-limit-middleware";
 import { ApiVariables } from "../lib/types";
-import postCheck from "./check/post";
-import postFeedback from "./feedback/post";
-import deleteHeartbeat from "./heartbeat/delete";
-import getHeartbeat from "./heartbeat/get";
-import getAllHeartbeats from "./heartbeat/get-all";
-import postHeartbeat from "./heartbeat/post";
-import putHeartbeat from "./heartbeat/put";
-import deleteIncidentUpdate from "./incidents/delete-incident-update";
-import getIncident from "./incidents/get";
-import getAllIncidents from "./incidents/get-all";
-import postIncidentUpdate from "./incidents/post-incident-update";
-import putIncident from "./incidents/put";
-import getLogs from "./logs/get";
-import deleteMonitors from "./monitors/delete";
-import getMonitors from "./monitors/get";
-import getAllMonitors from "./monitors/get-all";
-import patchMonitors from "./monitors/patch";
-import postMonitors from "./monitors/post";
-import putMonitors from "./monitors/put";
-import deleteStatusPages from "./status-pages/delete";
-import getStatusPages from "./status-pages/get";
-import getAllStatusPages from "./status-pages/get-all";
-import postStatusPages from "./status-pages/post";
-import putStatusPages from "./status-pages/put";
-import deleteCollectors from "./collectors/delete";
-import getAllCollectors from "./collectors/get-all";
-import getCollector from "./collectors/get";
-import postCollectors from "./collectors/post";
-import putCollectors from "./collectors/put";
-import deleteWorkspaces from "./workspaces/delete";
-import getWorkspaces from "./workspaces/get";
-import getAllWorkspaces from "./workspaces/get-all";
-import getWorkspaceNotifications from "./workspaces/notifications/get";
-import putWorkspaceNotifications from "./workspaces/notifications/put";
-import postWorkspaces from "./workspaces/post";
-import putWorkspaces from "./workspaces/put";
+import postCheck from "./api/check/post";
+import deleteCollectors from "./api/collectors/delete";
+import getCollector from "./api/collectors/get";
+import getAllCollectors from "./api/collectors/get-all";
+import postCollectors from "./api/collectors/post";
+import putCollectors from "./api/collectors/put";
+import postFeedback from "./api/feedback/post";
+import deleteHeartbeat from "./api/heartbeat/delete";
+import getHeartbeat from "./api/heartbeat/get";
+import getAllHeartbeats from "./api/heartbeat/get-all";
+import postHeartbeat from "./api/heartbeat/post";
+import putHeartbeat from "./api/heartbeat/put";
+import deleteIncidentUpdate from "./api/incidents/delete-incident-update";
+import getIncident from "./api/incidents/get";
+import getAllIncidents from "./api/incidents/get-all";
+import postIncidentUpdate from "./api/incidents/post-incident-update";
+import putIncident from "./api/incidents/put";
+import { registerGetLogs } from "./api/logs/get.openapi";
+import deleteMonitors from "./api/monitors/delete";
+import getMonitors from "./api/monitors/get";
+import getAllMonitors from "./api/monitors/get-all";
+import patchMonitors from "./api/monitors/patch";
+import postMonitors from "./api/monitors/post";
+import putMonitors from "./api/monitors/put";
+import deleteStatusPages from "./api/status-pages/delete";
+import getStatusPages from "./api/status-pages/get";
+import getAllStatusPages from "./api/status-pages/get-all";
+import postStatusPages from "./api/status-pages/post";
+import putStatusPages from "./api/status-pages/put";
+import deleteWorkspaces from "./api/workspaces/delete";
+import getWorkspaces from "./api/workspaces/get";
+import getAllWorkspaces from "./api/workspaces/get-all";
+import getWorkspaceNotifications from "./api/workspaces/notifications/get";
+import putWorkspaceNotifications from "./api/workspaces/notifications/put";
+import postWorkspaces from "./api/workspaces/post";
+import putWorkspaces from "./api/workspaces/put";
 
-const apiRoutes = new Hono<{
+const apiRoutes = new OpenAPIHono<{
   Bindings: EnvBindings;
   Variables: ApiVariables;
 }>();
 
 // Apply auth and rate limiting to all API routes
-apiRoutes.use("/api/*", authMiddleware, rateLimit());
-
-// Test endpoint
-apiRoutes.get("/api/test", (c) => {
-  return c.json({ status: "ok" });
-});
+apiRoutes.use("/*", authMiddleware, rateLimit());
 
 // Workspace routes
-apiRoutes.get("/api/workspaces", getAllWorkspaces);
-apiRoutes.post("/api/workspaces", postWorkspaces);
-apiRoutes.get("/api/workspaces/:id", getWorkspaces);
-apiRoutes.put("/api/workspaces/:id", putWorkspaces);
-apiRoutes.delete("/api/workspaces/:id", deleteWorkspaces);
+apiRoutes.get("/workspaces", getAllWorkspaces);
+apiRoutes.post("/workspaces", postWorkspaces);
+apiRoutes.get("/workspaces/:id", getWorkspaces);
+apiRoutes.put("/workspaces/:id", putWorkspaces);
+apiRoutes.delete("/workspaces/:id", deleteWorkspaces);
 
 // Workspace notification routes
-apiRoutes.get("/api/workspaces/:id/notifications", getWorkspaceNotifications);
-apiRoutes.put("/api/workspaces/:id/notifications", putWorkspaceNotifications);
+apiRoutes.get("/workspaces/:id/notifications", getWorkspaceNotifications);
+apiRoutes.put("/workspaces/:id/notifications", putWorkspaceNotifications);
 
 // Monitor routes
-apiRoutes.post("/api/monitors", postMonitors);
-apiRoutes.get("/api/monitors", getAllMonitors);
-apiRoutes.get("/api/monitors/:id", getMonitors);
-apiRoutes.put("/api/monitors/:id", putMonitors);
-apiRoutes.patch("/api/monitors/:id", patchMonitors);
-apiRoutes.delete("/api/monitors/:id", deleteMonitors);
+apiRoutes.post("/monitors", postMonitors);
+apiRoutes.get("/monitors", getAllMonitors);
+apiRoutes.get("/monitors/:id", getMonitors);
+apiRoutes.put("/monitors/:id", putMonitors);
+apiRoutes.patch("/monitors/:id", patchMonitors);
+apiRoutes.delete("/monitors/:id", deleteMonitors);
 
 // Collector routes
-apiRoutes.post("/api/collectors", postCollectors);
-apiRoutes.get("/api/collectors", getAllCollectors);
-apiRoutes.get("/api/collectors/:id", getCollector);
-apiRoutes.put("/api/collectors/:id", putCollectors);
-apiRoutes.delete("/api/collectors/:id", deleteCollectors);
+apiRoutes.post("/collectors", postCollectors);
+apiRoutes.get("/collectors", getAllCollectors);
+apiRoutes.get("/collectors/:id", getCollector);
+apiRoutes.put("/collectors/:id", putCollectors);
+apiRoutes.delete("/collectors/:id", deleteCollectors);
 
 // Status page routes
-apiRoutes.post("/api/status-pages", postStatusPages);
-apiRoutes.get("/api/status-pages", getAllStatusPages);
-apiRoutes.get("/api/status-pages/:id", getStatusPages);
-apiRoutes.put("/api/status-pages/:id", putStatusPages);
-apiRoutes.delete("/api/status-pages/:id", deleteStatusPages);
+apiRoutes.post("/status-pages", postStatusPages);
+apiRoutes.get("/status-pages", getAllStatusPages);
+apiRoutes.get("/status-pages/:id", getStatusPages);
+apiRoutes.put("/status-pages/:id", putStatusPages);
+apiRoutes.delete("/status-pages/:id", deleteStatusPages);
 
 // Logs and check routes
-apiRoutes.get("/api/logs", getLogs);
-apiRoutes.post("/api/check", postCheck);
+registerGetLogs(apiRoutes);
+apiRoutes.post("/check", postCheck);
 
 // Heartbeat routes
-apiRoutes.get("/api/heartbeat", getHeartbeat); // No auth required for heartbeat endpoint
-apiRoutes.get("/api/heartbeats", getAllHeartbeats);
-apiRoutes.post("/api/heartbeats", postHeartbeat);
-apiRoutes.put("/api/heartbeats/:id", putHeartbeat);
-apiRoutes.delete("/api/heartbeats/:id", deleteHeartbeat);
+apiRoutes.get("/heartbeat", getHeartbeat); // No auth required for heartbeat endpoint
+apiRoutes.get("/heartbeats", getAllHeartbeats);
+apiRoutes.post("/heartbeats", postHeartbeat);
+apiRoutes.put("/heartbeats/:id", putHeartbeat);
+apiRoutes.delete("/heartbeats/:id", deleteHeartbeat);
 
 // Incident routes
-apiRoutes.get("/api/incidents", getAllIncidents);
-apiRoutes.get("/api/incidents/:id", getIncident);
-apiRoutes.put("/api/incidents/:id", putIncident);
-apiRoutes.post("/api/incidents/:id/updates", postIncidentUpdate);
-apiRoutes.delete("/api/incidents/:id/updates/:updateId", deleteIncidentUpdate);
+apiRoutes.get("/incidents", getAllIncidents);
+apiRoutes.get("/incidents/:id", getIncident);
+apiRoutes.put("/incidents/:id", putIncident);
+apiRoutes.post("/incidents/:id/updates", postIncidentUpdate);
+apiRoutes.delete("/incidents/:id/updates/:updateId", deleteIncidentUpdate);
 
 // Feedback routes
-apiRoutes.post("/api/feedback", postFeedback);
+apiRoutes.post("/feedback", postFeedback);
+
+// OpenAPI docs
+apiRoutes.doc("/docs", {
+  openapi: "3.0.0",
+  info: { title: "Shamva API", version: "1.0.0" },
+});
 
 export default apiRoutes;

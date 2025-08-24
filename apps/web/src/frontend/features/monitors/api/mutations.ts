@@ -28,7 +28,7 @@ export function useCreateMonitor() {
         throw new Error("Failed to validate authentication claims");
       }
 
-      const response = await fetch(`/api/monitors`, {
+      const response = await fetch(`/v1/api/monitors`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -78,7 +78,7 @@ export function useUpdateMonitor() {
         throw new Error("Failed to validate authentication claims");
       }
 
-      const response = await fetch(`/api/monitors/${monitorId}`, {
+      const response = await fetch(`/v1/api/monitors/${monitorId}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -120,7 +120,7 @@ export function useDeleteMonitor() {
         throw new Error("Failed to validate authentication claims");
       }
 
-      const response = await fetch(`/api/monitors/${monitorId}`, {
+      const response = await fetch(`/v1/api/monitors/${monitorId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -165,7 +165,7 @@ export function usePauseResumeMonitor() {
         throw new Error("Failed to validate authentication claims");
       }
 
-      const response = await fetch(`/api/monitors/${monitorId}`, {
+      const response = await fetch(`/v1/api/monitors/${monitorId}`, {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${session.access_token}`,

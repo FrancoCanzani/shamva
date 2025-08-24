@@ -24,6 +24,8 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@cloudflare/vite-plugin": "^1.11.7",
+    "@scalar/hono-api-reference": "^0.9.15",
     "vite": "^6.3.5"
   }
 }

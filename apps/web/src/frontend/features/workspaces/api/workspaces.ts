@@ -16,7 +16,7 @@ export default async function fetchWorkspaces(): Promise<Workspace[]> {
     throw new Error("Failed to get access token");
   }
 
-  const response = await fetch("/api/workspaces", {
+  const response = await fetch("/v1/api/workspaces", {
     headers: {
       Authorization: `Bearer ${session.access_token}`,
       "Content-Type": "application/json",

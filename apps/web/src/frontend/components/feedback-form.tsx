@@ -53,7 +53,7 @@ export function FeedbackForm() {
 
     setIsSubmitting(true);
     try {
-      const response = await fetch("/api/feedback", {
+      const response = await fetch("/v1/api/feedback", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${auth.session?.access_token}`,

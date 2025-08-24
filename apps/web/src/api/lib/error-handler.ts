@@ -13,7 +13,6 @@ function getRequestContext(c: Context) {
   return {
     method: c.req.method,
     path: c.req.path,
-    requestId: c.get("requestId"),
     userId: c.get("userId"),
   };
 }

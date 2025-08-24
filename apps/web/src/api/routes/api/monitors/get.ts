@@ -1,12 +1,11 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import { HTTPException } from "hono/http-exception";
 import type { EnvBindings } from "../../../../../bindings";
 import { supabase } from "../../../lib/supabase/client";
 import type { ApiVariables, Log } from "../../../lib/types";
-import { HTTPException } from "hono/http-exception";
 import { openApiErrorResponses } from "../../../lib/utils";
-import { RegionEnum, UUIDParamSchema } from "./schemas";
-import { MonitorSchema } from "./schemas";
 import { LogSchema } from "../logs/schemas";
+import { MonitorSchema, RegionEnum, UUIDParamSchema } from "./schemas";
 
 const route = createRoute({
   method: "get",
@@ -149,9 +148,9 @@ export default function registerGetMonitor(
           `Error fetching incidents for monitor ${monitorId}:`,
           incidentError
         );
-        (monitor as any).incidents = [];
+        monitor.incidents = [];
       } else {
-        (monitor as any).incidents = (incidents || []) as any[];
+        monitor.incidents = incidents || [];
       }
 
       return c.json({

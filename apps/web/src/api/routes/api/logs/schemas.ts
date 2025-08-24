@@ -16,7 +16,7 @@ export const LogSchema = z.object({
   error: z.string().nullable(),
   method: z.string(),
   check_type: z.enum(["http", "tcp", "heartbeat"]),
-  tcp_host: z.string().optional(),
-  tcp_port: z.number().optional(),
+  tcp_host: z.string().nullable().optional(),
+  tcp_port: z.number().nullable().optional(),
   ok: z.boolean(),
 });

@@ -57,7 +57,6 @@ const v1 = new OpenAPIHono<{
   Variables: ApiVariables;
 }>().basePath("/v1/api");
 
-app.route("/", v1);
 v1.route("/", apiRoutes);
 
 v1.get(
@@ -78,6 +77,8 @@ v1.use(
 registerPublicStatus(v1);
 registerPublicHeartbeat(v1);
 registerPublicMetrics(v1);
+
+app.route("/", v1);
 
 app.mount("/", (req, env) => env.ASSETS.fetch(req));
 

@@ -1,19 +1,4 @@
-import { Context } from "hono";
-import { BaseError } from "./errors/base-error";
 import type { BodyContent } from "./types";
-
-export function getUserId(c: Context): string {
-  const userId = c.get("userId");
-  if (!userId) {
-    throw new BaseError("User not authenticated", {
-      errorCode: "AUTH_001",
-      category: "AUTH",
-      severity: "HIGH",
-      status: 401,
-    });
-  }
-  return userId;
-}
 
 export function calculateDowntime(
   lastSuccessAt: string,

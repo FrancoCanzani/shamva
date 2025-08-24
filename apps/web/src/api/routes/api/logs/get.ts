@@ -117,6 +117,8 @@ export default function registerGetLogs(
         });
       }
 
+      const validatedLogs = (logs || []).map((log) => LogSchema.parse(log));
+
       const nextCursor =
         logs && logs.length === limit
           ? {
@@ -126,12 +128,13 @@ export default function registerGetLogs(
           : null;
 
       return c.json({
-        data: (logs || []).map((l) => LogSchema.parse(l)),
+        data: validatedLogs,
         success: true,
         error: null,
         nextCursor,
       });
-    } catch {
+    } catch (error) {
+      console.error("Error in logs endpoint:", error);
       throw new HTTPException(500, {
         message: "An unexpected error occurred while fetching logs",
       });

@@ -3,10 +3,12 @@ import { useQuery } from "@tanstack/react-query";
 import { Workspace } from "@/frontend/lib/types";
 import fetchWorkspaces from "@/frontend/features/workspaces/api/workspaces";
 import { CollectorWithMetrics } from "../types";
+import { RouterContext } from "@/frontend/routes/__root";
+import { useRouteContext } from "@tanstack/react-router";
 
 export interface FetchCollectorParams {
   params: { workspaceName: string; id: string };
-  context: any;
+  context: RouterContext;
   days: number;
 }
 
@@ -33,13 +35,12 @@ export async function fetchCollector({
       throw new Error("Workspace not found");
     }
 
-    const token = context?.auth?.session?.access_token;
     const response = await fetch(
       `/v1/api/collectors/${id}?workspaceId=${targetWorkspace.id}&days=${days}`,
       {
         headers: {
+          Authorization: `Bearer ${context.auth.session?.access_token}`,
           "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       }
     );
@@ -57,12 +58,15 @@ export async function fetchCollector({
 }
 
 export function useCollector(workspaceName: string, id: string, days: number) {
+  const context = useRouteContext({
+    from: "/dashboard/$workspaceName/collectors/$id/",
+  });
   return useQuery({
     queryKey: ["collector", workspaceName, id, days],
     queryFn: () =>
       fetchCollector({
         params: { workspaceName, id },
-        context: { queryClient },
+        context,
         days,
       }),
     staleTime: 30_000,

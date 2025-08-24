@@ -71,3 +71,11 @@ export function buildBodyContent(
 }
 
 export default buildBodyContent;
+
+export const openApiErrorResponses = {
+  400: { description: "Validation error" },
+  401: { description: "Unauthorized" },
+  403: { description: "Forbidden" },
+  404: { description: "Not found" },
+  500: { description: "Server error" },
+};

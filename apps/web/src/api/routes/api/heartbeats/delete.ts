@@ -8,7 +8,7 @@ import { UUIDParamSchema } from "./schemas";
 
 const route = createRoute({
   method: "delete",
-  path: "/status-pages/:id",
+  path: "/heartbeats/:id",
   request: { params: UUIDParamSchema },
   responses: {
     200: {
@@ -21,42 +21,42 @@ const route = createRoute({
   },
 });
 
-export default function registerDeleteStatusPage(
+export default function registerDeleteHeartbeat(
   api: OpenAPIHono<{ Bindings: EnvBindings; Variables: ApiVariables }>
 ) {
   return api.openapi(route, async (c) => {
+    const { id: heartbeatId } = c.req.valid("param");
     const userId = c.get("userId");
-    const { id: statusPageId } = c.req.valid("param");
 
-    const { data: statusPage, error: fetchError } = await supabase
-      .from("status_pages")
-      .select("workspace_id")
-      .eq("id", statusPageId)
+    const { data: heartbeat, error: fetchError } = await supabase
+      .from("heartbeats")
+      .select("id, workspace_id")
+      .eq("id", heartbeatId)
       .single();
 
-    if (fetchError || !statusPage) {
-      throw new HTTPException(404, { message: "Status page not found" });
+    if (fetchError || !heartbeat) {
+      throw new HTTPException(404, { message: "Heartbeat not found" });
     }
 
-    const { data: membership } = await supabase
+    const { data: membership, error: membershipError } = await supabase
       .from("workspace_members")
       .select("role")
-      .eq("workspace_id", statusPage.workspace_id)
+      .eq("workspace_id", heartbeat.workspace_id)
       .eq("user_id", userId)
+      .eq("invitation_status", "accepted")
       .single();
 
-    if (!membership || membership.role === "viewer") {
+    if (membershipError || !membership) {
       throw new HTTPException(403, { message: "Insufficient permissions" });
     }
 
     const { error } = await supabase
-      .from("status_pages")
+      .from("heartbeats")
       .delete()
-      .eq("id", statusPageId)
-      .single();
+      .eq("id", heartbeatId);
 
     if (error) {
-      throw new HTTPException(500, { message: "Failed to delete status page" });
+      throw new HTTPException(500, { message: "Failed to delete heartbeat" });
     }
 
     return c.json({ success: true });

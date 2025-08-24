@@ -1,107 +1,107 @@
-import { Context } from "hono";
-import { z } from "zod";
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import { supabase } from "../../../lib/supabase/client";
+import type { EnvBindings } from "../../../../../bindings";
+import type { ApiVariables } from "../../../lib/types";
+import { HTTPException } from "hono/http-exception";
+import { openApiErrorResponses } from "../../../lib/utils";
+import { IncidentUpdateSchema } from "./schemas";
 
-const IncidentUpdatePostSchema = z.object({
-  content: z.string().min(1).max(2000),
-  authorName: z.string().min(1).max(200),
-  authorEmail: z.email().max(200),
+const route = createRoute({
+  method: "post",
+  path: "/incidents/:id/updates",
+  request: {
+    params: z.object({
+      id: z.uuid().openapi({ param: { name: "id", in: "path" } }),
+    }),
+    body: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            content: z.string().min(1).max(2000),
+            authorName: z.string().min(1).max(200),
+            authorEmail: z.email().max(200),
+          }),
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "Created",
+      content: {
+        "application/json": {
+          schema: z.object({
+            data: IncidentUpdateSchema,
+            success: z.literal(true),
+            error: z.null(),
+          }),
+        },
+      },
+    },
+    ...openApiErrorResponses,
+  },
 });
 
-export default async function postIncidentUpdate(c: Context) {
-  const userId = c.get("userId");
-  const incidentId = c.req.param("id");
+export default function registerPostIncidentUpdate(
+  api: OpenAPIHono<{ Bindings: EnvBindings; Variables: ApiVariables }>
+) {
+  return api.openapi(route, async (c) => {
+    const userId = c.get("userId");
+    const { id: incidentId } = c.req.valid("param");
 
-  if (!userId) {
-    return c.json({ success: false, error: "User not authenticated" }, 401);
-  }
+    const { content, authorName, authorEmail } = c.req.valid("json");
 
-  if (!incidentId) {
-    return c.json({ success: false, error: "Incident ID is required" }, 400);
-  }
+    const { data: incident, error: incidentError } = await supabase
+      .from("incidents")
+      .select("monitor_id")
+      .eq("id", incidentId)
+      .single();
 
-  let rawBody: unknown;
-  try {
-    rawBody = await c.req.json();
-  } catch {
-    return c.json(
-      { success: false, error: "Invalid JSON payload provided." },
-      400
-    );
-  }
+    if (incidentError || !incident) {
+      throw new HTTPException(404, { message: "Incident not found" });
+    }
 
-  const result = IncidentUpdatePostSchema.safeParse(rawBody);
-  if (!result.success) {
-    return c.json(
-      {
-        success: false,
-        error: "Validation failed",
-        details: result.error.issues,
-      },
-      400
-    );
-  }
+    const { data: monitor, error: monitorError } = await supabase
+      .from("monitors")
+      .select("workspace_id")
+      .eq("id", incident.monitor_id)
+      .single();
 
-  const { content, authorName, authorEmail } = result.data;
+    if (monitorError || !monitor) {
+      throw new HTTPException(404, {
+        message: "Monitor not found for incident",
+      });
+    }
 
-  const { data: incident, error: incidentError } = await supabase
-    .from("incidents")
-    .select("monitor_id")
-    .eq("id", incidentId)
-    .single();
+    const { data: membership, error: membershipError } = await supabase
+      .from("workspace_members")
+      .select("role, user_id")
+      .eq("workspace_id", monitor.workspace_id)
+      .eq("user_id", userId)
+      .eq("invitation_status", "accepted")
+      .single();
 
-  if (incidentError || !incident) {
-    return c.json({ success: false, error: "Incident not found" }, 404);
-  }
+    if (membershipError || !membership) {
+      throw new HTTPException(403, { message: "Insufficient permissions" });
+    }
 
-  const { data: monitor, error: monitorError } = await supabase
-    .from("monitors")
-    .select("workspace_id")
-    .eq("id", incident.monitor_id)
-    .single();
+    const { data: inserted, error: insertError } = await supabase
+      .from("incident_updates")
+      .insert({
+        incident_id: incidentId,
+        author_id: userId,
+        author_name: authorName,
+        author_email: authorEmail,
+        content,
+        created_at: new Date().toISOString(),
+      })
+      .select()
+      .single();
 
-  if (monitorError || !monitor) {
-    return c.json(
-      { success: false, error: "Monitor not found for incident" },
-      404
-    );
-  }
+    if (insertError) {
+      throw new HTTPException(500, { message: "Failed to add update" });
+    }
 
-  const { data: membership, error: membershipError } = await supabase
-    .from("workspace_members")
-    .select("role, user_id")
-    .eq("workspace_id", monitor.workspace_id)
-    .eq("user_id", userId)
-    .eq("invitation_status", "accepted")
-    .single();
-
-  if (membershipError || !membership) {
-    return c.json({ success: false, error: "Insufficient permissions" }, 403);
-  }
-
-  const { data: inserted, error: insertError } = await supabase
-    .from("incident_updates")
-    .insert({
-      incident_id: incidentId,
-      author_id: userId,
-      author_name: authorName,
-      author_email: authorEmail,
-      content,
-      created_at: new Date().toISOString(),
-    })
-    .select()
-    .single();
-
-  if (insertError) {
-    return c.json(
-      {
-        success: false,
-        error: "Failed to add update",
-        details: insertError.message,
-      },
-      500
-    );
-  }
-
-  return c.json({ data: inserted, success: true });
+    return c.json({ data: inserted, success: true, error: null });
+  });
 }

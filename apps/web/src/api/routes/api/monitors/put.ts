@@ -1,166 +1,147 @@
-import { Context } from "hono";
-import { MonitorsParamsSchema } from "../../../lib/schemas";
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import type { EnvBindings } from "../../../../../bindings";
 import { supabase } from "../../../lib/supabase/client";
+import type { ApiVariables } from "../../../lib/types";
+import { HTTPException } from "hono/http-exception";
+import { openApiErrorResponses } from "../../../lib/utils";
+import { MonitorSchema } from "./schemas";
 
-export default async function putMonitors(c: Context) {
-  const userId = c.get("userId");
-  const monitorId = c.req.param("id");
-
-  if (!monitorId) {
-    return c.json({ success: false, error: "Monitor ID is required" }, 400);
-  }
-
-  let rawBody: unknown;
-  try {
-    rawBody = await c.req.json();
-  } catch {
-    return c.json(
-      { success: false, error: "Invalid JSON payload provided." },
-      400
-    );
-  }
-
-  const result = MonitorsParamsSchema.safeParse(rawBody);
-
-  if (!result.success) {
-    return c.json(
-      {
-        success: false,
-        error: "Request parameter validation failed.",
-        details: result.error.issues,
+const route = createRoute({
+  method: "put",
+  path: "/monitors/:id",
+  request: {
+    params: z.object({
+      id: z.uuid().openapi({ param: { name: "id", in: "path" } }),
+    }),
+    body: { content: { "application/json": { schema: z.object({}) } } },
+  },
+  responses: {
+    200: {
+      description: "OK",
+      content: {
+        "application/json": {
+          schema: z.object({
+            data: MonitorSchema,
+            success: z.literal(true),
+            error: z.null(),
+          }),
+        },
       },
-      400
-    );
-  }
+    },
+    ...openApiErrorResponses,
+  },
+});
 
-  const {
-    name,
-    checkType,
-    url,
-    tcpHostPort,
-    method,
-    headers,
-    body,
-    headersString,
-    bodyString,
-    regions,
-    interval,
-  } = result.data;
+export default function registerPutMonitor(
+  api: OpenAPIHono<{ Bindings: EnvBindings; Variables: ApiVariables }>
+) {
+  return api.openapi(route, async (c) => {
+    const userId = c.get("userId");
+    const { id: monitorId } = c.req.valid("param");
+    const result = c.req.valid("json");
 
-  const { data: existingMonitor, error: fetchError } = await supabase
-    .from("monitors")
-    .select("*")
-    .eq("id", monitorId)
-    .single();
-
-  if (fetchError) {
-    if (fetchError.code === "PGRST116") {
-      return c.json({ success: false, error: "Monitor not found" }, 404);
-    }
-
-    return c.json(
-      {
-        success: false,
-        error: "Database error fetching monitor",
-        details: fetchError.message,
-      },
-      500
-    );
-  }
-
-  if (!existingMonitor) {
-    return c.json({ success: false, error: "Monitor not found" }, 404);
-  }
-
-  const { data: membership, error: membershipError } = await supabase
-    .from("workspace_members")
-    .select("role")
-    .eq("workspace_id", existingMonitor.workspace_id)
-    .eq("user_id", userId)
-    .eq("invitation_status", "accepted")
-    .single();
-
-  if (membershipError || !membership) {
-    return c.json({ success: false, error: "Monitor not found" }, 404);
-  }
-
-  if (membership.role === "viewer") {
-    return c.json({ success: false, error: "Insufficient permissions" }, 403);
-  }
-
-  try {
-    const finalInterval = interval ?? existingMonitor.interval;
-
-    // Parse headers and body from strings if provided
-    let parsedHeaders: Record<string, string> | undefined = headers;
-    if (headersString && !headers) {
-      try {
-        parsedHeaders = JSON.parse(headersString);
-      } catch {
-        return c.json(
-          { success: false, error: "Invalid headers JSON format." },
-          400
-        );
-      }
-    }
-
-    let parsedBody: Record<string, unknown> | string | undefined = body;
-    if (bodyString && !body) {
-      try {
-        parsedBody = JSON.parse(bodyString);
-      } catch {
-        return c.json(
-          { success: false, error: "Invalid body JSON format." },
-          400
-        );
-      }
-    }
-
-    const updateData = {
+    const {
       name,
-      check_type: checkType,
-      url: checkType === "http" ? url : null,
-      tcp_host_port: checkType === "tcp" ? tcpHostPort : null,
-      method: checkType === "http" ? method : null,
-      headers: parsedHeaders ?? {},
-      body: parsedBody,
-      interval: finalInterval,
+      checkType,
+      url,
+      tcpHostPort,
+      method,
+      headers,
+      body,
+      headersString,
+      bodyString,
       regions,
-      updated_at: new Date().toISOString(),
-    };
+      interval,
+    } = result;
 
-    const { data: updatedMonitor, error: updateError } = await supabase
+    const { data: existingMonitor, error: fetchError } = await supabase
       .from("monitors")
-      .update(updateData)
+      .select("*")
       .eq("id", monitorId)
-      .select()
       .single();
 
-    if (updateError) {
-      console.error("Error updating monitor:", updateError);
-      return c.json(
-        {
-          success: false,
-          error: "Failed to update monitor",
-          details: updateError.message,
-        },
-        500
-      );
+    if (fetchError) {
+      if (fetchError.code === "PGRST116") {
+        throw new HTTPException(404, { message: "Monitor not found" });
+      }
+      throw new HTTPException(500, {
+        message: "Database error fetching monitor",
+      });
     }
 
-    return c.json({
-      data: updatedMonitor,
-      success: true,
-    });
-  } catch (error) {
-    console.error("Error updating monitor:", error);
-    return c.json(
-      {
-        success: false,
-        error: "Failed to update monitor",
-        details: String(error),
-      },
-      500
-    );
-  }
+    if (!existingMonitor)
+      throw new HTTPException(404, { message: "Monitor not found" });
+
+    const { data: membership, error: membershipError } = await supabase
+      .from("workspace_members")
+      .select("role")
+      .eq("workspace_id", existingMonitor.workspace_id)
+      .eq("user_id", userId)
+      .eq("invitation_status", "accepted")
+      .single();
+
+    if (membershipError || !membership) {
+      throw new HTTPException(404, { message: "Monitor not found" });
+    }
+
+    if (membership.role === "viewer") {
+      throw new HTTPException(403, { message: "Insufficient permissions" });
+    }
+
+    try {
+      const finalInterval = interval ?? existingMonitor.interval;
+
+      // Parse headers and body from strings if provided
+      let parsedHeaders: Record<string, string> | undefined = headers;
+      if (headersString && !headers) {
+        try {
+          parsedHeaders = JSON.parse(headersString);
+        } catch {
+          throw new HTTPException(400, {
+            message: "Invalid headers JSON format.",
+          });
+        }
+      }
+
+      let parsedBody: Record<string, unknown> | string | undefined = body;
+      if (bodyString && !body) {
+        try {
+          parsedBody = JSON.parse(bodyString);
+        } catch {
+          throw new HTTPException(400, {
+            message: "Invalid body JSON format.",
+          });
+        }
+      }
+
+      const updateData = {
+        name,
+        check_type: checkType,
+        url: checkType === "http" ? url : null,
+        tcp_host_port: checkType === "tcp" ? tcpHostPort : null,
+        method: checkType === "http" ? method : null,
+        headers: parsedHeaders ?? {},
+        body: parsedBody,
+        interval: finalInterval,
+        regions,
+        updated_at: new Date().toISOString(),
+      };
+
+      const { data: updatedMonitor, error: updateError } = await supabase
+        .from("monitors")
+        .update(updateData)
+        .eq("id", monitorId)
+        .select()
+        .single();
+
+      if (updateError) {
+        console.error("Error updating monitor:", updateError);
+        throw new HTTPException(500, { message: "Failed to update monitor" });
+      }
+
+      return c.json({ data: updatedMonitor, success: true, error: null });
+    } catch {
+      throw new HTTPException(500, { message: "Failed to update monitor" });
+    }
+  });
 }

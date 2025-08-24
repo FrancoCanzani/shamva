@@ -34,12 +34,15 @@ export async function fetchLogs({
 
     const workspaceId = targetWorkspace.id;
 
-    const logsResponse = await fetch(`/v1/api/logs?workspaceId=${workspaceId}`, {
-      headers: {
-        Authorization: `Bearer ${context.auth.session?.access_token}`,
-        "Content-Type": "application/json",
-      },
-    });
+    const logsResponse = await fetch(
+      `/v1/api/logs?workspaceId=${workspaceId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${context.auth.session?.access_token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     if (logsResponse.status === 401) {
       console.log("API returned 401 fetching logs, redirecting to login.");

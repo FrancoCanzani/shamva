@@ -1,56 +1,70 @@
-import { Context } from "hono";
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import type { EnvBindings } from "../../../../../bindings";
 import { supabase } from "../../../lib/supabase/client";
+import type { ApiVariables } from "../../../lib/types";
+import { HTTPException } from "hono/http-exception";
+import { openApiErrorResponses } from "../../../lib/utils";
+import { CollectorWithLastMetricSchema, UUIDParamSchema } from "./schemas";
 
-export default async function getCollector(c: Context) {
-  const userId = c.get("userId");
-  const collectorId = c.req.param("id");
+const route = createRoute({
+  method: "get",
+  path: "/collectors/:id",
+  request: { params: UUIDParamSchema },
+  responses: {
+    200: {
+      description: "OK",
+      content: {
+        "application/json": {
+          schema: z.object({
+            data: CollectorWithLastMetricSchema,
+            success: z.literal(true),
+            error: z.null(),
+          }),
+        },
+      },
+    },
+    ...openApiErrorResponses,
+  },
+});
 
-  if (!userId) {
-    return c.json({ success: false, error: "User not authenticated" }, 401);
-  }
+export default function registerGetCollector(
+  api: OpenAPIHono<{ Bindings: EnvBindings; Variables: ApiVariables }>
+) {
+  return api.openapi(route, async (c) => {
+    const userId = c.get("userId");
+    const { id: collectorId } = c.req.valid("param");
 
-  if (!collectorId) {
-    return c.json({ success: false, error: "Collector ID is required" }, 400);
-  }
+    const { data: collector, error: collectorError } = await supabase
+      .from("collectors")
+      .select("*")
+      .eq("id", collectorId)
+      .single();
 
-  const { data: collector, error: collectorError } = await supabase
-    .from("collectors")
-    .select("*")
-    .eq("id", collectorId)
-    .single();
-
-  if (collectorError) {
-    if (collectorError.code === "PGRST116") {
-      return c.json({ success: false, error: "Collector not found" }, 404);
+    if (collectorError) {
+      if (collectorError.code === "PGRST116") {
+        throw new HTTPException(404, { message: "Collector not found" });
+      }
+      throw new HTTPException(500, {
+        message: "Database error fetching collector",
+      });
     }
 
-    return c.json(
-      {
-        success: false,
-        error: "Database error fetching collector",
-        details: collectorError.message,
-      },
-      500
-    );
-  }
+    if (!collector) {
+      throw new HTTPException(404, { message: "Collector not found" });
+    }
 
-  if (!collector) {
-    return c.json({ success: false, error: "Collector not found" }, 404);
-  }
+    const { data: membership, error: membershipError } = await supabase
+      .from("workspace_members")
+      .select("role")
+      .eq("workspace_id", collector.workspace_id)
+      .eq("user_id", userId)
+      .eq("invitation_status", "accepted")
+      .single();
 
-  const { data: membership, error: membershipError } = await supabase
-    .from("workspace_members")
-    .select("role")
-    .eq("workspace_id", collector.workspace_id)
-    .eq("user_id", userId)
-    .eq("invitation_status", "accepted")
-    .single();
+    if (membershipError || !membership) {
+      throw new HTTPException(404, { message: "Collector not found" });
+    }
 
-  if (membershipError || !membership) {
-    return c.json({ success: false, error: "Collector not found" }, 404);
-  }
-
-  try {
     const { data: lastMetric } = await supabase
       .from("metrics")
       .select("*")
@@ -63,20 +77,6 @@ export default async function getCollector(c: Context) {
       ...collector,
       last_metric: lastMetric || undefined,
     };
-
-    return c.json({
-      data: collectorWithMetrics,
-      success: true,
-    });
-  } catch (error) {
-    console.error("Error fetching collector:", error);
-    return c.json(
-      {
-        success: false,
-        error: "Failed to fetch collector",
-        details: String(error),
-      },
-      500
-    );
-  }
+    return c.json({ data: collectorWithMetrics, success: true, error: null });
+  });
 }

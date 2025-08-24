@@ -1,44 +1,49 @@
-import { Context } from "hono";
-import { NotificationUpdateSchema } from "../../../../lib/schemas";
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import type { EnvBindings } from "../../../../../../bindings";
+import type { ApiVariables } from "../../../../lib/types";
+import {
+  NotificationSchema,
+  NotificationUpdateSchema,
+  UUIDParamSchema,
+} from "../schemas";
 import { supabase } from "../../../../lib/supabase/client";
+import { HTTPException } from "hono/http-exception";
+import { openApiErrorResponses } from "../../../../lib/utils";
 
-export default async function putWorkspaceNotifications(c: Context) {
-  const userId = c.get("userId");
-  const workspaceId = c.req.param("id");
-
-  if (!userId) {
-    return c.json({ success: false, error: "User not authenticated." }, 401);
-  }
-
-  if (!workspaceId) {
-    return c.json({ success: false, error: "Workspace ID is required." }, 400);
-  }
-
-  let rawBody: unknown;
-  try {
-    rawBody = await c.req.json();
-  } catch {
-    return c.json(
-      { success: false, error: "Invalid JSON payload provided." },
-      400
-    );
-  }
-
-  const result = NotificationUpdateSchema.safeParse(rawBody);
-
-  if (!result.success) {
-    console.error("Validation Error Details:", result.error.issues);
-    return c.json(
-      {
-        success: false,
-        error: "Request parameter validation failed.",
-        details: result.error.issues,
+const route = createRoute({
+  method: "put",
+  path: "/workspaces/:id/notifications",
+  request: {
+    params: UUIDParamSchema,
+    body: {
+      content: { "application/json": { schema: NotificationUpdateSchema } },
+    },
+  },
+  responses: {
+    200: {
+      description: "Updated",
+      content: {
+        "application/json": {
+          schema: z.object({
+            data: NotificationSchema,
+            success: z.literal(true),
+            error: z.null(),
+          }),
+        },
       },
-      400
-    );
-  }
+    },
+    ...openApiErrorResponses,
+  },
+});
 
-  try {
+export default function registerPutWorkspaceNotifications(
+  api: OpenAPIHono<{ Bindings: EnvBindings; Variables: ApiVariables }>
+) {
+  return api.openapi(route, async (c) => {
+    const userId = c.get("userId");
+    const { id: workspaceId } = c.req.valid("param");
+    const body = c.req.valid("json");
+
     const { data: userMembership, error: userMembershipError } = await supabase
       .from("workspace_members")
       .select("role")
@@ -52,20 +57,10 @@ export default async function putWorkspaceNotifications(c: Context) {
       !userMembership ||
       userMembership.role === "viewer"
     ) {
-      return c.json(
-        {
-          success: false,
-          error:
-            "You do not have permission to edit notification settings for this workspace.",
-        },
-        403
-      );
+      throw new HTTPException(403, { message: "Insufficient permissions" });
     }
 
-    const updateData = {
-      ...result.data,
-      updated_at: new Date().toISOString(),
-    };
+    const updateData = { ...body, updated_at: new Date().toISOString() };
 
     const { data: updatedConfig, error: updateError } = await supabase
       .from("notifications")
@@ -75,35 +70,11 @@ export default async function putWorkspaceNotifications(c: Context) {
       .single();
 
     if (updateError) {
-      console.error(
-        `Error updating notification config for workspace ${workspaceId}:`,
-        updateError
-      );
-      return c.json(
-        {
-          success: false,
-          error: "Failed to update notification configuration",
-          details: updateError.message,
-        },
-        500
-      );
+      throw new HTTPException(500, {
+        message: "Failed to update notification configuration",
+      });
     }
 
-    return c.json({
-      data: updatedConfig,
-      success: true,
-    });
-  } catch (error) {
-    console.error(
-      `Unexpected error updating notification config for workspace ${workspaceId}:`,
-      error
-    );
-    return c.json(
-      {
-        success: false,
-        error: "An unexpected error occurred",
-      },
-      500
-    );
-  }
+    return c.json({ data: updatedConfig, success: true, error: null });
+  });
 }

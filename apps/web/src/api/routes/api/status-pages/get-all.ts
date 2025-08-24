@@ -1,25 +1,45 @@
-import { Context } from "hono";
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import type { EnvBindings } from "../../../../../bindings";
+import type { ApiVariables } from "../../../lib/types";
 import { supabase } from "../../../lib/supabase/client";
+import { HTTPException } from "hono/http-exception";
+import { openApiErrorResponses } from "../../../lib/utils";
+import { StatusPageSchema } from "./schemas";
 
-export default async function getAllStatusPages(c: Context) {
-  const userId = c.get("userId");
-  const workspaceId = c.req.query("workspaceId");
+const route = createRoute({
+  method: "get",
+  path: "/status-pages",
+  request: { query: z.object({ workspaceId: z.uuid().optional() }) },
+  responses: {
+    200: {
+      description: "OK",
+      content: {
+        "application/json": {
+          schema: z.object({
+            data: z.array(StatusPageSchema),
+            success: z.literal(true),
+            error: z.null(),
+          }),
+        },
+      },
+    },
+    ...openApiErrorResponses,
+  },
+});
 
-  if (!userId) {
-    return c.json(
-      { data: null, success: false, error: "User not authenticated" },
-      401
-    );
-  }
+export default function registerGetAllStatusPages(
+  api: OpenAPIHono<{ Bindings: EnvBindings; Variables: ApiVariables }>
+) {
+  return api.openapi(route, async (c) => {
+    const userId = c.get("userId");
+    const { workspaceId } = c.req.valid("query");
 
-  try {
     let query = supabase.from("status_pages").select(`
         *,
         workspace:workspaces(id, name)
       `);
 
     if (workspaceId) {
-      // Check if user has access to this workspace
       const { data: membership } = await supabase
         .from("workspace_members")
         .select("role")
@@ -28,23 +48,18 @@ export default async function getAllStatusPages(c: Context) {
         .single();
 
       if (!membership) {
-        return c.json({ data: [], success: true, error: null }, 200);
+        return c.json({ data: [], success: true, error: null });
       }
 
       query = query.eq("workspace_id", workspaceId);
     } else {
-      // Get all workspaces the user has access to
       const { data: memberships } = await supabase
         .from("workspace_members")
         .select("workspace_id")
         .eq("user_id", userId);
 
       if (!memberships || memberships.length === 0) {
-        return c.json({
-          data: [],
-          success: true,
-          error: null,
-        });
+        return c.json({ data: [], success: true, error: null });
       }
 
       const workspaceIds = memberships.map((m) => m.workspace_id);
@@ -57,34 +72,9 @@ export default async function getAllStatusPages(c: Context) {
     );
 
     if (statusPagesError) {
-      console.error("Error fetching status pages from DB:", statusPagesError);
-      return c.json(
-        {
-          data: null,
-          success: false,
-          error: "Database error fetching status pages",
-          details: statusPagesError.message,
-        },
-        500
-      );
+      throw new HTTPException(500, { message: "Failed to fetch status pages" });
     }
 
-    return c.json({
-      data: statusPages || [],
-      success: true,
-      error: null,
-    });
-  } catch (err) {
-    console.error("Unexpected error fetching status pages:", err);
-    const errorDetails = err instanceof Error ? err.message : String(err);
-    return c.json(
-      {
-        data: null,
-        success: false,
-        error: "An unexpected error occurred",
-        details: errorDetails,
-      },
-      500
-    );
-  }
+    return c.json({ data: statusPages ?? [], success: true, error: null });
+  });
 }

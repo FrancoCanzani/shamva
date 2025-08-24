@@ -1,35 +1,62 @@
-import { Context } from "hono";
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import type { EnvBindings } from "../../../../../bindings";
 import { supabase } from "../../../lib/supabase/client";
+import type { ApiVariables } from "../../../lib/types";
+import { HTTPException } from "hono/http-exception";
+import { openApiErrorResponses } from "../../../lib/utils";
+import { IncidentSchema } from "./schemas";
 
-export default async function getAllIncidents(c: Context) {
-  const userId = c.get("userId");
-  const workspaceId = c.req.query("workspaceId");
+const route = createRoute({
+  method: "get",
+  path: "/incidents",
+  request: {
+    query: z.object({
+      workspaceId: z
+        .uuid()
+        .openapi({ example: "a81bc81b-dead-4e5d-abff-90865d1e13b1" }),
+    }),
+  },
+  responses: {
+    200: {
+      description: "OK",
+      content: {
+        "application/json": {
+          schema: z.object({
+            data: z.array(IncidentSchema),
+            success: z.literal(true),
+            error: z.null(),
+          }),
+        },
+      },
+    },
+    ...openApiErrorResponses,
+  },
+});
 
-  if (!userId) {
-    return c.json({ success: false, error: "User not authenticated" }, 401);
-  }
+export default function registerGetAllIncidents(
+  api: OpenAPIHono<{ Bindings: EnvBindings; Variables: ApiVariables }>
+) {
+  return api.openapi(route, async (c) => {
+    const userId = c.get("userId");
+    const { workspaceId } = c.req.valid("query");
 
-  if (!workspaceId) {
-    return c.json({ success: false, error: "Workspace ID is required" }, 400);
-  }
+    const { data: membership, error: membershipError } = await supabase
+      .from("workspace_members")
+      .select("role")
+      .eq("workspace_id", workspaceId)
+      .eq("user_id", userId)
+      .eq("invitation_status", "accepted")
+      .single();
 
-  const { data: membership, error: membershipError } = await supabase
-    .from("workspace_members")
-    .select("role")
-    .eq("workspace_id", workspaceId)
-    .eq("user_id", userId)
-    .eq("invitation_status", "accepted")
-    .single();
+    if (membershipError || !membership) {
+      throw new HTTPException(404, { message: "Workspace not found" });
+    }
 
-  if (membershipError || !membership) {
-    return c.json({ success: false, error: "Workspace not found" }, 404);
-  }
-
-  try {
-    const { data: incidents, error: fetchError } = await supabase
-      .from("incidents")
-      .select(
-        `
+    try {
+      const { data: incidents, error: fetchError } = await supabase
+        .from("incidents")
+        .select(
+          `
         *,
         monitors (
           id,
@@ -37,35 +64,17 @@ export default async function getAllIncidents(c: Context) {
           url
         )
       `
-      )
-      .eq("workspace_id", workspaceId)
-      .order("created_at", { ascending: false });
+        )
+        .eq("workspace_id", workspaceId)
+        .order("created_at", { ascending: false });
 
-    if (fetchError) {
-      console.error("Error fetching incidents:", fetchError);
-      return c.json(
-        {
-          success: false,
-          error: "Failed to fetch incidents",
-          details: fetchError.message,
-        },
-        500
-      );
+      if (fetchError) {
+        throw new HTTPException(500, { message: "Failed to fetch incidents" });
+      }
+
+      return c.json({ data: incidents ?? [], success: true, error: null });
+    } catch {
+      throw new HTTPException(500, { message: "Failed to fetch incidents" });
     }
-
-    return c.json({
-      data: incidents,
-      success: true,
-    });
-  } catch (error) {
-    console.error("Error fetching incidents:", error);
-    return c.json(
-      {
-        success: false,
-        error: "Failed to fetch incidents",
-        details: String(error),
-      },
-      500
-    );
-  }
+  });
 }

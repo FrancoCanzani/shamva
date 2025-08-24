@@ -1,5 +1,6 @@
 import type { Context, Next } from "hono";
 import { supabase } from "../supabase/client";
+import { HTTPException } from "hono/http-exception";
 
 export const authMiddleware = async (c: Context, next: Next) => {
   const path = c.req.path;
@@ -14,13 +15,15 @@ export const authMiddleware = async (c: Context, next: Next) => {
   const authHeader = c.req.header("Authorization");
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return c.json({ error: "Missing or invalid Authorization header" }, 401);
+    throw new HTTPException(401, {
+      message: "Missing or invalid Authorization header",
+    });
   }
 
   const jwt = authHeader.split(" ")[1];
 
   if (!jwt) {
-    return c.json({ error: "Missing token" }, 401);
+    throw new HTTPException(401, { message: "Missing token" });
   }
 
   const {
@@ -30,7 +33,9 @@ export const authMiddleware = async (c: Context, next: Next) => {
 
   if (error || !user) {
     console.error("Auth Error:", error?.message);
-    return c.json({ error: "Invalid token or authentication failed" }, 401);
+    throw new HTTPException(401, {
+      message: "Invalid token or authentication failed",
+    });
   }
 
   c.set("user", user);

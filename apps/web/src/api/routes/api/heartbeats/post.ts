@@ -1,16 +1,16 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import type { EnvBindings } from "../../../../../bindings";
 import type { ApiVariables } from "../../../lib/types";
-import { StatusPageBodySchema, StatusPageSchema } from "./schemas";
 import { supabase } from "../../../lib/supabase/client";
 import { HTTPException } from "hono/http-exception";
 import { openApiErrorResponses } from "../../../lib/utils";
+import { HeartbeatBodySchema, HeartbeatSchema } from "./schemas";
 
 const route = createRoute({
   method: "post",
-  path: "/status-pages",
+  path: "/heartbeats",
   request: {
-    body: { content: { "application/json": { schema: StatusPageBodySchema } } },
+    body: { content: { "application/json": { schema: HeartbeatBodySchema } } },
   },
   responses: {
     200: {
@@ -18,7 +18,7 @@ const route = createRoute({
       content: {
         "application/json": {
           schema: z.object({
-            data: StatusPageSchema,
+            data: HeartbeatSchema,
             success: z.literal(true),
             error: z.null(),
           }),
@@ -29,66 +29,48 @@ const route = createRoute({
   },
 });
 
-export default function registerPostStatusPage(
+export default function registerPostHeartbeat(
   api: OpenAPIHono<{ Bindings: EnvBindings; Variables: ApiVariables }>
 ) {
   return api.openapi(route, async (c) => {
     const userId = c.get("userId");
-    const {
-      slug,
-      title,
-      description,
-      showValues,
-      password,
-      isPublic,
-      monitors,
-      workspaceId,
-    } = c.req.valid("json");
+    const { workspaceId, pingId, name, expectedLapseMs, gracePeriodMs } =
+      c.req.valid("json");
 
     const { data: membership, error: membershipError } = await supabase
       .from("workspace_members")
       .select("role")
       .eq("workspace_id", workspaceId)
       .eq("user_id", userId)
+      .eq("invitation_status", "accepted")
       .single();
 
-    if (membershipError || !membership || membership.role === "viewer") {
+    if (membershipError || !membership) {
       throw new HTTPException(403, { message: "Insufficient permissions" });
     }
 
-    const { data: existingStatusPage } = await supabase
-      .from("status_pages")
-      .select("id")
-      .eq("workspace_id", workspaceId)
-      .eq("slug", slug)
-      .single();
-
-    if (existingStatusPage) {
-      throw new HTTPException(400, {
-        message:
-          "A status page with this slug already exists in this workspace",
-      });
+    if (membership.role === "viewer") {
+      throw new HTTPException(403, { message: "Insufficient permissions" });
     }
 
     const { data, error: insertError } = await supabase
-      .from("status_pages")
+      .from("heartbeats")
       .insert([
         {
-          slug,
-          title,
-          description: description || null,
-          show_values: showValues,
-          password: password || null,
-          is_public: isPublic,
-          monitors,
           workspace_id: workspaceId,
+          ping_id: pingId,
+          name,
+          expected_lapse_ms: expectedLapseMs,
+          grace_period_ms: gracePeriodMs,
+          status: "idle",
+          created_at: new Date().toISOString(),
         },
       ])
       .select()
       .single();
 
     if (insertError || !data) {
-      throw new HTTPException(500, { message: "Failed to create status page" });
+      throw new HTTPException(500, { message: "Failed to create heartbeat" });
     }
 
     return c.json({ data, success: true, error: null });

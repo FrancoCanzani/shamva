@@ -8,7 +8,9 @@ const CollectorSearchSchema = z.object({
   days: z.number().int().min(1).max(28).default(7),
 });
 
-export const Route = createFileRoute("/dashboard/$workspaceName/collectors/$id/")({
+export const Route = createFileRoute(
+  "/dashboard/$workspaceName/collectors/$id/"
+)({
   component: CollectorPage,
   pendingComponent: Loading,
   validateSearch: (search) => CollectorSearchSchema.parse(search),

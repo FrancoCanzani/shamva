@@ -1,25 +1,43 @@
-import { Context } from "hono";
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import type { EnvBindings } from "../../../../../bindings";
+import type { ApiVariables } from "../../../lib/types";
 import { supabase } from "../../../lib/supabase/client";
+import { HTTPException } from "hono/http-exception";
+import { openApiErrorResponses } from "../../../lib/utils";
+import { StatusPageSchema } from "./schemas";
 
-export default async function getStatusPages(c: Context) {
-  const userId = c.get("userId");
-  const statusPageId = c.req.param("id");
+const route = createRoute({
+  method: "get",
+  path: "/status-pages/:id",
+  request: {
+    params: z.object({
+      id: z.uuid().openapi({ param: { name: "id", in: "path" } }),
+    }),
+  },
+  responses: {
+    200: {
+      description: "OK",
+      content: {
+        "application/json": {
+          schema: z.object({
+            data: StatusPageSchema,
+            success: z.literal(true),
+            error: z.null(),
+          }),
+        },
+      },
+    },
+    ...openApiErrorResponses,
+  },
+});
 
-  if (!userId) {
-    return c.json(
-      { data: null, success: false, error: "User not authenticated" },
-      401
-    );
-  }
+export default function registerGetStatusPage(
+  api: OpenAPIHono<{ Bindings: EnvBindings; Variables: ApiVariables }>
+) {
+  return api.openapi(route, async (c) => {
+    const userId = c.get("userId");
+    const { id: statusPageId } = c.req.valid("param");
 
-  if (!statusPageId) {
-    return c.json(
-      { data: null, success: false, error: "Status page ID is required" },
-      400
-    );
-  }
-
-  try {
     const { data: statusPage, error: statusPageError } = await supabase
       .from("status_pages")
       .select(
@@ -33,28 +51,9 @@ export default async function getStatusPages(c: Context) {
 
     if (statusPageError) {
       if (statusPageError.code === "PGRST116") {
-        return c.json(
-          { data: null, success: false, error: "Status page not found" },
-          404
-        );
+        throw new HTTPException(404, { message: "Status page not found" });
       }
-
-      return c.json(
-        {
-          data: null,
-          success: false,
-          error: "Database error fetching status page",
-          details: statusPageError.message,
-        },
-        500
-      );
-    }
-
-    if (!statusPage) {
-      return c.json(
-        { data: null, success: false, error: "Status page not found" },
-        404
-      );
+      throw new HTTPException(500, { message: "Failed to fetch status page" });
     }
 
     const { data: membership } = await supabase
@@ -65,31 +64,9 @@ export default async function getStatusPages(c: Context) {
       .single();
 
     if (!membership) {
-      return c.json(
-        { data: null, success: false, error: "Access denied" },
-        403
-      );
+      throw new HTTPException(403, { message: "Access denied" });
     }
 
-    return c.json({
-      data: statusPage,
-      success: true,
-      error: null,
-    });
-  } catch (err) {
-    console.error(
-      `Unexpected error fetching status page ${statusPageId}:`,
-      err
-    );
-    const errorDetails = err instanceof Error ? err.message : String(err);
-    return c.json(
-      {
-        data: null,
-        success: false,
-        error: "An unexpected error occurred",
-        details: errorDetails,
-      },
-      500
-    );
-  }
+    return c.json({ data: statusPage, success: true, error: null });
+  });
 }

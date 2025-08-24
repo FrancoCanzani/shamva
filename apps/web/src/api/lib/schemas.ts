@@ -282,42 +282,6 @@ export const WorkspaceSchema = z.object({
   creatorEmail: z.string(),
 });
 
-export const StatusPageSchema = z.object({
-  slug: z
-    .string()
-    .min(1, "Slug is required")
-    .max(50, "Slug cannot exceed 50 characters")
-    .regex(
-      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-      "Slug must be URL-friendly (lowercase letters, numbers, and hyphens, no leading/trailing/consecutive hyphens)"
-    ),
-  title: z
-    .string()
-    .min(1, "Title is required")
-    .max(100, "Title cannot exceed 100 characters"),
-  description: z
-    .string()
-    .max(500, "Description cannot exceed 500 characters")
-    .optional(),
-  showValues: z.boolean().default(true),
-  password: z
-    .string()
-    .max(100, "Password cannot exceed 100 characters")
-    .optional(),
-  isPublic: z.boolean().default(true),
-  monitors: z.array(z.string()).min(1, "Please select at least one monitor"),
-  workspaceId: z.uuid("Invalid workspace ID format"),
-});
-
-export const IncidentUpdateSchema = z.object({
-  acknowledged_at: z.iso.datetime().optional(),
-  resolved_at: z.iso.datetime().optional(),
-  post_mortem: z
-    .string()
-    .max(100000, "Post-mortem cannot exceed 100000 characters")
-    .optional(),
-});
-
 export const HeartbeatSchema = z.object({
   name: z
     .string()
@@ -329,108 +293,6 @@ export const HeartbeatSchema = z.object({
   workspaceId: z.uuid("Invalid workspace ID format"),
   pingId: z.uuid("Invalid ID format"),
 });
-
-export const NotificationUpdateSchema = z
-  .object({
-    email_enabled: z.boolean().optional(),
-
-    slack_enabled: z.boolean().optional(),
-    slack_webhook_url: z.url("Invalid Slack webhook URL").nullable().optional(),
-    slack_channel: z.string().nullable().optional(),
-
-    discord_enabled: z.boolean().optional(),
-    discord_webhook_url: z
-      .url("Invalid Discord webhook URL")
-      .nullable()
-      .optional(),
-    discord_channel: z.string().nullable().optional(),
-
-    pagerduty_enabled: z.boolean().optional(),
-    pagerduty_service_id: z.string().nullable().optional(),
-    pagerduty_api_key: z.string().nullable().optional(),
-    pagerduty_from_email: z
-      .email("Invalid email address")
-      .nullable()
-      .optional(),
-
-    sms_enabled: z.boolean().optional(),
-    sms_phone_numbers: z
-      .array(z.string().regex(/^\+\d{1,15}$/, "Invalid phone number format"))
-      .nullable()
-      .optional(),
-    twilio_account_sid: z.string().nullable().optional(),
-    twilio_auth_token: z.string().nullable().optional(),
-    twilio_from_number: z
-      .string()
-      .regex(/^\+\d{1,15}$/, "Invalid phone number format")
-      .nullable()
-      .optional(),
-
-    github_enabled: z.boolean().optional(),
-    github_owner: z.string().nullable().optional(),
-    github_repo: z.string().nullable().optional(),
-    github_token: z.string().nullable().optional(),
-  })
-  .refine(
-    (data) => {
-      if (data.slack_enabled && !data.slack_webhook_url) {
-        return false;
-      }
-      return true;
-    },
-    {
-      message:
-        "Slack webhook URL is required when Slack notifications are enabled",
-      path: ["slack_webhook_url"],
-    }
-  )
-  .refine(
-    (data) => {
-      if (data.discord_enabled && !data.discord_webhook_url) {
-        return false;
-      }
-      return true;
-    },
-    {
-      message:
-        "Discord webhook URL is required when Discord notifications are enabled",
-      path: ["discord_webhook_url"],
-    }
-  )
-  .refine(
-    (data) => {
-      if (
-        data.pagerduty_enabled &&
-        (!data.pagerduty_service_id ||
-          !data.pagerduty_api_key ||
-          !data.pagerduty_from_email)
-      ) {
-        return false;
-      }
-      return true;
-    },
-    {
-      message:
-        "PagerDuty service ID, API key, and from email are required when PagerDuty notifications are enabled",
-      path: ["pagerduty_service_id"],
-    }
-  )
-  .refine(
-    (data) => {
-      if (
-        data.github_enabled &&
-        (!data.github_owner || !data.github_repo || !data.github_token)
-      ) {
-        return false;
-      }
-      return true;
-    },
-    {
-      message:
-        "GitHub owner, repo, and token are required when GitHub notifications are enabled",
-      path: ["github_owner"],
-    }
-  );
 
 export const MetricsSchema = z.object({
   timestamp: z.string().transform((val) => new Date(val)),
@@ -483,4 +345,12 @@ export const MetricsSchema = z.object({
   network_connected: z.boolean(),
   network_interface: z.string().max(50, "Network interface name too long"),
   uptime_seconds: z.number().int().min(0, "Uptime cannot be negative"),
+});
+
+export const BodyContentSchema = z.object({
+  raw: z.string().nullable(),
+  truncated: z.boolean(),
+  parsed: z.record(z.string(), z.unknown()).nullable().optional(),
+  contentType: z.string().nullable().optional(),
+  parseError: z.string().nullable().optional(),
 });

@@ -1,61 +1,58 @@
-import { Context } from "hono";
-import { WorkspaceSchema } from "../../../lib/schemas";
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import type { EnvBindings } from "../../../../../bindings";
+import type { ApiVariables } from "../../../lib/types";
 import { supabase } from "../../../lib/supabase/client";
+import { HTTPException } from "hono/http-exception";
+import { openApiErrorResponses } from "../../../lib/utils";
+import {
+  WorkspaceCreateBodySchema,
+  WorkspaceWithMembersSchema,
+} from "./schemas";
 
-export default async function postWorkspaces(c: Context) {
-  let rawBody: unknown;
-  try {
-    rawBody = await c.req.json();
-    console.log("Received workspace creation request:", rawBody);
-  } catch {
-    return c.json(
-      { data: null, success: false, error: "Invalid JSON payload provided." },
-      400
-    );
-  }
-
-  const result = WorkspaceSchema.safeParse(rawBody);
-
-  if (!result.success) {
-    console.error("Validation Error Details:", result.error.issues);
-    return c.json(
-      {
-        success: false,
-        error: "Request parameter validation failed.",
-        details: result.error.issues,
+const route = createRoute({
+  method: "post",
+  path: "/workspaces",
+  request: {
+    body: {
+      content: { "application/json": { schema: WorkspaceCreateBodySchema } },
+    },
+  },
+  responses: {
+    200: {
+      description: "Created",
+      content: {
+        "application/json": {
+          schema: z.object({
+            data: z.union([
+              z.array(WorkspaceWithMembersSchema),
+              WorkspaceWithMembersSchema,
+            ]),
+            success: z.literal(true),
+            error: z.null(),
+          }),
+        },
       },
-      400
-    );
-  }
+    },
+    ...openApiErrorResponses,
+  },
+});
 
-  const { name, description, members, creatorEmail } = result.data;
+export default function registerPostWorkspaces(
+  api: OpenAPIHono<{ Bindings: EnvBindings; Variables: ApiVariables }>
+) {
+  return api.openapi(route, async (c) => {
+    const userId = c.get("userId");
+    const { name, description, members, creatorEmail } = c.req.valid("json");
 
-  const userId = c.get("userId");
-
-  try {
     const { data: workspace, error: workspaceError } = await supabase
       .from("workspaces")
-      .insert({
-        name: name,
-        description: description || null,
-        created_by: userId,
-      })
+      .insert({ name, description: description || null, created_by: userId })
       .select()
       .single();
 
-    if (workspaceError) {
-      console.error("Error creating workspace:", workspaceError);
-      return c.json(
-        {
-          success: false,
-          error: "Failed to create workspace",
-          details: workspaceError.message,
-        },
-        500
-      );
+    if (workspaceError || !workspace) {
+      throw new HTTPException(500, { message: "Failed to create workspace" });
     }
-
-    console.log("Workspace created successfully:", workspace);
 
     const { error: memberError } = await supabase
       .from("workspace_members")
@@ -68,46 +65,35 @@ export default async function postWorkspaces(c: Context) {
       });
 
     if (memberError) {
-      console.error("Error adding admin member:", memberError);
       await supabase.from("workspaces").delete().eq("id", workspace.id);
-      return c.json(
-        {
-          success: false,
-          error: "Failed to add creator to workspace",
-          details: memberError.message,
-        },
-        500
-      );
+      throw new HTTPException(500, { message: "Failed to add creator" });
     }
 
-    console.log(
-      "Admin member added successfully, proceeding with invitations for:",
-      members
+    const memberPromises = members.map(
+      (member: { email: string; role: string }) =>
+        supabase
+          .from("workspace_members")
+          .insert({
+            workspace_id: workspace.id,
+            user_id: null,
+            role: member.role,
+            invitation_email: member.email,
+            invitation_status: "pending",
+            invited_by: userId,
+          })
+          .select()
+          .single()
     );
 
-    const memberPromises = members.map((member) =>
-      supabase
-        .from("workspace_members")
-        .insert({
-          workspace_id: workspace.id,
-          user_id: null,
-          role: member.role,
-          invitation_email: member.email,
-          invitation_status: "pending",
-          invited_by: userId,
-        })
-        .select()
-        .single()
-    );
+    await Promise.all(memberPromises).catch(async () => {
+      await supabase.from("workspaces").delete().eq("id", workspace.id);
+      throw new HTTPException(500, { message: "Failed to invite members" });
+    });
 
-    try {
-      const results = await Promise.all(memberPromises);
-      console.log("Member invitation results:", results);
-
-      const { data: workspaceWithMembers, error: finalError } = await supabase
-        .from("workspaces")
-        .select(
-          `
+    const { data: workspaceWithMembers, error: finalError } = await supabase
+      .from("workspaces")
+      .select(
+        `
           *,
           workspace_members (
             id,
@@ -118,30 +104,17 @@ export default async function postWorkspaces(c: Context) {
             invited_by
           )
         `
-        )
-        .eq("id", workspace.id);
+      )
+      .eq("id", workspace.id);
 
-      if (finalError) throw finalError;
-
-      console.log("Final workspace state:", workspaceWithMembers);
-
-      return c.json({
-        data: workspaceWithMembers || workspace,
-        success: true,
-      });
-    } catch (err) {
-      console.error("Error adding members:", err);
-      await supabase.from("workspaces").delete().eq("id", workspace.id);
-      throw err;
+    if (finalError) {
+      throw new HTTPException(500, { message: "Failed to load workspace" });
     }
-  } catch (error) {
-    return c.json(
-      {
-        success: false,
-        error: "Failed to create workspace",
-        details: error instanceof Error ? error.message : String(error),
-      },
-      500
-    );
-  }
+
+    return c.json({
+      data: workspaceWithMembers || workspace,
+      success: true,
+      error: null,
+    });
+  });
 }

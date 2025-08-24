@@ -1,121 +1,97 @@
-import { Context } from "hono";
-import { PartialMonitorSchema } from "../../../lib/schemas";
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import type { EnvBindings } from "../../../../../bindings";
 import { supabase } from "../../../lib/supabase/client";
+import type { ApiVariables } from "../../../lib/types";
+import { HTTPException } from "hono/http-exception";
+import { openApiErrorResponses } from "../../../lib/utils";
+import { MonitorSchema, UUIDParamSchema } from "./schemas";
 
-export default async function patchMonitors(c: Context) {
-  const userId = c.get("userId");
-  const monitorId = c.req.param("id");
-
-  if (!userId) {
-    return c.json({ success: false, error: "User not authenticated" }, 401);
-  }
-
-  if (!monitorId) {
-    return c.json({ success: false, error: "Monitor ID is required" }, 400);
-  }
-
-  let rawBody: unknown;
-  try {
-    rawBody = await c.req.json();
-  } catch {
-    return c.json(
-      { success: false, error: "Invalid JSON payload provided." },
-      400
-    );
-  }
-
-  const result = PartialMonitorSchema.safeParse(rawBody);
-
-  if (!result.success) {
-    return c.json(
-      {
-        success: false,
-        error: "Request parameter validation failed.",
-        details: result.error.issues,
+const route = createRoute({
+  method: "patch",
+  path: "/monitors/:id",
+  request: {
+    params: UUIDParamSchema,
+    body: { content: { "application/json": { schema: z.object({}) } } },
+  },
+  responses: {
+    200: {
+      description: "OK",
+      content: {
+        "application/json": {
+          schema: z.object({
+            data: MonitorSchema,
+            success: z.literal(true),
+            error: z.null(),
+          }),
+        },
       },
-      400
-    );
-  }
+    },
+    ...openApiErrorResponses,
+  },
+});
 
-  const { data: existingMonitor, error: fetchError } = await supabase
-    .from("monitors")
-    .select("workspace_id")
-    .eq("id", monitorId)
-    .single();
+export default function registerPatchMonitor(
+  api: OpenAPIHono<{ Bindings: EnvBindings; Variables: ApiVariables }>
+) {
+  return api.openapi(route, async (c) => {
+    const userId = c.get("userId");
+    const { id: monitorId } = c.req.valid("param");
+    const result = c.req.valid("json");
 
-  if (fetchError) {
-    if (fetchError.code === "PGRST116") {
-      return c.json({ success: false, error: "Monitor not found" }, 404);
-    }
-
-    return c.json(
-      {
-        success: false,
-        error: "Database error fetching monitor",
-        details: fetchError.message,
-      },
-      500
-    );
-  }
-
-  if (!existingMonitor) {
-    return c.json({ success: false, error: "Monitor not found" }, 404);
-  }
-
-  const { data: membership, error: membershipError } = await supabase
-    .from("workspace_members")
-    .select("role")
-    .eq("workspace_id", existingMonitor.workspace_id)
-    .eq("user_id", userId)
-    .eq("invitation_status", "accepted")
-    .single();
-
-  if (membershipError || !membership) {
-    return c.json({ success: false, error: "Monitor not found" }, 404);
-  }
-
-  if (membership.role === "viewer") {
-    return c.json({ success: false, error: "Insufficient permissions" }, 403);
-  }
-
-  try {
-    const updateData = {
-      ...result.data,
-      updated_at: new Date().toISOString(),
-    };
-
-    const { data: updatedMonitor, error: updateError } = await supabase
+    const { data: existingMonitor, error: fetchError } = await supabase
       .from("monitors")
-      .update(updateData)
+      .select("workspace_id")
       .eq("id", monitorId)
-      .select()
       .single();
 
-    if (updateError) {
-      console.error("Error updating monitor:", updateError);
-      return c.json(
-        {
-          success: false,
-          error: "Failed to update monitor",
-          details: updateError.message,
-        },
-        500
-      );
+    if (fetchError) {
+      if (fetchError.code === "PGRST116") {
+        throw new HTTPException(404, { message: "Monitor not found" });
+      }
+      throw new HTTPException(500, {
+        message: "Database error fetching monitor",
+      });
     }
 
-    return c.json({
-      data: updatedMonitor,
-      success: true,
-    });
-  } catch (error) {
-    console.error("Error updating monitor:", error);
-    return c.json(
-      {
-        success: false,
-        error: "Failed to update monitor",
-        details: String(error),
-      },
-      500
-    );
-  }
+    if (!existingMonitor)
+      throw new HTTPException(404, { message: "Monitor not found" });
+
+    const { data: membership, error: membershipError } = await supabase
+      .from("workspace_members")
+      .select("role")
+      .eq("workspace_id", existingMonitor.workspace_id)
+      .eq("user_id", userId)
+      .eq("invitation_status", "accepted")
+      .single();
+
+    if (membershipError || !membership) {
+      throw new HTTPException(404, { message: "Monitor not found" });
+    }
+
+    if (membership.role === "viewer") {
+      throw new HTTPException(403, { message: "Insufficient permissions" });
+    }
+
+    try {
+      const updateData = {
+        ...result,
+        updated_at: new Date().toISOString(),
+      };
+
+      const { data: updatedMonitor, error: updateError } = await supabase
+        .from("monitors")
+        .update(updateData)
+        .eq("id", monitorId)
+        .select()
+        .single();
+
+      if (updateError) {
+        throw new HTTPException(500, { message: "Failed to update monitor" });
+      }
+
+      return c.json({ data: updatedMonitor, success: true, error: null });
+    } catch {
+      throw new HTTPException(500, { message: "Failed to update monitor" });
+    }
+  });
 }

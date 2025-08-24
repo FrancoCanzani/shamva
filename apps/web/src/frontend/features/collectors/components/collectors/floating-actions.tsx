@@ -15,24 +15,27 @@ export default function FloatingActions({
   }
 
   const handleDeleteSelected = () => {
-    if (confirm(`Are you sure you want to delete ${selectedCollectors.length} collector(s)?`)) {
+    if (
+      confirm(
+        `Are you sure you want to delete ${selectedCollectors.length} collector(s)?`
+      )
+    ) {
       // TODO: Implement bulk delete
-      console.log("Delete collectors:", selectedCollectors.map(c => c.id));
+      console.log(
+        "Delete collectors:",
+        selectedCollectors.map((c) => c.id)
+      );
       onSelectionChange();
     }
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
-      <div className="flex items-center gap-2 rounded-lg bg-background border shadow-lg px-4 py-2">
-        <span className="text-sm text-muted-foreground">
+    <div className="fixed right-6 bottom-6 z-50">
+      <div className="bg-background flex items-center gap-2 rounded-lg border px-4 py-2 shadow-lg">
+        <span className="text-muted-foreground text-sm">
           {selectedCollectors.length} collector(s) selected
         </span>
-        <Button
-          variant="destructive"
-          size="sm"
-          onClick={handleDeleteSelected}
-        >
+        <Button variant="destructive" size="sm" onClick={handleDeleteSelected}>
           Delete Selected
         </Button>
       </div>

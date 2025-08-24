@@ -1,10 +1,37 @@
-import { Context } from "hono";
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import type { EnvBindings } from "../../../../../bindings";
 import { supabase } from "../../../lib/supabase/client";
+import type { ApiVariables } from "../../../lib/types";
+import { HTTPException } from "hono/http-exception";
+import { openApiErrorResponses } from "../../../lib/utils";
+import { WorkspaceWithMembersSchema } from "./schemas";
 
-export default async function getAllWorkspaces(c: Context) {
-  const userId = c.get("userId");
+const route = createRoute({
+  method: "get",
+  path: "/workspaces",
+  responses: {
+    200: {
+      description: "OK",
+      content: {
+        "application/json": {
+          schema: z.object({
+            data: z.array(WorkspaceWithMembersSchema),
+            success: z.literal(true),
+            error: z.null(),
+          }),
+        },
+      },
+    },
+    ...openApiErrorResponses,
+  },
+});
 
-  try {
+export default function registerGetAllWorkspaces(
+  api: OpenAPIHono<{ Bindings: EnvBindings; Variables: ApiVariables }>
+) {
+  return api.openapi(route, async (c) => {
+    const userId = c.get("userId");
+
     const { data: memberWorkspaces, error: memberWorkspacesError } =
       await supabase
         .from("workspace_members")
@@ -14,28 +41,12 @@ export default async function getAllWorkspaces(c: Context) {
         .order("created_at", { ascending: false });
 
     if (memberWorkspacesError) {
-      console.error(
-        "Error fetching user's workspace memberships:",
-        memberWorkspacesError
-      );
-      return c.json(
-        {
-          data: null,
-          success: false,
-          error: "Database error fetching workspace memberships",
-          details: memberWorkspacesError.message,
-        },
-        500
-      );
+      throw new HTTPException(500, { message: "Failed to fetch memberships" });
     }
 
-    const workspaceIds = memberWorkspaces.map((m) => m.workspace_id);
-
+    const workspaceIds = (memberWorkspaces ?? []).map((m) => m.workspace_id);
     if (workspaceIds.length === 0) {
-      return c.json({
-        data: [],
-        success: true,
-      });
+      return c.json({ data: [], success: true, error: null });
     }
 
     const { data: workspaces, error: workspacesError } = await supabase
@@ -56,32 +67,9 @@ export default async function getAllWorkspaces(c: Context) {
       .order("created_at", { ascending: false });
 
     if (workspacesError) {
-      console.error("Error fetching workspaces:", workspacesError);
-      return c.json(
-        {
-          data: null,
-          success: false,
-          error: "Database error fetching workspaces",
-          details: workspacesError.message,
-        },
-        500
-      );
+      throw new HTTPException(500, { message: "Failed to fetch workspaces" });
     }
 
-    return c.json({
-      data: workspaces,
-      success: true,
-    });
-  } catch (error) {
-    console.error("Unexpected error fetching workspaces:", error);
-    return c.json(
-      {
-        data: null,
-        success: false,
-        error: "An unexpected error occurred",
-        details: error instanceof Error ? error.message : String(error),
-      },
-      500
-    );
-  }
+    return c.json({ data: workspaces ?? [], success: true, error: null });
+  });
 }

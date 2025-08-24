@@ -1,26 +1,40 @@
-import { PostgrestError, PostgrestSingleResponse } from "@supabase/supabase-js";
-import { Context } from "hono";
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import type { EnvBindings } from "../../../../../bindings";
 import { supabase } from "../../../lib/supabase/client";
-import { Workspace, WorkspaceMember } from "../../../lib/types";
+import type { ApiVariables } from "../../../lib/types";
+import { HTTPException } from "hono/http-exception";
+import { openApiErrorResponses } from "../../../lib/utils";
+import { UUIDParamSchema, WorkspaceWithMembersSchema } from "./schemas";
 
-export default async function getWorkspaces(c: Context) {
-  const userId = c.get("userId");
-  const workspaceId = c.req.param("id");
+const route = createRoute({
+  method: "get",
+  path: "/workspaces/:id",
+  request: { params: UUIDParamSchema },
+  responses: {
+    200: {
+      description: "OK",
+      content: {
+        "application/json": {
+          schema: z.object({
+            data: WorkspaceWithMembersSchema,
+            success: z.literal(true),
+            error: z.null(),
+          }),
+        },
+      },
+    },
+    ...openApiErrorResponses,
+  },
+});
 
-  if (!workspaceId) {
-    return c.json(
-      { data: null, success: false, error: "Workspace ID is required" },
-      400
-    );
-  }
+export default function registerGetWorkspace(
+  api: OpenAPIHono<{ Bindings: EnvBindings; Variables: ApiVariables }>
+) {
+  return api.openapi(route, async (c) => {
+    const userId = c.get("userId");
+    const { id: workspaceId } = c.req.valid("param");
 
-  try {
-    const {
-      data,
-      error,
-    }: PostgrestSingleResponse<
-      Workspace & { workspace_members: WorkspaceMember[] | null }
-    > = await supabase
+    const { data, error } = await supabase
       .from("workspaces")
       .select(
         `
@@ -38,60 +52,21 @@ export default async function getWorkspaces(c: Context) {
       .single();
 
     if (error) {
-      console.error(`Database error fetching workspace ${workspaceId}:`, error);
-
-      if ((error as PostgrestError).code === "PGRST116") {
-        return c.json(
-          { data: null, success: false, error: "Workspace not found" },
-          404
-        );
+      if (error.code === "PGRST116") {
+        throw new HTTPException(404, { message: "Workspace not found" });
       }
-      return c.json(
-        {
-          data: null,
-          success: false,
-          error: "Database error fetching workspace",
-          details: error.message,
-        },
-        500
-      );
+      throw new HTTPException(500, { message: "Failed to fetch workspace" });
     }
 
     const isMember = data?.workspace_members?.some(
-      (member: WorkspaceMember) =>
+      (member: { user_id: string; invitation_status: string }) =>
         member.user_id === userId && member.invitation_status === "accepted"
     );
 
     if (!data || !isMember) {
-      console.warn(
-        `Access denied to workspace ${workspaceId} for user ${userId}`
-      );
-      return c.json(
-        {
-          data: null,
-          success: false,
-          error: "Workspace not found or access denied",
-        },
-        404
-      );
+      throw new HTTPException(404, { message: "Workspace not found" });
     }
 
-    return c.json({
-      data: data,
-      success: true,
-      error: null,
-    });
-  } catch (err) {
-    console.error(`Unexpected error fetching workspace ${workspaceId}:`, err);
-    const errorDetails = err instanceof Error ? err.message : String(err);
-    return c.json(
-      {
-        data: null,
-        success: false,
-        error: "An unexpected error occurred",
-        details: errorDetails,
-      },
-      500
-    );
-  }
+    return c.json({ data, success: true, error: null });
+  });
 }

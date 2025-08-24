@@ -1,123 +1,95 @@
-import { Context } from "hono";
-import { CollectorsParamsSchema } from "../../../lib/schemas";
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import type { EnvBindings } from "../../../../../bindings";
+import type { ApiVariables } from "../../../lib/types";
 import { supabase } from "../../../lib/supabase/client";
+import { HTTPException } from "hono/http-exception";
+import { openApiErrorResponses } from "../../../lib/utils";
+import {
+  CollectorSchema,
+  CollectorUpdateBodySchema,
+  UUIDParamSchema,
+} from "./schemas";
 
-export default async function putCollectors(c: Context) {
-  const userId = c.get("userId");
-  const collectorId = c.req.param("id");
-
-  if (!userId) {
-    return c.json({ success: false, error: "User not authenticated" }, 401);
-  }
-
-  if (!collectorId) {
-    return c.json({ success: false, error: "Collector ID is required" }, 400);
-  }
-
-  let rawBody: unknown;
-  try {
-    rawBody = await c.req.json();
-  } catch {
-    return c.json(
-      { success: false, error: "Invalid JSON payload provided." },
-      400
-    );
-  }
-
-  const result = CollectorsParamsSchema.safeParse(rawBody);
-
-  if (!result.success) {
-    return c.json(
-      {
-        success: false,
-        error: "Request parameter validation failed.",
-        details: result.error.issues,
+const route = createRoute({
+  method: "put",
+  path: "/collectors/:id",
+  request: {
+    params: UUIDParamSchema,
+    body: {
+      content: { "application/json": { schema: CollectorUpdateBodySchema } },
+    },
+  },
+  responses: {
+    200: {
+      description: "Updated",
+      content: {
+        "application/json": {
+          schema: z.object({
+            data: CollectorSchema,
+            success: z.literal(true),
+            error: z.null(),
+          }),
+        },
       },
-      400
-    );
-  }
+    },
+    ...openApiErrorResponses,
+  },
+});
 
-  const { name } = result.data;
+export default function registerPutCollectors(
+  api: OpenAPIHono<{ Bindings: EnvBindings; Variables: ApiVariables }>
+) {
+  return api.openapi(route, async (c) => {
+    const userId = c.get("userId");
+    const { id: collectorId } = c.req.valid("param");
+    const { name } = c.req.valid("json");
 
-  const { data: existingCollector, error: fetchError } = await supabase
-    .from("collectors")
-    .select("*")
-    .eq("id", collectorId)
-    .single();
+    const { data: existingCollector, error: fetchError } = await supabase
+      .from("collectors")
+      .select("*")
+      .eq("id", collectorId)
+      .single();
 
-  if (fetchError) {
-    if (fetchError.code === "PGRST116") {
-      return c.json({ success: false, error: "Collector not found" }, 404);
+    if (fetchError) {
+      if (fetchError.code === "PGRST116") {
+        throw new HTTPException(404, { message: "Collector not found" });
+      }
+      throw new HTTPException(500, {
+        message: "Database error fetching collector",
+      });
     }
 
-    return c.json(
-      {
-        success: false,
-        error: "Database error fetching collector",
-        details: fetchError.message,
-      },
-      500
-    );
-  }
+    if (!existingCollector) {
+      throw new HTTPException(404, { message: "Collector not found" });
+    }
 
-  if (!existingCollector) {
-    return c.json({ success: false, error: "Collector not found" }, 404);
-  }
+    const { data: membership, error: membershipError } = await supabase
+      .from("workspace_members")
+      .select("role")
+      .eq("workspace_id", existingCollector.workspace_id)
+      .eq("user_id", userId)
+      .eq("invitation_status", "accepted")
+      .single();
 
-  const { data: membership, error: membershipError } = await supabase
-    .from("workspace_members")
-    .select("role")
-    .eq("workspace_id", existingCollector.workspace_id)
-    .eq("user_id", userId)
-    .eq("invitation_status", "accepted")
-    .single();
+    if (membershipError || !membership) {
+      throw new HTTPException(404, { message: "Collector not found" });
+    }
 
-  if (membershipError || !membership) {
-    return c.json({ success: false, error: "Collector not found" }, 404);
-  }
-
-  if (membership.role === "viewer") {
-    return c.json({ success: false, error: "Insufficient permissions" }, 403);
-  }
-
-  try {
-    const updateData = {
-      name,
-      updated_at: new Date().toISOString(),
-    };
+    if (membership.role === "viewer") {
+      throw new HTTPException(403, { message: "Insufficient permissions" });
+    }
 
     const { data: updatedCollector, error: updateError } = await supabase
       .from("collectors")
-      .update(updateData)
+      .update({ name, updated_at: new Date().toISOString() })
       .eq("id", collectorId)
       .select()
       .single();
 
-    if (updateError) {
-      console.error("Error updating collector:", updateError);
-      return c.json(
-        {
-          success: false,
-          error: "Failed to update collector",
-          details: updateError.message,
-        },
-        500
-      );
+    if (updateError || !updatedCollector) {
+      throw new HTTPException(500, { message: "Failed to update collector" });
     }
 
-    return c.json({
-      data: updatedCollector,
-      success: true,
-    });
-  } catch (error) {
-    console.error("Error updating collector:", error);
-    return c.json(
-      {
-        success: false,
-        error: "Failed to update collector",
-        details: String(error),
-      },
-      500
-    );
-  }
+    return c.json({ data: updatedCollector, success: true, error: null });
+  });
 }

@@ -10,9 +10,13 @@ export interface FetchCollectorParams {
   days: number;
 }
 
-export async function fetchCollector({ params, context, days }: FetchCollectorParams) {
+export async function fetchCollector({
+  params,
+  context,
+  days,
+}: FetchCollectorParams) {
   const { workspaceName, id } = params;
-  
+
   try {
     const allWorkspaces: Workspace[] =
       queryClient.getQueryData<Workspace[]>(["workspaces"]) ??
@@ -24,7 +28,7 @@ export async function fetchCollector({ params, context, days }: FetchCollectorPa
     const targetWorkspace = allWorkspaces.find(
       (ws) => ws.name === workspaceName
     );
-    
+
     if (!targetWorkspace) {
       throw new Error("Workspace not found");
     }
@@ -55,7 +59,12 @@ export async function fetchCollector({ params, context, days }: FetchCollectorPa
 export function useCollector(workspaceName: string, id: string, days: number) {
   return useQuery({
     queryKey: ["collector", workspaceName, id, days],
-    queryFn: () => fetchCollector({ params: { workspaceName, id }, context: { queryClient }, days }),
+    queryFn: () =>
+      fetchCollector({
+        params: { workspaceName, id },
+        context: { queryClient },
+        days,
+      }),
     staleTime: 30_000,
   });
 }

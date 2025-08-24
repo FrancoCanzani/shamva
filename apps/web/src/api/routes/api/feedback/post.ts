@@ -1,82 +1,57 @@
-import { Context } from "hono";
-import { z } from "zod";
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import type { EnvBindings } from "../../../../../bindings";
+import type { ApiVariables } from "../../../lib/types";
 import { supabase } from "../../../lib/supabase/client";
+import { HTTPException } from "hono/http-exception";
+import { openApiErrorResponses } from "../../../lib/utils";
+import { FeedbackBodySchema, FeedbackSchema } from "./schemas";
 
-const feedbackSchema = z.object({
-  message: z.string().min(1).max(1000),
+const route = createRoute({
+  method: "post",
+  path: "/feedback",
+  request: {
+    body: { content: { "application/json": { schema: FeedbackBodySchema } } },
+  },
+  responses: {
+    200: {
+      description: "Created",
+      content: {
+        "application/json": {
+          schema: z.object({
+            data: FeedbackSchema,
+            success: z.literal(true),
+            error: z.null(),
+          }),
+        },
+      },
+    },
+    ...openApiErrorResponses,
+  },
 });
 
-export default async function postFeedback(c: Context) {
-  let rawBody: unknown;
-  try {
-    rawBody = await c.req.json();
-  } catch {
-    return c.json(
-      { data: null, success: false, error: "Invalid JSON payload provided." },
-      400
-    );
-  }
+export default function registerPostFeedback(
+  api: OpenAPIHono<{ Bindings: EnvBindings; Variables: ApiVariables }>
+) {
+  return api.openapi(route, async (c) => {
+    const userId = c.get("userId");
+    const { message } = c.req.valid("json");
 
-  const result = feedbackSchema.safeParse(rawBody);
-  if (!result.success) {
-    return c.json(
-      {
-        data: null,
-        success: false,
-        error: "Request parameter validation failed.",
-        details: result.error.issues,
-      },
-      400
-    );
-  }
-
-  const { message } = result.data;
-  const userId = c.get("userId");
-
-  if (!userId) {
-    return c.json(
-      { data: null, success: false, error: "User not authenticated." },
-      401
-    );
-  }
-
-  try {
     const { data, error: insertError } = await supabase
       .from("feedbacks")
       .insert([
         {
           user_id: userId,
-          message: message,
+          message,
           created_at: new Date().toISOString(),
         },
       ])
       .select()
       .single();
 
-    if (insertError) {
-      console.error("Supabase feedback insert error:", insertError);
-      throw new Error(
-        `Failed to create feedback record: ${insertError.message}`
-      );
+    if (insertError || !data) {
+      throw new HTTPException(500, { message: "Failed to save feedback" });
     }
 
-    if (!data) {
-      throw new Error("Failed to create feedback record: No data returned.");
-    }
-
-    return c.json({
-      data: data,
-      success: true,
-    });
-  } catch (error) {
-    console.error("Error during feedback database creation:", error);
-    return c.json(
-      {
-        data: null,
-        success: false,
-        error: "Failed to save feedback. Please try again.",
-      },
-      500
-    );
-  }
+    return c.json({ data, success: true, error: null });
+  });
 }

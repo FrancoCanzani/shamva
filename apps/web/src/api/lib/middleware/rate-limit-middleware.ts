@@ -1,4 +1,5 @@
 import { Context, Next } from "hono";
+import { HTTPException } from "hono/http-exception";
 
 const WINDOW_SIZE = 60; // 1 minute
 const MAX_REQUESTS = 60; // 60 requests per minute
@@ -16,7 +17,7 @@ export const rateLimit = () => {
 
     const userId = c.get("userId");
     if (!userId) {
-      return c.json({ error: "Unauthorized" }, 401);
+      throw new HTTPException(401, { message: "Unauthorized" });
     }
 
     const key = `rate-limit:${userId}`;
@@ -31,15 +32,12 @@ export const rateLimit = () => {
       const recentRequests = requests.filter((time) => time > windowStart);
 
       if (recentRequests.length >= MAX_REQUESTS) {
-        return c.json(
-          {
-            error: "Rate limit exceeded",
-            retryAfter: Math.ceil(
-              (recentRequests[0] + WINDOW_SIZE * 1000 - now) / 1000
-            ),
-          },
-          429
+        const retryAfter = Math.ceil(
+          (recentRequests[0] + WINDOW_SIZE * 1000 - now) / 1000
         );
+        throw new HTTPException(429, {
+          message: `Rate limit exceeded. Retry after ${retryAfter}s`,
+        });
       }
 
       recentRequests.push(now);

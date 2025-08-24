@@ -1,20 +1,39 @@
-import { PostgrestError, PostgrestSingleResponse } from "@supabase/supabase-js";
-import { Context } from "hono";
+import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
+import type { EnvBindings } from "../../../../../../bindings";
+import type { ApiVariables } from "../../../../lib/types";
 import { supabase } from "../../../../lib/supabase/client";
-import { Notifications } from "../../../../lib/types";
+import { HTTPException } from "hono/http-exception";
+import { openApiErrorResponses } from "../../../../lib/utils";
+import { UUIDParamSchema, NotificationSchema } from "../schemas";
 
-export default async function getWorkspaceNotifications(c: Context) {
-  const userId = c.get("userId");
-  const workspaceId = c.req.param("id");
+const route = createRoute({
+  method: "get",
+  path: "/workspaces/:id/notifications",
+  request: { params: UUIDParamSchema },
+  responses: {
+    200: {
+      description: "OK",
+      content: {
+        "application/json": {
+          schema: z.object({
+            data: NotificationSchema,
+            success: z.literal(true),
+            error: z.null(),
+          }),
+        },
+      },
+    },
+    ...openApiErrorResponses,
+  },
+});
 
-  if (!workspaceId) {
-    return c.json(
-      { data: null, success: false, error: "Workspace ID is required" },
-      400
-    );
-  }
+export default function registerGetWorkspaceNotifications(
+  api: OpenAPIHono<{ Bindings: EnvBindings; Variables: ApiVariables }>
+) {
+  return api.openapi(route, async (c) => {
+    const userId = c.get("userId");
+    const { id: workspaceId } = c.req.valid("param");
 
-  try {
     const { data: membershipData, error: membershipError } = await supabase
       .from("workspace_members")
       .select("role")
@@ -24,119 +43,39 @@ export default async function getWorkspaceNotifications(c: Context) {
       .single();
 
     if (membershipError || !membershipData) {
-      console.warn(
-        `Access denied to workspace ${workspaceId} for user ${userId}`
-      );
-      return c.json(
-        {
-          data: null,
-          success: false,
-          error: "Access denied to workspace",
-        },
-        403
-      );
+      throw new HTTPException(403, { message: "Access denied to workspace" });
     }
 
-    const {
-      data: notificationsData,
-      error: notificationsError,
-    }: PostgrestSingleResponse<Notifications> = await supabase
-      .from("notifications")
-      .select("*")
-      .eq("workspace_id", workspaceId)
-      .single();
+    const { data: notificationsData, error: notificationsError } =
+      await supabase
+        .from("notifications")
+        .select("*")
+        .eq("workspace_id", workspaceId)
+        .single();
 
     if (notificationsError) {
-      if ((notificationsError as PostgrestError).code === "PGRST116") {
-        console.log(
-          `No notification config found for workspace ${workspaceId}, creating default`
-        );
-
+      if (notificationsError.code === "PGRST116") {
         const defaultConfig = {
           workspace_id: workspaceId,
           email_enabled: true,
-          slack_enabled: false,
-          slack_webhook_url: null,
-          slack_channel: null,
-          discord_enabled: false,
-          discord_webhook_url: null,
-          discord_channel: null,
-          pagerduty_enabled: false,
-          pagerduty_service_id: null,
-          pagerduty_api_key: null,
-          pagerduty_from_email: null,
-          sms_enabled: false,
-          sms_phone_numbers: null,
-          twilio_account_sid: null,
-          twilio_auth_token: null,
-          twilio_from_number: null,
-          whatsapp_enabled: false,
-          whatsapp_phone_numbers: null,
-          github_enabled: false,
-          github_owner: null,
-          github_repo: null,
-          github_token: null,
         };
-
         const { data: newConfig, error: createError } = await supabase
           .from("notifications")
           .insert([defaultConfig])
           .select()
           .single();
-
         if (createError) {
-          console.error(
-            `Error creating default notification config for workspace ${workspaceId}:`,
-            createError
-          );
-          return c.json(
-            {
-              data: null,
-              success: false,
-              error: "Failed to create notification configuration",
-              details: createError.message,
-            },
-            500
-          );
+          throw new HTTPException(500, {
+            message: "Failed to create notification configuration",
+          });
         }
-
-        return c.json({
-          data: newConfig,
-          success: true,
-        });
+        return c.json({ data: newConfig, success: true, error: null });
       }
-
-      console.error(
-        `Database error fetching notification config for workspace ${workspaceId}:`,
-        notificationsError
-      );
-      return c.json(
-        {
-          data: null,
-          success: false,
-          error: "Database error fetching notification configuration",
-          details: notificationsError.message,
-        },
-        500
-      );
+      throw new HTTPException(500, {
+        message: "Failed to fetch notification configuration",
+      });
     }
 
-    return c.json({
-      data: notificationsData,
-      success: true,
-    });
-  } catch (error) {
-    console.error(
-      `Unexpected error fetching notification config for workspace ${workspaceId}:`,
-      error
-    );
-    return c.json(
-      {
-        data: null,
-        success: false,
-        error: "An unexpected error occurred",
-      },
-      500
-    );
-  }
+    return c.json({ data: notificationsData, success: true, error: null });
+  });
 }

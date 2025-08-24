@@ -1,4 +1,5 @@
 import { apiReference } from "@scalar/hono-api-reference";
+import { OpenAPIHono } from "@hono/zod-openapi";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
@@ -11,9 +12,12 @@ import { handleMonitorCheckerCron } from "./crons/monitor-checker";
 import { CheckerDurableObject } from "./durable-objects/checker-durable-object";
 import { HttpCheckerDurableObject } from "./durable-objects/http-checker";
 import { TcpCheckerDurableObject } from "./durable-objects/tcp-checker";
+import { handleApiError } from "./lib/error-handler";
 import apiRoutes from "./routes/api";
-import getPublicStatusPage from "./routes/api/status/get";
-import postMetrics from "./routes/public/metrics/post";
+import { ApiVariables } from "./lib/types";
+import registerPublicStatus from "./routes/api/public/status/get";
+import registerPublicHeartbeat from "./routes/api/public/heartbeats/get";
+import registerPublicMetrics from "./routes/api/public/metrics/post";
 
 export {
   CheckerDurableObject,
@@ -44,39 +48,36 @@ app.use(
     credentials: true,
   })
 );
-app.onError((err, c) => {
-  return c.json(
-    {
-      error: "Internal server error",
-      message: process.env.NODE_ENV === "development" ? err.message : undefined,
-    },
-    500
-  );
-});
+app.onError((err, c) => handleApiError(err, c));
 
 app.get("/health", (c) => c.json({ status: "ok" }));
 
-const v1 = new Hono().basePath("/v1/api");
+const v1 = new OpenAPIHono<{
+  Bindings: EnvBindings;
+  Variables: ApiVariables;
+}>().basePath("/v1/api");
 
-v1.use(
-  "/public/metrics",
-  cors({
-    origin: "*",
-    allowMethods: ["POST", "OPTIONS"],
-    allowHeaders: ["Content-Type", "Authorization"],
-    credentials: false,
-  })
-);
-
+app.route("/", v1);
 v1.route("/", apiRoutes);
-v1.post("/public/metrics", postMetrics);
-v1.get("/status/:slug", getPublicStatusPage);
+
 v1.get(
   "/docs/ui",
   apiReference({ spec: { url: "/v1/api/docs" }, pageTitle: "Shamva API" })
 );
 
-app.route("/", v1);
+v1.use(
+  "/public/*",
+  cors({
+    origin: "*",
+    allowMethods: ["GET", "POST", "OPTIONS"],
+    allowHeaders: ["Content-Type", "Authorization"],
+    credentials: false,
+  })
+);
+
+registerPublicStatus(v1);
+registerPublicHeartbeat(v1);
+registerPublicMetrics(v1);
 
 app.mount("/", (req, env) => env.ASSETS.fetch(req));
 

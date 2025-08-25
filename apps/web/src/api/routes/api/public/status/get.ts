@@ -15,7 +15,15 @@ const route = createRoute({
         .min(1)
         .openapi({ param: { name: "slug", in: "path" } }),
     }),
-    query: z.object({ password: z.string().optional() }),
+    query: z.object({
+      password: z
+        .string()
+        .optional()
+        .openapi({
+          param: { name: "password", in: "query" },
+          example: "secure123",
+        }),
+    }),
   },
   responses: {
     200: {

@@ -4,13 +4,19 @@ import type { EnvBindings } from "../../../../../../bindings";
 import type { ApiVariables } from "../../../../lib/types";
 import { openApiErrorResponses } from "../../../../lib/utils";
 import { supabase } from "../../../../lib/supabase/client";
-import { UUIDParamSchema } from "../../heartbeats/schemas";
+
+const QuerySchema = z.object({
+  id: z.uuid().openapi({
+    param: { name: "id", in: "query" },
+    example: "a81bc81b-dead-4e5d-abff-90865d1e13b1",
+  }),
+});
 
 const route = createRoute({
   method: "get",
   path: "/public/heartbeat",
   request: {
-    query: UUIDParamSchema,
+    query: QuerySchema,
   },
   responses: {
     200: {

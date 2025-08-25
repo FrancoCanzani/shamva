@@ -17,7 +17,7 @@ const paramsSchema = z.object({
 
 const route = createRoute({
   method: "delete",
-  path: "/v1/api/collectors/:id",
+  path: "/collectors/:id",
   request: {
     params: paramsSchema,
   },

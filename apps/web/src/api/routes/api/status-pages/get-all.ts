@@ -9,7 +9,17 @@ import { StatusPageSchema } from "./schemas";
 const route = createRoute({
   method: "get",
   path: "/status-pages",
-  request: { query: z.object({ workspaceId: z.uuid().optional() }) },
+  request: {
+    query: z.object({
+      workspaceId: z
+        .uuid()
+        .optional()
+        .openapi({
+          param: { name: "workspaceId", in: "query" },
+          example: "a81bc81b-dead-4e5d-abff-90865d1e13b1",
+        }),
+    }),
+  },
   responses: {
     200: {
       description: "OK",

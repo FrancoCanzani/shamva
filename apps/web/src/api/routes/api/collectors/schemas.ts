@@ -5,9 +5,10 @@ export const UUIDParamSchema = z.object({
 });
 
 export const WorkspaceQuerySchema = z.object({
-  workspaceId: z
-    .uuid()
-    .openapi({ example: "a81bc81b-dead-4e5d-abff-90865d1e13b1" }),
+  workspaceId: z.uuid().openapi({
+    param: { name: "workspaceId", in: "query" },
+    example: "a81bc81b-dead-4e5d-abff-90865d1e13b1",
+  }),
 });
 
 export const CollectorBodySchema = z.object({

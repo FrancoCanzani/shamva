@@ -1,10 +1,12 @@
 import { apiReference } from "@scalar/hono-api-reference";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { Hono } from "hono";
+import { bodyLimit } from "hono/body-limit";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
 import { secureHeaders } from "hono/secure-headers";
+import { timeout } from "hono/timeout";
 import { EnvBindings } from "../../bindings";
 import { handleHeartbeatCheckerCron } from "./crons/heartbeat-checker";
 import { handleLogCleanupCron } from "./crons/log-cleanup";
@@ -30,6 +32,20 @@ const app = new Hono<{ Bindings: EnvBindings }>();
 app.use(logger());
 app.use(prettyJSON());
 app.use(secureHeaders());
+
+app.use("/v1/*", timeout(30000));
+
+app.use("/v1/api/*", bodyLimit({
+  maxSize: 1024 * 1024,
+  onError: (c) => {
+    return c.json({
+      data: null,
+      success: false,
+      error: "Request body too large - maximum size is 1MB",
+    }, 413);
+  },
+}));
+
 app.use(
   cors({
     origin:
@@ -59,9 +75,20 @@ const v1 = new OpenAPIHono<{
 
 v1.route("/", apiRoutes);
 
+v1.doc("/docs", {
+  openapi: "3.0.0",
+  info: {
+    version: "1.0.0",
+    title: "Shamva API",
+    description: "Shamva monitoring and logging API",
+  },
+});
+
 v1.get(
   "/docs/ui",
-  apiReference({ spec: { url: "/v1/api/docs" }, pageTitle: "Shamva API" })
+  apiReference({
+    spec: { url: "/v1/api/docs" },
+  })
 );
 
 v1.use(
@@ -80,7 +107,10 @@ registerPublicMetrics(v1);
 
 app.route("/", v1);
 
-app.mount("/", (req, env) => env.ASSETS.fetch(req));
+// Handle static assets for everything else
+app.get("*", async (c) => {
+  return c.env.ASSETS.fetch(c.req.raw);
+});
 
 export default {
   fetch: app.fetch,

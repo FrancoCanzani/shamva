@@ -15,8 +15,10 @@ export default function StatusPageUptimeChart({
   if (!monitor.daily_stats) return null;
 
   return (
-    <div className="">
-      <h4 className="mb-2 text-xs text-black uppercase">30-DAY UPTIME</h4>
+    <div className="space-y-2">
+      <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+        30-Day Uptime
+      </h4>
       <div className="flex gap-[2px]">
         {monitor.daily_stats.map((day, index) => {
           const uptimePercentage = day.uptime_percentage;
@@ -26,25 +28,37 @@ export default function StatusPageUptimeChart({
             if (uptimePercentage >= 99) {
               barColor = "#10b981"; // green-500
             } else if (uptimePercentage >= 95) {
-              barColor = "var(--color-degraded)";
+              barColor = "#f59e0b"; // yellow-500
             } else {
-              barColor = "var(--color-error)";
+              barColor = "#ef4444"; // red-500
             }
           }
 
           const tooltipContent = (
-            <div className="text-center">
-              <div className="font-medium">
-                {new Date(day.date).toLocaleDateString()}
+            <div className="text-center space-y-1">
+              <div className="font-medium text-sm">
+                {new Date(day.date).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric'
+                })}
               </div>
               {uptimePercentage !== null ? (
                 <>
-                  <div>Uptime: {uptimePercentage.toFixed(1)}%</div>
-                  <div>Total: {day.total_requests}</div>
-                  <div>Failed: {day.failed_requests}</div>
+                  <div className="text-xs">
+                    <span className="font-medium">Uptime:</span> {uptimePercentage.toFixed(1)}%
+                  </div>
+                  <div className="text-xs">
+                    <span className="font-medium">Total:</span> {day.total_requests}
+                  </div>
+                  {day.failed_requests > 0 && (
+                    <div className="text-xs text-red-500">
+                      <span className="font-medium">Failed:</span> {day.failed_requests}
+                    </div>
+                  )}
                 </>
               ) : (
-                <div>No data</div>
+                <div className="text-xs text-gray-500">No data</div>
               )}
             </div>
           );
@@ -53,7 +67,7 @@ export default function StatusPageUptimeChart({
             <Tooltip key={index}>
               <TooltipTrigger asChild>
                 <div
-                  className="h-8 w-2 cursor-pointer transition-opacity hover:opacity-80"
+                  className="h-6 w-2 cursor-pointer transition-all hover:opacity-80 hover:scale-110 rounded-sm"
                   style={{ backgroundColor: barColor }}
                 />
               </TooltipTrigger>

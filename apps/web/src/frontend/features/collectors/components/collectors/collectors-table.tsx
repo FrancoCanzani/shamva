@@ -30,7 +30,6 @@ import {
 import { cn } from "@/frontend/lib/utils";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/collectors";
 import { useNavigate, useRouter } from "@tanstack/react-router";
-import { CollectorWithMetrics } from "../../types";
 import {
   createColumnHelper,
   flexRender,
@@ -42,15 +41,16 @@ import {
 } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { CollectorWithLastMetrics } from "../../types";
 
-const columnHelper = createColumnHelper<CollectorWithMetrics>();
+const columnHelper = createColumnHelper<CollectorWithLastMetrics>();
 
 export default function CollectorsTable({
   collectors,
   onSelectionChange,
 }: {
-  collectors: CollectorWithMetrics[];
-  onSelectionChange: (selectedCollectors: CollectorWithMetrics[]) => void;
+  collectors: CollectorWithLastMetrics[];
+  onSelectionChange: (selectedCollectors: CollectorWithLastMetrics[]) => void;
 }) {
   const { workspaceName } = Route.useParams();
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
@@ -73,8 +73,8 @@ export default function CollectorsTable({
 
       const matchesStatus =
         !statusFilter ||
-        (statusFilter === "active" && collector.is_active) ||
-        (statusFilter === "inactive" && !collector.is_active);
+        (statusFilter === "active" && !!collector.last_metric) ||
+        (statusFilter === "inactive" && !collector.last_metric);
 
       return matchesGlobal && matchesStatus;
     });
@@ -87,14 +87,14 @@ export default function CollectorsTable({
     []
   );
 
-  const handleRowClick = (collector: CollectorWithMetrics) => {
+  const handleRowClick = (collector: CollectorWithLastMetrics) => {
     navigate({
       to: "/dashboard/$workspaceName/collectors/$id",
       params: { id: collector.id, workspaceName: workspaceName },
     });
   };
 
-  const handleMouseEnter = async (collector: CollectorWithMetrics) => {
+  const handleMouseEnter = async (collector: CollectorWithLastMetrics) => {
     await router.preloadRoute({
       to: "/dashboard/$workspaceName/collectors/$id",
       params: { id: collector.id, workspaceName: workspaceName },
@@ -125,7 +125,8 @@ export default function CollectorsTable({
       enableSorting: false,
       size: 40,
     }),
-    columnHelper.accessor("is_active", {
+    columnHelper.accessor((row) => !!row.last_metric, {
+      id: "status",
       header: ({ column }) => (
         <button
           className="text-left"
@@ -140,16 +141,14 @@ export default function CollectorsTable({
           <span
             className={cn(
               "text-sm capitalize",
-              isActive
-                ? "text-green-600 dark:text-green-400"
-                : "text-red-600 dark:text-red-400"
+              isActive ? "text-[var(--color-ok)]" : "text-[var(--color-error)]"
             )}
           >
             {isActive ? "active" : "inactive"}
           </span>
         );
       },
-      size: 80,
+      maxSize: 80,
     }),
     columnHelper.accessor("name", {
       header: ({ column }) => (
@@ -183,26 +182,7 @@ export default function CollectorsTable({
           </Tooltip>
         );
       },
-      minSize: 200,
-    }),
-    columnHelper.accessor((row) => row.last_metric?.hostname, {
-      id: "hostname",
-      header: ({ column }) => (
-        <button
-          className="text-left"
-          onClick={column.getToggleSortingHandler()}
-        >
-          Hostname
-        </button>
-      ),
-      cell: ({ getValue }) => {
-        const hostname = getValue();
-        if (!hostname) {
-          return <span className="text-muted-foreground text-sm">-</span>;
-        }
-        return <span className="font-mono text-sm">{hostname}</span>;
-      },
-      size: 150,
+      minSize: 100,
     }),
     columnHelper.accessor((row) => row.last_metric?.platform, {
       id: "platform",
@@ -240,9 +220,9 @@ export default function CollectorsTable({
         }
 
         const getCpuColor = (percent: number) => {
-          if (percent <= 50) return "text-green-600 dark:text-green-400";
-          if (percent <= 80) return "text-yellow-600 dark:text-yellow-400";
-          return "text-red-600 dark:text-red-400";
+          if (percent <= 50) return "text-[var(--color-ok)]";
+          if (percent <= 80) return "text-[var(--color-degraded)]";
+          return "text-[var(--color-error)]";
         };
 
         return (
@@ -270,9 +250,9 @@ export default function CollectorsTable({
         }
 
         const getMemoryColor = (percent: number) => {
-          if (percent <= 70) return "text-green-600 dark:text-green-400";
-          if (percent <= 90) return "text-yellow-600 dark:text-yellow-400";
-          return "text-red-600 dark:text-red-400";
+          if (percent <= 70) return "text-[var(--color-ok)]";
+          if (percent <= 90) return "text-[var(--color-degraded)]";
+          return "text-[var(--color-error)]";
         };
 
         return (
@@ -285,53 +265,34 @@ export default function CollectorsTable({
       },
       size: 80,
     }),
-    columnHelper.accessor((row) => row.last_metric?.created_at, {
-      id: "last_seen",
+    columnHelper.accessor((row) => row.last_metric?.disk_percent, {
+      id: "disk_percent",
       header: ({ column }) => (
         <button
           className="text-left"
           onClick={column.getToggleSortingHandler()}
         >
-          Last Seen
+          Disk Usage
         </button>
       ),
       cell: ({ getValue }) => {
-        const lastSeen = getValue();
-        if (!lastSeen) {
+        const diskPercent = getValue();
+        if (diskPercent === null || diskPercent === undefined) {
           return <span className="text-muted-foreground text-sm">-</span>;
         }
 
-        const date = new Date(lastSeen);
-        const now = new Date();
-        const diffMs = now.getTime() - date.getTime();
-        const diffMinutes = Math.floor(diffMs / (1000 * 60));
-
-        let timeAgo: string;
-        if (diffMinutes < 1) {
-          timeAgo = "Just now";
-        } else if (diffMinutes < 60) {
-          timeAgo = `${diffMinutes}m ago`;
-        } else if (diffMinutes < 1440) {
-          const hours = Math.floor(diffMinutes / 60);
-          timeAgo = `${hours}h ago`;
-        } else {
-          const days = Math.floor(diffMinutes / 1440);
-          timeAgo = `${days}d ago`;
-        }
-
-        const getTimeColor = (minutes: number) => {
-          if (minutes <= 5) return "text-green-600 dark:text-green-400";
-          if (minutes <= 30) return "text-yellow-600 dark:text-yellow-400";
-          return "text-red-600 dark:text-red-400";
+        const getDiskColor = (percent: number) => {
+          if (percent <= 70) return "text-[var(--color-ok)]";
+          if (percent <= 90) return "text-[var(--color-degraded)]";
+          return "text-[var(--color-error)]";
         };
 
         return (
-          <span className={cn("text-sm", getTimeColor(diffMinutes))}>
-            {timeAgo}
+          <span className={cn("font-mono text-sm", getDiskColor(diskPercent))}>
+            {diskPercent.toFixed(1)}%
           </span>
         );
       },
-      sortUndefined: "last",
       size: 100,
     }),
     columnHelper.display({
@@ -346,6 +307,13 @@ export default function CollectorsTable({
             to: "/dashboard/$workspaceName/collectors/$id/edit",
             params: { workspaceName, id: collector.id },
           });
+        };
+
+        const handleCopyToken = (e: React.MouseEvent) => {
+          e.stopPropagation();
+          if (collector.token) {
+            navigator.clipboard.writeText(collector.token);
+          }
         };
 
         const handleDelete = (e: React.MouseEvent) => {
@@ -370,8 +338,17 @@ export default function CollectorsTable({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={handleEdit}>Edit</DropdownMenuItem>
-              <DropdownMenuItem onClick={handleDelete} variant="destructive">
+              <DropdownMenuItem className="text-xs" onClick={handleEdit}>
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem className="text-xs" onClick={handleCopyToken}>
+                Copy Token
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-xs"
+                onClick={handleDelete}
+                variant="destructive"
+              >
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>

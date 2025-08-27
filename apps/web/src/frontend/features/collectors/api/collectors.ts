@@ -1,7 +1,9 @@
 import fetchWorkspaces from "@/frontend/features/workspaces/api/workspaces";
 import { queryClient } from "@/frontend/lib/query-client";
-import { Collector, Workspace } from "@/frontend/lib/types";
+import { ApiResponse, Workspace } from "@/frontend/lib/types";
 import { RouterContext } from "@/frontend/routes/__root";
+import { CollectorWithLastMetrics } from "../types";
+import { redirect } from "@tanstack/react-router";
 
 export interface FetchCollectorsParams {
   params: { workspaceName: string };
@@ -13,6 +15,13 @@ export async function fetchCollectors({
   context,
 }: FetchCollectorsParams) {
   const { workspaceName } = params;
+
+  if (!workspaceName) {
+    throw redirect({
+      to: "/dashboard/workspaces/new",
+      throw: true,
+    });
+  }
 
   try {
     const allWorkspaces: Workspace[] =
@@ -27,11 +36,19 @@ export async function fetchCollectors({
     );
 
     if (!targetWorkspace) {
-      throw new Error("Workspace not found");
+      console.warn(
+        `Workspace with name "${workspaceName}" not found, redirecting.`
+      );
+      throw redirect({
+        to: "/dashboard/workspaces/new",
+        throw: true,
+      });
     }
 
-    const response = await fetch(
-      `/v1/api/collectors?workspaceId=${targetWorkspace.id}`,
+    const workspaceId = targetWorkspace.id;
+
+    const collectorsResponse = await fetch(
+      `/v1/api/collectors?workspaceId=${workspaceId}`,
       {
         headers: {
           Authorization: `Bearer ${context.auth.session?.access_token}`,
@@ -40,14 +57,55 @@ export async function fetchCollectors({
       }
     );
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch collectors");
+    if (collectorsResponse.status === 401) {
+      console.log(
+        "API returned 401 fetching collectors, redirecting to login."
+      );
+      throw redirect({ to: "/auth/login", throw: true });
     }
 
-    const result = await response.json();
-    return (result as { data: Collector[] }).data;
+    if (!collectorsResponse.ok) {
+      const errorText = await collectorsResponse.text();
+      console.error(
+        `Failed to fetch collectors: ${collectorsResponse.status} ${collectorsResponse.statusText}`,
+        errorText
+      );
+      throw new Error(
+        `Failed to fetch collectors (Status: ${collectorsResponse.status})`
+      );
+    }
+
+    const collectorsResult: ApiResponse<CollectorWithLastMetrics[]> =
+      await collectorsResponse.json();
+
+    if (!collectorsResult.success || !collectorsResult.data) {
+      console.error(
+        "API Error fetching collectors:",
+        collectorsResult.error,
+        collectorsResult.details
+      );
+      throw new Error(
+        collectorsResult.error || "Failed to fetch collectors from API"
+      );
+    }
+
+    return collectorsResult.data;
   } catch (error) {
-    console.error("Error fetching collectors:", error);
-    throw error;
+    if (
+      error &&
+      typeof error === "object" &&
+      "status" in error &&
+      error.status === 302
+    ) {
+      throw error;
+    }
+
+    console.error("Error in fetchCollectors loader:", error);
+    if (error instanceof Error) {
+      throw new Error(`Failed to load collectors data: ${error.message}`);
+    }
+    throw new Error(
+      "An unknown error occurred while fetching collectors data."
+    );
   }
 }

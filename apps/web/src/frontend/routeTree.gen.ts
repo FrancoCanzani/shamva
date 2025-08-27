@@ -35,6 +35,7 @@ import { Route as DashboardWorkspaceNameStatusPagesIdEditIndexRouteImport } from
 import { Route as DashboardWorkspaceNameMonitorsNewTypeIndexRouteImport } from './routes/dashboard/$workspaceName/monitors/new/$type/index'
 import { Route as DashboardWorkspaceNameMonitorsIdEditIndexRouteImport } from './routes/dashboard/$workspaceName/monitors/$id/edit/index'
 import { Route as DashboardWorkspaceNameHeartbeatsIdEditIndexRouteImport } from './routes/dashboard/$workspaceName/heartbeats/$id/edit/index'
+import { Route as DashboardWorkspaceNameCollectorsIdEditIndexRouteImport } from './routes/dashboard/$workspaceName/collectors/$id/edit/index'
 
 const DashboardRouteRoute = DashboardRouteRouteImport.update({
   id: '/dashboard',
@@ -191,6 +192,12 @@ const DashboardWorkspaceNameHeartbeatsIdEditIndexRoute =
     path: '/$workspaceName/heartbeats/$id/edit/',
     getParentRoute: () => DashboardRouteRoute,
   } as any)
+const DashboardWorkspaceNameCollectorsIdEditIndexRoute =
+  DashboardWorkspaceNameCollectorsIdEditIndexRouteImport.update({
+    id: '/$workspaceName/collectors/$id/edit/',
+    path: '/$workspaceName/collectors/$id/edit/',
+    getParentRoute: () => DashboardRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -215,6 +222,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/$workspaceName/monitors/$id': typeof DashboardWorkspaceNameMonitorsIdIndexRoute
   '/dashboard/$workspaceName/monitors/new': typeof DashboardWorkspaceNameMonitorsNewIndexRoute
   '/dashboard/$workspaceName/status-pages/new': typeof DashboardWorkspaceNameStatusPagesNewIndexRoute
+  '/dashboard/$workspaceName/collectors/$id/edit': typeof DashboardWorkspaceNameCollectorsIdEditIndexRoute
   '/dashboard/$workspaceName/heartbeats/$id/edit': typeof DashboardWorkspaceNameHeartbeatsIdEditIndexRoute
   '/dashboard/$workspaceName/monitors/$id/edit': typeof DashboardWorkspaceNameMonitorsIdEditIndexRoute
   '/dashboard/$workspaceName/monitors/new/$type': typeof DashboardWorkspaceNameMonitorsNewTypeIndexRoute
@@ -243,6 +251,7 @@ export interface FileRoutesByTo {
   '/dashboard/$workspaceName/monitors/$id': typeof DashboardWorkspaceNameMonitorsIdIndexRoute
   '/dashboard/$workspaceName/monitors/new': typeof DashboardWorkspaceNameMonitorsNewIndexRoute
   '/dashboard/$workspaceName/status-pages/new': typeof DashboardWorkspaceNameStatusPagesNewIndexRoute
+  '/dashboard/$workspaceName/collectors/$id/edit': typeof DashboardWorkspaceNameCollectorsIdEditIndexRoute
   '/dashboard/$workspaceName/heartbeats/$id/edit': typeof DashboardWorkspaceNameHeartbeatsIdEditIndexRoute
   '/dashboard/$workspaceName/monitors/$id/edit': typeof DashboardWorkspaceNameMonitorsIdEditIndexRoute
   '/dashboard/$workspaceName/monitors/new/$type': typeof DashboardWorkspaceNameMonitorsNewTypeIndexRoute
@@ -272,6 +281,7 @@ export interface FileRoutesById {
   '/dashboard/$workspaceName/monitors/$id/': typeof DashboardWorkspaceNameMonitorsIdIndexRoute
   '/dashboard/$workspaceName/monitors/new/': typeof DashboardWorkspaceNameMonitorsNewIndexRoute
   '/dashboard/$workspaceName/status-pages/new/': typeof DashboardWorkspaceNameStatusPagesNewIndexRoute
+  '/dashboard/$workspaceName/collectors/$id/edit/': typeof DashboardWorkspaceNameCollectorsIdEditIndexRoute
   '/dashboard/$workspaceName/heartbeats/$id/edit/': typeof DashboardWorkspaceNameHeartbeatsIdEditIndexRoute
   '/dashboard/$workspaceName/monitors/$id/edit/': typeof DashboardWorkspaceNameMonitorsIdEditIndexRoute
   '/dashboard/$workspaceName/monitors/new/$type/': typeof DashboardWorkspaceNameMonitorsNewTypeIndexRoute
@@ -302,6 +312,7 @@ export interface FileRouteTypes {
     | '/dashboard/$workspaceName/monitors/$id'
     | '/dashboard/$workspaceName/monitors/new'
     | '/dashboard/$workspaceName/status-pages/new'
+    | '/dashboard/$workspaceName/collectors/$id/edit'
     | '/dashboard/$workspaceName/heartbeats/$id/edit'
     | '/dashboard/$workspaceName/monitors/$id/edit'
     | '/dashboard/$workspaceName/monitors/new/$type'
@@ -330,6 +341,7 @@ export interface FileRouteTypes {
     | '/dashboard/$workspaceName/monitors/$id'
     | '/dashboard/$workspaceName/monitors/new'
     | '/dashboard/$workspaceName/status-pages/new'
+    | '/dashboard/$workspaceName/collectors/$id/edit'
     | '/dashboard/$workspaceName/heartbeats/$id/edit'
     | '/dashboard/$workspaceName/monitors/$id/edit'
     | '/dashboard/$workspaceName/monitors/new/$type'
@@ -358,6 +370,7 @@ export interface FileRouteTypes {
     | '/dashboard/$workspaceName/monitors/$id/'
     | '/dashboard/$workspaceName/monitors/new/'
     | '/dashboard/$workspaceName/status-pages/new/'
+    | '/dashboard/$workspaceName/collectors/$id/edit/'
     | '/dashboard/$workspaceName/heartbeats/$id/edit/'
     | '/dashboard/$workspaceName/monitors/$id/edit/'
     | '/dashboard/$workspaceName/monitors/new/$type/'
@@ -555,6 +568,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardWorkspaceNameHeartbeatsIdEditIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
+    '/dashboard/$workspaceName/collectors/$id/edit/': {
+      id: '/dashboard/$workspaceName/collectors/$id/edit/'
+      path: '/$workspaceName/collectors/$id/edit'
+      fullPath: '/dashboard/$workspaceName/collectors/$id/edit'
+      preLoaderRoute: typeof DashboardWorkspaceNameCollectorsIdEditIndexRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
   }
 }
 
@@ -577,6 +597,7 @@ interface DashboardRouteRouteChildren {
   DashboardWorkspaceNameMonitorsIdIndexRoute: typeof DashboardWorkspaceNameMonitorsIdIndexRoute
   DashboardWorkspaceNameMonitorsNewIndexRoute: typeof DashboardWorkspaceNameMonitorsNewIndexRoute
   DashboardWorkspaceNameStatusPagesNewIndexRoute: typeof DashboardWorkspaceNameStatusPagesNewIndexRoute
+  DashboardWorkspaceNameCollectorsIdEditIndexRoute: typeof DashboardWorkspaceNameCollectorsIdEditIndexRoute
   DashboardWorkspaceNameHeartbeatsIdEditIndexRoute: typeof DashboardWorkspaceNameHeartbeatsIdEditIndexRoute
   DashboardWorkspaceNameMonitorsIdEditIndexRoute: typeof DashboardWorkspaceNameMonitorsIdEditIndexRoute
   DashboardWorkspaceNameMonitorsNewTypeIndexRoute: typeof DashboardWorkspaceNameMonitorsNewTypeIndexRoute
@@ -616,6 +637,8 @@ const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
     DashboardWorkspaceNameMonitorsNewIndexRoute,
   DashboardWorkspaceNameStatusPagesNewIndexRoute:
     DashboardWorkspaceNameStatusPagesNewIndexRoute,
+  DashboardWorkspaceNameCollectorsIdEditIndexRoute:
+    DashboardWorkspaceNameCollectorsIdEditIndexRoute,
   DashboardWorkspaceNameHeartbeatsIdEditIndexRoute:
     DashboardWorkspaceNameHeartbeatsIdEditIndexRoute,
   DashboardWorkspaceNameMonitorsIdEditIndexRoute:

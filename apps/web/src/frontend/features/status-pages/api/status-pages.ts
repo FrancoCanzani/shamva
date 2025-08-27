@@ -1,8 +1,8 @@
-import fetchWorkspaces from "@/frontend/features/workspaces/api/workspaces";
 import { queryClient } from "@/frontend/lib/query-client";
 import { ApiResponse, StatusPage, Workspace } from "@/frontend/lib/types";
 import { RouterContext } from "@/frontend/routes/__root";
 import { redirect } from "@tanstack/react-router";
+import fetchWorkspaces from "@/frontend/features/workspaces/api/workspaces";
 
 export async function fetchStatusPages({
   params,
@@ -20,12 +20,13 @@ export async function fetchStatusPages({
   }
 
   try {
+    await queryClient.ensureQueryData({
+      queryKey: ["workspaces"],
+      queryFn: fetchWorkspaces,
+    });
+
     const allWorkspaces: Workspace[] =
-      queryClient.getQueryData<Workspace[]>(["workspaces"]) ??
-      (await queryClient.ensureQueryData<Workspace[]>({
-        queryKey: ["workspaces"],
-        queryFn: fetchWorkspaces,
-      }));
+      queryClient.getQueryData<Workspace[]>(["workspaces"]) ?? [];
 
     const targetWorkspace = allWorkspaces.find(
       (ws) => ws.name === workspaceName

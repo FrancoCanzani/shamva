@@ -31,7 +31,10 @@ export interface Metric {
   created_at: string;
 }
 
-export interface CollectorWithMetrics extends Collector {
-  is_active: boolean;
+export interface CollectorWithLastMetrics extends Collector {
   last_metric: Metric;
+}
+
+export interface CollectorWithMetrics extends Collector {
+  metrics: Metric[];
 }

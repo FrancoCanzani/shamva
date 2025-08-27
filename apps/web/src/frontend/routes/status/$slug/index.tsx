@@ -26,7 +26,7 @@ export const Route = createFileRoute("/status/$slug/")({
   component: StatusPage,
   loader: async ({ params }): Promise<PublicStatusPageData> => {
     try {
-      const response = await fetch(`/status/${params.slug}`);
+      const response = await fetch(`/v1/api/public/status/${params.slug}`);
 
       if (!response.ok) {
         if (response.status === 404) {

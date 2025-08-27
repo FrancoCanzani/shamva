@@ -1,4 +1,5 @@
 import puppeteer from "@cloudflare/puppeteer";
+import type { Browser, Page } from "@cloudflare/puppeteer";
 import { EnvBindings } from "../../../../bindings";
 import { supabase } from "../supabase/client";
 
@@ -27,7 +28,9 @@ export class ScreenshotService {
           throw new Error("Browser service unavailable");
         }
 
-        console.log(`[ScreenshotService] Attempt ${retryCount + 1}/${this.maxRetries + 1} for ${url}`);
+        console.log(
+          `[ScreenshotService] Attempt ${retryCount + 1}/${this.maxRetries + 1} for ${url}`
+        );
 
         browser = await puppeteer.launch(this.env.BROWSER, {
           keep_alive: 30000,
@@ -44,13 +47,18 @@ export class ScreenshotService {
         const screenshotBuffer = await Promise.race([
           this.performScreenshot(page, url),
           new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error("Screenshot timeout")), this.screenshotTimeout)
+            setTimeout(
+              () => reject(new Error("Screenshot timeout")),
+              this.screenshotTimeout
+            )
           ),
         ]);
 
         const fileName = `incident-${incidentId}-${Date.now()}.png`;
 
-        console.log(`[ScreenshotService] Uploading screenshot for incident ${incidentId}`);
+        console.log(
+          `[ScreenshotService] Uploading screenshot for incident ${incidentId}`
+        );
         const { error } = await supabase.storage
           .from("screenshots")
           .upload(fileName, screenshotBuffer, {
@@ -67,27 +75,35 @@ export class ScreenshotService {
           data: { publicUrl },
         } = supabase.storage.from("screenshots").getPublicUrl(fileName);
 
-        console.log(`[ScreenshotService] Screenshot uploaded successfully: ${publicUrl}`);
+        console.log(
+          `[ScreenshotService] Screenshot uploaded successfully: ${publicUrl}`
+        );
         return publicUrl;
-
       } catch (error) {
         retryCount++;
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        
-        console.error(`[ScreenshotService] Attempt ${retryCount} failed for ${url}:`, {
-          error: errorMessage,
-          incidentId,
-          retryCount,
-          maxRetries: this.maxRetries,
-        });
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+
+        console.error(
+          `[ScreenshotService] Attempt ${retryCount} failed for ${url}:`,
+          {
+            error: errorMessage,
+            incidentId,
+            retryCount,
+            maxRetries: this.maxRetries,
+          }
+        );
 
         if (retryCount > this.maxRetries) {
-          console.error(`[ScreenshotService] All ${this.maxRetries + 1} attempts failed for ${url}`);
+          console.error(
+            `[ScreenshotService] All ${this.maxRetries + 1} attempts failed for ${url}`
+          );
           return null;
         }
 
-        await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 1000));
-        
+        await new Promise((resolve) =>
+          setTimeout(resolve, Math.pow(2, retryCount) * 1000)
+        );
       } finally {
         await this.cleanupBrowser(browser, page);
         browser = null;
@@ -98,7 +114,7 @@ export class ScreenshotService {
     return null;
   }
 
-  private async performScreenshot(page: any, url: string): Promise<Buffer> {
+  private async performScreenshot(page: Page, url: string): Promise<Buffer> {
     const response = await page.goto(url, {
       waitUntil: "networkidle0",
       timeout: this.navigationTimeout,
@@ -109,27 +125,23 @@ export class ScreenshotService {
     }
 
     const status = response.status();
-    console.log(`[ScreenshotService] Page response status: ${status} for ${url}`);
+    console.log(
+      `[ScreenshotService] Page response status: ${status} for ${url}`
+    );
 
     if (status >= 400 && status < 500) {
-      console.warn(`[ScreenshotService] Client error ${status} for ${url}, taking screenshot anyway`);
+      console.warn(
+        `[ScreenshotService] Client error ${status} for ${url}, taking screenshot anyway`
+      );
     } else if (status >= 500) {
       throw new Error(`Server error ${status} for ${url}`);
     }
 
     await new Promise((resolve) => setTimeout(resolve, 2000));
-    
-    const bodyHandle = await page.$('body');
-    const innerHTML = await page.evaluate((body: any) => body.innerHTML, bodyHandle);
-    
-    if (!innerHTML || innerHTML.trim().length < 100) {
-      console.warn(`[ScreenshotService] Page appears to have minimal content for ${url}`);
-    }
 
     const screenshotBuffer = await page.screenshot({
       fullPage: true,
       type: "png",
-      clip: null,
       captureBeyondViewport: true,
     });
 
@@ -137,11 +149,16 @@ export class ScreenshotService {
       throw new Error("Screenshot buffer is empty");
     }
 
-    console.log(`[ScreenshotService] Screenshot captured: ${screenshotBuffer.length} bytes`);
+    console.log(
+      `[ScreenshotService] Screenshot captured: ${screenshotBuffer.length} bytes`
+    );
     return screenshotBuffer;
   }
 
-  private async cleanupBrowser(browser: any, page: any): Promise<void> {
+  private async cleanupBrowser(
+    browser: Browser | null,
+    page: Page | null
+  ): Promise<void> {
     try {
       if (page) {
         console.log(`[ScreenshotService] Closing page...`);
@@ -152,7 +169,10 @@ export class ScreenshotService {
         await browser.close();
       }
     } catch (cleanupError) {
-      const errorMessage = cleanupError instanceof Error ? cleanupError.message : String(cleanupError);
+      const errorMessage =
+        cleanupError instanceof Error
+          ? cleanupError.message
+          : String(cleanupError);
       console.warn(`[ScreenshotService] Error during cleanup: ${errorMessage}`);
     }
   }

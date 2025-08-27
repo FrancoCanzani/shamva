@@ -7,7 +7,9 @@ export const authMiddleware = async (c: Context, next: Next) => {
   if (
     path.startsWith("/docs") ||
     path.startsWith("/api/docs") ||
-    path.startsWith("/v1/api/docs")
+    path.startsWith("/v1/api/docs") ||
+    path.startsWith("/v1/api/public/status")
+
   ) {
     return next();
   }

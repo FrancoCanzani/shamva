@@ -1,18 +1,23 @@
 import DashboardHeader from "@/frontend/components/dashboard-header";
-import { Route } from "@/frontend/routes/dashboard/$workspaceName/collectors/$id";
+import NotFoundMessage from "@/frontend/components/not-found-message";
+import { Badge } from "@/frontend/components/ui/badge";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@/frontend/components/ui/card";
-import { Badge } from "@/frontend/components/ui/badge";
 import { cn } from "@/frontend/lib/utils";
+import { Route } from "@/frontend/routes/dashboard/$workspaceName/collectors/$id";
 
 export default function CollectorPage() {
   const collectorData = Route.useLoaderData();
-  const { days } = Route.useSearch();
 
+  if (!collectorData) {
+    return (
+      <NotFoundMessage message="Your collector doesn't have any metrics yet" />
+    );
+  }
   return (
     <div className="flex h-full flex-col">
       <DashboardHeader

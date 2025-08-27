@@ -1,11 +1,11 @@
-import { Log, Incident } from "@/frontend/lib/types";
+import { Incident, Log } from "@/frontend/lib/types";
 import { format, startOfDay, subDays } from "date-fns";
 
 const periodToInterval = {
   1: 60, // 1 day: 60-minute intervals (24 bars)
   7: 240, // 7 days: 240-minute intervals (4-hour buckets, 42 bars)
   14: 480, // 14 days: 480-minute intervals (8-hour buckets, 42 bars)
-} as const;
+};
 
 export function getStatusFromLog(
   log: Partial<Log>

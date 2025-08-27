@@ -1,23 +1,27 @@
-import { queryClient } from "@/frontend/lib/query-client";
-import { useQuery } from "@tanstack/react-query";
-import { Workspace } from "@/frontend/lib/types";
 import fetchWorkspaces from "@/frontend/features/workspaces/api/workspaces";
-import { CollectorWithMetrics } from "../types";
+import { queryClient } from "@/frontend/lib/query-client";
+import { ApiResponse, Workspace } from "@/frontend/lib/types";
 import { RouterContext } from "@/frontend/routes/__root";
-import { useRouteContext } from "@tanstack/react-router";
+import { CollectorWithMetrics } from "../types";
+import { redirect } from "@tanstack/react-router";
 
 export interface FetchCollectorParams {
   params: { workspaceName: string; id: string };
   context: RouterContext;
-  days: number;
 }
 
 export async function fetchCollector({
   params,
   context,
-  days,
 }: FetchCollectorParams) {
   const { workspaceName, id } = params;
+
+  if (!workspaceName) {
+    throw redirect({
+      to: "/dashboard/workspaces/new",
+      throw: true,
+    });
+  }
 
   try {
     const allWorkspaces: Workspace[] =
@@ -32,43 +36,75 @@ export async function fetchCollector({
     );
 
     if (!targetWorkspace) {
-      throw new Error("Workspace not found");
+      console.warn(
+        `Workspace with name "${workspaceName}" not found, redirecting.`
+      );
+      throw redirect({
+        to: "/dashboard/workspaces/new",
+        throw: true,
+      });
     }
 
-    const response = await fetch(
-      `/v1/api/collectors/${id}?workspaceId=${targetWorkspace.id}&days=${days}`,
-      {
-        headers: {
-          Authorization: `Bearer ${context.auth.session?.access_token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const collectorResponse = await fetch(`/v1/api/collectors/${id}`, {
+      headers: {
+        Authorization: `Bearer ${context.auth.session?.access_token}`,
+        "Content-Type": "application/json",
+      },
+    });
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch collector");
+    if (collectorResponse.status === 401) {
+      console.log(
+        "API returned 401 fetching collector, redirecting to login."
+      );
+      throw redirect({ to: "/auth/login", throw: true });
     }
 
-    const result = await response.json();
-    return (result as { data: CollectorWithMetrics }).data;
+    if (collectorResponse.status === 404) {
+      throw new Error("Collector not found");
+    }
+
+    if (!collectorResponse.ok) {
+      const errorText = await collectorResponse.text();
+      console.error(
+        `Failed to fetch collector: ${collectorResponse.status} ${collectorResponse.statusText}`,
+        errorText
+      );
+      throw new Error(
+        `Failed to fetch collector (Status: ${collectorResponse.status})`
+      );
+    }
+
+    const collectorResult: ApiResponse<CollectorWithMetrics> =
+      await collectorResponse.json();
+
+    if (!collectorResult.success || !collectorResult.data) {
+      console.error(
+        "API Error fetching collector:",
+        collectorResult.error,
+        collectorResult.details
+      );
+      throw new Error(
+        collectorResult.error || "Failed to fetch collector from API"
+      );
+    }
+
+    return collectorResult.data;
   } catch (error) {
-    console.error("Error fetching collector:", error);
-    throw error;
-  }
-}
+    if (
+      error &&
+      typeof error === "object" &&
+      "status" in error &&
+      error.status === 302
+    ) {
+      throw error;
+    }
 
-export function useCollector(workspaceName: string, id: string, days: number) {
-  const context = useRouteContext({
-    from: "/dashboard/$workspaceName/collectors/$id/",
-  });
-  return useQuery({
-    queryKey: ["collector", workspaceName, id, days],
-    queryFn: () =>
-      fetchCollector({
-        params: { workspaceName, id },
-        context,
-        days,
-      }),
-    staleTime: 30_000,
-  });
+    console.error("Error in fetchCollector loader:", error);
+    if (error instanceof Error) {
+      throw new Error(`Failed to load collector data: ${error.message}`);
+    }
+    throw new Error(
+      "An unknown error occurred while fetching collector data."
+    );
+  }
 }

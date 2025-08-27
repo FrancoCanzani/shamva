@@ -65,17 +65,19 @@ export default function registerGetCollector(
       throw new HTTPException(404, { message: "Collector not found" });
     }
 
-    const { data: lastMetric } = await supabase
+    // fix this to be 1 day 
+    const yesterday = new Date(new Date().setDate(new Date().getDate() - 30)).toISOString()
+
+    const { data: metrics } = await supabase
       .from("metrics")
       .select("*")
       .eq("collector_id", collectorId)
+      .gt('created_at', yesterday)
       .order("created_at", { ascending: false })
-      .limit(1)
-      .single();
 
     const collectorWithMetrics = {
       ...collector,
-      last_metric: lastMetric || undefined,
+      metrics: metrics,
     };
     return c.json({ data: collectorWithMetrics, success: true, error: null });
   });

@@ -35,16 +35,22 @@ app.use(secureHeaders());
 
 app.use("/v1/*", timeout(30000));
 
-app.use("/v1/api/*", bodyLimit({
-  maxSize: 1024 * 1024,
-  onError: (c) => {
-    return c.json({
-      data: null,
-      success: false,
-      error: "Request body too large - maximum size is 1MB",
-    }, 413);
-  },
-}));
+app.use(
+  "/v1/api/*",
+  bodyLimit({
+    maxSize: 1024 * 1024,
+    onError: (c) => {
+      return c.json(
+        {
+          data: null,
+          success: false,
+          error: "Request body too large - maximum size is 1MB",
+        },
+        413
+      );
+    },
+  })
+);
 
 app.use(
   cors({

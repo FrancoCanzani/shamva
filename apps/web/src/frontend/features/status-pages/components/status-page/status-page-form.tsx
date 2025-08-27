@@ -118,8 +118,8 @@ export default function StatusPageForm({
                 <>
                   <Label htmlFor="slug">URL Slug</Label>
                   <div className="flex">
-                    <span className="-l border-input bg-muted text-muted-foreground inline-flex items-center border border-r-0 px-3 text-sm">
-                      /status/
+                    <span className="rounded-l-md border-input bg-muted text-muted-foreground inline-flex items-center border border-r-0 px-3 text-sm">
+                      shamva.app/status/
                     </span>
                     <Input
                       id="slug"
@@ -129,7 +129,7 @@ export default function StatusPageForm({
                       onBlur={field.handleBlur}
                       placeholder="my-service"
                       className={cn(
-                        "-l-none",
+                        "-ml-1 z-50 bg-background",
                         field.state.meta.errors?.length
                           ? "border-destructive"
                           : ""
@@ -280,7 +280,7 @@ export default function StatusPageForm({
                 </span>
               </div>
 
-              <div className="border border-dashed p-4">
+              <div>
                 {availableMonitors.length === 0 ? (
                   <p className="text-muted-foreground py-4 text-center text-sm">
                     No monitors available in this workspace. Create some
@@ -294,8 +294,8 @@ export default function StatusPageForm({
                       return (
                         <div
                           key={monitor.id}
-                          className={`flex cursor-pointer items-center justify-between border p-3 transition-colors hover:bg-stone-50 ${
-                            isSelected ? "border-primary bg-stone-50" : ""
+                          className={`flex cursor-pointer items-center justify-between border p-3 rounded-md transition-colors hover:bg-stone-50 ${
+                            isSelected ? "border-primary bg-input/50" : ""
                           }`}
                           onClick={() => {
                             const newMonitors = isSelected

@@ -376,11 +376,17 @@ export default function MonitorsTable({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={handleEdit}>Edit</DropdownMenuItem>
-              <DropdownMenuItem onClick={handlePauseResume}>
+              <DropdownMenuItem className="text-xs" onClick={handleEdit}>
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem className="text-xs" onClick={handlePauseResume}>
                 {monitor.status === "paused" ? "Resume" : "Pause"}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleDelete} variant="destructive">
+              <DropdownMenuItem
+                className="text-xs"
+                onClick={handleDelete}
+                variant="destructive"
+              >
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>

@@ -1,6 +1,6 @@
 import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
-import { Link } from "@tanstack/react-router";
 import { Route } from "@/frontend/routes";
+import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { useAuth } from "../hooks/use-auth";
 import { Button } from "./ui/button";
@@ -76,7 +76,9 @@ export default function LandingPage() {
             <div className="cursor-pointer rounded-lg bg-gradient-to-b from-stone-300/40 to-transparent p-0.5 transition-all duration-200 hover:scale-95">
               <div className="group cursor-pointer rounded-md bg-gradient-to-b from-white to-stone-200/40 p-[4px] shadow-md">
                 <button className="cursor-pointer rounded-sm bg-gradient-to-b from-stone-200/40 to-white/80 p-2 text-sm">
-                  <Link to={dashboardLinkTo}>{getDashboardButtonText()}</Link>
+                  <Link to={dashboardLinkTo} preload="render">
+                    {getDashboardButtonText()}
+                  </Link>
                 </button>
               </div>
             </div>

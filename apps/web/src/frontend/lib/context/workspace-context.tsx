@@ -89,11 +89,28 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (
       currentWorkspaceId &&
+      workspaces.length > 0 &&
       !workspaces.find((w) => w.id === currentWorkspaceId)
     ) {
-      setCurrentWorkspace(workspaces.length > 0 ? workspaces[0] : null);
+      setCurrentWorkspace(workspaces[0]);
     }
   }, [workspaces, currentWorkspaceId, setCurrentWorkspace]);
+
+  const refetch = useCallback(
+    () =>
+      queryClient
+        .ensureQueryData({
+          queryKey: ["workspaces"],
+          queryFn: fetchWorkspaces,
+        })
+        .then(() => {}),
+    []
+  );
+
+  const invalidateWorkspaces = useCallback(
+    () => queryClient.invalidateQueries({ queryKey: ["workspaces"] }),
+    []
+  );
 
   const value = useMemo(
     () => ({
@@ -102,17 +119,10 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       setCurrentWorkspace,
       isLoading: false,
       error: null,
-      refetch: () =>
-        queryClient
-          .ensureQueryData({
-            queryKey: ["workspaces"],
-            queryFn: fetchWorkspaces,
-          })
-          .then(() => {}),
-      invalidateWorkspaces: () =>
-        queryClient.invalidateQueries({ queryKey: ["workspaces"] }),
+      refetch,
+      invalidateWorkspaces,
     }),
-    [workspaces, currentWorkspace, setCurrentWorkspace]
+    [workspaces, currentWorkspace, setCurrentWorkspace, refetch, invalidateWorkspaces]
   );
 
   return (

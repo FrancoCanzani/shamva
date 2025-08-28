@@ -217,6 +217,7 @@ export interface Collector {
   updated_at: string;
   name: string;
   token: string;
+  is_active: boolean;
 }
 
 export type AuthContextType = {

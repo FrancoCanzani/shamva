@@ -2,369 +2,267 @@ import DashboardHeader from "@/frontend/components/dashboard-header";
 import NotFoundMessage from "@/frontend/components/not-found-message";
 import { Badge } from "@/frontend/components/ui/badge";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/frontend/components/ui/card";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/frontend/components/ui/select";
 import { cn } from "@/frontend/lib/utils";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/collectors/$id";
+import { useNavigate } from "@tanstack/react-router";
+import AreaChartFillByValue from "./area-chart-fill-by-value";
+import CollectorStats from "./collector-stats";
+
+const PERIOD_OPTIONS = [
+  { value: 1, label: "Last day" },
+  { value: 7, label: "Last 7 days" },
+  { value: 14, label: "Last 14 days" },
+];
 
 export default function CollectorPage() {
   const collectorData = Route.useLoaderData();
+  const { days } = Route.useSearch();
+  const navigate = useNavigate();
+  const { id, workspaceName } = Route.useParams();
+
+  const handleDaysChange = (newDays: number) => {
+    navigate({
+      to: "/dashboard/$workspaceName/collectors/$id",
+      params: { workspaceName, id },
+      search: { days: newDays },
+      replace: true,
+    });
+  };
 
   if (!collectorData) {
     return (
-      <NotFoundMessage message="Your collector doesn't have any metrics yet" />
+      <div className="flex h-full flex-col">
+        <DashboardHeader
+          title="Dashboard / Collectors"
+        >
+          <Select
+            value={days.toString()}
+            onValueChange={(value) => handleDaysChange(parseInt(value))}
+          >
+            <SelectTrigger
+              size="sm"
+              className="px-2 text-xs data-[size=sm]:h-7"
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {PERIOD_OPTIONS.map((option) => (
+                <SelectItem
+                  key={option.value}
+                  value={option.value.toString()}
+                  className="text-xs"
+                >
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </DashboardHeader>
+        <main className="relative flex-1 overflow-auto">
+          <div className="mx-auto h-max max-w-4xl flex-1 space-y-8 overflow-auto p-6">
+            <NotFoundMessage message="Collector not found" />
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (!collectorData.metrics || collectorData.metrics.length === 0) {
+    return (
+      <div className="flex h-full flex-col">
+        <DashboardHeader
+          title={`Dashboard / Collectors / ${collectorData.name}`}
+        >
+          <Select
+            value={days.toString()}
+            onValueChange={(value) => handleDaysChange(parseInt(value))}
+          >
+            <SelectTrigger
+              size="sm"
+              className="px-2 text-xs data-[size=sm]:h-7"
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {PERIOD_OPTIONS.map((option) => (
+                <SelectItem
+                  key={option.value}
+                  value={option.value.toString()}
+                  className="text-xs"
+                >
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </DashboardHeader>
+        <main className="relative flex-1 overflow-auto">
+          <div className="mx-auto h-max max-w-4xl flex-1 space-y-8 overflow-auto p-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-semibold">{collectorData.name}</h2>
+                  <p className="text-muted-foreground mt-1">
+                    System metrics collector
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge
+                    variant={collectorData.is_active ? "default" : "secondary"}
+                    className={cn(
+                      collectorData.is_active
+                        ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                        : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
+                    )}
+                  >
+                    {collectorData.is_active ? "Active" : "Inactive"}
+                  </Badge>
+                </div>
+              </div>
+            </div>
+            <NotFoundMessage message="Your collector doesn't have any metrics yet. Make sure the collector is running and sending data." />
+          </div>
+        </main>
+      </div>
     );
   }
   return (
     <div className="flex h-full flex-col">
       <DashboardHeader
         title={`Dashboard / Collectors / ${collectorData.name}`}
-      ></DashboardHeader>
+      >
+        <Select
+          value={days.toString()}
+          onValueChange={(value) => handleDaysChange(parseInt(value))}
+        >
+          <SelectTrigger
+            size="sm"
+            className="px-2 text-xs data-[size=sm]:h-7"
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {PERIOD_OPTIONS.map((option) => (
+              <SelectItem
+                key={option.value}
+                value={option.value.toString()}
+                className="text-xs"
+              >
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </DashboardHeader>
 
-      <main className="relative flex-1 overflow-auto">
-        <div className="mx-auto h-max max-w-6xl flex-1 space-y-8 overflow-auto p-6">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-semibold">{collectorData.name}</h2>
-                <p className="text-muted-foreground mt-1">
-                  System metrics collector
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge
-                  variant={collectorData.is_active ? "default" : "secondary"}
-                  className={cn(
-                    collectorData.is_active
-                      ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                      : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
-                  )}
-                >
-                  {collectorData.is_active ? "Active" : "Inactive"}
-                </Badge>
-              </div>
+      <main className="mx-auto w-full max-w-4xl flex-1 space-y-8 overflow-auto p-6">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-semibold">{collectorData.name}</h2>
+              <p className="text-muted-foreground mt-1">
+                System metrics collector
+              </p>
             </div>
-
-            {collectorData.last_metric && (
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Hostname
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="font-mono text-2xl font-bold">
-                      {collectorData.last_metric.hostname}
-                    </p>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Platform
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-2xl font-bold capitalize">
-                      {collectorData.last_metric.platform}
-                    </p>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Last Seen
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-2xl font-bold">
-                      {new Date(
-                        collectorData.last_metric.created_at
-                      ).toLocaleString()}
-                    </p>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Uptime
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-2xl font-bold">
-                      {Math.floor(
-                        collectorData.last_metric.uptime_seconds / 3600
-                      )}
-                      h
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
+            <div className="flex items-center gap-2">
+              <Badge
+                variant={collectorData.is_active ? "default" : "secondary"}
+                className={cn(
+                  collectorData.is_active
+                    ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                    : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
+                )}
+              >
+                {collectorData.is_active ? "Active" : "Inactive"}
+              </Badge>
+            </div>
           </div>
 
-          {/* Current Metrics */}
-          {collectorData.last_metric && (
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Current System Status</h3>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      CPU Usage
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center justify-between">
-                      <span className="text-2xl font-bold">
-                        {collectorData.last_metric.cpu_percent.toFixed(1)}%
-                      </span>
-                      <div className="h-2 w-16 overflow-hidden rounded-full bg-gray-200">
-                        <div
-                          className={cn(
-                            "h-full transition-all",
-                            collectorData.last_metric.cpu_percent <= 50
-                              ? "bg-green-500"
-                              : collectorData.last_metric.cpu_percent <= 80
-                                ? "bg-yellow-500"
-                                : "bg-red-500"
-                          )}
-                          style={{
-                            width: `${Math.min(collectorData.last_metric.cpu_percent, 100)}%`,
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+          <div className="flex items-start justify-between">
+            <div>
+              <h4 className="text-xs font-medium text-muted-foreground mb-1">
+                System
+              </h4>
+              <p className="font-mono text-sm font-medium">
+                {collectorData.metrics[0].hostname}
+              </p>
+              <p className="text-muted-foreground text-xs capitalize">
+                {collectorData.metrics[0].platform}
+              </p>
+            </div>
 
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Memory Usage
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center justify-between">
-                      <span className="text-2xl font-bold">
-                        {collectorData.last_metric.memory_percent.toFixed(1)}%
-                      </span>
-                      <div className="h-2 w-16 overflow-hidden rounded-full bg-gray-200">
-                        <div
-                          className={cn(
-                            "h-full transition-all",
-                            collectorData.last_metric.memory_percent <= 70
-                              ? "bg-green-500"
-                              : collectorData.last_metric.memory_percent <= 90
-                                ? "bg-yellow-500"
-                                : "bg-red-500"
-                          )}
-                          style={{
-                            width: `${Math.min(collectorData.last_metric.memory_percent, 100)}%`,
-                          }}
-                        />
-                      </div>
-                    </div>
-                    <p className="text-muted-foreground mt-1 text-sm">
-                      {collectorData.last_metric.memory_used_gb.toFixed(1)}GB /{" "}
-                      {collectorData.last_metric.memory_total_gb.toFixed(1)}GB
-                    </p>
-                  </CardContent>
-                </Card>
+            <div className="flex gap-6">
+              <div>
+                <h4 className="text-xs font-medium text-muted-foreground mb-1">
+                  Last Seen
+                </h4>
+                <p className="text-sm font-medium">
+                  {new Date(
+                    collectorData.metrics[0].created_at
+                  ).toLocaleString()}
+                </p>
+              </div>
 
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Disk Usage
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center justify-between">
-                      <span className="text-2xl font-bold">
-                        {collectorData.last_metric.disk_percent.toFixed(1)}%
-                      </span>
-                      <div className="h-2 w-16 overflow-hidden rounded-full bg-gray-200">
-                        <div
-                          className={cn(
-                            "h-full transition-all",
-                            collectorData.last_metric.disk_percent <= 70
-                              ? "bg-green-500"
-                              : collectorData.last_metric.disk_percent <= 90
-                                ? "bg-yellow-500"
-                                : "bg-red-500"
-                          )}
-                          style={{
-                            width: `${Math.min(collectorData.last_metric.disk_percent, 100)}%`,
-                          }}
-                        />
-                      </div>
-                    </div>
-                    <p className="text-muted-foreground mt-1 text-sm">
-                      {collectorData.last_metric.disk_free_gb.toFixed(1)}GB free
-                    </p>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Network
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Sent:</span>
-                        <span className="font-mono">
-                          {collectorData.last_metric.network_sent_mb.toFixed(1)}{" "}
-                          MB
-                        </span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span>Received:</span>
-                        <span className="font-mono">
-                          {collectorData.last_metric.network_recv_mb.toFixed(1)}{" "}
-                          MB
-                        </span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span>Speed:</span>
-                        <span className="font-mono">
-                          {collectorData.last_metric.network_sent_mbps.toFixed(
-                            1
-                          )}{" "}
-                          Mbps
-                        </span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Top Process
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <p className="truncate text-sm font-medium">
-                        {collectorData.last_metric.top_process_name}
-                      </p>
-                      <p className="text-2xl font-bold">
-                        {collectorData.last_metric.top_process_cpu.toFixed(1)}%
-                      </p>
-                      <p className="text-muted-foreground text-sm">
-                        {collectorData.last_metric.total_processes.toLocaleString()}{" "}
-                        total processes
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      System Info
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      {collectorData.last_metric.temperature_celsius > 0 && (
-                        <div className="flex justify-between text-sm">
-                          <span>Temperature:</span>
-                          <span className="font-mono">
-                            {collectorData.last_metric.temperature_celsius.toFixed(
-                              1
-                            )}
-                            °C
-                          </span>
-                        </div>
-                      )}
-                      <div className="flex justify-between text-sm">
-                        <span>Power:</span>
-                        <span className="font-mono capitalize">
-                          {collectorData.last_metric.power_status}
-                        </span>
-                      </div>
-                      {collectorData.last_metric.battery_percent > 0 && (
-                        <div className="flex justify-between text-sm">
-                          <span>Battery:</span>
-                          <span className="font-mono">
-                            {collectorData.last_metric.battery_percent.toFixed(
-                              1
-                            )}
-                            %
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
+              <div>
+                <h4 className="text-xs font-medium text-muted-foreground mb-1">
+                  Uptime
+                </h4>
+                <p className="text-sm font-medium">
+                  {Math.floor(
+                    collectorData.metrics[0].uptime_seconds / 3600
+                  )}h
+                </p>
               </div>
             </div>
-          )}
+          </div>
+        </div>
 
-          {/* Historical Metrics */}
-          {collectorData.metrics && collectorData.metrics.length > 0 && (
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">
-                Historical Data (Last {days} days)
-              </h3>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm font-medium">
-                    Metrics History
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="overflow-auto">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="border-b">
-                          <th className="py-2 text-left">Timestamp</th>
-                          <th className="py-2 text-left">CPU</th>
-                          <th className="py-2 text-left">Memory</th>
-                          <th className="py-2 text-left">Disk</th>
-                          <th className="py-2 text-left">Load</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {collectorData.metrics
-                          .slice(0, 20)
-                          .map((metric: Metric) => (
-                            <tr key={metric.id} className="border-b">
-                              <td className="py-2 font-mono text-xs">
-                                {new Date(metric.created_at).toLocaleString()}
-                              </td>
-                              <td className="py-2">
-                                {metric.cpu_percent.toFixed(1)}%
-                              </td>
-                              <td className="py-2">
-                                {metric.memory_percent.toFixed(1)}%
-                              </td>
-                              <td className="py-2">
-                                {metric.disk_percent.toFixed(1)}%
-                              </td>
-                              <td className="py-2">
-                                {metric.load_avg_1.toFixed(2)}
-                              </td>
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
+        <CollectorStats 
+          metrics={collectorData.metrics}
+        />
+
+        <div className="space-y-6">
+          <h3 className="text-sm font-medium">Historical Data ({PERIOD_OPTIONS.find(opt => opt.value === days)?.label || `Last ${days} days`})</h3>
+          
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+            <AreaChartFillByValue 
+              title="CPU Usage" 
+              metrics={collectorData.metrics}
+              dataKey="cpu_percent"
+              unit="%"
+              selectedDays={days}
+            />
+            <AreaChartFillByValue 
+              title="Memory Usage" 
+              metrics={collectorData.metrics}
+              dataKey="memory_percent"
+              unit="%"
+              selectedDays={days}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+            <AreaChartFillByValue 
+              title="Disk Usage" 
+              metrics={collectorData.metrics}
+              dataKey="disk_percent"
+              unit="%"
+              selectedDays={days}
+            />
+            <AreaChartFillByValue 
+              title="Load Average" 
+              metrics={collectorData.metrics}
+              dataKey="load_avg_1"
+              unit=""
+              selectedDays={days}
+            />
+          </div>
         </div>
       </main>
     </div>

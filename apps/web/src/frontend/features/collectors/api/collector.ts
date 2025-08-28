@@ -8,11 +8,13 @@ import { redirect } from "@tanstack/react-router";
 export interface FetchCollectorParams {
   params: { workspaceName: string; id: string };
   context: RouterContext;
+  days?: number;
 }
 
 export async function fetchCollector({
   params,
   context,
+  days = 7,
 }: FetchCollectorParams) {
   const { workspaceName, id } = params;
 
@@ -45,7 +47,7 @@ export async function fetchCollector({
       });
     }
 
-    const collectorResponse = await fetch(`/v1/api/collectors/${id}`, {
+    const collectorResponse = await fetch(`/v1/api/collectors/${id}?days=${days}`, {
       headers: {
         Authorization: `Bearer ${context.auth.session?.access_token}`,
         "Content-Type": "application/json",

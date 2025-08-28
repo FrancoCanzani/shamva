@@ -36,5 +36,5 @@ export interface CollectorWithLastMetrics extends Collector {
 }
 
 export interface CollectorWithMetrics extends Collector {
-  metrics: Metric[];
+  metrics?: Metric[];
 }

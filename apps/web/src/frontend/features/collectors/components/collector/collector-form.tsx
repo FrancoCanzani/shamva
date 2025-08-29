@@ -9,7 +9,7 @@ import { useForm } from "@tanstack/react-form";
 import { Check, Copy } from "lucide-react";
 import { useMemo, useState } from "react";
 import { z } from "zod";
-import { generateCollectorToken } from "../utils";
+import { generateCollectorToken } from "../../utils";
 
 export type CollectorFormValues = z.infer<typeof CollectorSchema>;
 

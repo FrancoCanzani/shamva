@@ -91,6 +91,7 @@ export default function CollectorsTable({
     navigate({
       to: "/dashboard/$workspaceName/collectors/$id",
       params: { id: collector.id, workspaceName: workspaceName },
+      search: { days: 7 },
     });
   };
 
@@ -98,6 +99,7 @@ export default function CollectorsTable({
     await router.preloadRoute({
       to: "/dashboard/$workspaceName/collectors/$id",
       params: { id: collector.id, workspaceName: workspaceName },
+      search: { days: 7 },
     });
   };
 
@@ -163,7 +165,7 @@ export default function CollectorsTable({
         const collector = row.original;
         return (
           <Tooltip>
-            <TooltipTrigger>
+            <TooltipTrigger asChild>
               <button
                 className="text-left text-sm font-medium underline decoration-dotted underline-offset-1 hover:text-blue-600 dark:hover:text-blue-400"
                 onClick={(e) => {

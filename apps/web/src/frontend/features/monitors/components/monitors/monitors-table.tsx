@@ -180,7 +180,7 @@ export default function MonitorsTable({
         const monitor = row.original;
         return (
           <Tooltip>
-            <TooltipTrigger>
+            <TooltipTrigger asChild>
               <button
                 className="text-left text-sm font-medium underline decoration-dotted underline-offset-1 hover:text-blue-600 dark:hover:text-blue-400"
                 onClick={(e) => {
@@ -207,7 +207,7 @@ export default function MonitorsTable({
       id: "uptime_percentage",
       header: ({ column }) => (
         <Tooltip>
-          <TooltipTrigger>
+          <TooltipTrigger asChild>
             <button
               className="text-left underline decoration-dotted underline-offset-1"
               onClick={column.getToggleSortingHandler()}
@@ -294,7 +294,7 @@ export default function MonitorsTable({
     columnHelper.accessor("avg_latency", {
       header: ({ column }) => (
         <Tooltip>
-          <TooltipTrigger>
+          <TooltipTrigger asChild>
             <button
               className="text-left underline decoration-dotted underline-offset-1"
               onClick={column.getToggleSortingHandler()}

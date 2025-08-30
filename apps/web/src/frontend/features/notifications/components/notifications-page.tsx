@@ -1,4 +1,5 @@
 import DashboardHeader from "@/frontend/components/dashboard-header";
+import { Badge } from "@/frontend/components/ui/badge";
 import { Card } from "@/frontend/components/ui/card";
 import { useLoaderData, useParams } from "@tanstack/react-router";
 import { useState } from "react";
@@ -50,10 +51,10 @@ const integrations: NotificationIntegration[] = [
 
 export default function NotificationsPage() {
   const config = useLoaderData({
-    from: "/dashboard/$workspaceName/notifications/",
+    from: "/dashboard/$workspaceSlug/notifications/",
   }) as Notifications;
-  const { workspaceName } = useParams({
-    from: "/dashboard/$workspaceName/notifications/",
+  const { workspaceSlug } = useParams({
+    from: "/dashboard/$workspaceSlug/notifications/",
   });
   const [selectedNotification, setSelectedNotification] =
     useState<Notification | null>(null);
@@ -119,9 +120,9 @@ export default function NotificationsPage() {
                     <h4 className="font-medium">{integration.name}</h4>
                   </div>
                   {status && (
-                    <span className="rounded border px-1 py-0.5 font-mono text-xs capitalize">
+                    <Badge variant={"outline"} className="capitalize">
                       {status}
-                    </span>
+                    </Badge>
                   )}
                 </div>
                 <div>
@@ -144,7 +145,7 @@ export default function NotificationsPage() {
           onClose={handleSheetClose}
           notificationType={selectedNotification}
           config={config}
-          workspaceName={workspaceName}
+          workspaceSlug={workspaceSlug}
         />
       )}
     </div>

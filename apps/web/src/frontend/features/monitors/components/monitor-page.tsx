@@ -19,7 +19,7 @@ import {
   usePauseResumeMonitor,
 } from "@/frontend/features/monitors/api/mutations";
 import { monitoringRegions } from "@/frontend/lib/constants";
-import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id";
+import { Route } from "@/frontend/routes/dashboard/$workspaceSlug/monitors/$id";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { formatDistanceToNowStrict } from "date-fns";
@@ -44,7 +44,7 @@ export default function MonitorPage() {
 
   const navigate = useNavigate();
   const router = useRouter();
-  const { id, workspaceName } = Route.useParams();
+  const { id, workspaceSlug } = Route.useParams();
 
   const availableRegions = useMemo(() => {
     const configuredRegions = monitor.regions || [];
@@ -56,8 +56,8 @@ export default function MonitorPage() {
 
   const handleDaysChange = (newDays: number) => {
     navigate({
-      to: "/dashboard/$workspaceName/monitors/$id",
-      params: { workspaceName, id },
+      to: "/dashboard/$workspaceSlug/monitors/$id",
+      params: { workspaceSlug, id },
       search: { days: newDays, region },
       replace: true,
     });
@@ -65,8 +65,8 @@ export default function MonitorPage() {
 
   const handleRegionChange = (newRegion: string) => {
     navigate({
-      to: "/dashboard/$workspaceName/monitors/$id",
-      params: { workspaceName, id },
+      to: "/dashboard/$workspaceSlug/monitors/$id",
+      params: { workspaceSlug, id },
       search: { days, region: newRegion === "all" ? undefined : newRegion },
       replace: true,
     });
@@ -74,8 +74,8 @@ export default function MonitorPage() {
 
   const handleClearFilters = () => {
     navigate({
-      to: "/dashboard/$workspaceName/monitors/$id",
-      params: { workspaceName, id },
+      to: "/dashboard/$workspaceSlug/monitors/$id",
+      params: { workspaceSlug, id },
       search: { days: 7, region: undefined },
       replace: true,
     });
@@ -92,7 +92,7 @@ export default function MonitorPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <DashboardHeader title={`Dashboard / ${workspaceName} / Monitor`}>
+      <DashboardHeader title={`Dashboard / ${workspaceSlug} / Monitor`}>
         <div className="flex items-center space-x-3">
           <StatusDot pulse color="bg-green-700" size="sm" />
           {monitor.last_check_at && (
@@ -176,8 +176,8 @@ export default function MonitorPage() {
             <DropdownMenuContent>
               <DropdownMenuItem>
                 <Link
-                  to="/dashboard/$workspaceName/monitors/$id/edit"
-                  params={{ id: monitor.id, workspaceName }}
+                  to="/dashboard/$workspaceSlug/monitors/$id/edit"
+                  params={{ id: monitor.id, workspaceSlug }}
                   search={{ days }}
                   className="w-full text-xs"
                 >

@@ -17,8 +17,8 @@ export default function LandingPage() {
     const list =
       workspaces && workspaces.length > 0 ? workspaces : seededWorkspaces || [];
     if (list.length > 0) {
-      const firstworkspaceName = list[0].name;
-      dashboardLinkTo = `/dashboard/${firstworkspaceName}/monitors`;
+      const firstworkspaceSlug = list[0].slug;
+      dashboardLinkTo = `/dashboard/${firstworkspaceSlug}/monitors`;
     } else {
       dashboardLinkTo = "/dashboard/workspaces/new";
     }

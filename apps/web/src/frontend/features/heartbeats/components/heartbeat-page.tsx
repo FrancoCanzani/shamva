@@ -8,7 +8,7 @@ import {
 } from "@/frontend/components/ui/card";
 import { useWorkspaces } from "@/frontend/lib/context/workspace-context";
 import { Heartbeat } from "@/frontend/lib/types";
-import { Route as HeartbeatRoute } from "@/frontend/routes/dashboard/$workspaceName/heartbeats/$id/index";
+import { Route as HeartbeatRoute } from "@/frontend/routes/dashboard/$workspaceSlug/heartbeats/$id/index";
 import { useNavigate } from "@tanstack/react-router";
 import { formatDistanceToNow } from "date-fns";
 import { Activity, ArrowLeft, Edit } from "lucide-react";

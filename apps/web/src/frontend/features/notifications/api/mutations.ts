@@ -5,9 +5,9 @@ import { useMutation } from "@tanstack/react-query";
 import { useRouteContext, useRouter } from "@tanstack/react-router";
 import { Notifications } from "../types";
 
-export const useUpdateWorkspaceNotifications = (workspaceName: string) => {
+export const useUpdateWorkspaceNotifications = (workspaceSlug: string) => {
   const context = useRouteContext({
-    from: "/dashboard/$workspaceName/notifications/",
+    from: "/dashboard/$workspaceSlug/notifications/",
   });
   const router = useRouter();
 
@@ -27,11 +27,11 @@ export const useUpdateWorkspaceNotifications = (workspaceName: string) => {
         }));
 
       const targetWorkspace = allWorkspaces.find(
-        (ws) => ws.name === workspaceName
+        (ws) => ws.name === workspaceSlug
       );
 
       if (!targetWorkspace) {
-        throw new Error(`Workspace with name "${workspaceName}" not found`);
+        throw new Error(`Workspace with name "${workspaceSlug}" not found`);
       }
 
       const workspaceId = targetWorkspace.id;

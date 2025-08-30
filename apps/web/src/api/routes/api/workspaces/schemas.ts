@@ -6,34 +6,36 @@ export const UUIDParamSchema = z.object({
 
 export const MemberInviteSchema = z.object({
   email: z.email(),
-  role: z.enum(["admin", "member", "viewer"]),
+  role: z.enum(["admin", "member"]),
 });
 
 export const MemberUpdateSchema = z.object({
   id: z.uuid().optional(),
   email: z.email().optional(),
-  role: z.enum(["admin", "member", "viewer"]),
+  role: z.enum(["admin", "member"]),
   invitation_status: z.enum(["pending", "accepted", "declined"]).optional(),
-  user_id: z.string().uuid().nullable().optional(),
+  user_id: z.uuid().nullable().optional(),
 });
 
 export const WorkspaceCreateBodySchema = z.object({
-  name: z
+  slug: z
     .string()
     .min(1)
     .max(100)
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+  name: z.string().min(1).max(100),
   description: z.string().max(500).optional(),
   members: z.array(MemberInviteSchema),
   creatorEmail: z.string(),
 });
 
 export const WorkspaceUpdateBodySchema = z.object({
-  name: z
+  slug: z
     .string()
     .min(1)
     .max(100)
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+  name: z.string().min(1).max(100),
   description: z.string().max(500).optional(),
   members: z.array(MemberUpdateSchema),
 });
@@ -41,13 +43,14 @@ export const WorkspaceUpdateBodySchema = z.object({
 export const WorkspaceMemberSchema = z.object({
   id: z.string(),
   user_id: z.string().nullable(),
-  role: z.enum(["admin", "member", "viewer"]),
+  role: z.enum(["admin", "member"]),
   invitation_email: z.string().nullable(),
   invitation_status: z.enum(["pending", "accepted", "declined"]).nullable(),
 });
 
 export const WorkspaceSchema = z.object({
   id: z.string(),
+  slug: z.string(),
   name: z.string(),
   description: z.string().nullable(),
   created_by: z.string().nullable().optional(),

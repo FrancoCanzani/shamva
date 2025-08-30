@@ -7,10 +7,10 @@ import { toast } from "sonner";
 export function useCreateMonitor() {
   return useMutation({
     mutationFn: async ({
-      workspaceName,
+      workspaceSlug,
       monitorData,
     }: {
-      workspaceName: string;
+      workspaceSlug: string;
       monitorData: MonitorFormData;
     }): Promise<Monitor> => {
       const {
@@ -36,7 +36,7 @@ export function useCreateMonitor() {
         },
         body: JSON.stringify({
           ...monitorData,
-          workspaceName,
+          workspaceSlug,
         }),
       });
       if (!response.ok) {

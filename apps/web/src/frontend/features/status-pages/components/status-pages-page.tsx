@@ -2,20 +2,20 @@ import DashboardHeader from "@/frontend/components/dashboard-header";
 import NotFoundMessage from "@/frontend/components/not-found-message";
 import { Button } from "@/frontend/components/ui/button";
 import { StatusPage } from "@/frontend/lib/types";
-import { Route } from "@/frontend/routes/dashboard/$workspaceName/status-pages";
+import { Route } from "@/frontend/routes/dashboard/$workspaceSlug/status-pages";
 import { Link } from "@tanstack/react-router";
 
 export default function StatusPagesPage() {
   const statusPages = Route.useLoaderData();
-  const { workspaceName } = Route.useParams();
+  const { workspaceSlug } = Route.useParams();
 
   return (
     <div className="flex h-full flex-col">
-      <DashboardHeader title={`Dashboard / ${workspaceName} / Status Pages`}>
+      <DashboardHeader title={`Dashboard / ${workspaceSlug} / Status Pages`}>
         <Button asChild variant={"outline"} size={"xs"}>
           <Link
-            to="/dashboard/$workspaceName/status-pages/new"
-            params={{ workspaceName: workspaceName }}
+            to="/dashboard/$workspaceSlug/status-pages/new"
+            params={{ workspaceSlug: workspaceSlug }}
           >
             New Status Page
           </Link>
@@ -57,9 +57,9 @@ export default function StatusPagesPage() {
                   <div className="flex gap-2">
                     <Button asChild variant="outline" size="xs">
                       <Link
-                        to="/dashboard/$workspaceName/status-pages/$id/edit"
+                        to="/dashboard/$workspaceSlug/status-pages/$id/edit"
                         params={{
-                          workspaceName: workspaceName,
+                          workspaceSlug: workspaceSlug,
                           id: statusPage.id,
                         }}
                       >

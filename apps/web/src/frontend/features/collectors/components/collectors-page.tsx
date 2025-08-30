@@ -1,5 +1,5 @@
 import DashboardHeader from "@/frontend/components/dashboard-header";
-import { Route } from "@/frontend/routes/dashboard/$workspaceName/collectors";
+import { Route } from "@/frontend/routes/dashboard/$workspaceSlug/collectors";
 import { useState } from "react";
 import { Collector } from "@/frontend/lib/types";
 import FloatingActions from "./collectors/floating-actions";

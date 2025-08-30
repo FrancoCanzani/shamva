@@ -1,4 +1,3 @@
-import { Button } from "@/frontend/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,57 +9,87 @@ import {
 } from "@/frontend/components/ui/dropdown-menu";
 import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
 import { Workspace } from "@/frontend/lib/types";
-import { Link, useLocation } from "@tanstack/react-router";
-import { CheckIcon, ChevronsUpDown } from "lucide-react";
-import * as React from "react";
+import { cn } from "@/frontend/lib/utils";
+import { Link, useParams } from "@tanstack/react-router";
+import {
+  CheckIcon,
+  ChevronsUpDown,
+  Loader,
+  PlusCircleIcon,
+  Settings,
+  UserPlus,
+} from "lucide-react";
 
-interface WorkspaceDropdownProps {
-  workspaceName?: string;
-}
-
-export function WorkspaceDropdown({ workspaceName }: WorkspaceDropdownProps) {
+export default function WorkspaceDropdown() {
+  const { workspaceSlug } = useParams({ strict: false });
   const { workspaces, currentWorkspace, isLoading, setCurrentWorkspace } =
-    useWorkspaces(workspaceName);
-  const [open, setOpen] = React.useState(false);
-
-  const location = useLocation();
+    useWorkspaces(workspaceSlug);
 
   const handleSelectWorkspace = (workspace: Workspace) => {
-    setOpen(false);
     setCurrentWorkspace(workspace);
   };
 
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="outline"
-          size={"sm"}
-          className="flex w-full justify-between"
-          disabled={isLoading}
-        >
-          {isLoading
-            ? "Loading workspaces..."
-            : currentWorkspace?.name || "Select workspace"}
-          <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
-        </Button>
+    <DropdownMenu>
+      <DropdownMenuTrigger className="hover:bg-input/50 inline-flex h-full w-full items-center justify-between p-2">
+        <h1 className="pl-1 text-xl font-medium tracking-wide">Shamva</h1>
+        {isLoading ? (
+          <Loader className="animate-spin duration-75" />
+        ) : (
+          <ChevronsUpDown className="size-4" />
+        )}
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-[240px]">
-        <DropdownMenuLabel className="text-xs">
-          Your workspaces
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
+        {currentWorkspace && (
+          <>
+            <DropdownMenuLabel className="flex items-center justify-start space-x-1.5">
+              <span className="text-sm font-medium capitalize">
+                {currentWorkspace?.name}
+              </span>
+            </DropdownMenuLabel>
+            <DropdownMenuGroup>
+              <DropdownMenuItem className="text-xs">
+                <Settings className="size-3" />
+                <Link
+                  to="/dashboard/workspaces/$workspaceId"
+                  params={{ workspaceId: currentWorkspace.id }}
+                >
+                  Manage Workspace
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-xs"
+                onClick={() => {
+                  window.location.href = `/dashboard/workspaces/${currentWorkspace?.id}#members`;
+                }}
+              >
+                <UserPlus className="size-3" />
+                Invite Members
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+          </>
+        )}
         <DropdownMenuGroup>
+          <DropdownMenuLabel className="text-muted-foreground text-xs">
+            Workspaces
+          </DropdownMenuLabel>
           {workspaces.length > 0 ? (
             workspaces.map((workspace) => (
               <DropdownMenuItem
+                className={cn(
+                  "flex items-center justify-between text-xs",
+                  currentWorkspace?.slug === workspace.slug &&
+                    "bg-input/50 rounded-md"
+                )}
                 key={workspace.id}
                 onClick={() => handleSelectWorkspace(workspace)}
-                className="text-xs"
               >
-                <span className="flex-1">{workspace.name}</span>
-                {location.pathname.split("/").includes(workspace.name) && (
-                  <CheckIcon size={14} />
+                <span className="text-xs capitalize">
+                  {currentWorkspace?.name}
+                </span>
+                {currentWorkspace?.slug === workspace.slug && (
+                  <CheckIcon className="size-3" />
                 )}
               </DropdownMenuItem>
             ))
@@ -69,9 +98,10 @@ export function WorkspaceDropdown({ workspaceName }: WorkspaceDropdownProps) {
           )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <Link to="/dashboard/workspaces/new" className="text-xs">
-            Create new workspace
+        <DropdownMenuItem>
+          <PlusCircleIcon className="size-3" />
+          <Link className="text-xs" to="/dashboard/workspaces/new">
+            New workspace
           </Link>
         </DropdownMenuItem>
       </DropdownMenuContent>

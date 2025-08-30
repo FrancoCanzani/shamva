@@ -20,7 +20,7 @@ interface NotificationSheetProps {
   onClose: () => void;
   notificationType: Notification | null;
   config: Notifications;
-  workspaceName: string;
+  workspaceSlug: string;
 }
 
 const notificationConfig = {
@@ -66,9 +66,9 @@ export function NotificationSheet({
   onClose,
   notificationType,
   config,
-  workspaceName,
+  workspaceSlug,
 }: NotificationSheetProps) {
-  const updateMutation = useUpdateWorkspaceNotifications(workspaceName);
+  const updateMutation = useUpdateWorkspaceNotifications(workspaceSlug);
   const isMobile = useIsMobile();
 
   const handleSave = async (updates: Partial<Notifications>) => {

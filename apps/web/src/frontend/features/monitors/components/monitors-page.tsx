@@ -1,5 +1,5 @@
 import DashboardHeader from "@/frontend/components/dashboard-header";
-import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors";
+import { Route } from "@/frontend/routes/dashboard/$workspaceSlug/monitors";
 import { useState } from "react";
 import { MonitorWithMetrics } from "../types";
 import MonitorTypeSelector from "./monitor/monitor-type-selector";

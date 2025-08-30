@@ -4,7 +4,7 @@ import {
   StatusPage,
   StatusPageFormValues,
 } from "@/frontend/lib/types";
-import { Route } from "@/frontend/routes/dashboard/$workspaceName/status-pages/$id/edit";
+import { Route } from "@/frontend/routes/dashboard/$workspaceSlug/status-pages/$id/edit";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useRouteContext } from "@tanstack/react-router";
 import { useState } from "react";
@@ -34,11 +34,11 @@ async function fetchMonitors(workspaceId: string, accessToken: string) {
 
 export default function EditStatusPagePage() {
   const navigate = useNavigate();
-  const { id, workspaceName } = Route.useParams();
+  const { id, workspaceSlug } = Route.useParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const statusPage = Route.useLoaderData();
   const { auth } = useRouteContext({
-    from: "/dashboard/$workspaceName/status-pages/$id/edit/",
+    from: "/dashboard/$workspaceSlug/status-pages/$id/edit/",
   });
 
   const { data: availableMonitors = [] } = useQuery({
@@ -80,8 +80,8 @@ export default function EditStatusPagePage() {
 
       toast.success("Status page updated successfully");
       navigate({
-        to: "/dashboard/$workspaceName/status-pages",
-        params: { workspaceName: workspaceName },
+        to: "/dashboard/$workspaceSlug/status-pages",
+        params: { workspaceSlug: workspaceSlug },
       });
     } catch (error) {
       console.error("Error updating status page:", error);
@@ -96,8 +96,8 @@ export default function EditStatusPagePage() {
 
   const handleCancel = () => {
     navigate({
-      to: "/dashboard/$workspaceName/status-pages",
-      params: { workspaceName: workspaceName },
+      to: "/dashboard/$workspaceSlug/status-pages",
+      params: { workspaceSlug: workspaceSlug },
     });
   };
 

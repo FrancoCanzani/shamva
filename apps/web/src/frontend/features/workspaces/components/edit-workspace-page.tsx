@@ -17,6 +17,7 @@ export default function EditWorkspacePage() {
   const workspace: Workspace = Route.useLoaderData();
 
   const initialValues: WorkspaceFormValues = {
+    slug: workspace.slug,
     name: workspace.name,
     description: workspace.description || "",
     members:

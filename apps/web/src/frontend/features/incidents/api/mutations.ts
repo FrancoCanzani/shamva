@@ -5,7 +5,7 @@ import { toast } from "sonner";
 
 export function useCreateIncidentUpdate() {
   const context = useRouteContext({
-    from: "/dashboard/$workspaceName/incidents/$id/",
+    from: "/dashboard/$workspaceSlug/incidents/$id/",
   });
   const router = useRouter();
 
@@ -71,7 +71,7 @@ export function useCreateIncidentUpdate() {
 
 export function useUpdateIncident() {
   const context = useRouteContext({
-    from: "/dashboard/$workspaceName/incidents/$id/",
+    from: "/dashboard/$workspaceSlug/incidents/$id/",
   });
   const router = useRouter();
 
@@ -116,7 +116,7 @@ export function useUpdateIncident() {
 
 export function useDeleteIncidentUpdate() {
   const context = useRouteContext({
-    from: "/dashboard/$workspaceName/incidents/$id/",
+    from: "/dashboard/$workspaceSlug/incidents/$id/",
   });
   const router = useRouter();
 
@@ -158,7 +158,7 @@ export function useDeleteIncidentUpdate() {
 
 export function useAcknowledgeIncident() {
   const context = useRouteContext({
-    from: "/dashboard/$workspaceName/incidents/$id/",
+    from: "/dashboard/$workspaceSlug/incidents/$id/",
   });
   const router = useRouter();
 
@@ -200,7 +200,7 @@ export function useAcknowledgeIncident() {
 
 export function useResolveIncident() {
   const context = useRouteContext({
-    from: "/dashboard/$workspaceName/incidents/$id/",
+    from: "/dashboard/$workspaceSlug/incidents/$id/",
   });
   const router = useRouter();
 

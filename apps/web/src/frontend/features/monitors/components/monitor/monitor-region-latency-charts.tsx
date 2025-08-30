@@ -16,7 +16,7 @@ import {
 import { useTheme } from "@/frontend/lib/context/theme-context";
 import { Log } from "@/frontend/lib/types";
 import { getRegionNameFromCode } from "@/frontend/lib/utils";
-import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id";
+import { Route } from "@/frontend/routes/dashboard/$workspaceSlug/monitors/$id";
 import { format } from "date-fns";
 import { useMemo, useState } from "react";
 import {

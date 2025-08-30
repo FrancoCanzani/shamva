@@ -6,7 +6,7 @@ import {
 } from "@/frontend/components/ui/dialog";
 import { Separator } from "@/frontend/components/ui/separator";
 import { getRegionNameFromCode } from "@/frontend/lib/utils";
-import { Route } from "@/frontend/routes/dashboard/$workspaceName/incidents/$id";
+import { Route } from "@/frontend/routes/dashboard/$workspaceSlug/incidents/$id";
 import { Link, useRouter } from "@tanstack/react-router";
 import { format, formatDistanceToNowStrict, parseISO } from "date-fns";
 import { ArrowLeft } from "lucide-react";
@@ -16,7 +16,7 @@ import IncidentPostMortem from "./incident-post-mortem";
 import IncidentUpdates from "./incident-updates";
 
 export default function IncidentPage() {
-  const { workspaceName, id } = Route.useParams();
+  const { workspaceSlug, id } = Route.useParams();
   const incident = Route.useLoaderData() as IncidentWithUpdates;
   const router = useRouter();
 
@@ -55,8 +55,8 @@ export default function IncidentPage() {
     <div className="flex h-full flex-col">
       <div className="mx-auto w-full max-w-4xl flex-1 space-y-8 p-6">
         <Link
-          to="/dashboard/$workspaceName/monitors/$id"
-          params={{ workspaceName, id: incident.monitor_id }}
+          to="/dashboard/$workspaceSlug/monitors/$id"
+          params={{ workspaceSlug, id: incident.monitor_id }}
           search={{ days: 7 }}
           className="text-muted-foreground flex items-center gap-1 text-xs hover:underline"
         >

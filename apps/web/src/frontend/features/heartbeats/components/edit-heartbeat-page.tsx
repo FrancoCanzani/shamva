@@ -1,5 +1,5 @@
 import { useWorkspaces } from "@/frontend/lib/context/workspace-context";
-import { Route as EditHeartbeatRoute } from "@/frontend/routes/dashboard/$workspaceName/heartbeats/$id/edit";
+import { Route as EditHeartbeatRoute } from "@/frontend/routes/dashboard/$workspaceSlug/heartbeats/$id/edit";
 import { useNavigate } from "@tanstack/react-router";
 import HeartbeatForm from "./heartbeat-form";
 import { useUpdateHeartbeat } from "../api/mutations";

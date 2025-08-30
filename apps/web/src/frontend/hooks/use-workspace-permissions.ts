@@ -4,8 +4,8 @@ import { useMemo } from "react";
 
 export type WorkspaceRole = "admin" | "member" | "viewer";
 
-export function useWorkspacePermissions(workspaceName?: string) {
-  const { currentWorkspace } = useWorkspaces(workspaceName);
+export function useWorkspacePermissions(workspaceSlug?: string) {
+  const { currentWorkspace } = useWorkspaces(workspaceSlug);
   const { auth } = useRouteContext({ from: "/dashboard" });
 
   const userRole = useMemo(() => {

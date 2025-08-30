@@ -1,6 +1,6 @@
 import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
 import { ApiResponse, Monitor } from "@/frontend/lib/types";
-import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/new/$type";
+import { Route } from "@/frontend/routes/dashboard/$workspaceSlug/monitors/new/$type";
 import {
   useNavigate,
   useRouteContext,
@@ -40,12 +40,12 @@ type MonitorFormData = HttpMonitorFormData | TcpMonitorFormData;
 
 export default function NewMonitorPage() {
   const { type } = Route.useParams();
-  const { workspaceName } = Route.useParams();
+  const { workspaceSlug } = Route.useParams();
   const navigate = useNavigate();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { auth } = useRouteContext({
-    from: "/dashboard/$workspaceName/monitors/new/$type/",
+    from: "/dashboard/$workspaceSlug/monitors/new/$type/",
   });
   const { currentWorkspace } = useWorkspaces();
 
@@ -89,8 +89,8 @@ export default function NewMonitorPage() {
       toast.success("Monitor created successfully");
       router.invalidate();
       navigate({
-        to: "/dashboard/$workspaceName/monitors",
-        params: { workspaceName: workspaceName },
+        to: "/dashboard/$workspaceSlug/monitors",
+        params: { workspaceSlug: workspaceSlug },
       });
     } catch (error) {
       toast.error(
@@ -104,8 +104,8 @@ export default function NewMonitorPage() {
 
   const handleCancel = () => {
     navigate({
-      to: "/dashboard/$workspaceName/monitors",
-      params: { workspaceName: workspaceName },
+      to: "/dashboard/$workspaceSlug/monitors",
+      params: { workspaceSlug: workspaceSlug },
     });
   };
 

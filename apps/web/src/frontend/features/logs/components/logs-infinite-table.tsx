@@ -3,7 +3,7 @@ import { Input } from "@/frontend/components/ui/input";
 import { queryClient } from "@/frontend/lib/query-client";
 import { BodyContent, Log } from "@/frontend/lib/types";
 import { cn, getRegionNameFromCode } from "@/frontend/lib/utils";
-import { Route } from "@/frontend/routes/dashboard/$workspaceName/logs";
+import { Route } from "@/frontend/routes/dashboard/$workspaceSlug/logs";
 import { GlobeIcon } from "@radix-ui/react-icons";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
@@ -20,7 +20,7 @@ export function LogsInfiniteTable() {
   const context = Route.useRouteContext();
   const router = useRouter();
 
-  const { workspaceName } = Route.useParams();
+  const { workspaceSlug } = Route.useParams();
   const [statusFilter, setStatusFilter] = useState<"all" | "ok" | "err">("all");
   const [search, setSearch] = useState("");
 
@@ -29,7 +29,7 @@ export function LogsInfiniteTable() {
       queryKey: ["logs"],
       queryFn: ({ pageParam }) =>
         fetchLogsPage({
-          workspaceName,
+          workspaceSlug,
           cursor:
             (pageParam as { createdAt: string; id: string } | null) ?? null,
           context,
@@ -38,6 +38,8 @@ export function LogsInfiniteTable() {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
       staleTime: 15_000,
     });
+
+  console.log(data);
 
   const { rows, counts } = useMemo(() => {
     const flat = (data?.pages || []).flatMap((p) => p.data);
@@ -230,7 +232,7 @@ export function LogsInfiniteTable() {
                       >
                         {log.ok ? "[OK]" : "[ERROR]"}
                       </div>
-                      <div className="max-w-[55%] min-w-0 shrink truncate sm:max-w-[45%] lg:max-w-[35%]">
+                      <div className="min-w-0 flex-none flex-shrink-0 truncate">
                         {(() => {
                           const target =
                             log.check_type === "tcp"
@@ -252,11 +254,11 @@ export function LogsInfiniteTable() {
                             );
                         })()}
                       </div>
-                      <div className="hidden items-center justify-start gap-x-1.5 truncate lg:flex">
+                      <div className="hidden min-w-0 flex-none flex-shrink-0 items-center justify-start gap-x-1.5 truncate lg:flex">
                         <GlobeIcon className="h-3 w-3 text-blue-800 dark:text-blue-100" />
                         <span>{getRegionNameFromCode(log.region)}</span>
                       </div>
-                      <div className="text-muted-foreground hidden min-w-0 grow truncate whitespace-nowrap sm:block">
+                      <div className="text-muted-foreground hidden min-w-0 flex-1 truncate whitespace-nowrap sm:block">
                         {getBodyPreview(log.body_content)}
                       </div>
                     </div>

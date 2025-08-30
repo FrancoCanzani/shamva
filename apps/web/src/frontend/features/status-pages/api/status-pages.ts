@@ -1,8 +1,8 @@
+import fetchWorkspaces from "@/frontend/features/workspaces/api/workspaces";
 import { queryClient } from "@/frontend/lib/query-client";
 import { ApiResponse, StatusPage, Workspace } from "@/frontend/lib/types";
 import { RouterContext } from "@/frontend/routes/__root";
 import { redirect } from "@tanstack/react-router";
-import fetchWorkspaces from "@/frontend/features/workspaces/api/workspaces";
 
 export async function fetchStatusPages({
   params,
@@ -11,8 +11,8 @@ export async function fetchStatusPages({
   params: Params;
   context: RouterContext;
 }): Promise<StatusPage[]> {
-  const workspaceName = params.workspaceName;
-  if (!workspaceName) {
+  const workspaceSlug = params.workspaceSlug;
+  if (!workspaceSlug) {
     throw redirect({
       to: "/dashboard/workspaces/new",
       throw: true,
@@ -29,12 +29,12 @@ export async function fetchStatusPages({
       queryClient.getQueryData<Workspace[]>(["workspaces"]) ?? [];
 
     const targetWorkspace = allWorkspaces.find(
-      (ws) => ws.name === workspaceName
+      (ws) => ws.slug === workspaceSlug
     );
 
     if (!targetWorkspace) {
       console.warn(
-        `Workspace with name "${workspaceName}" not found, redirecting.`
+        `Workspace with slug "${workspaceSlug}" not found, redirecting.`
       );
       throw redirect({
         to: "/dashboard/workspaces/new",

@@ -7,7 +7,7 @@ import {
 } from "@/frontend/components/ui/chart";
 import { mapUptime } from "@/frontend/features/monitors/utils";
 import { Log } from "@/frontend/lib/types";
-import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id";
+import { Route } from "@/frontend/routes/dashboard/$workspaceSlug/monitors/$id";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 const chartConfig = {

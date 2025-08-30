@@ -44,7 +44,12 @@ export default function registerPutWorkspaces(
   return api.openapi(route, async (c) => {
     const userId = c.get("userId");
     const { id: workspaceId } = c.req.valid("param");
-    const { name, description, members: updatedMembers } = c.req.valid("json");
+    const {
+      slug,
+      name,
+      description,
+      members: updatedMembers,
+    } = c.req.valid("json");
     try {
       const { data: userMembership, error: userMembershipError } =
         await supabase
@@ -175,9 +180,29 @@ export default function registerPutWorkspaces(
       }
 
       try {
+        const { data: existingWorkspace, error: checkError } = await supabase
+          .from("workspaces")
+          .select("id")
+          .eq("slug", slug)
+          .neq("id", workspaceId)
+          .single();
+
+        if (checkError && checkError.code !== "PGRST116") {
+          throw new HTTPException(500, {
+            message: "Failed to check workspace slug availability",
+          });
+        }
+
+        if (existingWorkspace) {
+          throw new HTTPException(409, {
+            message: "Workspace slug is already in use",
+          });
+        }
+
         const { error: workspaceUpdateError } = await supabase
           .from("workspaces")
           .update({
+            slug: slug,
             name: name,
             description: description || null,
             updated_at: new Date().toISOString(),

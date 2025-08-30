@@ -1,4 +1,4 @@
-import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id";
+import { Route } from "@/frontend/routes/dashboard/$workspaceSlug/monitors/$id";
 export default function MonitorHeader() {
   const monitor = Route.useLoaderData();
 

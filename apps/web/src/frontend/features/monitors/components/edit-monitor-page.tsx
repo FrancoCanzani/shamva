@@ -1,6 +1,6 @@
 import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
 import { ApiResponse, Monitor, MonitorFormData } from "@/frontend/lib/types";
-import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id/edit";
+import { Route } from "@/frontend/routes/dashboard/$workspaceSlug/monitors/$id/edit";
 import {
   useNavigate,
   useRouteContext,
@@ -15,15 +15,15 @@ export default function EditMonitorPage() {
   const navigate = useNavigate();
   const router = useRouter();
 
-  const { id, workspaceName } = Route.useParams();
+  const { id, workspaceSlug } = Route.useParams();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const monitor = Route.useLoaderData();
 
   const { auth } = useRouteContext({
-    from: "/dashboard/$workspaceName/monitors/$id/edit/",
+    from: "/dashboard/$workspaceSlug/monitors/$id/edit/",
   });
-  const { currentWorkspace } = useWorkspaces(workspaceName);
+  const { currentWorkspace } = useWorkspaces(workspaceSlug);
 
   const handleSubmit = async (formData: MonitorFormData) => {
     setIsSubmitting(true);
@@ -58,8 +58,8 @@ export default function EditMonitorPage() {
       toast.success("Monitor updated successfully");
       router.invalidate();
       navigate({
-        to: "/dashboard/$workspaceName/monitors",
-        params: { workspaceName: workspaceName },
+        to: "/dashboard/$workspaceSlug/monitors",
+        params: { workspaceSlug: workspaceSlug },
       });
     } catch (error) {
       console.error("Error updating monitor:", error);
@@ -74,8 +74,8 @@ export default function EditMonitorPage() {
 
   const handleCancel = () => {
     navigate({
-      to: "/dashboard/$workspaceName/monitors",
-      params: { workspaceName: workspaceName },
+      to: "/dashboard/$workspaceSlug/monitors",
+      params: { workspaceSlug: workspaceSlug },
     });
   };
 

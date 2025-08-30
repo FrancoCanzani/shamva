@@ -1,14 +1,14 @@
 import DashboardHeader from "@/frontend/components/dashboard-header";
 import { useWorkspaces } from "@/frontend/lib/context/workspace-context";
 import { CollectorFormValues } from "@/frontend/lib/types";
-import { Route } from "@/frontend/routes/dashboard/$workspaceName/collectors/new";
+import { Route } from "@/frontend/routes/dashboard/$workspaceSlug/collectors/new";
 import { useNavigate } from "@tanstack/react-router";
 import { useCreateCollector } from "../api/mutations";
 import CollectorSetupInstructions from "./collector-setup-instructions";
 import CollectorForm from "./collector/collector-form";
 
 export default function NewCollectorPage() {
-  const { workspaceName } = Route.useParams();
+  const { workspaceSlug } = Route.useParams();
   const navigate = useNavigate();
   const { currentWorkspace } = useWorkspaces();
   const createCollector = useCreateCollector();
@@ -22,13 +22,13 @@ export default function NewCollectorPage() {
       workspaceId: currentWorkspace?.id,
       collectorData: values,
     });
-    navigate({ to: `/dashboard/${workspaceName}/collectors` });
+    navigate({ to: `/dashboard/${workspaceSlug}/collectors` });
   };
 
   return (
     <div className="flex h-full flex-col">
       <DashboardHeader
-        title={`Dashboard / ${workspaceName} / Collectors / New`}
+        title={`Dashboard / ${workspaceSlug} / Collectors / New`}
       />
       <main className="container mx-auto max-w-4xl p-4">
         <div className="space-y-8">
@@ -41,7 +41,7 @@ export default function NewCollectorPage() {
           <CollectorForm
             onSubmit={handleSubmit}
             onCancel={() =>
-              navigate({ to: `/dashboard/${workspaceName}/collectors` })
+              navigate({ to: `/dashboard/${workspaceSlug}/collectors` })
             }
             isSubmitting={createCollector.isPending}
           />

@@ -11,7 +11,7 @@ export async function fetchLogs({
   params: Params;
   context: RouterContext;
 }): Promise<Log[]> {
-  const workspaceNameFromParams = params.workspaceName;
+  const workspaceSlug = params.workspaceSlug;
 
   try {
     const allWorkspaces =
@@ -22,7 +22,7 @@ export async function fetchLogs({
       }));
 
     const targetWorkspace = allWorkspaces.find(
-      (ws) => ws.name === workspaceNameFromParams
+      (ws) => ws.slug === workspaceSlug
     );
 
     if (!targetWorkspace) {
@@ -47,8 +47,8 @@ export async function fetchLogs({
     if (logsResponse.status === 401) {
       console.log("API returned 401 fetching logs, redirecting to login.");
       throw redirect({
-        to: "/auth/login",
-        search: { redirect: `/dashboard/${workspaceNameFromParams}/logs` },
+        to: "/auth/log-in",
+        search: { redirect: `/dashboard/${workspaceSlug}/logs` },
         throw: true,
       });
     }
@@ -87,12 +87,12 @@ export type LogsPage = {
 };
 
 export async function fetchLogsPage({
-  workspaceName,
+  workspaceSlug,
   cursor,
   context,
   limit = 100,
 }: {
-  workspaceName: string;
+  workspaceSlug: string;
   cursor?: { createdAt: string; id: string } | null;
   context: RouterContext;
   limit?: number;
@@ -104,7 +104,7 @@ export async function fetchLogsPage({
       queryFn: fetchWorkspaces,
     }));
 
-  const targetWorkspace = allWorkspaces.find((ws) => ws.name === workspaceName);
+  const targetWorkspace = allWorkspaces.find((ws) => ws.slug === workspaceSlug);
 
   if (!targetWorkspace) {
     throw redirect({
@@ -127,7 +127,7 @@ export async function fetchLogsPage({
   });
 
   if (res.status === 401) {
-    throw redirect({ to: "/auth/login", throw: true });
+    throw redirect({ to: "/auth/log-in", throw: true });
   }
   if (!res.ok) {
     const text = await res.text();

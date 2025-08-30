@@ -1,16 +1,7 @@
 import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
-import {
-  ApiResponse,
-  Workspace,
-  WorkspaceFormValues,
-} from "@/frontend/lib/types";
-import {
-  useNavigate,
-  useRouteContext,
-  useRouter,
-} from "@tanstack/react-router";
-import { useState } from "react";
-import { toast } from "sonner";
+import { WorkspaceFormValues } from "@/frontend/lib/types";
+import { useNavigate, useRouter } from "@tanstack/react-router";
+import { useCreateWorkspace } from "../api/mutations";
 import WorkspaceForm from "./workspace-form";
 
 export default function NewWorkspacePage() {
@@ -18,43 +9,11 @@ export default function NewWorkspacePage() {
   const router = useRouter();
   const { invalidateWorkspaces } = useWorkspaces();
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { auth } = useRouteContext({ from: "/dashboard/workspaces/new/" });
+  const createWorkspaceMutation = useCreateWorkspace();
 
   const handleSubmit = async (formData: WorkspaceFormValues) => {
-    setIsSubmitting(true);
-
     try {
-      if (!auth.session?.access_token) {
-        throw new Error("Authentication error. Please log in again.");
-      }
-
-      const workspaceRequest = {
-        name: formData.name,
-        description: formData.description,
-        members: formData.members,
-        creatorEmail: auth.session.user.email,
-      };
-
-      const response = await fetch("/api/v1/workspaces", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${auth.session.access_token}`,
-        },
-        body: JSON.stringify(workspaceRequest),
-      });
-
-      const result: ApiResponse<Workspace> = await response.json();
-
-      if (!response.ok) {
-        console.error("Error response from API:", result);
-        throw new Error(
-          result.error || `Failed to create workspace (${response.status})`
-        );
-      }
-
-      toast.success("Workspace created successfully");
+      await createWorkspaceMutation.mutateAsync(formData);
       invalidateWorkspaces();
       router.invalidate();
       navigate({
@@ -62,12 +21,6 @@ export default function NewWorkspacePage() {
       });
     } catch (error) {
       console.error("Error creating workspace:", error);
-      toast.error(
-        error instanceof Error ? error.message : "An unexpected error occurred"
-      );
-      throw error;
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -90,7 +43,7 @@ export default function NewWorkspacePage() {
         <WorkspaceForm
           onSubmit={handleSubmit}
           onCancel={handleCancel}
-          isSubmitting={isSubmitting}
+          isSubmitting={createWorkspaceMutation.isPending}
           submitLabel="Create Workspace"
         />
       </div>

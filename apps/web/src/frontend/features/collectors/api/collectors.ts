@@ -2,11 +2,11 @@ import fetchWorkspaces from "@/frontend/features/workspaces/api/workspaces";
 import { queryClient } from "@/frontend/lib/query-client";
 import { ApiResponse, Workspace } from "@/frontend/lib/types";
 import { RouterContext } from "@/frontend/routes/__root";
-import { CollectorWithLastMetrics } from "../types";
 import { redirect } from "@tanstack/react-router";
+import { CollectorWithLastMetrics } from "../types";
 
 export interface FetchCollectorsParams {
-  params: { workspaceName: string };
+  params: { workspaceSlug: string };
   context: RouterContext;
 }
 
@@ -14,9 +14,9 @@ export async function fetchCollectors({
   params,
   context,
 }: FetchCollectorsParams) {
-  const { workspaceName } = params;
+  const { workspaceSlug } = params;
 
-  if (!workspaceName) {
+  if (!workspaceSlug) {
     throw redirect({
       to: "/dashboard/workspaces/new",
       throw: true,
@@ -32,12 +32,12 @@ export async function fetchCollectors({
       }));
 
     const targetWorkspace = allWorkspaces.find(
-      (ws) => ws.name === workspaceName
+      (ws) => ws.slug === workspaceSlug
     );
 
     if (!targetWorkspace) {
       console.warn(
-        `Workspace with name "${workspaceName}" not found, redirecting.`
+        `Workspace with slug "${workspaceSlug}" not found, redirecting.`
       );
       throw redirect({
         to: "/dashboard/workspaces/new",
@@ -61,7 +61,7 @@ export async function fetchCollectors({
       console.log(
         "API returned 401 fetching collectors, redirecting to login."
       );
-      throw redirect({ to: "/auth/login", throw: true });
+      throw redirect({ to: "/auth/log-in", throw: true });
     }
 
     if (!collectorsResponse.ok) {

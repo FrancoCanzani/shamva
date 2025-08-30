@@ -27,7 +27,7 @@ const monitorTypes = [
 ];
 
 export default function MonitorTypeSelector() {
-  const { workspaceName } = useParams({ strict: false });
+  const { workspaceSlug } = useParams({ strict: false });
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -47,9 +47,9 @@ export default function MonitorTypeSelector() {
             return (
               <Link
                 key={monitorType.type}
-                to="/dashboard/$workspaceName/monitors/new/$type"
+                to="/dashboard/$workspaceSlug/monitors/new/$type"
                 params={{
-                  workspaceName: workspaceName!,
+                  workspaceSlug: workspaceSlug!,
                   type: monitorType.type,
                 }}
                 onClick={() => setIsOpen(false)}

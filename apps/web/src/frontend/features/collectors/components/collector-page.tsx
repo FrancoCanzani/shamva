@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/frontend/components/ui/select";
 import { cn } from "@/frontend/lib/utils";
-import { Route } from "@/frontend/routes/dashboard/$workspaceName/collectors/$id";
+import { Route } from "@/frontend/routes/dashboard/$workspaceSlug/collectors/$id";
 import { useNavigate } from "@tanstack/react-router";
 import AreaChartFillByValue from "./collector/area-chart-fill-by-value";
 import CollectorHeader from "./collector/collector-header";
@@ -25,12 +25,12 @@ export default function CollectorPage() {
   const collectorData = Route.useLoaderData();
   const { days } = Route.useSearch();
   const navigate = useNavigate();
-  const { id, workspaceName } = Route.useParams();
+  const { id, workspaceSlug } = Route.useParams();
 
   const handleDaysChange = (newDays: number) => {
     navigate({
-      to: "/dashboard/$workspaceName/collectors/$id",
-      params: { workspaceName, id },
+      to: "/dashboard/$workspaceSlug/collectors/$id",
+      params: { workspaceSlug, id },
       search: { days: newDays },
       replace: true,
     });

@@ -69,14 +69,14 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       if (workspace) {
         // Navigate to the last saved location or default to monitors
         const lastLocation = localStorage.getItem(LAST_LOCATION_KEY);
-        const defaultPath = `/dashboard/${workspace.name}/monitors`;
+        const defaultPath = `/dashboard/${workspace.slug}/monitors`;
         const targetPath =
           lastLocation &&
           lastLocation.includes("/dashboard/") &&
           !lastLocation.includes("/workspaces")
             ? lastLocation.replace(
                 /\/dashboard\/[^/]+/,
-                `/dashboard/${workspace.name}`
+                `/dashboard/${workspace.slug}`
               )
             : defaultPath;
 

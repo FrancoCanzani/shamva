@@ -1,5 +1,4 @@
 import { Badge } from "@/frontend/components/ui/badge";
-import { cn } from "@/frontend/lib/utils";
 import { formatDistanceToNowStrict } from "date-fns";
 import { Metric } from "../../types";
 
@@ -23,13 +22,7 @@ export default function CollectorHeader({
           <h2 className="flex-1 text-xl font-medium">{name}</h2>
         </div>
         <div className="flex items-center gap-2">
-          <Badge
-            variant="outline"
-            className={cn(
-              "ring ring-inset",
-              isActive ? "ring-ok" : "ring-error"
-            )}
-          >
+          <Badge variant={isActive ? "outline" : "destructive"}>
             {isActive ? "Active" : "Inactive"}
           </Badge>
         </div>
@@ -40,7 +33,7 @@ export default function CollectorHeader({
           <h4 className="text-muted-foreground mb-1 text-xs font-medium">
             System
           </h4>
-          <div className="inline-flex items-center space-x-1.5">
+          <div className="inline-flex items-end space-x-1.5">
             <p className="font-mono text-sm font-medium">
               {lastMetric.hostname}
             </p>

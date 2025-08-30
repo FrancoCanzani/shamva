@@ -6,7 +6,7 @@ import { redirect } from "@tanstack/react-router";
 import { Notifications } from "../types";
 
 interface Params {
-  workspaceName: string;
+  workspaceSlug: string;
 }
 
 export async function fetchNotifications({
@@ -16,8 +16,8 @@ export async function fetchNotifications({
   params: Params;
   context: RouterContext;
 }): Promise<Notifications> {
-  const workspaceName = params.workspaceName;
-  if (!workspaceName) {
+  const workspaceSlug = params.workspaceSlug;
+  if (!workspaceSlug) {
     throw redirect({
       to: "/dashboard/workspaces/new",
       throw: true,
@@ -32,12 +32,12 @@ export async function fetchNotifications({
         queryFn: fetchWorkspaces,
       }));
     const targetWorkspace = allWorkspaces.find(
-      (ws) => ws.name === workspaceName
+      (ws) => ws.slug === workspaceSlug
     );
 
     if (!targetWorkspace) {
       console.warn(
-        `Workspace with name "${workspaceName}" not found, redirecting.`
+        `Workspace with slug "${workspaceSlug}" not found, redirecting.`
       );
       throw redirect({
         to: "/dashboard/workspaces/new",
@@ -61,7 +61,7 @@ export async function fetchNotifications({
       console.log(
         "API returned 401 fetching notifications, redirecting to login."
       );
-      throw redirect({ to: "/auth/login", throw: true });
+      throw redirect({ to: "/auth/log-in", throw: true });
     }
 
     if (!notificationsResponse.ok) {

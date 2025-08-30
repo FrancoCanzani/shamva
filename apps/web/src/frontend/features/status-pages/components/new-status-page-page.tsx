@@ -5,7 +5,7 @@ import {
   StatusPage,
   StatusPageFormValues,
 } from "@/frontend/lib/types";
-import { Route } from "@/frontend/routes/dashboard/$workspaceName/status-pages/new";
+import { Route } from "@/frontend/routes/dashboard/$workspaceSlug/status-pages/new";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useRouteContext } from "@tanstack/react-router";
 import { useState } from "react";
@@ -37,9 +37,9 @@ export default function NewStatusPage() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { auth } = useRouteContext({
-    from: "/dashboard/$workspaceName/status-pages/new/",
+    from: "/dashboard/$workspaceSlug/status-pages/new/",
   });
-  const { workspaceName } = Route.useParams();
+  const { workspaceSlug } = Route.useParams();
   const { currentWorkspace } = useWorkspaces();
 
   const { data: availableMonitors = [] } = useQuery({
@@ -88,8 +88,8 @@ export default function NewStatusPage() {
 
       toast.success("Status page created successfully");
       navigate({
-        to: "/dashboard/$workspaceName/status-pages",
-        params: { workspaceName: workspaceName },
+        to: "/dashboard/$workspaceSlug/status-pages",
+        params: { workspaceSlug: workspaceSlug },
       });
     } catch (error) {
       console.error("Error creating status page:", error);
@@ -104,8 +104,8 @@ export default function NewStatusPage() {
 
   const handleCancel = () => {
     navigate({
-      to: "/dashboard/$workspaceName/status-pages",
-      params: { workspaceName: workspaceName },
+      to: "/dashboard/$workspaceSlug/status-pages",
+      params: { workspaceSlug: workspaceSlug },
     });
   };
 

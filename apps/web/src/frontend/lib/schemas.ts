@@ -151,25 +151,41 @@ export const MemberInviteSchema = z.object({
   email: z
     .email("Please enter a valid email address")
     .min(1, "Email is required"),
-  role: z.enum(["admin", "member", "viewer"], {
+  role: z.enum(["admin", "member"], {
     error: "Please select a valid role",
   }),
 });
 
 export const WorkspaceSchema = z.object({
+  slug: z
+    .string()
+    .min(1, "Workspace slug is required")
+    .max(100, "Workspace slug cannot exceed 100 characters")
+    .regex(
+      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+      "Workspace slug must be URL-friendly (lowercase letters, numbers, and hyphens, no leading/trailing/consecutive hyphens)"
+    ),
   name: z
     .string()
     .min(1, "Workspace name is required")
-    .max(100, "Workspace name cannot exceed 100 characters")
-    .regex(
-      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-      "Workspace name must be URL-friendly (lowercase letters, numbers, and hyphens, no leading/trailing/consecutive hyphens)"
-    ),
+    .max(100, "Workspace name cannot exceed 100 characters"),
   description: z
     .string()
     .max(500, "Description cannot exceed 500 characters")
     .optional(),
-  members: z.array(MemberInviteSchema),
+  members: z.array(
+    z.object({
+      id: z.string().optional(),
+      email: z
+        .email("Please enter a valid email address")
+        .min(1, "Email is required"),
+      role: z.enum(["admin", "member"], {
+        error: "Please select a valid role",
+      }),
+      invitation_status: z.enum(["pending", "accepted", "declined"]).optional(),
+      user_id: z.string().nullable().optional(),
+    })
+  ),
 });
 
 export const StatusPageSchema = z.object({

@@ -5,7 +5,7 @@ import {
   CardTitle,
 } from "@/frontend/components/ui/card";
 import { Log } from "@/frontend/lib/types";
-import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors/$id";
+import { Route } from "@/frontend/routes/dashboard/$workspaceSlug/monitors/$id";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
 function getPercentile(arr: number[], p: number) {

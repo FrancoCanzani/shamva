@@ -4,7 +4,7 @@ import HeartbeatForm from "./heartbeat-form";
 import CodeSamples from "@/frontend/components/code-samples";
 import { Alert, AlertDescription } from "@/frontend/components/ui/alert";
 import { Button } from "@/frontend/components/ui/button";
-import { Route as NewHeartbeatRoute } from "@/frontend/routes/dashboard/$workspaceName/heartbeats/new";
+import { Route as NewHeartbeatRoute } from "@/frontend/routes/dashboard/$workspaceSlug/heartbeats/new";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 import { AlertCircleIcon, Check, Copy } from "lucide-react";
 import { useState } from "react";
@@ -36,7 +36,7 @@ export default function NewHeartbeatPage() {
         heartbeatData: data,
       });
       await router.invalidate();
-      navigate({ to: `/dashboard/${params.workspaceName}/heartbeats` });
+      navigate({ to: `/dashboard/${params.workspaceSlug}/heartbeats` });
     } catch (error) {
       console.error("Failed to create heartbeat:", error);
     }
@@ -53,7 +53,7 @@ export default function NewHeartbeatPage() {
   };
 
   const handleCancel = () => {
-    navigate({ to: `/dashboard/${params.workspaceName}/heartbeats` });
+    navigate({ to: `/dashboard/${params.workspaceSlug}/heartbeats` });
   };
 
   if (!workspace) {

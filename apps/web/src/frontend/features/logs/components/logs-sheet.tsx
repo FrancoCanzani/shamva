@@ -15,7 +15,7 @@ import {
   getRegionNameFromCode,
   getStatusTextColor,
 } from "@/frontend/lib/utils";
-import { Route } from "@/frontend/routes/dashboard/$workspaceName/logs/index.lazy";
+import { Route } from "@/frontend/routes/dashboard/$workspaceSlug/logs/index.lazy";
 import { format, parseISO } from "date-fns";
 import { Check, ChevronDown, ChevronUp, Copy, X } from "lucide-react";
 import { useMemo, useState } from "react";

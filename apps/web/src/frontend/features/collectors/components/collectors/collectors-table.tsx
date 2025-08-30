@@ -28,7 +28,7 @@ import {
   TooltipTrigger,
 } from "@/frontend/components/ui/tooltip";
 import { cn } from "@/frontend/lib/utils";
-import { Route } from "@/frontend/routes/dashboard/$workspaceName/collectors";
+import { Route } from "@/frontend/routes/dashboard/$workspaceSlug/collectors";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 import {
   createColumnHelper,
@@ -52,13 +52,13 @@ export default function CollectorsTable({
   collectors: CollectorWithLastMetrics[];
   onSelectionChange: (selectedCollectors: CollectorWithLastMetrics[]) => void;
 }) {
-  const { workspaceName } = Route.useParams();
+  const { workspaceSlug } = Route.useParams();
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [globalFilter, setGlobalFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
   const navigate = useNavigate({
-    from: "/dashboard/$workspaceName/collectors",
+    from: "/dashboard/$workspaceSlug/collectors",
   });
   const router = useRouter();
 
@@ -89,16 +89,16 @@ export default function CollectorsTable({
 
   const handleRowClick = (collector: CollectorWithLastMetrics) => {
     navigate({
-      to: "/dashboard/$workspaceName/collectors/$id",
-      params: { id: collector.id, workspaceName: workspaceName },
+      to: "/dashboard/$workspaceSlug/collectors/$id",
+      params: { id: collector.id, workspaceSlug: workspaceSlug },
       search: { days: 7 },
     });
   };
 
   const handleMouseEnter = async (collector: CollectorWithLastMetrics) => {
     await router.preloadRoute({
-      to: "/dashboard/$workspaceName/collectors/$id",
-      params: { id: collector.id, workspaceName: workspaceName },
+      to: "/dashboard/$workspaceSlug/collectors/$id",
+      params: { id: collector.id, workspaceSlug: workspaceSlug },
       search: { days: 7 },
     });
   };
@@ -306,8 +306,8 @@ export default function CollectorsTable({
         const handleEdit = (e: React.MouseEvent) => {
           e.stopPropagation();
           navigate({
-            to: "/dashboard/$workspaceName/collectors/$id/edit",
-            params: { workspaceName, id: collector.id },
+            to: "/dashboard/$workspaceSlug/collectors/$id/edit",
+            params: { workspaceSlug, id: collector.id },
           });
         };
 

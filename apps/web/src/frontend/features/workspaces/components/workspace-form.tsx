@@ -11,7 +11,11 @@ import {
 import { Textarea } from "@/frontend/components/ui/textarea";
 import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
 import { MemberInviteSchema, WorkspaceSchema } from "@/frontend/lib/schemas";
-import { MemberInvite, WorkspaceFormValues } from "@/frontend/lib/types";
+import {
+  MemberInvite,
+  WorkspaceFormValues,
+  WorkspaceFormMember,
+} from "@/frontend/lib/types";
 import { useForm } from "@tanstack/react-form";
 import { X } from "lucide-react";
 import { useState } from "react";
@@ -30,7 +34,6 @@ interface MonitorWorkspaceFormProps {
 const memberRoles = [
   { value: "admin", label: "Admin" },
   { value: "member", label: "Member" },
-  { value: "viewer", label: "Viewer" },
 ];
 
 export default function WorkspaceForm({
@@ -48,6 +51,7 @@ export default function WorkspaceForm({
   const { workspaces } = useWorkspaces();
 
   const defaultValues = {
+    slug: "",
     name: "",
     description: undefined,
     members: [],
@@ -57,27 +61,23 @@ export default function WorkspaceForm({
   const form = useForm({
     defaultValues,
     onSubmit: async ({ value }) => {
-      await onSubmit(value);
+      try {
+        await onSubmit(value);
+      } catch (error) {
+        console.error("Form submission error:", error);
+      }
     },
     validators: {
       onChange: ({ value }) => {
-        try {
-          WorkspaceSchema.parse(value);
-          return undefined;
-        } catch (error) {
-          if (error instanceof z.ZodError) {
-            const fieldErrors: Record<string, string> = {};
-            error.issues.forEach((err) => {
-              const path = err.path.join(".");
-              fieldErrors[path] = err.message;
-            });
-
-            return {
-              fields: fieldErrors,
-            };
-          }
-          return { form: "Invalid form data" };
+        const result = WorkspaceSchema.safeParse(value);
+        if (!result.success) {
+          const flattened = z.flattenError(result.error);
+          return {
+            fields: flattened.fieldErrors,
+            form: flattened.formErrors,
+          };
         }
+        return undefined;
       },
     },
   });
@@ -109,18 +109,48 @@ export default function WorkspaceForm({
       className="space-y-8"
     >
       <div className="space-y-2">
+        <form.Field name="name">
+          {(field) => (
+            <>
+              <Label htmlFor="name">Workspace Name</Label>
+              <Input
+                id="name"
+                name="name"
+                value={field.state.value}
+                onChange={(e) => field.handleChange(e.target.value)}
+                onBlur={field.handleBlur}
+                placeholder="My Monitor Workspace"
+                className={
+                  field.state.meta.errors?.length ? "border-destructive" : ""
+                }
+              />
+              <p className="text-muted-foreground mt-1 text-xs">
+                This is the friendly name that will be displayed throughout the
+                application.
+              </p>
+              {field.state.meta.errors?.length > 0 && (
+                <p className="text-destructive text-xs">
+                  {field.state.meta.errors[0]}
+                </p>
+              )}
+            </>
+          )}
+        </form.Field>
+      </div>
+
+      <div className="space-y-2">
         <form.Field
-          name="name"
+          name="slug"
           validators={{
             onChange: ({ value }) => {
-              if (!initialValues?.name) {
-                const nameExists = workspaces?.some(
+              if (!initialValues?.slug) {
+                const slugExists = workspaces?.some(
                   (workspace) =>
-                    workspace.name.toLowerCase() === value.toLowerCase()
+                    workspace.slug?.toLowerCase() === value.toLowerCase()
                 );
 
-                if (nameExists) {
-                  return "This workspace name is already taken";
+                if (slugExists) {
+                  return "This workspace slug is already taken";
                 }
               }
               return undefined;
@@ -129,10 +159,10 @@ export default function WorkspaceForm({
         >
           {(field) => (
             <>
-              <Label htmlFor="name">Workspace Name</Label>
+              <Label htmlFor="slug">Workspace Slug</Label>
               <Input
-                id="name"
-                name="name"
+                id="slug"
+                name="slug"
                 value={field.state.value}
                 onChange={(e) => field.handleChange(e.target.value)}
                 onBlur={field.handleBlur}
@@ -182,7 +212,7 @@ export default function WorkspaceForm({
         </form.Field>
       </div>
 
-      <div className="space-y-8">
+      <div className="space-y-8" id="members">
         <div className="space-y-4">
           <h2 className="font-medium">Team Members</h2>
           <p className="text-muted-foreground text-xs">
@@ -192,8 +222,6 @@ export default function WorkspaceForm({
             members, and workspace settings.
             <br />- <strong>Member:</strong> Can create and manage monitors, but
             cannot manage workspace members or settings.
-            <br />- <strong>Viewer:</strong> Can only view monitors and logs, no
-            management capabilities.
           </p>
         </div>
 
@@ -245,7 +273,7 @@ export default function WorkspaceForm({
 
                       if (
                         membersApi.state.value?.some(
-                          (member: MemberInvite) =>
+                          (member: WorkspaceFormMember) =>
                             member.email === newMemberEmail
                         )
                       ) {
@@ -277,7 +305,7 @@ export default function WorkspaceForm({
                   <h3 className="text-sm font-medium">Members</h3>
                   <div className="divide-y divide-dashed p-2">
                     {membersApi.state.value?.map(
-                      (member: MemberInvite, index: number) => (
+                      (member: WorkspaceFormMember, index: number) => (
                         <div
                           key={`member-${index}`}
                           className="flex items-center justify-between gap-2 py-2"

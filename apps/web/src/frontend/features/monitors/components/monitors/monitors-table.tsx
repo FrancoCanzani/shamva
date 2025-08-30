@@ -28,7 +28,7 @@ import {
   TooltipTrigger,
 } from "@/frontend/components/ui/tooltip";
 import { cn, getMonitorStatusTextColor } from "@/frontend/lib/utils";
-import { Route } from "@/frontend/routes/dashboard/$workspaceName/monitors";
+import { Route } from "@/frontend/routes/dashboard/$workspaceSlug/monitors";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 import {
   createColumnHelper,
@@ -53,13 +53,13 @@ export default function MonitorsTable({
   monitors: MonitorWithMetrics[];
   onSelectionChange: (selectedMonitors: MonitorWithMetrics[]) => void;
 }) {
-  const { workspaceName } = Route.useParams();
+  const { workspaceSlug } = Route.useParams();
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [globalFilter, setGlobalFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
-  const navigate = useNavigate({ from: "/dashboard/$workspaceName/monitors" });
+  const navigate = useNavigate({ from: "/dashboard/$workspaceSlug/monitors" });
   const router = useRouter();
   const deleteMonitorMutation = useDeleteMonitor();
   const pauseResumeMutation = usePauseResumeMonitor();
@@ -91,17 +91,17 @@ export default function MonitorsTable({
 
   const handleRowClick = (monitor: MonitorWithMetrics) => {
     navigate({
-      to: "/dashboard/$workspaceName/monitors/$id",
+      to: "/dashboard/$workspaceSlug/monitors/$id",
       search: { days: 7 },
-      params: { id: monitor.id, workspaceName: workspaceName },
+      params: { id: monitor.id, workspaceSlug: workspaceSlug },
     });
   };
 
   const handleMouseEnter = async (monitor: MonitorWithMetrics) => {
     await router.preloadRoute({
-      to: "/dashboard/$workspaceName/monitors/$id",
+      to: "/dashboard/$workspaceSlug/monitors/$id",
       search: { days: 7 },
-      params: { id: monitor.id, workspaceName: workspaceName },
+      params: { id: monitor.id, workspaceSlug: workspaceSlug },
     });
   };
 
@@ -275,8 +275,8 @@ export default function MonitorsTable({
               onClick={(e) => {
                 e.stopPropagation();
                 navigate({
-                  to: "/dashboard/$workspaceName/incidents/$id",
-                  params: { workspaceName, id: lastIncident.id },
+                  to: "/dashboard/$workspaceSlug/incidents/$id",
+                  params: { workspaceSlug, id: lastIncident.id },
                 });
               }}
             >
@@ -340,8 +340,8 @@ export default function MonitorsTable({
         const handleEdit = (e: React.MouseEvent) => {
           e.stopPropagation();
           navigate({
-            to: "/dashboard/$workspaceName/monitors/$id/edit",
-            params: { workspaceName, id: monitor.id },
+            to: "/dashboard/$workspaceSlug/monitors/$id/edit",
+            params: { workspaceSlug, id: monitor.id },
             search: { days: 7 },
           });
         };

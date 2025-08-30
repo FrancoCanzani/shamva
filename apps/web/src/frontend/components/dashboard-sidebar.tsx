@@ -1,6 +1,6 @@
 import { Link, useParams, useRouterState } from "@tanstack/react-router";
 import { Settings } from "lucide-react";
-import { WorkspaceDropdown } from "../features/workspaces/components/workspace-dropdown";
+import WorkspaceDropdown from "../features/workspaces/components/workspace-dropdown";
 import { Workspace } from "../lib/types";
 import { cn } from "../lib/utils";
 import { Route } from "../routes/dashboard/route";
@@ -20,17 +20,17 @@ import {
 import { ThemeToggle } from "./ui/theme-toggle";
 
 export function DashboardSidebar() {
-  const { workspaceName } = useParams({ strict: false });
+  const { workspaceSlug } = useParams({ strict: false });
   const workspaces = Route.useLoaderData();
   const router = useRouterState();
 
   const currentWorkspace =
-    workspaces.find((w: Workspace) => w.name === workspaceName) ??
+    workspaces.find((w: Workspace) => w.slug === workspaceSlug) ??
     workspaces[0];
 
   const navItems = [
     {
-      to: "/dashboard/$workspaceName/monitors",
+      to: "/dashboard/$workspaceSlug/monitors",
       label: "Monitors",
       icon: (
         <svg
@@ -45,7 +45,7 @@ export function DashboardSidebar() {
       ),
     },
     {
-      to: "/dashboard/$workspaceName/heartbeats",
+      to: "/dashboard/$workspaceSlug/heartbeats",
       label: "Heartbeats",
       icon: (
         <svg
@@ -60,7 +60,7 @@ export function DashboardSidebar() {
       ),
     },
     {
-      to: "/dashboard/$workspaceName/collectors",
+      to: "/dashboard/$workspaceSlug/collectors",
       label: "Collectors",
       icon: (
         <svg
@@ -75,7 +75,7 @@ export function DashboardSidebar() {
       ),
     },
     {
-      to: "/dashboard/$workspaceName/logs",
+      to: "/dashboard/$workspaceSlug/logs",
       label: "Logs",
       icon: (
         <svg
@@ -90,7 +90,7 @@ export function DashboardSidebar() {
       ),
     },
     {
-      to: "/dashboard/$workspaceName/status-pages",
+      to: "/dashboard/$workspaceSlug/status-pages",
       label: "Status Pages",
       icon: (
         <svg
@@ -105,7 +105,7 @@ export function DashboardSidebar() {
       ),
     },
     {
-      to: "/dashboard/$workspaceName/notifications",
+      to: "/dashboard/$workspaceSlug/notifications",
       label: "Notifications",
       icon: (
         <svg
@@ -138,8 +138,8 @@ export function DashboardSidebar() {
 
   return (
     <Sidebar>
-      <SidebarHeader className="mb-2 flex h-12 flex-row items-center justify-start border-b border-dashed font-mono">
-        <h1 className="pl-1 text-xl font-medium tracking-wide">Shamva</h1>
+      <SidebarHeader className="mb-2 flex h-12 flex-row items-center justify-start border-b border-dashed p-0 font-mono">
+        <WorkspaceDropdown />
       </SidebarHeader>
 
       <SidebarContent>
@@ -152,7 +152,7 @@ export function DashboardSidebar() {
                     <SidebarMenuButton asChild>
                       <Link
                         to={item.to}
-                        params={{ workspaceName: currentWorkspace.name }}
+                        params={{ workspaceSlug: currentWorkspace.slug }}
                         preload="intent"
                         className={cn(
                           "hover:border-border dark:hover:bg-input/30 rounded-md border border-transparent py-4 opacity-65 hover:bg-stone-50 hover:opacity-100",
@@ -181,7 +181,6 @@ export function DashboardSidebar() {
       <SidebarFooter>
         <SidebarGroup>
           <SidebarGroupContent className="flex flex-col space-y-1">
-            <WorkspaceDropdown />
             <div className="flex items-center space-x-1">
               <FeedbackForm />
               <Link to="/dashboard/settings">

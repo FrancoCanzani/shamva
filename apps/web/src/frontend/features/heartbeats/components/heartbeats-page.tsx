@@ -4,21 +4,21 @@ import { Heartbeat } from "@/frontend/lib/types";
 import {
   Route as HeartbeatsRoute,
   Route,
-} from "@/frontend/routes/dashboard/$workspaceName/heartbeats/index";
+} from "@/frontend/routes/dashboard/$workspaceSlug/heartbeats/index";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useDeleteHeartbeat } from "../api/mutations";
 import HeartbeatTable from "./heartbeat-table";
 
 export default function HeartbeatsPage() {
   const navigate = useNavigate();
-  const { workspaceName } = Route.useParams();
+  const { workspaceSlug } = Route.useParams();
   const heartbeats = HeartbeatsRoute.useLoaderData();
 
   const deleteHeartbeat = useDeleteHeartbeat();
 
   const handleEdit = (heartbeat: Heartbeat) => {
     navigate({
-      to: `/dashboard/${workspaceName}/heartbeats/${heartbeat.id}/edit`,
+      to: `/dashboard/${workspaceSlug}/heartbeats/${heartbeat.id}/edit`,
     });
   };
 
@@ -46,8 +46,8 @@ export default function HeartbeatsPage() {
         </div>
         <Button asChild variant={"outline"} size={"xs"}>
           <Link
-            params={{ workspaceName: workspaceName }}
-            to="/dashboard/$workspaceName/heartbeats/new"
+            params={{ workspaceSlug: workspaceSlug }}
+            to="/dashboard/$workspaceSlug/heartbeats/new"
           >
             New Heartbeat
           </Link>

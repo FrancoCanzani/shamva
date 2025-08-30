@@ -10,13 +10,21 @@ import {
 export type WorkspaceFormValues = z.infer<typeof WorkspaceSchema>;
 export type MemberInvite = z.infer<typeof MemberInviteSchema>;
 
+export interface WorkspaceFormMember {
+  id?: string;
+  email: string;
+  role: "admin" | "member";
+  invitation_status?: "pending" | "accepted" | "declined";
+  user_id?: string | null;
+}
+
 export type StatusPageFormValues = z.infer<typeof StatusPageSchema>;
 export type CollectorFormValues = z.infer<typeof CollectorSchema>;
 
 export interface WorkspaceMember {
   id: string;
   user_id: string | null;
-  role: "admin" | "member" | "viewer";
+  role: "admin" | "member";
   invitation_email: string | null;
   invitation_status: "pending" | "accepted" | "declined";
 }

@@ -16,7 +16,7 @@ export default function MonitorIncidentsList({
 }: {
   data: Partial<Incident>[];
 }) {
-  const { workspaceName } = useParams({ strict: false });
+  const { workspaceSlug } = useParams({ strict: false });
 
   if (data.length === 0) {
     return (
@@ -46,9 +46,9 @@ export default function MonitorIncidentsList({
         {sortedIncidents.map((incident) => (
           <Link
             key={incident.id}
-            to="/dashboard/$workspaceName/incidents/$id"
+            to="/dashboard/$workspaceSlug/incidents/$id"
             params={{
-              workspaceName: workspaceName!,
+              workspaceSlug: workspaceSlug!,
               id: incident.id!,
             }}
             className="group block"

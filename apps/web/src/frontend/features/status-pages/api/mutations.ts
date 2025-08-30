@@ -7,10 +7,10 @@ import { toast } from "sonner";
 export function useCreateStatusPage() {
   return useMutation({
     mutationFn: async ({
-      workspaceName,
+      workspaceSlug,
       statusPageData,
     }: {
-      workspaceName: string;
+      workspaceSlug: string;
       statusPageData: {
         title: string;
         description: string;
@@ -44,7 +44,7 @@ export function useCreateStatusPage() {
         },
         body: JSON.stringify({
           ...statusPageData,
-          workspaceName,
+          workspaceSlug,
         }),
       });
       if (!response.ok) {

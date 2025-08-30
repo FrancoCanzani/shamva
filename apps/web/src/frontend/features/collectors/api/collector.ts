@@ -47,17 +47,18 @@ export async function fetchCollector({
       });
     }
 
-    const collectorResponse = await fetch(`/v1/api/collectors/${id}?days=${days}`, {
-      headers: {
-        Authorization: `Bearer ${context.auth.session?.access_token}`,
-        "Content-Type": "application/json",
-      },
-    });
+    const collectorResponse = await fetch(
+      `/api/v1/collectors/${id}?days=${days}`,
+      {
+        headers: {
+          Authorization: `Bearer ${context.auth.session?.access_token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     if (collectorResponse.status === 401) {
-      console.log(
-        "API returned 401 fetching collector, redirecting to login."
-      );
+      console.log("API returned 401 fetching collector, redirecting to login.");
       throw redirect({ to: "/auth/login", throw: true });
     }
 
@@ -105,8 +106,6 @@ export async function fetchCollector({
     if (error instanceof Error) {
       throw new Error(`Failed to load collector data: ${error.message}`);
     }
-    throw new Error(
-      "An unknown error occurred while fetching collector data."
-    );
+    throw new Error("An unknown error occurred while fetching collector data.");
   }
 }

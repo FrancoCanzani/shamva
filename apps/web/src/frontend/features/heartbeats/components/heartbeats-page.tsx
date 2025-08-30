@@ -31,7 +31,7 @@ export default function HeartbeatsPage() {
   };
 
   const handleCopyEndpoint = (heartbeatId: string) => {
-    const endpointUrl = `/v1/api/heartbeat?id=${heartbeatId}`;
+    const endpointUrl = `/api/v1/heartbeat?id=${heartbeatId}`;
     navigator.clipboard.writeText(endpointUrl);
   };
 

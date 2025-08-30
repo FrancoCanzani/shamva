@@ -61,7 +61,7 @@ export default function HeartbeatPage() {
   };
 
   const handleCopyEndpoint = () => {
-    const endpointUrl = `/v1/api/heartbeat?id=${heartbeat.id}`;
+    const endpointUrl = `/api/v1/heartbeat?id=${heartbeat.id}`;
     navigator.clipboard.writeText(endpointUrl);
   };
 
@@ -174,7 +174,7 @@ export default function HeartbeatPage() {
         <CardContent>
           <div className="flex items-center gap-2">
             <code className="bg-muted flex-1 rounded p-2 text-sm">
-              /v1/api/heartbeat?id={heartbeat.id}
+              /api/v1/heartbeat?id={heartbeat.id}
             </code>
             <Button variant="outline" size="sm" onClick={handleCopyEndpoint}>
               Copy

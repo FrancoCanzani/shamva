@@ -9,11 +9,11 @@ import { CollectorWithLastMetricSchema, UUIDParamSchema } from "./schemas";
 const route = createRoute({
   method: "get",
   path: "/collectors/:id",
-  request: { 
+  request: {
     params: UUIDParamSchema,
     query: z.object({
-      days: z.string().optional().default("7")
-    })
+      days: z.string().optional().default("7"),
+    }),
   },
   responses: {
     200: {
@@ -71,14 +71,16 @@ export default function registerGetCollector(
       throw new HTTPException(404, { message: "Collector not found" });
     }
 
-    const doubleDaysAgo = new Date(new Date().setDate(new Date().getDate() - (Number(days) * 2))).toISOString()
+    const doubleDaysAgo = new Date(
+      new Date().setDate(new Date().getDate() - Number(days) * 2)
+    ).toISOString();
 
     const { data: metrics } = await supabase
       .from("metrics")
       .select("*")
       .eq("collector_id", collectorId)
-      .gt('created_at', doubleDaysAgo)
-      .order("created_at", { ascending: false })
+      .gt("created_at", doubleDaysAgo)
+      .order("created_at", { ascending: false });
 
     const collectorWithMetrics = {
       ...collector,

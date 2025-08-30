@@ -28,7 +28,7 @@ export function useCreateCollector() {
         throw new Error("Failed to validate authentication claims");
       }
 
-      const response = await fetch(`/v1/api/collectors`, {
+      const response = await fetch(`/api/v1/collectors`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -79,7 +79,7 @@ export function useFetchCollectors(workspaceId: string) {
       }
 
       const response = await fetch(
-        `/v1/api/collectors?workspaceId=${workspaceId}`,
+        `/api/v1/collectors?workspaceId=${workspaceId}`,
         {
           headers: {
             Authorization: `Bearer ${session.access_token}`,
@@ -126,7 +126,7 @@ export function useUpdateCollector() {
         throw new Error("Failed to validate authentication claims");
       }
 
-      const response = await fetch(`/v1/api/collectors/${collectorId}`, {
+      const response = await fetch(`/api/v1/collectors/${collectorId}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -170,7 +170,7 @@ export function useDeleteCollector() {
         throw new Error("Failed to validate authentication claims");
       }
 
-      const response = await fetch(`/v1/api/collectors/${collectorId}`, {
+      const response = await fetch(`/api/v1/collectors/${collectorId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${session.access_token}`,

@@ -118,7 +118,7 @@ export default function StatusPageForm({
                 <>
                   <Label htmlFor="slug">URL Slug</Label>
                   <div className="flex">
-                    <span className="rounded-l-md border-input bg-muted text-muted-foreground inline-flex items-center border border-r-0 px-3 text-sm">
+                    <span className="border-input bg-muted text-muted-foreground inline-flex items-center rounded-l-md border border-r-0 px-3 text-sm">
                       shamva.app/status/
                     </span>
                     <Input
@@ -129,7 +129,7 @@ export default function StatusPageForm({
                       onBlur={field.handleBlur}
                       placeholder="my-service"
                       className={cn(
-                        "-ml-1 z-50 bg-background",
+                        "bg-background z-50 -ml-1",
                         field.state.meta.errors?.length
                           ? "border-destructive"
                           : ""
@@ -294,7 +294,7 @@ export default function StatusPageForm({
                       return (
                         <div
                           key={monitor.id}
-                          className={`flex cursor-pointer items-center justify-between border p-3 rounded-md transition-colors hover:bg-stone-50 ${
+                          className={`flex cursor-pointer items-center justify-between rounded-md border p-3 transition-colors hover:bg-stone-50 ${
                             isSelected ? "border-primary bg-input/50" : ""
                           }`}
                           onClick={() => {

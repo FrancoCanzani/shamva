@@ -37,7 +37,7 @@ export default function EditMonitorPage() {
         workspaceId: currentWorkspace && currentWorkspace.id,
       };
 
-      const response = await fetch(`/v1/api/monitors/${id}`, {
+      const response = await fetch(`/api/v1/monitors/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

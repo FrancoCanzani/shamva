@@ -16,7 +16,7 @@ export default function StatusPageUptimeChart({
 
   return (
     <div className="space-y-2">
-      <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+      <h4 className="text-xs font-medium tracking-wide text-gray-700 uppercase dark:text-gray-300">
         30-Day Uptime
       </h4>
       <div className="flex gap-[2px]">
@@ -35,25 +35,28 @@ export default function StatusPageUptimeChart({
           }
 
           const tooltipContent = (
-            <div className="text-center space-y-1">
-              <div className="font-medium text-sm">
-                {new Date(day.date).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric'
+            <div className="space-y-1 text-center">
+              <div className="text-sm font-medium">
+                {new Date(day.date).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
                 })}
               </div>
               {uptimePercentage !== null ? (
                 <>
                   <div className="text-xs">
-                    <span className="font-medium">Uptime:</span> {uptimePercentage.toFixed(1)}%
+                    <span className="font-medium">Uptime:</span>{" "}
+                    {uptimePercentage.toFixed(1)}%
                   </div>
                   <div className="text-xs">
-                    <span className="font-medium">Total:</span> {day.total_requests}
+                    <span className="font-medium">Total:</span>{" "}
+                    {day.total_requests}
                   </div>
                   {day.failed_requests > 0 && (
                     <div className="text-xs text-red-500">
-                      <span className="font-medium">Failed:</span> {day.failed_requests}
+                      <span className="font-medium">Failed:</span>{" "}
+                      {day.failed_requests}
                     </div>
                   )}
                 </>
@@ -67,7 +70,7 @@ export default function StatusPageUptimeChart({
             <Tooltip key={index}>
               <TooltipTrigger asChild>
                 <div
-                  className="h-6 w-2 cursor-pointer transition-all hover:opacity-80 hover:scale-110 rounded-sm"
+                  className="h-6 w-2 cursor-pointer rounded-sm transition-all hover:scale-110 hover:opacity-80"
                   style={{ backgroundColor: barColor }}
                 />
               </TooltipTrigger>

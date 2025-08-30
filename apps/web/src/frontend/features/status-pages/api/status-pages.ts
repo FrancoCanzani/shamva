@@ -43,7 +43,7 @@ export async function fetchStatusPages({
     }
 
     const statusPagesResponse = await fetch(
-      `/v1/api/status-pages?workspaceId=${targetWorkspace.id}`,
+      `/api/v1/status-pages?workspaceId=${targetWorkspace.id}`,
       {
         headers: {
           Authorization: `Bearer ${context.auth.session?.access_token}`,

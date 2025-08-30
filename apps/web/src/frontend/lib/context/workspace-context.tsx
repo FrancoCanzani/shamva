@@ -122,7 +122,13 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       refetch,
       invalidateWorkspaces,
     }),
-    [workspaces, currentWorkspace, setCurrentWorkspace, refetch, invalidateWorkspaces]
+    [
+      workspaces,
+      currentWorkspace,
+      setCurrentWorkspace,
+      refetch,
+      invalidateWorkspaces,
+    ]
   );
 
   return (

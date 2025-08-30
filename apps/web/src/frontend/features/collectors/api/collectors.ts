@@ -48,7 +48,7 @@ export async function fetchCollectors({
     const workspaceId = targetWorkspace.id;
 
     const collectorsResponse = await fetch(
-      `/v1/api/collectors?workspaceId=${workspaceId}`,
+      `/api/v1/collectors?workspaceId=${workspaceId}`,
       {
         headers: {
           Authorization: `Bearer ${context.auth.session?.access_token}`,

@@ -37,7 +37,7 @@ export const useUpdateWorkspaceNotifications = (workspaceName: string) => {
       const workspaceId = targetWorkspace.id;
 
       const response = await fetch(
-        `/v1/api/workspaces/${workspaceId}/notifications`,
+        `/api/v1/workspaces/${workspaceId}/notifications`,
         {
           method: "PUT",
           headers: {

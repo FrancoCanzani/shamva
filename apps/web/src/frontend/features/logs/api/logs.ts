@@ -35,7 +35,7 @@ export async function fetchLogs({
     const workspaceId = targetWorkspace.id;
 
     const logsResponse = await fetch(
-      `/v1/api/logs?workspaceId=${workspaceId}`,
+      `/api/v1/logs?workspaceId=${workspaceId}`,
       {
         headers: {
           Authorization: `Bearer ${context.auth.session?.access_token}`,
@@ -120,7 +120,7 @@ export async function fetchLogsPage({
   if (cursor?.createdAt) params.set("cursorCreatedAt", cursor.createdAt);
   if (cursor?.id) params.set("cursorId", cursor.id);
 
-  const res = await fetch(`/v1/api/logs?${params.toString()}`, {
+  const res = await fetch(`/api/v1/logs?${params.toString()}`, {
     headers: {
       Authorization: `Bearer ${context.auth.session?.access_token}`,
     },

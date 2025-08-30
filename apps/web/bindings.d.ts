@@ -11,6 +11,7 @@ export interface EnvBindings {
   HTTP_CHECKER_DURABLE_OBJECT: DurableObjectNamespace<HttpCheckerDurableObject>;
   TCP_CHECKER_DURABLE_OBJECT: DurableObjectNamespace<TcpCheckerDurableObject>;
   RESEND_API_KEY: string;
+  TURNSTILE_SECRET_KEY: string;
   BROWSER: Fetcher;
   CLOUDFLARE_ACCOUNT_ID: string;
 }

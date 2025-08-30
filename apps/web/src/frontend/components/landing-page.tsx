@@ -11,7 +11,7 @@ export default function LandingPage() {
   const seededWorkspaces = Route.useLoaderData();
   const { workspaces, isLoading: workspacesLoading } = useWorkspaces();
 
-  let dashboardLinkTo = "/auth/login";
+  let dashboardLinkTo = "/auth/log-in";
 
   if (!isLoading && isAuthenticated && !workspacesLoading) {
     const list =
@@ -466,7 +466,7 @@ export default function LandingPage() {
                 <h4 className="text-foreground font-medium">Product</h4>
                 <div className="space-y-2 text-sm">
                   <Link
-                    to="/auth/login"
+                    to="/auth/log-in"
                     className="text-muted-foreground hover:text-foreground block"
                   >
                     Sign In

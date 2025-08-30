@@ -12,9 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings'
-import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as StatusSlugIndexRouteImport } from './routes/status/$slug/index'
 import { Route as DashboardWorkspacesIndexRouteImport } from './routes/dashboard/workspaces/index'
+import { Route as AuthSignUpIndexRouteImport } from './routes/auth/sign-up/index'
+import { Route as AuthLogInIndexRouteImport } from './routes/auth/log-in/index'
 import { Route as DashboardWorkspacesNewIndexRouteImport } from './routes/dashboard/workspaces/new/index'
 import { Route as DashboardWorkspacesWorkspaceIdIndexRouteImport } from './routes/dashboard/workspaces/$workspaceId/index'
 import { Route as DashboardWorkspaceNameStatusPagesIndexRouteImport } from './routes/dashboard/$workspaceName/status-pages/index'
@@ -52,11 +53,6 @@ const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
-const AuthLoginRoute = AuthLoginRouteImport.update({
-  id: '/auth/login',
-  path: '/auth/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const StatusSlugIndexRoute = StatusSlugIndexRouteImport.update({
   id: '/status/$slug/',
   path: '/status/$slug/',
@@ -68,6 +64,16 @@ const DashboardWorkspacesIndexRoute =
     path: '/workspaces/',
     getParentRoute: () => DashboardRouteRoute,
   } as any)
+const AuthSignUpIndexRoute = AuthSignUpIndexRouteImport.update({
+  id: '/auth/sign-up/',
+  path: '/auth/sign-up/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthLogInIndexRoute = AuthLogInIndexRouteImport.update({
+  id: '/auth/log-in/',
+  path: '/auth/log-in/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardWorkspacesNewIndexRoute =
   DashboardWorkspacesNewIndexRouteImport.update({
     id: '/workspaces/new/',
@@ -202,8 +208,9 @@ const DashboardWorkspaceNameCollectorsIdEditIndexRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
-  '/auth/login': typeof AuthLoginRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
+  '/auth/log-in': typeof AuthLogInIndexRoute
+  '/auth/sign-up': typeof AuthSignUpIndexRoute
   '/dashboard/workspaces': typeof DashboardWorkspacesIndexRoute
   '/status/$slug': typeof StatusSlugIndexRoute
   '/dashboard/$workspaceName/collectors': typeof DashboardWorkspaceNameCollectorsIndexRoute
@@ -231,8 +238,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
-  '/auth/login': typeof AuthLoginRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
+  '/auth/log-in': typeof AuthLogInIndexRoute
+  '/auth/sign-up': typeof AuthSignUpIndexRoute
   '/dashboard/workspaces': typeof DashboardWorkspacesIndexRoute
   '/status/$slug': typeof StatusSlugIndexRoute
   '/dashboard/$workspaceName/collectors': typeof DashboardWorkspaceNameCollectorsIndexRoute
@@ -261,8 +269,9 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
-  '/auth/login': typeof AuthLoginRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
+  '/auth/log-in/': typeof AuthLogInIndexRoute
+  '/auth/sign-up/': typeof AuthSignUpIndexRoute
   '/dashboard/workspaces/': typeof DashboardWorkspacesIndexRoute
   '/status/$slug/': typeof StatusSlugIndexRoute
   '/dashboard/$workspaceName/collectors/': typeof DashboardWorkspaceNameCollectorsIndexRoute
@@ -292,8 +301,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
-    | '/auth/login'
     | '/dashboard/settings'
+    | '/auth/log-in'
+    | '/auth/sign-up'
     | '/dashboard/workspaces'
     | '/status/$slug'
     | '/dashboard/$workspaceName/collectors'
@@ -321,8 +331,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/dashboard'
-    | '/auth/login'
     | '/dashboard/settings'
+    | '/auth/log-in'
+    | '/auth/sign-up'
     | '/dashboard/workspaces'
     | '/status/$slug'
     | '/dashboard/$workspaceName/collectors'
@@ -350,8 +361,9 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/dashboard'
-    | '/auth/login'
     | '/dashboard/settings'
+    | '/auth/log-in/'
+    | '/auth/sign-up/'
     | '/dashboard/workspaces/'
     | '/status/$slug/'
     | '/dashboard/$workspaceName/collectors/'
@@ -380,7 +392,8 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
-  AuthLoginRoute: typeof AuthLoginRoute
+  AuthLogInIndexRoute: typeof AuthLogInIndexRoute
+  AuthSignUpIndexRoute: typeof AuthSignUpIndexRoute
   StatusSlugIndexRoute: typeof StatusSlugIndexRoute
 }
 
@@ -407,13 +420,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardSettingsRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
-    '/auth/login': {
-      id: '/auth/login'
-      path: '/auth/login'
-      fullPath: '/auth/login'
-      preLoaderRoute: typeof AuthLoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/status/$slug/': {
       id: '/status/$slug/'
       path: '/status/$slug'
@@ -427,6 +433,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/workspaces'
       preLoaderRoute: typeof DashboardWorkspacesIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
+    }
+    '/auth/sign-up/': {
+      id: '/auth/sign-up/'
+      path: '/auth/sign-up'
+      fullPath: '/auth/sign-up'
+      preLoaderRoute: typeof AuthSignUpIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/log-in/': {
+      id: '/auth/log-in/'
+      path: '/auth/log-in'
+      fullPath: '/auth/log-in'
+      preLoaderRoute: typeof AuthLogInIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/dashboard/workspaces/new/': {
       id: '/dashboard/workspaces/new/'
@@ -656,7 +676,8 @@ const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
-  AuthLoginRoute: AuthLoginRoute,
+  AuthLogInIndexRoute: AuthLogInIndexRoute,
+  AuthSignUpIndexRoute: AuthSignUpIndexRoute,
   StatusSlugIndexRoute: StatusSlugIndexRoute,
 }
 export const routeTree = rootRouteImport

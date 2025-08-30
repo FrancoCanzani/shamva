@@ -20,7 +20,7 @@ export default async function fetchMonitor({
     // Fetch double the days to enable comparison with previous period
     const fetchDays =
       days === 1 ? 2 : days === 7 ? 14 : days === 14 ? 28 : days;
-    const url = new URL(`/v1/api/monitors/${id}`, window.location.origin);
+    const url = new URL(`/api/v1/monitors/${id}`, window.location.origin);
     url.searchParams.set("days", fetchDays.toString());
     if (region) {
       url.searchParams.set("region", region);

@@ -12,7 +12,7 @@ export default async function fetchHeartbeat({
   const { id } = params;
 
   try {
-    const response = await fetch(`/v1/api/heartbeats/${id}`, {
+    const response = await fetch(`/api/v1/heartbeats/${id}`, {
       headers: {
         Authorization: `Bearer ${context.auth.session?.access_token}`,
         "Content-Type": "application/json",

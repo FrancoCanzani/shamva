@@ -39,7 +39,7 @@ export function useCreateIncidentUpdate() {
         authorEmail: email || "unknown@local",
       };
 
-      const response = await fetch(`/v1/api/incidents/${incidentId}/updates`, {
+      const response = await fetch(`/api/v1/incidents/${incidentId}/updates`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${context.auth.session.access_token}`,
@@ -87,7 +87,7 @@ export function useUpdateIncident() {
         throw new Error("Failed to get authentication session");
       }
 
-      const response = await fetch(`/v1/api/incidents/${incidentId}`, {
+      const response = await fetch(`/api/v1/incidents/${incidentId}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${context.auth.session.access_token}`,
@@ -133,7 +133,7 @@ export function useDeleteIncidentUpdate() {
       }
 
       const response = await fetch(
-        `/v1/api/incidents/${incidentId}/updates/${updateId}`,
+        `/api/v1/incidents/${incidentId}/updates/${updateId}`,
         {
           method: "DELETE",
           headers: {
@@ -168,7 +168,7 @@ export function useAcknowledgeIncident() {
         throw new Error("Failed to get authentication session");
       }
 
-      const response = await fetch(`/v1/api/incidents/${incidentId}`, {
+      const response = await fetch(`/api/v1/incidents/${incidentId}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${context.auth.session.access_token}`,
@@ -210,7 +210,7 @@ export function useResolveIncident() {
         throw new Error("Failed to get authentication session");
       }
 
-      const response = await fetch(`/v1/api/incidents/${incidentId}`, {
+      const response = await fetch(`/api/v1/incidents/${incidentId}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${context.auth.session.access_token}`,

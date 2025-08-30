@@ -20,6 +20,7 @@ import { ApiVariables } from "./lib/types";
 import registerPublicStatus from "./routes/api/public/status/get";
 import registerPublicHeartbeat from "./routes/api/public/heartbeats/get";
 import registerPublicMetrics from "./routes/api/public/metrics/post";
+import turnstileValidation from "./routes/api/auth/validate-turnstile";
 
 export {
   CheckerDurableObject,
@@ -36,7 +37,7 @@ app.use(secureHeaders());
 app.use("/v1/*", timeout(30000));
 
 app.use(
-  "/v1/api/*",
+  "/api/v1/*",
   bodyLimit({
     maxSize: 1024 * 1024,
     onError: (c) => {
@@ -77,7 +78,7 @@ app.get("/health", (c) => c.json({ status: "ok" }));
 const v1 = new OpenAPIHono<{
   Bindings: EnvBindings;
   Variables: ApiVariables;
-}>().basePath("/v1/api");
+}>().basePath("/api/v1");
 
 v1.route("/", apiRoutes);
 
@@ -93,7 +94,7 @@ v1.doc("/docs", {
 v1.get(
   "/docs/ui",
   apiReference({
-    spec: { url: "/v1/api/docs" },
+    spec: { url: "/api/v1/docs" },
   })
 );
 
@@ -110,6 +111,8 @@ v1.use(
 registerPublicStatus(v1);
 registerPublicHeartbeat(v1);
 registerPublicMetrics(v1);
+
+v1.route("/auth", turnstileValidation);
 
 app.route("/", v1);
 

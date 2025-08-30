@@ -8,7 +8,7 @@ export default async function fetchWorkspace({
   params: Params;
   context: RouterContext;
 }): Promise<Workspace[]> {
-  const response = await fetch(`/v1/api/workspaces/${params.workspaceId}`, {
+  const response = await fetch(`/api/v1/workspaces/${params.workspaceId}`, {
     headers: {
       Authorization: `Bearer ${context.auth.session?.access_token}`,
     },

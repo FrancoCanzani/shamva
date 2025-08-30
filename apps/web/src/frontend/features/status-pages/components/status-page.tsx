@@ -62,30 +62,35 @@ function getOverallStatus(monitors: PublicMonitor[]) {
 
 function groupMonitorsByCategory(monitors: PublicMonitor[]) {
   const groups: Record<string, PublicMonitor[]> = {};
-  
-  monitors.forEach(monitor => {
+
+  monitors.forEach((monitor) => {
     // Use the category field if available, otherwise infer from name
-    const category = monitor.category || 
-                    (monitor.name.includes('API') ? 'API' :
-                     monitor.name.includes('Frontend') ? 'Frontend' :
-                     monitor.name.includes('Docs') ? 'Documentation' :
-                     monitor.name.includes('Database') ? 'Database' :
-                     'Services');
-    
+    const category =
+      monitor.category ||
+      (monitor.name.includes("API")
+        ? "API"
+        : monitor.name.includes("Frontend")
+          ? "Frontend"
+          : monitor.name.includes("Docs")
+            ? "Documentation"
+            : monitor.name.includes("Database")
+              ? "Database"
+              : "Services");
+
     if (!groups[category]) {
       groups[category] = [];
     }
     groups[category].push(monitor);
   });
-  
+
   return groups;
 }
 
-type TabType = 'status' | 'incidents' | 'monitors';
+type TabType = "status" | "incidents" | "monitors";
 
 export default function StatusPage() {
   const data = Route.useLoaderData();
-  const [activeTab, setActiveTab] = useState<TabType>('status');
+  const [activeTab, setActiveTab] = useState<TabType>("status");
 
   if (data.needsPassword) {
     return <StatusPagePasswordForm slug={data.slug} onSuccess={() => {}} />;
@@ -107,13 +112,13 @@ export default function StatusPage() {
     );
 
   const monitorGroups = groupMonitorsByCategory(data.monitors);
-  const currentTime = new Date().toLocaleString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    timeZoneName: 'short'
+  const currentTime = new Date().toLocaleString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZoneName: "short",
   });
 
   return (
@@ -127,21 +132,21 @@ export default function StatusPage() {
                 {data.title}
               </span>
             </div>
-            
+
             {/* Navigation Tabs */}
             <nav className="flex space-x-1">
               {[
-                { id: 'status', label: 'Status' },
-                { id: 'incidents', label: 'Events' },
-                { id: 'monitors', label: 'Monitors' }
+                { id: "status", label: "Status" },
+                { id: "incidents", label: "Events" },
+                { id: "monitors", label: "Monitors" },
               ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as TabType)}
-                  className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                  className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
                     activeTab === tab.id
-                      ? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-white'
-                      : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                      ? "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-white"
+                      : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                   }`}
                 >
                   {tab.label}
@@ -153,7 +158,7 @@ export default function StatusPage() {
 
         {/* Main Content */}
         <main className="px-6 py-8">
-          {activeTab === 'status' && (
+          {activeTab === "status" && (
             <div className="space-y-8">
               {/* Status Overview */}
               <section>
@@ -166,27 +171,31 @@ export default function StatusPage() {
                       {data.description}
                     </p>
                   )}
-                  
+
                   {/* Status Banner */}
-                  <div className={`inline-flex items-center gap-3 rounded-lg border-2 px-6 py-4 ${
-                    overallStatus.status === 'operational' 
-                      ? 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20' 
-                      : overallStatus.status === 'error'
-                      ? 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20'
-                      : 'border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-900/20'
-                  }`}>
-                    <div className={`h-3 w-3 rounded-full ${
-                      overallStatus.status === 'operational' 
-                        ? 'bg-green-500' 
-                        : overallStatus.status === 'error'
-                        ? 'bg-red-500'
-                        : 'bg-yellow-500'
-                    }`} />
+                  <div
+                    className={`inline-flex items-center gap-3 rounded-lg border-2 px-6 py-4 ${
+                      overallStatus.status === "operational"
+                        ? "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20"
+                        : overallStatus.status === "error"
+                          ? "border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20"
+                          : "border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-900/20"
+                    }`}
+                  >
+                    <div
+                      className={`h-3 w-3 rounded-full ${
+                        overallStatus.status === "operational"
+                          ? "bg-green-500"
+                          : overallStatus.status === "error"
+                            ? "bg-red-500"
+                            : "bg-yellow-500"
+                      }`}
+                    />
                     <span className="text-lg font-semibold text-gray-900 dark:text-white">
                       {overallStatus.text}
                     </span>
                   </div>
-                  
+
                   <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
                     {currentTime}
                   </div>
@@ -206,33 +215,41 @@ export default function StatusPage() {
                           {category}
                         </h3>
                         <div className="text-sm text-gray-500 dark:text-gray-400">
-                          {monitors.filter(m => m.status === 'active').length} / {monitors.length} operational
+                          {monitors.filter((m) => m.status === "active").length}{" "}
+                          / {monitors.length} operational
                         </div>
                       </div>
-                      
+
                       <div className="space-y-3">
                         {monitors.map((monitor) => (
-                          <div key={monitor.id} className="rounded-lg border border-gray-200 bg-white p-4 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">
+                          <div
+                            key={monitor.id}
+                            className="rounded-lg border border-gray-200 bg-white p-4 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700"
+                          >
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
                                 <div className="flex items-center gap-3">
                                   <h4 className="font-medium text-gray-900 dark:text-white">
                                     {monitor.name}
                                   </h4>
-                                  <div className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${
-                                    monitor.status === 'active' 
-                                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                                      : monitor.status === 'degraded'
-                                      ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
-                                      : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-                                  }`}>
-                                    <div className={`h-1.5 w-1.5 rounded-full ${
-                                      monitor.status === 'active' 
-                                        ? 'bg-green-500' 
-                                        : monitor.status === 'degraded'
-                                        ? 'bg-yellow-500'
-                                        : 'bg-red-500'
-                                    }`} />
+                                  <div
+                                    className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${
+                                      monitor.status === "active"
+                                        ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                                        : monitor.status === "degraded"
+                                          ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+                                          : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+                                    }`}
+                                  >
+                                    <div
+                                      className={`h-1.5 w-1.5 rounded-full ${
+                                        monitor.status === "active"
+                                          ? "bg-green-500"
+                                          : monitor.status === "degraded"
+                                            ? "bg-yellow-500"
+                                            : "bg-red-500"
+                                      }`}
+                                    />
                                     {getStatusText(monitor.status)}
                                   </div>
                                 </div>
@@ -251,7 +268,8 @@ export default function StatusPage() {
                                 <div className="text-right">
                                   {monitor.uptime_percentage !== undefined && (
                                     <div className="text-sm font-medium text-gray-900 dark:text-white">
-                                      {monitor.uptime_percentage.toFixed(1)}% uptime
+                                      {monitor.uptime_percentage.toFixed(1)}%
+                                      uptime
                                     </div>
                                   )}
                                   {monitor.avg_response_time !== undefined && (
@@ -278,19 +296,29 @@ export default function StatusPage() {
                   </h2>
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                     <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-                      <div className="text-sm text-gray-500 dark:text-gray-400">Services Online</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        Services Online
+                      </div>
                       <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                        {data.monitors.filter((m) => m.status === "active").length} / {data.monitors.length}
+                        {
+                          data.monitors.filter((m) => m.status === "active")
+                            .length
+                        }{" "}
+                        / {data.monitors.length}
                       </div>
                     </div>
                     <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-                      <div className="text-sm text-gray-500 dark:text-gray-400">Average Uptime</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        Average Uptime
+                      </div>
                       <div className="text-2xl font-bold text-gray-900 dark:text-white">
                         {avgUptime.toFixed(1)}%
                       </div>
                     </div>
                     <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-                      <div className="text-sm text-gray-500 dark:text-gray-400">Avg Response Time</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        Avg Response Time
+                      </div>
                       <div className="text-2xl font-bold text-gray-900 dark:text-white">
                         {Math.round(
                           data.monitors.reduce(
@@ -307,11 +335,11 @@ export default function StatusPage() {
             </div>
           )}
 
-          {activeTab === 'incidents' && (
-            <div className="text-center py-12">
+          {activeTab === "incidents" && (
+            <div className="py-12 text-center">
               <div className="text-gray-500 dark:text-gray-400">
                 <div className="mb-4 text-4xl">📋</div>
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                <h3 className="mb-2 text-lg font-medium text-gray-900 dark:text-white">
                   No recent reports
                 </h3>
                 <p className="text-sm">
@@ -321,11 +349,11 @@ export default function StatusPage() {
             </div>
           )}
 
-          {activeTab === 'monitors' && (
-            <div className="text-center py-12">
+          {activeTab === "monitors" && (
+            <div className="py-12 text-center">
               <div className="text-gray-500 dark:text-gray-400">
                 <div className="mb-4 text-4xl">📊</div>
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                <h3 className="mb-2 text-lg font-medium text-gray-900 dark:text-white">
                   Monitor Performance
                 </h3>
                 <p className="text-sm">

@@ -36,7 +36,7 @@ export function useCreateStatusPage() {
         throw new Error("Failed to validate authentication claims");
       }
 
-      const response = await fetch(`/v1/api/status-pages`, {
+      const response = await fetch(`/api/v1/status-pages`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -94,7 +94,7 @@ export function useUpdateStatusPage() {
         throw new Error("Failed to validate authentication claims");
       }
 
-      const response = await fetch(`/v1/api/status-pages/${statusPageId}`, {
+      const response = await fetch(`/api/v1/status-pages/${statusPageId}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -136,7 +136,7 @@ export function useDeleteStatusPage() {
         throw new Error("Failed to validate authentication claims");
       }
 
-      const response = await fetch(`/v1/api/status-pages/${statusPageId}`, {
+      const response = await fetch(`/api/v1/status-pages/${statusPageId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${session.access_token}`,

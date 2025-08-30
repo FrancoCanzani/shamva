@@ -4,8 +4,8 @@ import { CollectorFormValues } from "@/frontend/lib/types";
 import { Route } from "@/frontend/routes/dashboard/$workspaceName/collectors/new";
 import { useNavigate } from "@tanstack/react-router";
 import { useCreateCollector } from "../api/mutations";
-import CollectorForm from "./collector-form";
 import CollectorSetupInstructions from "./collector-setup-instructions";
+import CollectorForm from "./collector/collector-form";
 
 export default function NewCollectorPage() {
   const { workspaceName } = Route.useParams();

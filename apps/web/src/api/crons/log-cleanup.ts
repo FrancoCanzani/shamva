@@ -5,7 +5,7 @@ export async function handleLogCleanupCron(): Promise<void> {
 
   try {
     const ninetyDaysAgo = new Date();
-    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 60);
     const cutoffDate = ninetyDaysAgo.toISOString();
 
     console.log(`Deleting logs older than ${cutoffDate}`);

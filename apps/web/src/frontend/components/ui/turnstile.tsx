@@ -73,7 +73,7 @@ export function Turnstile({
   return (
     <div
       ref={containerRef}
-      className={`cf-turnstile ${className || ""}`}
+      className={`cf-turnstile hidden ${className || ""}`}
       data-sitekey={siteKey}
       data-size="invisible"
       data-appearance="interaction-only"

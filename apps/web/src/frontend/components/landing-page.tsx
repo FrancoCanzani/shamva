@@ -32,7 +32,7 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="relative mx-auto min-h-screen w-full max-w-5xl p-2 sm:p-6">
+    <div className="relative mx-auto min-h-screen w-full max-w-5xl p-4 sm:p-6">
       <div
         className="pointer-events-none fixed inset-0 z-[-1]"
         style={{
@@ -49,13 +49,13 @@ export default function LandingPage() {
             "radial-gradient(ellipse 70% 60% at 50% 100%, #000 60%, transparent 100%)",
         }}
       />
-              <div
-          className="pointer-events-none fixed inset-0 z-[-1] hidden dark:block"
-          style={{
-            background:
-              "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255, 255, 255, 0.1), transparent 70%), #000000",
-          }}
-        />
+      <div
+        className="pointer-events-none fixed inset-0 z-[-1] hidden dark:block"
+        style={{
+          background:
+            "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255, 255, 255, 0.1), transparent 70%), #000000",
+        }}
+      />
       <header className="py-8">
         <nav className="flex items-center justify-between">
           <a
@@ -73,7 +73,7 @@ export default function LandingPage() {
             <a href="#pricing" className="hover:underline">
               Pricing
             </a>
-            <ThemeToggle className="h-7 w-7" />
+            <ThemeToggle className="h-7 w-7 border-none shadow-none" />
           </div>
         </nav>
       </header>
@@ -86,10 +86,10 @@ export default function LandingPage() {
           >
             Shamva
           </h1>
-          <h2 className="text-foreground text-6xl font-medium text-pretty">
-            Monitoring infraestracture that scales with your business
+          <h2 className="text-foreground text-6xl font-medium text-balance">
+            Uptime Monitoring that scales with your business
           </h2>
-          <p className="max-w-2xl tracking-tighter">
+          <p className="max-w-2xl tracking-tighter text-pretty">
             Shamva provides real-time monitoring, instant alerts, and
             comprehensive incident management to keep your services running
             smoothly.
@@ -103,8 +103,20 @@ export default function LandingPage() {
       </main>
 
       <section className="py-16">
-        <div className="text-muted-foreground flex h-60 w-full items-center justify-center rounded-md border p-4 text-xs shadow lg:h-[35rem]">
-          Screenshot here
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex w-full items-center justify-center">
+            <img
+              src="/src/frontend/assets/dashboard.png"
+              alt="Shamva Dashboard - Real-time monitoring interface"
+              className="h-auto w-full rounded-lg border object-cover shadow-lg"
+              loading="lazy"
+              decoding="async"
+              style={{
+                aspectRatio: "3000/1830",
+                maxHeight: "70vh",
+              }}
+            />
+          </div>
         </div>
       </section>
 

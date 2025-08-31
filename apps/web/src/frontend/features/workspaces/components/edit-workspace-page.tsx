@@ -34,7 +34,10 @@ export default function EditWorkspacePage() {
       await deleteWorkspaceMutation.mutateAsync(workspace.id);
       invalidateWorkspaces();
       router.invalidate();
-      navigate({ to: "/dashboard/$workspaceSlug/monitors" , params: { workspaceSlug: workspace.slug } });
+      navigate({
+        to: "/dashboard/$workspaceSlug/monitors",
+        params: { workspaceSlug: workspace.slug },
+      });
     } catch (error) {
       console.error("Failed to delete workspace:", error);
     }
@@ -48,8 +51,10 @@ export default function EditWorkspacePage() {
       });
       invalidateWorkspaces();
       router.invalidate();
-      navigate({ to: "/dashboard/$workspaceSlug/monitors", params: { workspaceSlug: workspace.slug } }
-      );
+      navigate({
+        to: "/dashboard/$workspaceSlug/monitors",
+        params: { workspaceSlug: workspace.slug },
+      });
     } catch (error) {
       console.error("Error updating workspace:", error);
     }

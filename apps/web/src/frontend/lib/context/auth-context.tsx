@@ -63,6 +63,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           redirect({ to: "/" });
           break;
         case "SIGNED_IN":
+          redirect({ to: "/dashboard" });
           break;
         case "TOKEN_REFRESHED":
           break;

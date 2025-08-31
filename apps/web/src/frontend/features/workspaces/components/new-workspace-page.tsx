@@ -17,7 +17,8 @@ export default function NewWorkspacePage() {
       invalidateWorkspaces();
       router.invalidate();
       navigate({
-        to: "/dashboard/workspaces",
+        to: "/dashboard/$workspaceSlug/monitors",
+        params: { workspaceSlug: formData.slug },
       });
     } catch (error) {
       console.error("Error creating workspace:", error);
@@ -26,7 +27,7 @@ export default function NewWorkspacePage() {
 
   const handleCancel = () => {
     navigate({
-      to: "/dashboard/workspaces",
+      to: "/dashboard",
     });
   };
 

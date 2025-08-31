@@ -1,8 +1,9 @@
 import { Button } from "@/frontend/components/ui/button";
 import { useTheme } from "@/frontend/lib/context/theme-context";
+import { cn } from "@/frontend/lib/utils";
 import { Moon, Sun } from "lucide-react";
 
-export function ThemeToggle() {
+export function ThemeToggle({ className }: { className?: string }) {
   const { theme, setTheme } = useTheme();
 
   const cycleTheme = () => {
@@ -21,7 +22,7 @@ export function ThemeToggle() {
     <Button
       variant="outline"
       size="sm"
-      className="w-9 px-0"
+      className={cn("w-9 px-0", className)}
       onClick={cycleTheme}
       title={`Current theme: ${theme}. Click to cycle.`}
     >

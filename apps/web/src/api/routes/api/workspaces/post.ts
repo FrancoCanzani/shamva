@@ -41,9 +41,9 @@ export default function registerPostWorkspaces(
   api: OpenAPIHono<{ Bindings: EnvBindings; Variables: ApiVariables }>
 ) {
   return api.openapi(route, async (c) => {
+    const user = c.get("user");
     const userId = c.get("userId");
-    const { slug, name, description, members, creatorEmail } =
-      c.req.valid("json");
+    const { slug, name, description, members } = c.req.valid("json");
 
     const { data: existingWorkspace, error: checkError } = await supabase
       .from("workspaces")
@@ -84,7 +84,7 @@ export default function registerPostWorkspaces(
         workspace_id: workspace.id,
         user_id: userId,
         role: "admin",
-        invitation_email: creatorEmail,
+        invitation_email: user.email,
         invitation_status: "accepted",
       });
 

@@ -3,15 +3,11 @@ import { useNavigate, useRouter } from "@tanstack/react-router";
 
 import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
 import { Workspace, WorkspaceFormValues } from "@/frontend/lib/types";
-import { useRouteContext } from "@tanstack/react-router";
 import { useDeleteWorkspace, useUpdateWorkspace } from "../api/mutations";
 import WorkspaceForm from "./workspace-form";
 
 export default function EditWorkspacePage() {
   const navigate = useNavigate();
-  const { auth } = useRouteContext({
-    from: "/dashboard/workspaces/$workspaceId/",
-  });
   const { invalidateWorkspaces } = useWorkspaces();
   const router = useRouter();
   const workspace: Workspace = Route.useLoaderData();
@@ -38,7 +34,7 @@ export default function EditWorkspacePage() {
       await deleteWorkspaceMutation.mutateAsync(workspace.id);
       invalidateWorkspaces();
       router.invalidate();
-      navigate({ to: "/dashboard/workspaces" });
+      navigate({ to: "/dashboard/$workspaceSlug/monitors" , params: { workspaceSlug: workspace.slug } });
     } catch (error) {
       console.error("Failed to delete workspace:", error);
     }
@@ -46,17 +42,14 @@ export default function EditWorkspacePage() {
 
   const handleSubmit = async (formData: WorkspaceFormValues) => {
     try {
-      const formDataWithCreatorEmail = {
-        ...formData,
-        creatorEmail: auth.session?.user?.email,
-      };
       await updateWorkspaceMutation.mutateAsync({
         workspaceId: workspace.id,
-        data: formDataWithCreatorEmail,
+        data: formData,
       });
       invalidateWorkspaces();
       router.invalidate();
-      navigate({ to: "/dashboard/workspaces" });
+      navigate({ to: "/dashboard/$workspaceSlug/monitors", params: { workspaceSlug: workspace.slug } }
+      );
     } catch (error) {
       console.error("Error updating workspace:", error);
     }
@@ -64,7 +57,8 @@ export default function EditWorkspacePage() {
 
   const handleCancel = () => {
     navigate({
-      to: "/dashboard/workspaces",
+      to: "/dashboard/$workspaceSlug/monitors",
+      params: { workspaceSlug: workspace.slug },
     });
   };
 

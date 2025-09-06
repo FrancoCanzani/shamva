@@ -32,7 +32,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         } else {
           setSession(session);
 
-          // Use claims to determine authentication status
           const isAuthenticated = claimsData?.claims?.aud === "authenticated";
 
           if (isAuthenticated && session?.user) {
@@ -63,7 +62,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           redirect({ to: "/" });
           break;
         case "SIGNED_IN":
-          redirect({ to: "/dashboard" });
+          redirect({ to: "/" });
           break;
         case "TOKEN_REFRESHED":
           break;

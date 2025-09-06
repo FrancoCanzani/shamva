@@ -85,9 +85,7 @@ export default function WorkspaceDropdown() {
                 key={workspace.id}
                 onClick={() => handleSelectWorkspace(workspace)}
               >
-                <span className="text-xs capitalize">
-                  {currentWorkspace?.name}
-                </span>
+                <span className="text-xs capitalize">{workspace?.name}</span>
                 {currentWorkspace?.slug === workspace.slug && (
                   <CheckIcon className="size-3" />
                 )}

@@ -1,8 +1,8 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
-import type { EnvBindings } from "../../../../../bindings";
-import type { ApiVariables } from "../../../lib/types";
-import { supabase } from "../../../lib/supabase/client";
 import { HTTPException } from "hono/http-exception";
+import type { EnvBindings } from "../../../../../bindings";
+import { supabase } from "../../../lib/supabase/client";
+import type { ApiVariables } from "../../../lib/types";
 import { openApiErrorResponses } from "../../../lib/utils";
 import {
   UUIDParamSchema,
@@ -299,7 +299,7 @@ export default function registerPutWorkspaces(
           success: true,
           error: null,
         });
-      } catch (e) {
+      } catch {
         throw new HTTPException(500, { message: "Failed to update workspace" });
       }
     } catch {

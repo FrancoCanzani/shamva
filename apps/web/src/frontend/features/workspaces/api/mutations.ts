@@ -126,7 +126,6 @@ export function useDeleteWorkspace() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["workspaces"] });
-      toast.success("Workspace deleted successfully");
     },
     onError: () => {
       toast.error("Failed to delete workspace");

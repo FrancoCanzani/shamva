@@ -3,12 +3,14 @@ import z from "zod";
 import {
   CollectorSchema,
   MemberInviteSchema,
+  ProfileSchema,
   StatusPageSchema,
   WorkspaceSchema,
 } from "./schemas";
 
 export type WorkspaceFormValues = z.infer<typeof WorkspaceSchema>;
 export type MemberInvite = z.infer<typeof MemberInviteSchema>;
+export type ProfileFormValues = z.infer<typeof ProfileSchema>;
 
 export interface WorkspaceFormMember {
   id?: string;
@@ -226,6 +228,16 @@ export interface Collector {
   name: string;
   token: string;
   is_active: boolean;
+}
+
+export interface Profile {
+  id: string;
+  email: string;
+  first_name: string | null;
+  last_name: string | null;
+  full_name: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export type AuthContextType = {

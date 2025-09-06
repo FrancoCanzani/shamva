@@ -13,8 +13,8 @@ import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
 import { MemberInviteSchema, WorkspaceSchema } from "@/frontend/lib/schemas";
 import {
   MemberInvite,
-  WorkspaceFormValues,
   WorkspaceFormMember,
+  WorkspaceFormValues,
 } from "@/frontend/lib/types";
 import { useForm } from "@tanstack/react-form";
 import { X } from "lucide-react";
@@ -25,7 +25,7 @@ import { z } from "zod";
 interface MonitorWorkspaceFormProps {
   initialValues?: Partial<WorkspaceFormValues>;
   onSubmit: (values: WorkspaceFormValues) => Promise<void>;
-  onCancel: () => void;
+  onCancel?: () => void;
   onDelete?: () => Promise<void>;
   isSubmitting: boolean;
   submitLabel: string;
@@ -351,7 +351,7 @@ export default function WorkspaceForm({
             <Button
               type="button"
               variant="destructive"
-              size="xs"
+              size="sm"
               onClick={handleDelete}
               disabled={isSubmitting || isDeleting}
             >
@@ -360,15 +360,17 @@ export default function WorkspaceForm({
           )}
         </div>
         <div className="flex space-x-4">
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            onClick={onCancel}
-            disabled={isSubmitting || isDeleting}
-          >
-            Cancel
-          </Button>
+          {onCancel && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={onCancel}
+              disabled={isSubmitting || isDeleting}
+            >
+              Cancel
+            </Button>
+          )}
 
           <form.Subscribe
             selector={(state) => [state.canSubmit, state.isDirty]}
@@ -376,7 +378,7 @@ export default function WorkspaceForm({
             {([canSubmit, isDirty]) => (
               <Button
                 type="submit"
-                size="xs"
+                size="sm"
                 disabled={isSubmitting || !canSubmit || !isDirty || isDeleting}
               >
                 {isSubmitting ? "Creating..." : submitLabel}

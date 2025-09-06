@@ -13,10 +13,20 @@ import registerDeleteHeartbeat from "./heartbeats/delete";
 import registerGetAllHeartbeats from "./heartbeats/get-all";
 import registerPostHeartbeat from "./heartbeats/post";
 import registerPutHeartbeat from "./heartbeats/put";
+import registerDeleteIncidentUpdate from "./incidents/delete-incident-update";
+import registerGetIncident from "./incidents/get";
+import registerGetAllIncidents from "./incidents/get-all";
+import registerPostIncidentUpdate from "./incidents/post-incident-update";
+import registerPutIncident from "./incidents/put";
 import registerGetLogs from "./logs/get";
+import registerDeleteMonitor from "./monitors/delete";
 import registerGetMonitor from "./monitors/get";
+import registerGetAllMonitors from "./monitors/get-all";
 import registerPatchMonitor from "./monitors/patch";
+import registerPostMonitor from "./monitors/post";
 import registerPutMonitor from "./monitors/put";
+import registerGetProfile from "./profiles/get";
+import registerPutProfile from "./profiles/put";
 import registerDeleteStatusPage from "./status-pages/delete";
 import registerGetStatusPage from "./status-pages/get";
 import registerGetAllStatusPages from "./status-pages/get-all";
@@ -29,14 +39,6 @@ import registerGetWorkspaceNotifications from "./workspaces/notifications/get";
 import registerPutWorkspaceNotifications from "./workspaces/notifications/put";
 import registerPostWorkspaces from "./workspaces/post";
 import registerPutWorkspaces from "./workspaces/put";
-import registerGetAllMonitors from "./monitors/get-all";
-import registerDeleteMonitor from "./monitors/delete";
-import registerPostMonitor from "./monitors/post";
-import registerPutIncident from "./incidents/put";
-import registerPostIncidentUpdate from "./incidents/post-incident-update";
-import registerDeleteIncidentUpdate from "./incidents/delete-incident-update";
-import registerGetIncident from "./incidents/get";
-import registerGetAllIncidents from "./incidents/get-all";
 
 const apiRoutes = new OpenAPIHono<{
   Bindings: EnvBindings;
@@ -97,5 +99,9 @@ registerDeleteIncidentUpdate(apiRoutes);
 
 // Feedback routes
 registerPostFeedback(apiRoutes);
+
+// Profile routes
+registerGetProfile(apiRoutes);
+registerPutProfile(apiRoutes);
 
 export default apiRoutes;

@@ -33,11 +33,7 @@ export default function EditWorkspacePage() {
     try {
       await deleteWorkspaceMutation.mutateAsync(workspace.id);
       invalidateWorkspaces();
-      router.invalidate();
-      navigate({
-        to: "/dashboard/$workspaceSlug/monitors",
-        params: { workspaceSlug: workspace.slug },
-      });
+      navigate({ to: "/dashboard" });
     } catch (error) {
       console.error("Failed to delete workspace:", error);
     }

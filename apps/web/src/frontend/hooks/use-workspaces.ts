@@ -10,10 +10,9 @@ export function useWorkspaces(workspaceSlug?: string) {
   return {
     workspaces: context.workspaces,
     currentWorkspace,
+    invalidateWorkspaces: context.invalidateWorkspaces,
     isLoading: context.isLoading,
     error: context.error,
-    refetch: context.refetch,
     setCurrentWorkspace: context.setCurrentWorkspace,
-    invalidateWorkspaces: context.invalidateWorkspaces,
   };
 }

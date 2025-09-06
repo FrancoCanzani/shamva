@@ -1,6 +1,6 @@
 import fetchWorkspaces from "@/frontend/features/workspaces/api/workspaces";
-import { queryClient } from "@/frontend/lib/query-client";
 import { Workspace } from "@/frontend/lib/types";
+import { useQuery } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import React, {
   createContext,
@@ -9,15 +9,15 @@ import React, {
   useEffect,
   useMemo,
 } from "react";
+import { queryClient } from "../query-client";
 
 interface WorkspaceContextType {
   workspaces: Workspace[];
   currentWorkspace: Workspace | null;
   setCurrentWorkspace: (workspace: Workspace | null) => void;
+  invalidateWorkspaces: () => void;
   isLoading: boolean;
   error: Error | null;
-  refetch: () => void;
-  invalidateWorkspaces: () => void;
 }
 
 const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
@@ -40,10 +40,12 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     return null;
   });
 
-  const data = queryClient.getQueryData<Workspace[]>(["workspaces"]);
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ["workspaces"],
+    queryFn: fetchWorkspaces,
+  });
 
   const workspaces = useMemo(() => data ?? [], [data]);
-
   const currentWorkspace = useMemo(() => {
     if (!currentWorkspaceId) {
       return workspaces.length > 0 ? workspaces[0] : null;
@@ -96,40 +98,20 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     }
   }, [workspaces, currentWorkspaceId, setCurrentWorkspace]);
 
-  const refetch = useCallback(
-    () =>
-      queryClient
-        .ensureQueryData({
-          queryKey: ["workspaces"],
-          queryFn: fetchWorkspaces,
-        })
-        .then(() => {}),
-    []
-  );
-
   const invalidateWorkspaces = useCallback(
     () => queryClient.invalidateQueries({ queryKey: ["workspaces"] }),
     []
   );
 
-  const value = useMemo(
-    () => ({
-      workspaces,
-      currentWorkspace,
-      setCurrentWorkspace,
-      isLoading: false,
-      error: null,
-      refetch,
-      invalidateWorkspaces,
-    }),
-    [
-      workspaces,
-      currentWorkspace,
-      setCurrentWorkspace,
-      refetch,
-      invalidateWorkspaces,
-    ]
-  );
+  const value = {
+    workspaces,
+    currentWorkspace,
+    setCurrentWorkspace,
+    isLoading,
+    error,
+    refetch,
+    invalidateWorkspaces,
+  };
 
   return (
     <WorkspaceContext.Provider value={value}>

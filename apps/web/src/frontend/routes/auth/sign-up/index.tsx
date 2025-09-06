@@ -5,7 +5,7 @@ import { Separator } from "@/frontend/components/ui/separator";
 import { Turnstile } from "@/frontend/components/ui/turnstile";
 import supabase from "@/frontend/lib/supabase";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Loader, Mail } from "lucide-react";
+import { Loader } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -120,30 +120,30 @@ function SignupComponent() {
   if (success) {
     return (
       <div className="bg-background flex min-h-screen w-full flex-col items-center justify-center p-6">
-        <div className="w-full max-w-sm space-y-6 text-center">
-          <div className="text-green-600">
-            <Mail className="mx-auto h-12 w-12" />
-          </div>
-          <h1 className="text-2xl font-semibold">Check your email</h1>
-          <p className="text-muted-foreground text-sm">
-            We've sent a confirmation link to <strong>{email}</strong>
+        <div className="w-full max-w-sm space-y-8 text-center">
+          <h1 className="text-3xl font-semibold">Welcome to Shamva</h1>
+          <p className="text-muted-foreground text-xl">
+            Check your email. We've sent a confirmation link to{" "}
+            <strong>{email}</strong>
           </p>
-          <p className="text-muted-foreground text-xs">
+          <p className="text-muted-foreground text-sm text-pretty">
             Click the link in your email to confirm your account. The link will
             expire in 1 hour.
           </p>
-          <Button
-            variant="outline"
-            onClick={() => {
-              setSuccess(false);
-              setEmail("");
-              setPassword("");
-              setConfirmPassword("");
-              setTurnstileToken(null);
-            }}
-            className="w-full"
-          >
-            Try a different email
+          <Button asChild>
+            <Link
+              to="/"
+              onClick={() => {
+                setSuccess(false);
+                setEmail("");
+                setPassword("");
+                setConfirmPassword("");
+                setTurnstileToken(null);
+              }}
+              className="w-full hover:underline"
+            >
+              Go Back
+            </Link>
           </Button>
         </div>
       </div>

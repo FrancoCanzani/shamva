@@ -242,3 +242,14 @@ export const CollectorSchema = z.object({
     .min(1, "Collector name cannot be empty")
     .max(100, "Collector name is too long"),
 });
+
+export const ProfileSchema = z.object({
+  first_name: z
+    .string()
+    .min(1, "First name is required")
+    .max(50, "First name cannot exceed 50 characters"),
+  last_name: z
+    .string()
+    .min(1, "Last name is required")
+    .max(50, "Last name cannot exceed 50 characters"),
+});

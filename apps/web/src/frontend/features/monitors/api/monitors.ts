@@ -15,13 +15,12 @@ export async function fetchMonitors({
   const workspaceSlug = params.workspaceSlug;
 
   try {
-    await queryClient.ensureQueryData({
+    const allWorkspaces: Workspace[] = await queryClient.ensureQueryData({
       queryKey: ["workspaces"],
       queryFn: fetchWorkspaces,
     });
 
-    const allWorkspaces: Workspace[] =
-      queryClient.getQueryData<Workspace[]>(["workspaces"]) ?? [];
+    console.log(allWorkspaces);
 
     const targetWorkspace = allWorkspaces.find(
       (ws) => ws.slug === workspaceSlug
@@ -48,6 +47,8 @@ export async function fetchMonitors({
         },
       }
     );
+
+    console.log(monitorsResponse);
 
     if (!monitorsResponse.ok) {
       const errorText = await monitorsResponse.text();

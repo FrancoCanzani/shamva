@@ -1,24 +1,17 @@
-import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
 import { WorkspaceFormValues } from "@/frontend/lib/types";
-import { useNavigate, useRouter } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { useCreateWorkspace } from "../api/mutations";
 import WorkspaceForm from "./workspace-form";
 
 export default function NewWorkspacePage() {
   const navigate = useNavigate();
-  const router = useRouter();
-  const { invalidateWorkspaces } = useWorkspaces();
-
   const createWorkspaceMutation = useCreateWorkspace();
 
   const handleSubmit = async (formData: WorkspaceFormValues) => {
     try {
       await createWorkspaceMutation.mutateAsync(formData);
-      invalidateWorkspaces();
-      router.invalidate();
       navigate({
-        to: "/dashboard/$workspaceSlug/monitors",
-        params: { workspaceSlug: formData.slug },
+        to: "/dashboard",
       });
     } catch (error) {
       console.error("Error creating workspace:", error);

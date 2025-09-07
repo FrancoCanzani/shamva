@@ -20,27 +20,19 @@ export const Route = createFileRoute("/auth/sign-up/")({
           "Create a new Shamva account to start monitoring your applications and infrastructure.",
       },
     ],
-    scripts: [
-      {
-        src: "https://challenges.cloudflare.com/turnstile/v0/api.js",
-        async: true,
-        defer: true,
-      },
-    ],
   }),
 });
 
 function SignupComponent() {
-  const [loading, setLoading] = useState(false);
   const [emailLoading, setEmailLoading] = useState(false);
+  const [githubLoading, setGithubLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [success, setSuccess] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
-  const handleGitHubSignup = async () => {
-    setLoading(true);
+  const handleGithubSignup = async () => {
+    setGithubLoading(true);
     try {
       await supabase.auth.signInWithOAuth({
         provider: "github",
@@ -49,68 +41,62 @@ function SignupComponent() {
         },
       });
     } catch (error) {
-      console.error("Signup failed:", error);
+      console.error("GitHub signup failed:", error);
       toast.error("GitHub signup failed. Please try again.");
-      setLoading(false);
+      setGithubLoading(false);
     }
   };
 
-  const handleEmailSignup = async (e: React.FormEvent) => {
+  const handleGoogleSignup = async () => {
+    setGoogleLoading(true);
+    try {
+      // Mock Google auth - not implemented
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      toast.error("Google authentication is not implemented yet");
+    } catch (error) {
+      console.error("Google signup failed:", error);
+      toast.error("Google signup failed. Please try again.");
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
+  const handleMagicLinkSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password || !confirmPassword) return;
+    if (!email) return;
 
-    if (password !== confirmPassword) {
-      toast.error("Passwords do not match");
-      return;
-    }
-
-    if (password.length < 6) {
-      toast.error("Password must be at least 6 characters long");
-      return;
-    }
-
-    if (!turnstileToken && !import.meta.env.DEV) {
+    if (!import.meta.env.DEV && !turnstileToken) {
       toast.error("Please complete the security check");
       return;
     }
 
     setEmailLoading(true);
     try {
-      if (!import.meta.env.DEV) {
-        const validationResponse = await fetch(
-          "/api/v1/auth/validate-turnstile",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              token: turnstileToken,
-            }),
-          }
-        );
+      const authOptions: { captchaToken?: string; shouldCreateUser?: boolean } =
+        {
+          shouldCreateUser: true,
+        };
 
-        if (!validationResponse.ok) {
-          const validationError = await validationResponse.json();
-          console.error("Turnstile validation failed:", validationError);
-          toast.error("Security check failed. Please try again.");
-          return;
-        }
+      // In development, use a mock token; in production, use the actual token
+      if (import.meta.env.DEV) {
+        authOptions.captchaToken = "dev-token";
+      } else if (turnstileToken) {
+        authOptions.captchaToken = turnstileToken;
       }
 
-      const { error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signInWithOtp({
         email,
-        password,
+        options: authOptions,
       });
 
       if (error) {
-        console.error("Email signup failed:", error);
+        console.error("Magic link signup failed:", error);
         toast.error(error.message);
       } else {
         setSuccess(true);
       }
     } catch (error) {
-      console.error("Email signup failed:", error);
+      console.error("Magic link signup failed:", error);
       toast.error("An unexpected error occurred. Please try again.");
     } finally {
       setEmailLoading(false);
@@ -123,11 +109,11 @@ function SignupComponent() {
         <div className="w-full max-w-sm space-y-8 text-center">
           <h1 className="text-3xl font-semibold">Welcome to Shamva</h1>
           <p className="text-muted-foreground text-xl">
-            Check your email. We've sent a confirmation link to{" "}
+            Check your email. We've sent a magic link to{" "}
             <strong>{email}</strong>
           </p>
           <p className="text-muted-foreground text-sm text-pretty">
-            Click the link in your email to confirm your account. The link will
+            Click the link in your email to create your account. The link will
             expire in 1 hour.
           </p>
           <Button asChild>
@@ -136,8 +122,6 @@ function SignupComponent() {
               onClick={() => {
                 setSuccess(false);
                 setEmail("");
-                setPassword("");
-                setConfirmPassword("");
                 setTurnstileToken(null);
               }}
               className="w-full hover:underline"
@@ -157,11 +141,11 @@ function SignupComponent() {
           <div className="space-y-2 text-center">
             <h1 className="text-2xl font-semibold">Create your account</h1>
             <p className="text-muted-foreground text-pretty">
-              Sign up to get started with Shamva monitoring.
+              Enter your email to get started with Shamva monitoring.
             </p>
           </div>
 
-          <form onSubmit={handleEmailSignup} className="space-y-4">
+          <form onSubmit={handleMagicLinkSignup} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email address</Label>
               <Input
@@ -173,49 +157,27 @@ function SignupComponent() {
                 required
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Create a password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
+            {!import.meta.env.DEV && (
+              <Turnstile
+                siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+                onSuccess={setTurnstileToken}
+                onError={() =>
+                  toast.error("Security check failed. Please try again.")
+                }
+                onExpire={() => setTurnstileToken(null)}
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm password</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                placeholder="Confirm your password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-              />
-            </div>
-            <Turnstile
-              siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
-              onVerify={setTurnstileToken}
-              onError={() =>
-                toast.error("Security check failed. Please try again.")
-              }
-              onExpire={() => setTurnstileToken(null)}
-            />
+            )}
             <Button
               type="submit"
               disabled={
                 emailLoading ||
                 !email ||
-                !password ||
-                !confirmPassword ||
-                (!turnstileToken && !import.meta.env.DEV)
+                (!import.meta.env.DEV && !turnstileToken)
               }
               className="w-full"
             >
               {emailLoading && <Loader className="animate-spin duration-75" />}
-              {emailLoading ? "Creating account..." : "Create account"}
+              {emailLoading ? "Sending magic link..." : "Create account"}
             </Button>
           </form>
 
@@ -230,25 +192,47 @@ function SignupComponent() {
             </div>
           </div>
 
-          <Button
-            onClick={handleGitHubSignup}
-            disabled={loading}
-            variant="outline"
-            className="w-full"
-          >
-            {loading ? (
-              <Loader className="animate-spin duration-75" />
-            ) : (
-              <img
-                src={
-                  "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/github.svg"
-                }
-                alt="Github icon"
-                className="h-4 w-4 dark:grayscale"
-              />
-            )}
-            {loading ? "Signing up..." : "Continue with GitHub"}
-          </Button>
+          <div className="space-y-3">
+            <Button
+              onClick={handleGithubSignup}
+              disabled={githubLoading}
+              variant="outline"
+              className="w-full"
+            >
+              {githubLoading ? (
+                <Loader className="animate-spin duration-75" />
+              ) : (
+                <img
+                  src={
+                    "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/github.svg"
+                  }
+                  alt="GitHub icon"
+                  className="h-4 w-4 dark:grayscale"
+                />
+              )}
+              {githubLoading ? "Signing up..." : "Continue with GitHub"}
+            </Button>
+
+            <Button
+              onClick={handleGoogleSignup}
+              disabled={googleLoading}
+              variant="outline"
+              className="w-full"
+            >
+              {googleLoading ? (
+                <Loader className="animate-spin duration-75" />
+              ) : (
+                <img
+                  src={
+                    "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/google.svg"
+                  }
+                  alt="Google icon"
+                  className="h-4 w-4"
+                />
+              )}
+              {googleLoading ? "Signing up..." : "Continue with Google"}
+            </Button>
+          </div>
 
           <div className="text-center">
             <p className="text-muted-foreground text-sm">

@@ -20,25 +20,19 @@ export const Route = createFileRoute("/auth/log-in/")({
           "Sign in to your Shamva account to access your monitoring dashboards and alerts.",
       },
     ],
-    scripts: [
-      {
-        src: "https://challenges.cloudflare.com/turnstile/v0/api.js",
-        async: true,
-        defer: true,
-      },
-    ],
   }),
 });
 
 function LoginComponent() {
-  const [loading, setLoading] = useState(false);
   const [emailLoading, setEmailLoading] = useState(false);
+  const [githubLoading, setGithubLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [success, setSuccess] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
-  const handleGitHubLogin = async () => {
-    setLoading(true);
+  const handleGithubLogin = async () => {
+    setGithubLoading(true);
     try {
       await supabase.auth.signInWithOAuth({
         provider: "github",
@@ -47,61 +41,97 @@ function LoginComponent() {
         },
       });
     } catch (error) {
-      console.error("Login failed:", error);
+      console.error("GitHub login failed:", error);
       toast.error("GitHub login failed. Please try again.");
-      setLoading(false);
+      setGithubLoading(false);
     }
   };
 
-  const handleEmailLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !password) return;
+  const handleGoogleLogin = async () => {
+    setGoogleLoading(true);
+    try {
+      // Mock Google auth - not implemented
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      toast.error("Google authentication is not implemented yet");
+    } catch (error) {
+      console.error("Google login failed:", error);
+      toast.error("Google login failed. Please try again.");
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
 
-    if (!turnstileToken && !import.meta.env.DEV) {
+  const handleMagicLinkLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    if (!import.meta.env.DEV && !turnstileToken) {
       toast.error("Please complete the security check");
       return;
     }
 
     setEmailLoading(true);
     try {
-      if (!import.meta.env.DEV) {
-        const validationResponse = await fetch(
-          "/api/v1/auth/validate-turnstile",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              token: turnstileToken,
-            }),
-          }
-        );
+      const authOptions: { captchaToken?: string; shouldCreateUser?: boolean } =
+        {
+          shouldCreateUser: false,
+        };
 
-        if (!validationResponse.ok) {
-          const validationError = await validationResponse.json();
-          console.error("Turnstile validation failed:", validationError);
-          toast.error("Security check failed. Please try again.");
-          return;
-        }
+      // In development, use a mock token; in production, use the actual token
+      if (import.meta.env.DEV) {
+        authOptions.captchaToken = "dev-token";
+      } else if (turnstileToken) {
+        authOptions.captchaToken = turnstileToken;
       }
 
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithOtp({
         email,
-        password,
+        options: authOptions,
       });
 
       if (error) {
-        console.error("Email login failed:", error);
+        console.error("Magic link login failed:", error);
         toast.error(error.message);
+      } else {
+        setSuccess(true);
       }
     } catch (error) {
-      console.error("Email login failed:", error);
+      console.error("Magic link login failed:", error);
       toast.error("An unexpected error occurred. Please try again.");
     } finally {
       setEmailLoading(false);
     }
   };
+
+  if (success) {
+    return (
+      <div className="bg-background flex min-h-screen w-full flex-col items-center justify-center p-6">
+        <div className="w-full max-w-sm space-y-8 text-center">
+          <h1 className="text-3xl font-semibold">Check your email</h1>
+          <p className="text-muted-foreground text-xl">
+            We've sent a magic link to <strong>{email}</strong>
+          </p>
+          <p className="text-muted-foreground text-sm text-pretty">
+            Click the link in your email to sign in. The link will expire in 1
+            hour.
+          </p>
+          <Button asChild>
+            <Link
+              to="/"
+              onClick={() => {
+                setSuccess(false);
+                setEmail("");
+                setTurnstileToken(null);
+              }}
+              className="w-full hover:underline"
+            >
+              Go Back
+            </Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-background flex min-h-screen w-full flex-col items-start justify-start p-2 sm:p-6">
@@ -110,11 +140,11 @@ function LoginComponent() {
           <div className="space-y-2 text-center">
             <h1 className="text-2xl font-semibold">Welcome back to Shamva</h1>
             <p className="text-muted-foreground text-pretty">
-              It's great to see you. Log in to your account here.
+              Sign in with your email to get a magic link.
             </p>
           </div>
 
-          <form onSubmit={handleEmailLogin} className="space-y-4">
+          <form onSubmit={handleMagicLinkLogin} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email address</Label>
               <Input
@@ -126,37 +156,27 @@ function LoginComponent() {
                 required
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
+            {!import.meta.env.DEV && (
+              <Turnstile
+                siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+                onSuccess={setTurnstileToken}
+                onError={() =>
+                  toast.error("Security check failed. Please try again.")
+                }
+                onExpire={() => setTurnstileToken(null)}
               />
-            </div>
-            <Turnstile
-              siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
-              onVerify={setTurnstileToken}
-              onError={() =>
-                toast.error("Security check failed. Please try again.")
-              }
-              onExpire={() => setTurnstileToken(null)}
-            />
+            )}
             <Button
               type="submit"
               disabled={
                 emailLoading ||
                 !email ||
-                !password ||
-                (!turnstileToken && !import.meta.env.DEV)
+                (!import.meta.env.DEV && !turnstileToken)
               }
               className="w-full"
             >
               {emailLoading && <Loader className="animate-spin duration-75" />}
-              {emailLoading ? "Signing in..." : "Sign in with Email"}
+              {emailLoading ? "Sending magic link..." : "Send magic link"}
             </Button>
           </form>
 
@@ -171,25 +191,47 @@ function LoginComponent() {
             </div>
           </div>
 
-          <Button
-            onClick={handleGitHubLogin}
-            disabled={loading}
-            variant="outline"
-            className="w-full"
-          >
-            {loading ? (
-              <Loader className="animate-spin duration-75" />
-            ) : (
-              <img
-                src={
-                  "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/github.svg"
-                }
-                alt="Github icon"
-                className="h-4 w-4 dark:grayscale"
-              />
-            )}
-            {loading ? "Signing in..." : "Continue with GitHub"}
-          </Button>
+          <div className="space-y-3">
+            <Button
+              onClick={handleGithubLogin}
+              disabled={githubLoading}
+              variant="outline"
+              className="w-full"
+            >
+              {githubLoading ? (
+                <Loader className="animate-spin duration-75" />
+              ) : (
+                <img
+                  src={
+                    "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/github.svg"
+                  }
+                  alt="GitHub icon"
+                  className="h-4 w-4 dark:grayscale"
+                />
+              )}
+              {githubLoading ? "Signing in..." : "Continue with GitHub"}
+            </Button>
+
+            <Button
+              onClick={handleGoogleLogin}
+              disabled={googleLoading}
+              variant="outline"
+              className="w-full"
+            >
+              {googleLoading ? (
+                <Loader className="animate-spin duration-75" />
+              ) : (
+                <img
+                  src={
+                    "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/google.svg"
+                  }
+                  alt="Google icon"
+                  className="h-4 w-4"
+                />
+              )}
+              {googleLoading ? "Signing in..." : "Continue with Google"}
+            </Button>
+          </div>
 
           <div className="text-center">
             <p className="text-muted-foreground text-sm">

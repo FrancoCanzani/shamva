@@ -1,6 +1,6 @@
 import type { Context, Next } from "hono";
-import { supabase } from "../supabase/client";
 import { HTTPException } from "hono/http-exception";
+import { supabase } from "../supabase/client";
 
 export const authMiddleware = async (c: Context, next: Next) => {
   const path = c.req.path;

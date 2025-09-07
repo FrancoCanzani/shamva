@@ -1,5 +1,5 @@
-import { apiReference } from "@scalar/hono-api-reference";
 import { OpenAPIHono } from "@hono/zod-openapi";
+import { apiReference } from "@scalar/hono-api-reference";
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { cors } from "hono/cors";
@@ -15,12 +15,12 @@ import { CheckerDurableObject } from "./durable-objects/checker-durable-object";
 import { HttpCheckerDurableObject } from "./durable-objects/http-checker";
 import { TcpCheckerDurableObject } from "./durable-objects/tcp-checker";
 import { handleApiError } from "./lib/error-handler";
-import apiRoutes from "./routes/api";
 import { ApiVariables } from "./lib/types";
-import registerPublicStatus from "./routes/api/public/status/get";
+import apiRoutes from "./routes/api";
+
 import registerPublicHeartbeat from "./routes/api/public/heartbeats/get";
 import registerPublicMetrics from "./routes/api/public/metrics/post";
-import turnstileValidation from "./routes/api/auth/validate-turnstile";
+import registerPublicStatus from "./routes/api/public/status/get";
 
 export {
   CheckerDurableObject,
@@ -111,8 +111,6 @@ v1.use(
 registerPublicStatus(v1);
 registerPublicHeartbeat(v1);
 registerPublicMetrics(v1);
-
-v1.route("/auth", turnstileValidation);
 
 app.route("/", v1);
 

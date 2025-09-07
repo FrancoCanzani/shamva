@@ -16,6 +16,7 @@ import { Route as StatusSlugIndexRouteImport } from './routes/status/$slug/index
 import { Route as DashboardOnboardingIndexRouteImport } from './routes/dashboard/onboarding/index'
 import { Route as AuthSignUpIndexRouteImport } from './routes/auth/sign-up/index'
 import { Route as AuthLogInIndexRouteImport } from './routes/auth/log-in/index'
+import { Route as AuthConfirmIndexRouteImport } from './routes/auth/confirm/index'
 import { Route as DashboardWorkspacesNewIndexRouteImport } from './routes/dashboard/workspaces/new/index'
 import { Route as DashboardWorkspacesWorkspaceIdIndexRouteImport } from './routes/dashboard/workspaces/$workspaceId/index'
 import { Route as DashboardWorkspaceSlugStatusPagesIndexRouteImport } from './routes/dashboard/$workspaceSlug/status-pages/index'
@@ -72,6 +73,11 @@ const AuthSignUpIndexRoute = AuthSignUpIndexRouteImport.update({
 const AuthLogInIndexRoute = AuthLogInIndexRouteImport.update({
   id: '/auth/log-in/',
   path: '/auth/log-in/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthConfirmIndexRoute = AuthConfirmIndexRouteImport.update({
+  id: '/auth/confirm/',
+  path: '/auth/confirm/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardWorkspacesNewIndexRoute =
@@ -209,6 +215,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/dashboard/settings': typeof DashboardSettingsRoute
+  '/auth/confirm': typeof AuthConfirmIndexRoute
   '/auth/log-in': typeof AuthLogInIndexRoute
   '/auth/sign-up': typeof AuthSignUpIndexRoute
   '/dashboard/onboarding': typeof DashboardOnboardingIndexRoute
@@ -239,6 +246,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/dashboard/settings': typeof DashboardSettingsRoute
+  '/auth/confirm': typeof AuthConfirmIndexRoute
   '/auth/log-in': typeof AuthLogInIndexRoute
   '/auth/sign-up': typeof AuthSignUpIndexRoute
   '/dashboard/onboarding': typeof DashboardOnboardingIndexRoute
@@ -270,6 +278,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/dashboard/settings': typeof DashboardSettingsRoute
+  '/auth/confirm/': typeof AuthConfirmIndexRoute
   '/auth/log-in/': typeof AuthLogInIndexRoute
   '/auth/sign-up/': typeof AuthSignUpIndexRoute
   '/dashboard/onboarding/': typeof DashboardOnboardingIndexRoute
@@ -302,6 +311,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/dashboard/settings'
+    | '/auth/confirm'
     | '/auth/log-in'
     | '/auth/sign-up'
     | '/dashboard/onboarding'
@@ -332,6 +342,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/dashboard/settings'
+    | '/auth/confirm'
     | '/auth/log-in'
     | '/auth/sign-up'
     | '/dashboard/onboarding'
@@ -362,6 +373,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/dashboard/settings'
+    | '/auth/confirm/'
     | '/auth/log-in/'
     | '/auth/sign-up/'
     | '/dashboard/onboarding/'
@@ -392,6 +404,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
+  AuthConfirmIndexRoute: typeof AuthConfirmIndexRoute
   AuthLogInIndexRoute: typeof AuthLogInIndexRoute
   AuthSignUpIndexRoute: typeof AuthSignUpIndexRoute
   StatusSlugIndexRoute: typeof StatusSlugIndexRoute
@@ -446,6 +459,13 @@ declare module '@tanstack/react-router' {
       path: '/auth/log-in'
       fullPath: '/auth/log-in'
       preLoaderRoute: typeof AuthLogInIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/confirm/': {
+      id: '/auth/confirm/'
+      path: '/auth/confirm'
+      fullPath: '/auth/confirm'
+      preLoaderRoute: typeof AuthConfirmIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard/workspaces/new/': {
@@ -676,6 +696,7 @@ const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
+  AuthConfirmIndexRoute: AuthConfirmIndexRoute,
   AuthLogInIndexRoute: AuthLogInIndexRoute,
   AuthSignUpIndexRoute: AuthSignUpIndexRoute,
   StatusSlugIndexRoute: StatusSlugIndexRoute,

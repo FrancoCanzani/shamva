@@ -376,7 +376,10 @@ export default function MonitorsTable({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem className="text-xs" onClick={handleEdit}>
+              <DropdownMenuItem
+                className="cursor-pointer text-xs"
+                onClick={handleEdit}
+              >
                 Edit
               </DropdownMenuItem>
               <DropdownMenuItem className="text-xs" onClick={handlePauseResume}>
@@ -473,7 +476,7 @@ export default function MonitorsTable({
         </Select>
       </div>
 
-      <div className="overflow-auto">
+      <div className="w-full overflow-auto whitespace-nowrap">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

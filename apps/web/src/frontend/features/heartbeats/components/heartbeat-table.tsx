@@ -80,7 +80,7 @@ export default function HeartbeatTable({
   };
 
   return (
-    <div className="rounded border">
+    <div className="relative w-full overflow-auto rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>

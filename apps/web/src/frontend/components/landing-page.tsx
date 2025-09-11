@@ -1,5 +1,4 @@
 import { checkOnboardingStatus } from "@/frontend/features/profiles/utils/onboarding";
-import { useProfile } from "@/frontend/hooks/use-profile";
 import { useWorkspaces } from "@/frontend/hooks/use-workspaces";
 import { Route } from "@/frontend/routes";
 import { Link } from "@tanstack/react-router";
@@ -13,21 +12,15 @@ export default function LandingPage() {
   const { isAuthenticated, isLoading } = useAuth();
   const seededWorkspaces = Route.useLoaderData();
   const { workspaces, isLoading: workspacesLoading } = useWorkspaces();
-  const { profile, isLoading: isProfileLoading } = useProfile();
 
   let dashboardLinkTo = "/auth/log-in";
 
-  if (
-    !isLoading &&
-    isAuthenticated &&
-    !workspacesLoading &&
-    !isProfileLoading
-  ) {
+  if (!isLoading && isAuthenticated && !workspacesLoading) {
     const list =
       workspaces && workspaces.length > 0 ? workspaces : seededWorkspaces || [];
 
     // Check if user needs onboarding
-    const onboardingStatus = checkOnboardingStatus(profile, list, false, false);
+    const onboardingStatus = checkOnboardingStatus(list, false);
 
     if (onboardingStatus.needsOnboarding) {
       dashboardLinkTo = "/dashboard/onboarding";

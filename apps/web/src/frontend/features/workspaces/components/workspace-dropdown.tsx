@@ -48,17 +48,18 @@ export default function WorkspaceDropdown() {
               </span>
             </DropdownMenuLabel>
             <DropdownMenuGroup>
-              <DropdownMenuItem className="text-xs">
+              <DropdownMenuItem className="w-full text-xs">
                 <Settings className="size-3" />
                 <Link
                   to="/dashboard/workspaces/$workspaceId"
+                  className="w-full"
                   params={{ workspaceId: currentWorkspace.id }}
                 >
                   Manage Workspace
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem
-                className="text-xs"
+                className="w-full cursor-pointer text-xs"
                 onClick={() => {
                   window.location.href = `/dashboard/workspaces/${currentWorkspace?.id}#members`;
                 }}
@@ -98,7 +99,7 @@ export default function WorkspaceDropdown() {
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           <PlusCircleIcon className="size-3" />
-          <Link className="text-xs" to="/dashboard/workspaces/new">
+          <Link className="w-full text-xs" to="/dashboard/workspaces/new">
             New workspace
           </Link>
         </DropdownMenuItem>

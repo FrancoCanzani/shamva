@@ -7,7 +7,6 @@ export interface EnvBindings {
   SUPABASE_SECRET_KEY: string;
   NAME: string;
   DATABASE_URL: string;
-  CHECKER_DURABLE_OBJECT: DurableObjectNamespace<CheckerDurableObject>;
   HTTP_CHECKER_DURABLE_OBJECT: DurableObjectNamespace<HttpCheckerDurableObject>;
   TCP_CHECKER_DURABLE_OBJECT: DurableObjectNamespace<TcpCheckerDurableObject>;
   RESEND_API_KEY: string;

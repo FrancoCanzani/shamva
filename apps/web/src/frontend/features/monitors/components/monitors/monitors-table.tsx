@@ -280,7 +280,7 @@ export default function MonitorsTable({
                 });
               }}
             >
-              <span className="font-mono text-sm tracking-tighter">
+              <span className="font-mono tracking-tighter">
                 {date.toLocaleDateString()}
               </span>
               <ArrowUpRight className="size-3.5 opacity-0 transition-opacity group-hover:opacity-100" />

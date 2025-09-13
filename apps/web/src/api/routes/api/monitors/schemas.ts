@@ -30,8 +30,8 @@ export const MonitorSchema = z.object({
   ]),
   error_message: z.string().nullable(),
   name: z.string(),
-  degraded_threshold_ms: z.number(),
-  timeout_threshold_ms: z.number(),
+  degraded_threshold_ms: z.number().nullable(),
+  timeout_threshold_ms: z.number().nullable(),
 });
 
 export const RegionEnum = z.enum([
@@ -60,6 +60,8 @@ export const MonitorBodySchema = z.object({
   bodyString: z.string().optional(),
   headers: HeadersRecord.optional(),
   body: z.union([z.record(z.string(), z.unknown()), z.string()]).optional(),
+  degradedThresholdMs: z.number().int().min(1000).max(300000).optional(),
+  timeoutThresholdMs: z.number().int().min(1000).max(600000).optional(),
 });
 
 export const MonitorCreateBodySchema = MonitorBodySchema.extend({

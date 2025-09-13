@@ -24,10 +24,6 @@
   "durable_objects": {
     "bindings": [
       {
-        "name": "CHECKER_DURABLE_OBJECT",
-        "class_name": "CheckerDurableObject"
-      },
-      {
         "name": "HTTP_CHECKER_DURABLE_OBJECT",
         "class_name": "HttpCheckerDurableObject"
       },
@@ -58,6 +54,10 @@
     {
       "tag": "v2",
       "new_classes": ["HttpCheckerDurableObject", "TcpCheckerDurableObject"]
+    },
+    {
+      "tag": "v3",
+      "deleted_classes": ["CheckerDurableObject"]
     }
   ],
 

@@ -70,10 +70,36 @@ export class TcpCheckerDurableObject extends DurableObject {
   private async createIncident(
     monitorId: string,
     region: string | null,
-    _tcpHostPort: string,
     errorMessage?: string | null
   ): Promise<Incident | null> {
     try {
+      const { data: existingIncident } = await supabase
+        .from("incidents")
+        .select("*")
+        .eq("monitor_id", monitorId)
+        .eq("error_message", errorMessage)
+        .is("resolved_at", null)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
+
+      if (existingIncident) {
+        // Update existing incident with new region if not already included
+        const updatedRegions = [
+          ...new Set(
+            [...existingIncident.regions_affected, region].filter(Boolean)
+          ),
+        ];
+
+        if (updatedRegions.length > existingIncident.regions_affected.length) {
+          await this.updateIncident(existingIncident.id, {
+            regions_affected: updatedRegions,
+          });
+        }
+
+        return existingIncident;
+      }
+
       const { data: incident, error } = await supabase
         .from("incidents")
         .insert({
@@ -236,7 +262,6 @@ export class TcpCheckerDurableObject extends DurableObject {
                 const incident = await this.createIncident(
                   config.monitorId,
                   config.region,
-                  config.tcpHostPort,
                   errorMessage
                 );
 
@@ -367,7 +392,6 @@ export class TcpCheckerDurableObject extends DurableObject {
               const incident = await this.createIncident(
                 config.monitorId,
                 config.region,
-                config.tcpHostPort,
                 errorMessage
               );
 

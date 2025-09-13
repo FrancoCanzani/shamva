@@ -11,7 +11,7 @@ import { EnvBindings } from "../../bindings";
 import { handleHeartbeatCheckerCron } from "./crons/heartbeat-checker";
 import { handleLogCleanupCron } from "./crons/log-cleanup";
 import { handleMonitorCheckerCron } from "./crons/monitor-checker";
-import { CheckerDurableObject } from "./durable-objects/checker-durable-object";
+
 import { HttpCheckerDurableObject } from "./durable-objects/http-checker";
 import { TcpCheckerDurableObject } from "./durable-objects/tcp-checker";
 import { handleApiError } from "./lib/error-handler";
@@ -22,11 +22,7 @@ import registerPublicHeartbeat from "./routes/api/public/heartbeats/get";
 import registerPublicMetrics from "./routes/api/public/metrics/post";
 import registerPublicStatus from "./routes/api/public/status/get";
 
-export {
-  CheckerDurableObject,
-  HttpCheckerDurableObject,
-  TcpCheckerDurableObject,
-};
+export { HttpCheckerDurableObject, TcpCheckerDurableObject };
 
 const app = new Hono<{ Bindings: EnvBindings }>();
 

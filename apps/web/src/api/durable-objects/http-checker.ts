@@ -112,6 +112,32 @@ export class HttpCheckerDurableObject extends DurableObject {
     errorMessage?: string | null
   ): Promise<Incident | null> {
     try {
+      const { data: existingIncident } = await supabase
+        .from("incidents")
+        .select("*")
+        .eq("monitor_id", monitorId)
+        .eq("error_message", errorMessage || null)
+        .is("resolved_at", null)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
+
+      if (existingIncident) {
+        const updatedRegions = [
+          ...new Set(
+            [...existingIncident.regions_affected, region].filter(Boolean)
+          ),
+        ];
+
+        if (updatedRegions.length > existingIncident.regions_affected.length) {
+          await this.updateIncident(existingIncident.id, {
+            regions_affected: updatedRegions,
+          });
+        }
+
+        return existingIncident;
+      }
+
       const { data: incident, error } = await supabase
         .from("incidents")
         .insert({

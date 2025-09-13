@@ -8,7 +8,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/frontend/components/ui/select";
-import { cn } from "@/frontend/lib/utils";
 import { Route } from "@/frontend/routes/dashboard/$workspaceSlug/collectors/$id";
 import { useNavigate } from "@tanstack/react-router";
 import AreaChartFillByValue from "./collector/area-chart-fill-by-value";
@@ -84,11 +83,6 @@ export default function CollectorPage() {
                 <div className="flex items-center gap-2">
                   <Badge
                     variant={collectorData.is_active ? "default" : "secondary"}
-                    className={cn(
-                      collectorData.is_active
-                        ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                        : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
-                    )}
                   >
                     {collectorData.is_active ? "Active" : "Inactive"}
                   </Badge>

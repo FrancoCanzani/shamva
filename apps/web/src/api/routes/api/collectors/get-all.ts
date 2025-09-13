@@ -58,12 +58,16 @@ export default function registerGetAllCollectors(
       throw new HTTPException(500, { message: "Failed to fetch collectors" });
     }
 
+    const daysLimit = new Date();
+    daysLimit.setDate(daysLimit.getDate() - 14);
+
     const collectorsWithMetrics = await Promise.all(
       (collectors ?? []).map(async (collector) => {
         const { data: lastMetric } = await supabase
           .from("metrics")
           .select("*")
           .eq("collector_id", collector.id)
+          .gt("created_at", daysLimit)
           .order("created_at", { ascending: false })
           .limit(1)
           .single();

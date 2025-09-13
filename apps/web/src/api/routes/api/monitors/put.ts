@@ -4,7 +4,7 @@ import { supabase } from "../../../lib/supabase/client";
 import type { ApiVariables } from "../../../lib/types";
 import { HTTPException } from "hono/http-exception";
 import { openApiErrorResponses } from "../../../lib/utils";
-import { MonitorSchema } from "./schemas";
+import { MonitorSchema, MonitorBodySchema } from "./schemas";
 
 const route = createRoute({
   method: "put",
@@ -13,7 +13,7 @@ const route = createRoute({
     params: z.object({
       id: z.uuid().openapi({ param: { name: "id", in: "path" } }),
     }),
-    body: { content: { "application/json": { schema: z.object({}) } } },
+    body: { content: { "application/json": { schema: MonitorBodySchema } } },
   },
   responses: {
     200: {
@@ -52,6 +52,8 @@ export default function registerPutMonitor(
       bodyString,
       regions,
       interval,
+      degradedThresholdMs,
+      timeoutThresholdMs,
     } = result;
 
     const { data: existingMonitor, error: fetchError } = await supabase
@@ -124,6 +126,8 @@ export default function registerPutMonitor(
         body: parsedBody,
         interval: finalInterval,
         regions,
+        degraded_threshold_ms: degradedThresholdMs ?? null,
+        timeout_threshold_ms: timeoutThresholdMs ?? null,
         updated_at: new Date().toISOString(),
       };
 

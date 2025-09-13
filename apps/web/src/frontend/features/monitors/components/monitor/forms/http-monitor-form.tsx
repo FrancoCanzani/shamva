@@ -446,7 +446,7 @@ export default function HttpMonitorForm({
                       id="degradedThresholdMs"
                       name="degradedThresholdMs"
                       type="number"
-                      value={field.state.value || ""}
+                      value={field.state.value ?? ""}
                       onChange={(e) =>
                         field.handleChange(
                           e.target.value ? Number(e.target.value) : undefined
@@ -483,7 +483,7 @@ export default function HttpMonitorForm({
                       id="timeoutThresholdMs"
                       name="timeoutThresholdMs"
                       type="number"
-                      value={field.state.value || ""}
+                      value={field.state.value ?? ""}
                       onChange={(e) =>
                         field.handleChange(
                           e.target.value ? Number(e.target.value) : undefined

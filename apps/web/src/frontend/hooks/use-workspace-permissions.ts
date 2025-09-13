@@ -48,14 +48,6 @@ export function useWorkspacePermissions(workspaceSlug?: string) {
           canManageMembers: false,
           canManageWorkspace: false,
         };
-      case "viewer":
-        return {
-          canView: true,
-          canEdit: false,
-          canDelete: false,
-          canManageMembers: false,
-          canManageWorkspace: false,
-        };
       default:
         return {
           canView: false,
@@ -72,7 +64,6 @@ export function useWorkspacePermissions(workspaceSlug?: string) {
     permissions,
     isAdmin: userRole === "admin",
     isMember: userRole === "member",
-    isViewer: userRole === "viewer",
     hasAccess: !!userRole,
   };
 }

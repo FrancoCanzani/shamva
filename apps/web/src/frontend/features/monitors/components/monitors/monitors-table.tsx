@@ -476,9 +476,9 @@ export default function MonitorsTable({
         </Select>
       </div>
 
-      <div className="w-full overflow-x-auto whitespace-nowrap">
-        <Table className="min-w-full">
-          <TableHeader>
+      <div className="relative w-full overflow-x-auto">
+        <Table className="w-full">
+          <TableHeader className="">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (

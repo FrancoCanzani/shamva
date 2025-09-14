@@ -1,3 +1,4 @@
+import DashboardHeader from "@/frontend/components/dashboard-header";
 import NotFoundMessage from "@/frontend/components/not-found-message";
 import { Button } from "@/frontend/components/ui/button";
 import { Heartbeat } from "@/frontend/lib/types";
@@ -36,14 +37,8 @@ export default function HeartbeatsPage() {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 p-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-medium">Heartbeats</h2>
-          <p className="text-muted-foreground mt-1 hidden text-sm md:block">
-            Monitor your services with heartbeat endpoints
-          </p>
-        </div>
+    <div className="flex h-full flex-col">
+      <DashboardHeader>
         <Button asChild variant={"outline"} size={"xs"}>
           <Link
             params={{ workspaceSlug: workspaceSlug }}
@@ -52,18 +47,29 @@ export default function HeartbeatsPage() {
             New Heartbeat
           </Link>
         </Button>
-      </div>
+      </DashboardHeader>
 
-      {heartbeats.length > 0 ? (
-        <HeartbeatTable
-          heartbeats={heartbeats}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onCopyEndpoint={handleCopyEndpoint}
-        />
-      ) : (
-        <NotFoundMessage message="No Heartbeats found. Create one to get started." />
-      )}
+      <main className="relative flex-1 overflow-auto">
+        <div className="mx-auto h-max max-w-4xl flex-1 space-y-8 overflow-auto p-6">
+          <div className="mb-6">
+            <h2 className="text-xl font-medium">Heartbeats</h2>
+            <p className="text-muted-foreground mt-1 text-sm">
+              Monitor your services with heartbeat endpoints
+            </p>
+          </div>
+
+          {heartbeats.length > 0 ? (
+            <HeartbeatTable
+              heartbeats={heartbeats}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onCopyEndpoint={handleCopyEndpoint}
+            />
+          ) : (
+            <NotFoundMessage message="No Heartbeats found. Create one to get started." />
+          )}
+        </div>
+      </main>
     </div>
   );
 }

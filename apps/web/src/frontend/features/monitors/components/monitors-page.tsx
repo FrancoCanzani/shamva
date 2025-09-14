@@ -17,13 +17,13 @@ export default function MonitorsPage() {
   };
 
   return (
-    <div className="flex h-full flex-col">
+    <>
       <DashboardHeader>
         <MonitorTypeSelector />
       </DashboardHeader>
 
-      <main className="relative flex-1 overflow-auto">
-        <div className="mx-auto h-max max-w-4xl flex-1 space-y-8 overflow-auto p-6">
+      <main className="w-full flex-1">
+        <div className="mx-auto max-w-4xl flex-1 space-y-8 overflow-auto p-6">
           <div className="mb-6">
             <h2 className="text-xl font-medium">Monitors</h2>
             <p className="text-muted-foreground mt-1 text-sm">
@@ -44,6 +44,6 @@ export default function MonitorsPage() {
           onSelectionChange={handleSelectionChange}
         />
       </main>
-    </div>
+    </>
   );
 }

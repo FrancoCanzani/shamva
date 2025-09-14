@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import React from "react";
 import { useBreadcrumbs } from "../hooks/useBreadcrumbs";
 import {
   Breadcrumb,
@@ -20,10 +21,12 @@ export function DashboardBreadcrumbs({ className }: { className?: string }) {
     <Breadcrumb className={className}>
       <BreadcrumbList>
         {breadcrumbs.map((item, index) => (
-          <>
-            <BreadcrumbItem key={index}>
+          <React.Fragment key={index}>
+            <BreadcrumbItem>
               {item.isCurrentPage || !item.href ? (
-                <BreadcrumbPage>{item.label}</BreadcrumbPage>
+                <BreadcrumbPage className="truncate">
+                  {item.label}
+                </BreadcrumbPage>
               ) : (
                 <BreadcrumbLink asChild>
                   <Link className="hover:underline" to={item.href}>
@@ -33,7 +36,7 @@ export function DashboardBreadcrumbs({ className }: { className?: string }) {
               )}
             </BreadcrumbItem>
             {index < breadcrumbs.length - 1 && <BreadcrumbSeparator />}
-          </>
+          </React.Fragment>
         ))}
       </BreadcrumbList>
     </Breadcrumb>

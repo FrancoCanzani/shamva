@@ -1,9 +1,9 @@
 import DashboardHeader from "@/frontend/components/dashboard-header";
+import { Collector } from "@/frontend/lib/types";
 import { Route } from "@/frontend/routes/dashboard/$workspaceSlug/collectors";
 import { useState } from "react";
-import { Collector } from "@/frontend/lib/types";
-import FloatingActions from "./collectors/floating-actions";
 import CollectorsTable from "./collectors/collectors-table";
+import FloatingActions from "./collectors/floating-actions";
 
 export default function CollectorsPage() {
   const collectorsData = Route.useLoaderData();

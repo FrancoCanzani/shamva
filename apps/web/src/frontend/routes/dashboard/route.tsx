@@ -4,11 +4,9 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/frontend/components/ui/sidebar";
-import { fetchProfile } from "@/frontend/features/profiles/api/profile";
 import { checkOnboardingStatus } from "@/frontend/features/profiles/utils/onboarding";
 import fetchWorkspaces from "@/frontend/features/workspaces/api/workspaces";
 import { queryClient } from "@/frontend/lib/query-client";
-import { Profile, Workspace } from "@/frontend/lib/types";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/dashboard")({
@@ -20,37 +18,16 @@ export const Route = createFileRoute("/dashboard")({
       location.pathname === "/dashboard/onboarding" ||
       location.pathname === "/dashboard/workspaces/new"
     ) {
-      return { workspaces: [], profile: null };
+      return { workspaces: [] };
     }
 
     try {
-      const [workspacesData, profileData] = await Promise.allSettled([
-        queryClient.ensureQueryData({
-          queryKey: ["workspaces"],
-          queryFn: fetchWorkspaces,
-        }),
-        queryClient.ensureQueryData({
-          queryKey: ["profile"],
-          queryFn: fetchProfile,
-        }),
-      ]);
+      const workspaces = await queryClient.ensureQueryData({
+        queryKey: ["workspaces"],
+        queryFn: fetchWorkspaces,
+      });
 
-      const workspaces =
-        workspacesData.status === "fulfilled"
-          ? (workspacesData.value as Workspace[])
-          : [];
-
-      const profile =
-        profileData.status === "fulfilled"
-          ? (profileData.value as Profile)
-          : null;
-
-      const onboardingStatus = checkOnboardingStatus(
-        profile,
-        workspaces,
-        false,
-        false
-      );
+      const onboardingStatus = checkOnboardingStatus(workspaces, false);
 
       if (onboardingStatus.needsOnboarding) {
         throw redirect({
@@ -67,10 +44,10 @@ export const Route = createFileRoute("/dashboard")({
       }
 
       // If user has completed onboarding but has no workspaces, they can stay on dashboard index
-      return { workspaces, profile };
+      return { workspaces };
     } catch (error) {
       console.error("Error loading dashboard data:", error);
-      return { workspaces: [], profile: null };
+      return { workspaces: [] };
     }
   },
   beforeLoad: ({ context }) => {

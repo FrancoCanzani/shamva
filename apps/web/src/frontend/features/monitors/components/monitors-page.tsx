@@ -18,7 +18,7 @@ export default function MonitorsPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <DashboardHeader title={`Dashboard / Monitors`}>
+      <DashboardHeader>
         <MonitorTypeSelector />
       </DashboardHeader>
 

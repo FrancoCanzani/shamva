@@ -8,9 +8,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/frontend/components/ui/dialog";
+import { DropdownMenuItem } from "@/frontend/components/ui/dropdown-menu";
 import { Textarea } from "@/frontend/components/ui/textarea";
 import { cn } from "@/frontend/lib/utils";
 import { useRouteContext } from "@tanstack/react-router";
+import { ArrowUpRight, MessageSquare } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -82,9 +84,11 @@ export function FeedbackForm() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="flex-1">
+        <DropdownMenuItem className="text-xs">
+          <MessageSquare className="mr-2 h-3 w-3" />
           Feedback
-        </Button>
+          <ArrowUpRight className="ml-auto h-3 w-3" />
+        </DropdownMenuItem>
       </DialogTrigger>
       <DialogContent className="p-2 sm:max-w-xl [&>button:last-child]:hidden">
         <DialogHeader className="gap-1 p-2">

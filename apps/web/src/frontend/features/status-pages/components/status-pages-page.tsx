@@ -1,5 +1,5 @@
 import DashboardHeader from "@/frontend/components/dashboard-header";
-import NotFoundMessage from "@/frontend/components/not-found-message";
+import NoDataMessage from "@/frontend/components/no-data-message";
 import { Button } from "@/frontend/components/ui/button";
 import { StatusPage } from "@/frontend/lib/types";
 import { Route } from "@/frontend/routes/dashboard/$workspaceSlug/status-pages";
@@ -22,15 +22,28 @@ export default function StatusPagesPage() {
         </Button>
       </DashboardHeader>
       <main className="mx-auto w-full max-w-4xl flex-1 space-y-8 overflow-auto p-6">
-        <div>
-          <h2 className="text-xl font-medium">Status Pages</h2>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Create public status pages to share the health of your services.
-          </p>
-        </div>
+        {statusPages.length > 0 && (
+          <div>
+            <h2 className="text-xl font-medium">Status Pages</h2>
+            <p className="text-muted-foreground mt-1 text-sm">
+              Create public status pages to share the health of your services.
+            </p>
+          </div>
+        )}
 
         {statusPages.length === 0 ? (
-          <NotFoundMessage message="No status pages found. Create one to get started." />
+          <NoDataMessage
+            title="Status Pages"
+            description="Create public status pages to share the health of your services with your users. Status pages display real-time information about your monitors and any ongoing incidents."
+            primaryAction={{
+              label: "New Status Page",
+              to: "/dashboard/$workspaceSlug/status-pages/new",
+            }}
+            secondaryAction={{
+              label: "Documentation",
+              href: "https://docs.shamva.io/status-pages",
+            }}
+          />
         ) : (
           <div className="space-y-4">
             {statusPages.map((statusPage: StatusPage) => (

@@ -1,12 +1,10 @@
 import { Link, useParams, useRouterState } from "@tanstack/react-router";
-import { Settings } from "lucide-react";
-import WorkspaceDropdown from "../features/workspaces/components/workspace-dropdown";
 import { useWorkspaces } from "../hooks/use-workspaces";
 import { Workspace } from "../lib/types";
 import { cn } from "../lib/utils";
 import { Route } from "../routes/dashboard/route";
-import { FeedbackForm } from "./feedback-form";
-import { Button } from "./ui/button";
+import HelpDropdown from "./help-dropdown";
+import { SidebarDropdown } from "./sidebar-dropdown";
 import {
   Sidebar,
   SidebarContent,
@@ -18,7 +16,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "./ui/sidebar";
-import { ThemeToggle } from "./ui/theme-toggle";
 
 export function DashboardSidebar() {
   const { workspaceSlug } = useParams({ strict: false });
@@ -146,7 +143,7 @@ export function DashboardSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="mb-2 flex h-12 flex-row items-center justify-start border-b border-dashed p-0 font-mono">
-        <WorkspaceDropdown />
+        <SidebarDropdown />
       </SidebarHeader>
 
       <SidebarContent>
@@ -188,19 +185,7 @@ export function DashboardSidebar() {
       </SidebarContent>
 
       <SidebarFooter>
-        <SidebarGroup>
-          <SidebarGroupContent className="flex flex-col space-y-1">
-            <div className="flex items-center space-x-1">
-              <FeedbackForm />
-              <Link to="/dashboard/settings">
-                <Button variant={"outline"} size={"sm"}>
-                  <Settings className="h-4 w-4" />
-                </Button>
-              </Link>
-              <ThemeToggle />
-            </div>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <HelpDropdown />
       </SidebarFooter>
     </Sidebar>
   );

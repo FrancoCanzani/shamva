@@ -6,6 +6,7 @@ import {
 } from "@/frontend/components/ui/sidebar";
 import { checkOnboardingStatus } from "@/frontend/features/profiles/utils/onboarding";
 import fetchWorkspaces from "@/frontend/features/workspaces/api/workspaces";
+import { useGlobalHotkeys } from "@/frontend/hooks/use-global-hotkeys";
 import { queryClient } from "@/frontend/lib/query-client";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
@@ -64,6 +65,8 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 function DashboardLayout() {
+  useGlobalHotkeys();
+
   return (
     <SidebarProvider>
       <DashboardSidebar />

@@ -1,5 +1,5 @@
 import DashboardHeader from "@/frontend/components/dashboard-header";
-import NotFoundMessage from "@/frontend/components/not-found-message";
+import NoDataMessage from "@/frontend/components/no-data-message";
 import { Button } from "@/frontend/components/ui/button";
 import { Heartbeat } from "@/frontend/lib/types";
 import {
@@ -50,13 +50,15 @@ export default function HeartbeatsPage() {
       </DashboardHeader>
 
       <main className="relative flex-1 overflow-auto">
-        <div className="mx-auto h-max max-w-4xl flex-1 space-y-8 overflow-auto p-6">
-          <div className="mb-6">
-            <h2 className="text-xl font-medium">Heartbeats</h2>
-            <p className="text-muted-foreground mt-1 text-sm">
-              Monitor your services with heartbeat endpoints
-            </p>
-          </div>
+        <div className="mx-auto h-full max-w-4xl space-y-8 overflow-auto p-6">
+          {heartbeats.length > 0 && (
+            <div className="mb-6">
+              <h2 className="text-xl font-medium">Heartbeats</h2>
+              <p className="text-muted-foreground mt-1 text-sm">
+                Monitor your services with heartbeat endpoints
+              </p>
+            </div>
+          )}
 
           {heartbeats.length > 0 ? (
             <HeartbeatTable
@@ -66,7 +68,18 @@ export default function HeartbeatsPage() {
               onCopyEndpoint={handleCopyEndpoint}
             />
           ) : (
-            <NotFoundMessage message="No Heartbeats found. Create one to get started." />
+            <NoDataMessage
+              title="Heartbeats"
+              description="A Heartbeat monitor is a passive check type that expects pings from an external source, such as a scheduled job on a server, at a defined interval. A ping is an HTTP request to a given endpoint URL using either the GET or POST method. When a ping is not received on time, the check will trigger any configured alerts."
+              primaryAction={{
+                label: "New Heartbeat",
+                to: "/dashboard/$workspaceSlug/heartbeats/new",
+              }}
+              secondaryAction={{
+                label: "Documentation",
+                href: "https://docs.shamva.io/heartbeats",
+              }}
+            />
           )}
         </div>
       </main>

@@ -3,8 +3,8 @@ import { ReactNode } from "react";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "../lib/context/theme-context";
 import { WorkspaceProvider } from "../lib/context/workspace-context";
-import { SidebarProvider } from "./ui/sidebar";
 import { queryClient } from "../lib/query-client";
+import { SidebarProvider } from "./ui/sidebar";
 
 interface ProvidersProps {
   children: ReactNode;

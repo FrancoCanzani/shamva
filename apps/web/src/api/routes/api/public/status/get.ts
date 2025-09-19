@@ -201,7 +201,7 @@ export default function registerGetPublicStatusPage(
         success: true,
         error: null,
       });
-    } catch (err) {
+    } catch {
       throw new HTTPException(500, {
         message: "Failed to fetch public status",
       });

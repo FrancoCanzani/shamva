@@ -143,8 +143,8 @@ export interface BodyContent {
 
 export interface MonitorConfig {
   checkType: "http" | "tcp";
-  urlToCheck: string;
-  tcpHostPort?: string;
+  urlToCheck: string | null;
+  tcpHostPort?: string | null;
   monitorId: string;
   workspaceId: string;
   method?: string;

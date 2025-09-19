@@ -3,7 +3,6 @@ import { env as globalEnv } from "cloudflare:workers";
 import { ZodError } from "zod";
 import { EnvBindings } from "../../../../bindings";
 import { NotificationService } from "../../notifications/notification-service";
-import { logger } from "../logger";
 import { CheckResultSchema, MonitorConfigSchema } from "../schemas";
 import { ScreenshotService } from "../screenshot/service";
 import { supabase } from "../supabase/client";
@@ -32,14 +31,14 @@ export class MonitorCheckService {
       CheckResultSchema.parse(result);
     } catch (error) {
       if (error instanceof ZodError) {
-        logger.error(
+        console.error(
+          "Invalid config or result provided to processCheckResult",
           {
             err: error,
             config,
             result,
             validationErrors: error.issues,
-          },
-          "Invalid config or result provided to processCheckResult"
+          }
         );
         throw new Error(
           `Validation failed: ${error.issues.map((e) => e.message).join(", ")}`
@@ -80,13 +79,10 @@ export class MonitorCheckService {
         .single();
 
       if (monitorError) {
-        logger.error(
-          {
-            err: monitorError,
-            monitorId: config.monitorId,
-          },
-          "Failed to fetch monitor data"
-        );
+        console.error("Failed to fetch monitor data", {
+          err: monitorError,
+          monitorId: config.monitorId,
+        });
         return;
       }
 
@@ -99,13 +95,10 @@ export class MonitorCheckService {
         .limit(1);
 
       if (incidentError) {
-        logger.error(
-          {
-            err: incidentError,
-            monitorId: config.monitorId,
-          },
-          "Failed to fetch active incidents"
-        );
+        console.error("Failed to fetch active incidents", {
+          err: incidentError,
+          monitorId: config.monitorId,
+        });
         return;
       }
 
@@ -130,14 +123,11 @@ export class MonitorCheckService {
         );
       }
     } catch (error) {
-      logger.error(
-        {
-          err: error,
-          monitorId: config.monitorId,
-          region: config.region,
-        },
-        "Failed to process check result"
-      );
+      console.error("Failed to process check result", {
+        err: error,
+        monitorId: config.monitorId,
+        region: config.region,
+      });
     }
   }
 
@@ -338,14 +328,11 @@ export class MonitorCheckService {
       return CheckResultSchema.parse(result);
     } catch (error) {
       if (error instanceof ZodError) {
-        logger.error(
-          {
-            err: error,
-            result,
-            validationErrors: error.issues,
-          },
-          "HTTP check result validation failed"
-        );
+        console.error("HTTP check result validation failed", {
+          err: error,
+          result,
+          validationErrors: error.issues,
+        });
       }
       return result;
     }
@@ -381,14 +368,11 @@ export class MonitorCheckService {
       return CheckResultSchema.parse(result);
     } catch (error) {
       if (error instanceof ZodError) {
-        logger.error(
-          {
-            err: error,
-            result,
-            validationErrors: error.issues,
-          },
-          "TCP check result validation failed"
-        );
+        console.error("TCP check result validation failed", {
+          err: error,
+          result,
+          validationErrors: error.issues,
+        });
       }
       return result;
     }
@@ -580,18 +564,15 @@ export class MonitorCheckService {
         dbError instanceof Error ? dbError.message : String(dbError);
       const errorDetails = dbError instanceof Error ? dbError.stack : undefined;
 
-      logger.error(
-        {
-          err: dbError,
-          monitorId,
-          workspaceId,
-          region,
-          checkType,
-          errorMessage,
-          errorDetails,
-        },
-        "Failed to log check result to database"
-      );
+      console.error("Failed to log check result to database", {
+        err: dbError,
+        monitorId,
+        workspaceId,
+        region,
+        checkType,
+        errorMessage,
+        errorDetails,
+      });
     }
   }
 
@@ -656,29 +637,23 @@ export class MonitorCheckService {
             });
           }
         } catch (screenshotError) {
-          logger.error(
-            {
-              err: screenshotError,
-              incidentId: incident.id,
-              url,
-            },
-            "Failed to take screenshot for incident"
-          );
+          console.error("Failed to take screenshot for incident", {
+            err: screenshotError,
+            incidentId: incident.id,
+            url,
+          });
         }
       }
 
       return incident;
     } catch (error) {
-      logger.error(
-        {
-          err: error,
-          monitorId,
-          region,
-          checkType,
-          errorMessage,
-        },
-        "Failed to create incident"
-      );
+      console.error("Failed to create incident", {
+        err: error,
+        monitorId,
+        region,
+        checkType,
+        errorMessage,
+      });
       return null;
     }
   }
@@ -698,14 +673,11 @@ export class MonitorCheckService {
 
       if (error) throw error;
     } catch (error) {
-      logger.error(
-        {
-          err: error,
-          incidentId,
-          updates,
-        },
-        "Failed to update incident"
-      );
+      console.error("Failed to update incident", {
+        err: error,
+        incidentId,
+        updates,
+      });
     }
   }
 
@@ -724,14 +696,11 @@ export class MonitorCheckService {
 
       if (error) throw error;
     } catch (error) {
-      logger.error(
-        {
-          err: error,
-          monitorId,
-          updates,
-        },
-        "Failed to update monitor"
-      );
+      console.error("Failed to update monitor", {
+        err: error,
+        monitorId,
+        updates,
+      });
     }
   }
 }

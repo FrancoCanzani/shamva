@@ -2,7 +2,7 @@ import { DurableObject } from "cloudflare:workers";
 import { ZodError } from "zod";
 import type { EnvBindings } from "../../../bindings";
 import { MonitorCheckService } from "../lib/checker/service";
-import { logger } from "../lib/logger";
+
 import { MonitorConfigSchema } from "../lib/schemas";
 import { MonitorConfig } from "../lib/types";
 
@@ -30,14 +30,11 @@ export class TcpCheckerDurableObject extends DurableObject {
           config = MonitorConfigSchema.parse(rawConfig);
         } catch (error) {
           if (error instanceof ZodError) {
-            logger.error(
-              {
-                err: error,
-                rawConfig,
-                validationErrors: error.issues,
-              },
-              "TCP checker received invalid config"
-            );
+            console.error("TCP checker received invalid config", {
+              err: error,
+              rawConfig,
+              validationErrors: error.issues,
+            });
             return new Response(
               JSON.stringify({
                 success: false,
